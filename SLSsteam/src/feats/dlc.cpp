@@ -13,7 +13,7 @@ bool DLC::shouldUnlockDlc(const AppId_t appId)
 		return false;
 	}
 
-	if (g_pSteamEngine->getUser(0)->isSubscribed(appId))
+	if (!g_config.isAddedAppId(appId) && g_pSteamEngine->getUser(0)->isSubscribed(appId))
 	{
 		return false;
 	}

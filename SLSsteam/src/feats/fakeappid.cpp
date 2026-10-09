@@ -21,7 +21,7 @@ AppId_t FakeAppIds::getFakeAppId(const AppId_t appId)
 	{
 		return fakeAppIds.at(appId);
 	}
-	else if (fakeAppIds.contains(0) && !g_pSteamEngine->getUser(0)->isSubscribed(appId))
+	else if (fakeAppIds.contains(0) && (g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId)))
 	{
 		return fakeAppIds.at(0);
 	}

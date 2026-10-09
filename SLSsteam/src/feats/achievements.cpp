@@ -128,13 +128,15 @@ uint32_t Achievements::sendAndRecvGetPlayerStats
 		return k_EResultNoResult;
 	}
 
+	const AppId_t appId = send->appid();
+	const auto user = g_pSteamEngine->getUser(0);
+
 	//Don't do anything for legit apps
-	if (g_pSteamEngine->getUser(0)->isSubscribed(send->appid()))
+	if (!g_config.isAddedAppId(appId) && user && user->isSubscribed(appId))
 	{
 		return k_EResultNoResult;
 	}
 
-	const AppId_t appId = send->appid();
 	send->clear_crc_stats();
 
 	//Prefer last successfull owner to skip review fetch. Fixes stutters caused
@@ -147,10 +149,10 @@ uint32_t Achievements::sendAndRecvGetPlayerStats
 			return res;
 		}
 
-		preferredOwners.erase(send->appid());
+		preferredOwners.erase(appId);
 	}
 
-	const auto reviewers = getReviewersForGame(send->appid());
+	const auto reviewers = getReviewersForGame(appId);
 
 	for (const auto& id : reviewers)
 	{
@@ -209,13 +211,14 @@ uint32_t Achievements::sendAndRecvGetUserStats(CAPIJob* job, CProtoBufMsgBase* s
 	}
 
 	const auto sendBdy = send->getBody<CMsgClientGetUserStats>();
+	const AppId_t appId = sendBdy->game_id();
+	const auto user = g_pSteamEngine->getUser(0);
 
-	if (g_pSteamEngine->getUser(0)->isSubscribed(sendBdy->game_id()))
+	if (!g_config.isAddedAppId(appId) && user && user->isSubscribed(appId))
 	{
 		return 0;
 	}
 
-	const AppId_t appId = sendBdy->game_id();
 	sendBdy->clear_crc_stats();
 
 	if (preferredOwners.contains(appId))
@@ -230,7 +233,7 @@ uint32_t Achievements::sendAndRecvGetUserStats(CAPIJob* job, CProtoBufMsgBase* s
 		preferredOwners.erase(appId);
 	}
 
-	const auto reviewers = getReviewersForGame(sendBdy->game_id());
+	const auto reviewers = getReviewersForGame(appId);
 
 	for (const auto& id : reviewers)
 	{

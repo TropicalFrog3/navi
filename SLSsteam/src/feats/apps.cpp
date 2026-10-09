@@ -914,7 +914,7 @@ bool Apps::checkAppOwnership(AppId_t appId, AppOwnershipInfo_t* pInfo)
 void Apps::getLegacyCDKey(const AppId_t appId)
 {
 	const auto user = g_pSteamEngine->getUser();
-	if (user->isSubscribed(appId))
+	if (!g_config.isAddedAppId(appId) && user && user->isSubscribed(appId))
 	{
 		return;
 	}
