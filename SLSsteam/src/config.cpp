@@ -4,6 +4,7 @@
 #include "feats/config_migration.hpp"
 #include "feats/cache_migration.hpp"
 #include "feats/depotkeys.hpp"
+#include "feats/licenses.hpp"
 #include "filewatcher.hpp"
 #include "log.hpp"
 #include "utils.hpp"
@@ -112,6 +113,8 @@ static void onFileChange(const char* filename)
 	g_config.loadSettings();
 	scanLuaPluginsAndUpdateConfig();
 	DepotKeys::scanLuaPluginsForDepotKeys();
+	Licenses::queueRefresh();
+	Licenses::drainPendingRefresh();
 	LOG_NOTIFY("Config reloaded!");
 }
 

@@ -59,6 +59,12 @@ namespace Patterns
 		extern Pattern_t FillInAppOverview;
 		extern Pattern_t BuildCompleteAppOverviewChange;
 		extern Pattern_t RunFrame;
+		extern Pattern_t OnLicensesUpdated;
+	}
+
+	namespace CPackageInfoCache
+	{
+		extern Pattern_t GetPackageInfo;
 	}
 
 	namespace CUser
@@ -66,6 +72,8 @@ namespace Patterns
 		//TODO: Order & Convert old patterns
 		extern Pattern_t CheckAppOwnership;
 		extern Pattern_t GetSubscribedApps;
+		extern Pattern_t MarkLicenseAsChanged;
+		extern Pattern_t ProcessPendingLicenseUpdates;
 		extern Pattern_t PostCallback;
 		extern Pattern_t PostCallbackToAppId;
 		extern Pattern_t UpdateAppOwnershipTicket;

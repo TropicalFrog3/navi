@@ -126,6 +126,23 @@ namespace Patterns
 			SigFollowMode::None,
 			&g_modSteamUI
 		};
+		Pattern_t OnLicensesUpdated
+		{
+			"CSteamUIAppController::OnLicensesUpdated",
+			"55 89 E5 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 74 8B 75 08 FF 75 0C 8D 86 54 03 00 00",
+			SigFollowMode::None,
+			&g_modSteamUI
+		};
+	}
+
+	namespace CPackageInfoCache
+	{
+		Pattern_t GetPackageInfo
+		{
+			"CPackageInfoCache::GetPackageInfo",
+			"E8 ? ? ? ? 83 C4 10 83 78 18 03",
+			SigFollowMode::Relative
+		};
 	}
 
 	namespace CSteamEngine
@@ -178,6 +195,18 @@ namespace Patterns
 			"CUser::GetSubscribedApps",
 			"E8 ? ? ? ? 89 C6 83 C4 ? 85 C0 0F 84 ? ? ? ? 8B 9D ? ? ? ? 39 D8",
 			SigFollowMode::Relative
+		};
+		Pattern_t MarkLicenseAsChanged
+		{
+			"CUser::MarkLicenseAsChanged",
+			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 74 24 40 8B 44 24 48 8B BE 14 1B 00 00",
+			SigFollowMode::None
+		};
+		Pattern_t ProcessPendingLicenseUpdates
+		{
+			"CUser::ProcessPendingLicenseUpdates",
+			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 44 24 40 8B 88 7C 1C 00 00",
+			SigFollowMode::None
 		};
 		Pattern_t PostCallback
 		{

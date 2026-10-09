@@ -7,6 +7,7 @@
 
 #include "fakeappid.hpp"
 #include "nativeinstall.hpp"
+#include "licenses.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -658,6 +659,7 @@ bool Apps::gameFilesExist(uint32_t appId)
 
 bool Apps::unlockApp(const AppId_t appId, AppOwnershipInfo_t* info, const CSteamId& ownerId)
 {
+	info->subId = 0;
 	//Changing the purchased field is enough, but just for nicety in the Steamclient UI we change the owner too
 	info->owner = ownerId.accountId();
 	info->realOwner = 0;
@@ -678,7 +680,7 @@ bool Apps::unlockApp(const AppId_t appId, AppOwnershipInfo_t* info, const CSteam
 	info->autoGrant = false;
 	info->trialTime = 0;
 	info->fromFreeWeekend = false;
-	info->freeLicense = info->familyShared;
+	info->freeLicense = false;
 	info->siteLicense = false;
 
 	LOG_ONCE("Unlocked %u\n", appId);
@@ -1005,6 +1007,7 @@ void Apps::parseProductInfoFromResponse(CMsgClientPICSProductInfoResponse* msg)
 	}
 
 	postAppLicensesChanged(set);
+	Licenses::queueRefresh();
 }
 
 void Apps::postAppLicensesChanged(const std::unordered_set<AppId_t>& apps)
@@ -1071,6 +1074,7 @@ void Apps::runIPCFrame()
 	{
 		postAppLicensesChanged(g_config.removedApps);
 		g_config.removedApps.clear();
+		Licenses::queueRefresh();
 	}
 
 	const auto added = g_config.newApps;
@@ -1079,6 +1083,8 @@ void Apps::runIPCFrame()
 	{
 		return;
 	}
+
+	Licenses::queueRefresh();
 
 	const std::lock_guard pendingLicensesLock(pendingLicenseChangesMutex);
 

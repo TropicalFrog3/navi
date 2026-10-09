@@ -879,4 +879,18 @@ namespace CDPInject
             injectJS(wsUrl, script);
         }
     }
+
+    void notifyAppRemoved(uint32_t appId)
+    {
+        auto pages = fetchPages();
+        for (const auto& page : pages)
+        {
+            if (page.title == "SharedJSContext")
+            {
+                std::string js = "if (window.appStore && window.appStore.m_mapApps) { window.appStore.m_mapApps.delete(" + std::to_string(appId) + "); }";
+                injectJS(page.webSocketDebuggerUrl, js);
+                LOG_INFO("CDPInject::notifyAppRemoved: Deleted AppID %u from SharedJSContext m_mapApps\n", appId);
+            }
+        }
+    }
 }

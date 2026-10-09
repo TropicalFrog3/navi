@@ -141,6 +141,9 @@ namespace Hooks
 	extern DetourHook<CUser_GetSubscribedApps_t> CUser_GetSubscribedApps;
 	extern DetourHook<CUser_PostCallbackToAppId_t> CUser_PostCallbackToAppId;
 
+	typedef PackageInfo* (*CPackageInfoCache_GetPackageInfo_t)(void*, uint32_t, uint64_t);
+	extern DetourHook<CPackageInfoCache_GetPackageInfo_t> CPackageInfoCache_GetPackageInfo;
+
 	extern DetourHook<CUserAppManager_BuildDepotDependency_t> CUserAppManager_BuildDepotDependency;
 
 	extern DetourHook<CWebSocketConnection_BBuildAndAsyncSendFrame_t> CWebSocketConnection_BBuildAndAsyncSendFrame;

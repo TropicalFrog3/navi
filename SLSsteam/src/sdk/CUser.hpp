@@ -1,7 +1,9 @@
 #pragma once
 
 #include "types.hpp"
+#include "CUtl.hpp"
 
+#include <cstddef>
 #include <cstdint>
 
 
@@ -44,6 +46,23 @@ SDK_Struct AppLicensesChanged_t
 	AppId_t apps[MAX_APPS_PER_CALLBACK];	//0xC
 	uint64_t appsAdded;						//0x10C
 }; //0x114
+
+SDK_Struct PackageInfo
+{
+	AppId_t             packageId;              // +0x00
+	uint32_t            changeNumber;           // +0x04
+	uint64_t            picsToken;              // +0x08
+	uint32_t            billingType;            // +0x10
+	uint32_t            licenseType;            // +0x14
+	uint32_t            status;                 // +0x18 (3 = Available)
+	uint8_t             sha1Hash[20];           // +0x1C
+	void*               pPackageInfoNode;       // +0x30
+	void*               pExtendNode;            // +0x34
+	CUtlVector<AppId_t> appIdVec;               // +0x38
+	CUtlVector<AppId_t> depotIdVec;             // +0x48
+};
+static_assert(offsetof(PackageInfo, appIdVec) == 0x38, "PackageInfo::appIdVec offset must be 0x38");
+static_assert(offsetof(PackageInfo, depotIdVec) == 0x48, "PackageInfo::depotIdVec offset must be 0x48");
 
 SDK_Struct AppOwnershipInfo_t {
     int32_t subId;

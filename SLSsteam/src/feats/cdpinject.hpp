@@ -57,4 +57,9 @@ namespace CDPInject
      * Returns the HTTP status code on success, or -1 on failure.
      */
     int downloadViaPage(const std::string& url, const std::string& destPath);
+
+    /**
+     * Delete an uninstalled/removed app from CEF's SharedJSContext appStore.m_mapApps.
+     */
+    void notifyAppRemoved(uint32_t appId);
 }

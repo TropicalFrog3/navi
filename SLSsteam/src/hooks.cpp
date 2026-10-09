@@ -21,6 +21,7 @@
 #include "feats/cdpinject.hpp"
 #include "feats/nativeinstall.hpp"
 #include "feats/manifestcode.hpp"
+#include "feats/licenses.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -641,6 +642,11 @@ static uint32_t hkSteamEngine_ProcessIPCFrame(CSteamEngine* pSteamEngine, HSteam
 
 		Apps::runIPCFrame();
 		SLSAPI::runIPCFrame();
+
+		if (Licenses::hasPendingRefresh())
+		{
+			Licenses::drainPendingRefresh();
+		}
 	}
 	else
 	{
@@ -779,6 +785,8 @@ static uint32_t hkSteamMatchmakingServers_RequestInternetServerList(void* pSteam
 __attribute__((hot))
 static uint32_t hkUser_CheckAppOwnership(CUser* pUser, AppId_t appId, AppOwnershipInfo_t* pOwnershipInfo)
 {
+	Licenses::setUser(pUser);
+
 	LOG_TRACE("Calling tramp\n");
 	const uint32_t ret = Hooks::CUser_CheckAppOwnership.tramp.fn(pUser, appId, pOwnershipInfo);
 
@@ -849,6 +857,12 @@ static uint32_t hkUser_PostCallbackToAppId(CUser* pUser, AppId_t appId, uint32_t
 	);
 
 	return ret;
+}
+
+static PackageInfo* hkCPackageInfoCache_GetPackageInfo(void* pThis, uint32_t packageId, uint64_t accessToken)
+{
+	Licenses::setPackageInfoCache(pThis);
+	return Hooks::CPackageInfoCache_GetPackageInfo.tramp.fn(pThis, packageId, accessToken);
 }
 
 static bool hkUserAppManager_BuildDepotDependency
@@ -1641,14 +1655,22 @@ static void hkCGameInfoDialog_ServerResponded(void* pSteamMatchingPingResponse, 
 //regparm(3): MUST match CSteamUIAppController_FillInAppOverview_t exactly, args arrive in eax/edx/ecx
 static void __attribute__((regparm(3))) hkCSteamUIAppController_FillInAppOverview(void* pThis, void* pAppOverview, CSteamApp* pApp)
 {
-	fprintf(stderr, "FillInAppOverview pThis = %p\n", pThis);
 	//Verified in steamui.so: nAppID (+0xC) is copied into the overview proto, OwnershipFlags (+0x18) bit 0 is read inline
-	if (pApp && g_config.isAddedAppId(pApp->nAppID))
+	if (pApp)
 	{
-		// Force unowned games to appear as owned in the frontend UI
-		pApp->OwnershipFlags |= k_EAppOwnershipFlags_OwnsLicense;
-		if (pApp->PurchasedTime == 0)
-			pApp->PurchasedTime = 1600000000;
+		if (g_config.isAddedAppId(pApp->nAppID))
+		{
+			// Force unowned games to appear as owned in the frontend UI
+			pApp->OwnershipFlags |= k_EAppOwnershipFlags_OwnsLicense;
+			if (pApp->PurchasedTime == 0)
+				pApp->PurchasedTime = 1600000000;
+		}
+		else if (Licenses::wasInjected(pApp->nAppID))
+		{
+			// If previously injected but now removed, clear artificial ownership
+			pApp->OwnershipFlags &= ~k_EAppOwnershipFlags_OwnsLicense;
+			pApp->PurchasedTime = 0;
+		}
 	}
 	Hooks::CSteamUIAppController_FillInAppOverview.tramp.fn(pThis, pAppOverview, pApp);
 }
@@ -1721,6 +1743,8 @@ namespace Hooks
 	DetourHook<CUser_CheckAppOwnership_t> CUser_CheckAppOwnership;
 	DetourHook<CUser_GetSubscribedApps_t> CUser_GetSubscribedApps;
 	DetourHook<CUser_PostCallbackToAppId_t> CUser_PostCallbackToAppId;
+
+	DetourHook<CPackageInfoCache_GetPackageInfo_t> CPackageInfoCache_GetPackageInfo;
 
 	DetourHook<CUserAppManager_BuildDepotDependency_t> CUserAppManager_BuildDepotDependency;
 
@@ -1852,6 +1876,8 @@ bool Hooks::setup()
 		);
 	}
 
+	Licenses::init();
+
 	bool succeeded =
 		TraceIPC.setup(Patterns::TraceIPC, &hkTraceIPC)
 
@@ -1872,6 +1898,7 @@ bool Hooks::setup()
 		&& CUser_CheckAppOwnership.setup(Patterns::CUser::CheckAppOwnership, hkUser_CheckAppOwnership)
 		&& CUser_GetSubscribedApps.setup(Patterns::CUser::GetSubscribedApps, hkUser_GetSubscribedApps)
 		&& CUser_PostCallbackToAppId.setup(Patterns::CUser::PostCallbackToAppId, hkUser_PostCallbackToAppId)
+		&& CPackageInfoCache_GetPackageInfo.setup(Patterns::CPackageInfoCache::GetPackageInfo, hkCPackageInfoCache_GetPackageInfo)
 
 		&& CUserAppManager_BuildDepotDependency.setup(Patterns::CUserAppManager::BuildDepotDependency, hkUserAppManager_BuildDepotDependency)
 
@@ -1913,6 +1940,7 @@ void Hooks::place()
 	CUser_CheckAppOwnership.place();
 	CUser_GetSubscribedApps.place();
 	CUser_PostCallbackToAppId.place();
+	CPackageInfoCache_GetPackageInfo.place();
 
 	CUserAppManager_BuildDepotDependency.place();
 
@@ -2068,6 +2096,7 @@ void Hooks::remove()
 	CUser_CheckAppOwnership.remove();
 	CUser_GetSubscribedApps.remove();
 	CUser_PostCallbackToAppId.remove();
+	CPackageInfoCache_GetPackageInfo.remove();
 
 	CUserAppManager_BuildDepotDependency.remove();
 
