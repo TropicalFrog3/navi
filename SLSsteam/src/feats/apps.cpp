@@ -1127,12 +1127,14 @@ bool Apps::shouldDisableCloud(const AppId_t appId)
 		return false;
 	}
 
-	return !g_pSteamEngine->getUser(0)->isSubscribed(appId);
+	//isSubscribed goes through the hooked CheckAppOwnership which sets ownsLicense=true
+	//for injected apps, so we must also check isAddedAppId directly
+	return g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId);
 }
 
 bool Apps::shouldDisableCDKey(const AppId_t appId)
 {
-	return !g_pSteamEngine->getUser(0)->isSubscribed(appId);
+	return g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId);
 }
 
 bool Apps::shouldDisableUpdates(const AppId_t appId)
