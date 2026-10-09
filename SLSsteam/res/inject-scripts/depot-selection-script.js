@@ -190,7 +190,7 @@
         '<!-- Footer Actions -->' +
         '<div style="display:flex; justify-content:flex-end; gap:12px; flex-shrink: 0;">' +
             '<button id="sls-depot-btn-cancel" style="background:transparent; border:1px solid rgba(255,255,255,0.1); color:#9ca3af; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; transition: all 0.2s;">Cancel</button>' +
-            '<button id="sls-depot-btn-download" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border:none; color:#fff; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0.5; pointer-events: none;">Download</button>' +
+            '<button id="sls-depot-btn-download" style="background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%); border:none; color:#fff; padding:10px 20px; border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; box-shadow: 0 2px 4px rgba(0,0,0,0.15); transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); opacity: 0.5; pointer-events: none;">Install</button>' +
         '</div>' +
     '</div>';
 
@@ -295,7 +295,7 @@
     function closeAndCancel() {
         if (activeGamepadCleanup) activeGamepadCleanup();
         overlay.style.pointerEvents = 'none'; // Prevent double clicks
-        fetch('http://127.0.0.1:9001/cancel-download?id=' + appid, { mode: 'no-cors' }).catch(function(){});
+        fetch('http://127.0.0.1:9001/cancel-download?id=' + appid).catch(function(){});
         
         overlay.style.opacity = '0';
         var card = document.getElementById('sls-depot-modal-card');
@@ -337,6 +337,15 @@
                 return;
             }
 
+            var hasLinuxDepot = false;
+            for (var i = 0; i < data.depots.length; i++) {
+                var dOs = (data.depots[i].os || '').toLowerCase();
+                if (dOs.indexOf('linux') !== -1) {
+                    hasLinuxDepot = true;
+                    break;
+                }
+            }
+
             var html = '';
             for (var i = 0; i < data.depots.length; i++) {
                 var depot = data.depots[i];
@@ -359,9 +368,17 @@
                 if (depot.os) {
                     osBadge = buildOsBadge(depot.os);
                 }
+
+                var dOs = (depot.os || '').toLowerCase();
+                var shouldCheck = false;
+                if (hasLinuxDepot) {
+                    shouldCheck = (!dOs || dOs.indexOf('linux') !== -1);
+                } else {
+                    shouldCheck = (!dOs || dOs.indexOf('windows') !== -1);
+                }
                 
                 html += '<label class="sls-depot-item">' +
-                    '<input type="checkbox" class="sls-depot-checkbox" value="' + depot.id + '"' + (depot.os ? ' data-os="' + depot.os + '"' : '') + '>' +
+                    '<input type="checkbox" class="sls-depot-checkbox" value="' + depot.id + '"' + (depot.os ? ' data-os="' + depot.os + '"' : '') + (shouldCheck ? ' checked' : '') + '>' +
                     '<div class="sls-depot-info">' +
                         '<div class="sls-depot-name">' + displayName + osBadge + '</div>' +
                         '<div class="sls-depot-meta">' +
@@ -462,31 +479,62 @@
                                 }
                             }
                         }
+
+                        if (!userInteractedWithCheckboxes) {
+                            var anyLinuxFound = false;
+                            for (var n = 0; n < depotItems.length; n++) {
+                                var cBox = depotItems[n].querySelector('.sls-depot-checkbox');
+                                var cOs = (cBox.getAttribute('data-os') || '').toLowerCase();
+                                if (cOs.indexOf('linux') !== -1) {
+                                    anyLinuxFound = true;
+                                    break;
+                                }
+                            }
+                            for (var n = 0; n < depotItems.length; n++) {
+                                var cBox = depotItems[n].querySelector('.sls-depot-checkbox');
+                                var cOs = (cBox.getAttribute('data-os') || '').toLowerCase();
+                                if (anyLinuxFound) {
+                                    cBox.checked = (!cOs || cOs.indexOf('linux') !== -1);
+                                } else {
+                                    cBox.checked = (!cOs || cOs.indexOf('windows') !== -1);
+                                }
+                            }
+                            updateButtonState();
+                        }
                     }).catch(function() {
                         dismissResolvingPill();
                     });
             }
 
-            // Add event listeners to checkboxes to enable/disable the download button
+            var userInteractedWithCheckboxes = false;
             var checkboxes = contentDiv.querySelectorAll('.sls-depot-checkbox');
+
+            function updateButtonState() {
+                var anyChecked = false;
+                for (var k = 0; k < checkboxes.length; k++) {
+                    if (checkboxes[k].checked) {
+                        anyChecked = true;
+                        break;
+                    }
+                }
+                if (anyChecked) {
+                    downloadBtn.style.opacity = '1';
+                    downloadBtn.style.pointerEvents = 'auto';
+                } else {
+                    downloadBtn.style.opacity = '0.5';
+                    downloadBtn.style.pointerEvents = 'none';
+                }
+            }
+
+            // Add event listeners to checkboxes to enable/disable the install button
             for (var j = 0; j < checkboxes.length; j++) {
                 checkboxes[j].addEventListener('change', function() {
-                    var anyChecked = false;
-                    for (var k = 0; k < checkboxes.length; k++) {
-                        if (checkboxes[k].checked) {
-                            anyChecked = true;
-                            break;
-                        }
-                    }
-                    if (anyChecked) {
-                        downloadBtn.style.opacity = '1';
-                        downloadBtn.style.pointerEvents = 'auto';
-                    } else {
-                        downloadBtn.style.opacity = '0.5';
-                        downloadBtn.style.pointerEvents = 'none';
-                    }
+                    userInteractedWithCheckboxes = true;
+                    updateButtonState();
                 });
             }
+            // Set initial button state based on pre-checked boxes
+            updateButtonState();
 
             // Controller support: collect all interactive elements
             var trapButtons = [
@@ -517,25 +565,34 @@
                 closeX.style.pointerEvents = 'none';
                 
                 var depotsStr = encodeURIComponent(selected.join(','));
-                fetch('http://127.0.0.1:9001/start-download?id=' + appid + '&depots=' + depotsStr, { mode: 'no-cors' })
-                    .then(function() {
-                        try {
-                            var evt = new CustomEvent('sls-download-started', { detail: { appid: appid } });
-                            window.dispatchEvent(evt);
-                            window.postMessage({ type: 'sls-download-started', appid: appid }, '*');
-                            if (window.top && window.top !== window) {
-                                window.top.dispatchEvent(new CustomEvent('sls-download-started', { detail: { appid: appid } }));
-                                window.top.postMessage({ type: 'sls-download-started', appid: appid }, '*');
-                            }
-                        } catch(e) {}
+                fetch('http://127.0.0.1:9001/start-download?id=' + appid + '&depots=' + depotsStr)
+                    .then(function(res) {
+                        if (!res.ok) throw new Error('HTTP ' + res.status);
+                        return res.json();
+                    })
+                    .then(function(data) {
+                        if (!data || !data.success) {
+                            throw new Error((data && data.message) ? data.message : 'Install failed');
+                        }
+
+                        if (data.mode === 'accela') {
+                            try {
+                                var evt = new CustomEvent('sls-download-started', { detail: { appid: appid } });
+                                window.dispatchEvent(evt);
+                                window.postMessage({ type: 'sls-download-started', appid: appid }, '*');
+                                if (window.top && window.top !== window) {
+                                    window.top.dispatchEvent(new CustomEvent('sls-download-started', { detail: { appid: appid } }));
+                                    window.top.postMessage({ type: 'sls-download-started', appid: appid }, '*');
+                                }
+                            } catch(e) {}
+                        }
                         closeSuccess();
                     })
-                    .catch(function() {
+                    .catch(function(err) {
                         downloadBtn.innerText = 'Failed';
                         setTimeout(function() {
-                            downloadBtn.innerText = 'Download';
-                            downloadBtn.style.opacity = '1';
-                            downloadBtn.style.pointerEvents = 'auto';
+                            downloadBtn.innerText = 'Install';
+                            updateButtonState();
                             cancelBtn.style.pointerEvents = 'auto';
                             closeX.style.pointerEvents = 'auto';
                         }, 2000);

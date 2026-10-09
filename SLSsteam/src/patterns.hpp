@@ -54,6 +54,13 @@ namespace Patterns
 		extern Pattern_t BBuildAndAsyncSendFrame;
 	}
 
+	namespace CSteamUIAppController
+	{
+		extern Pattern_t FillInAppOverview;
+		extern Pattern_t BuildCompleteAppOverviewChange;
+		extern Pattern_t RunFrame;
+	}
+
 	namespace CUser
 	{
 		//TODO: Order & Convert old patterns

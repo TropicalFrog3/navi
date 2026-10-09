@@ -7,9 +7,9 @@
 #include <sstream>
 
 
-VFTableInfo_t::VFTableInfo_t(const char* typeName, const char* functionName, const unsigned int index)
+VFTableInfo_t::VFTableInfo_t(const char* typeName, const char* functionName, const unsigned int index, const bool optional)
 	:
-	typeName(typeName), functionName(functionName), index(index)
+	typeName(typeName), functionName(functionName), index(index), optional(optional)
 {
 	VFTIndexes::functions.emplace_back(this);
 }
@@ -18,6 +18,11 @@ bool VFTableInfo_t::init()
 {
 	if (!Decompiler::vftables.contains(typeName))
 	{
+		if (optional)
+		{
+			LOG_WARN("%s not found in Decompiler::vftables!\n", typeName.c_str());
+			return true;
+		}
 		LOG_ERROR("%s not found in Decompiler::vftables!\n", typeName.c_str());
 		return false;
 	}
@@ -32,6 +37,11 @@ bool VFTableInfo_t::init()
 		const auto& tbl = VFTIndexes::tableMap.at(typeName);
 		if (!tbl.contains(functionName))
 		{
+			if (optional)
+			{
+				LOG_WARN("%s not found (optional hook skipped)\n", functionName.c_str());
+				return true;
+			}
 			LOG_ERROR("%s not found!\n", functionName.c_str());
 			return false;
 		}
@@ -44,6 +54,11 @@ bool VFTableInfo_t::init()
 
 	if (index >= funcs.size())
 	{
+		if (optional)
+		{
+			LOG_WARN("%s index bigger than vtable size!\n", getPrintName().c_str());
+			return true;
+		}
 		LOG_ERROR("%s index bigger than vtable size!\n", getPrintName().c_str());
 		return false;
 	}
@@ -335,6 +350,7 @@ namespace VFTIndexes
 		};
 	}
 
+
 	std::vector<VFTableInfo_t*> functions;
 	std::unordered_map<std::string, std::map<std::string, unsigned int>> tableMap;
 }
@@ -367,12 +383,10 @@ bool VFTIndexes::init()
 		}
 	}
 
-	if (g_config.dumpInterfaceMaps.get())
+	// Forcibly dump everything
+	for (const auto& tbl : tableMap)
 	{
-		for (const auto& tbl : tableMap)
-		{
-			dump(tbl.first, tbl.second);
-		}
+		dump(tbl.first, tbl.second);
 	}
 
 	return success;

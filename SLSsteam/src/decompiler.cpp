@@ -333,6 +333,9 @@ bool Decompiler::collectVFTables(const lm_module_t& mod, const Elf_Shdr& section
 	const lm_address_t start = mod.base + section.sh_addr;
 	const lm_address_t end = start + section.sh_size;
 
+	LOG_DEBUG("collectVFTables: mod.base=0x%x, sh_addr=0x%x, start=0x%x, end=0x%x, mod.end=0x%x\n",
+		mod.base, section.sh_addr, start, end, mod.end);
+
 	auto typeInfos = std::unordered_map<lm_address_t, std::string>();
 
 	//TODO: Iterate the section backwards to do it all in one pass
@@ -368,6 +371,16 @@ bool Decompiler::collectVFTables(const lm_module_t& mod, const Elf_Shdr& section
 
 			//LOG_DEBUG("TypeInfo for %s at 0x%x\n", name.c_str(), typeInfo);
 			typeInfos[typeInfo] = name;
+		}
+		else
+		{
+			// Debug: check if this looks like it points near a CSteamUIAppController string
+			// by trying without mod.base (in case value is already absolute)
+			if (strings.contains(offset) && strings.at(offset).find("CSteamUIAppController") != std::string::npos)
+			{
+				LOG_WARN("collectVFTables: found CSteamUIAppController string at raw offset 0x%x (without mod.base), but NOT at ptr=0x%x (with mod.base). Value at addr 0x%x = 0x%x\n",
+					offset, ptr, addr, offset);
+			}
 		}
 	}
 
@@ -412,6 +425,29 @@ bool Decompiler::collectVFTables(const lm_module_t& mod, const Elf_Shdr& section
 		}
 	}
 
+	LOG_DEBUG("collectVFTables: found %u typeInfos, %u vftables total\n",
+		(unsigned int)typeInfos.size(), (unsigned int)vftables.size());
+	
+	// Debug: check if CSteamUIAppController was found
+	if (vftables.contains("21CSteamUIAppController"))
+	{
+		auto& vft = vftables["21CSteamUIAppController"];
+		LOG_INFO("collectVFTables: CSteamUIAppController vtable FOUND at 0x%x with %u subclasses\n",
+			vft.address, (unsigned int)vft.subclasses.size());
+	}
+	else
+	{
+		LOG_WARN("collectVFTables: CSteamUIAppController vtable NOT found in vftables map\n");
+		// Check if it was in typeInfos
+		for (const auto& ti : typeInfos)
+		{
+			if (ti.second.find("CSteamUIAppController") != std::string::npos)
+			{
+				LOG_WARN("collectVFTables: but typeInfo '%s' WAS found at 0x%x\n", ti.second.c_str(), ti.first);
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -423,7 +459,7 @@ bool Decompiler::parseHeader(const lm_module_t& mod)
 	FILE* file = fopen(mod.path, "r");
 	if (!file)
 	{
-		LOG_ERROR("Failed to open file for parsing Elf headers!\n");
+		LOG_ERROR("Failed to open file %s for parsing Elf headers!\n", mod.path);
 		return false;
 	}
 
@@ -672,10 +708,10 @@ std::map<std::string, unsigned int> Decompiler::parseInterfaceMapBase(const char
 		for (const auto& ref : refs)
 		{
 			auto str = strings[ref.first];
-			if (strstr(interface, str.c_str()))
+			/*if (strstr(interface, str.c_str()))
 			{
 				continue;
-			}
+			}*/
 
 			if (functionMap.contains(str))
 			{

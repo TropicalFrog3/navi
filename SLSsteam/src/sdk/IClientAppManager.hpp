@@ -35,8 +35,14 @@ SDK_Struct DepotInfo_t
 	AppId_t depotId;			//0x0
 	AppId_t appId;				//0x4
 	uint64_t manifestId;		//0x8
-	uint8_t __pad0x10[0x10];	//0x10
+	uint64_t manifestSize;		//0x10
+	uint32_t dlcAppId;			//0x18
+	uint8_t lcsRequired;		//0x1C
+	uint8_t notNewTarget;		//0x1D
+	uint8_t sharedInstall;		//0x1E
+	uint8_t pad;				//0x1F
 }; //0x20
+static_assert(sizeof(DepotInfo_t) == 0x20, "DepotInfo_t size mismatch");
 
 SDK_Class IClientAppManager
 {

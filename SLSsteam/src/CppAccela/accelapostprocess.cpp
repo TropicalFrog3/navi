@@ -504,8 +504,8 @@ namespace CppAccela::PostProcess
         }
 
         if (addedApp)
-            PPLOG("added AppID %s to AdditionalApps in config.yaml\n",
-                  lua.appId.c_str());
+            // PPLOG("added AppID %s to AdditionalApps in config.yaml\n",
+            //       lua.appId.c_str());
         if (addedToken)
             PPLOG("added AppToken for %s to config.yaml\n",
                   lua.appId.c_str());

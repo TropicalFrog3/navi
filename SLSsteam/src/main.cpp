@@ -16,6 +16,7 @@
 #include "feats/removelua.hpp"
 #include "feats/tier0hook.hpp"
 #include "feats/autoupdate.hpp"
+#include "feats/nativeinstall.hpp"
 #include "CppAccela/acceladownload.hpp"
 #include "vftableinfo.hpp"
 
@@ -262,6 +263,7 @@ static void load()
 	}
 
 	SLSAPI::init();
+	NativeInstall::init();
 
 	// Install the tier0 hook to intercept steamwebhelper launch
 	// This replaces --cef-enable-debugging with --remote-debugging-pipe

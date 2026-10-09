@@ -16,7 +16,8 @@ CXXFLAGS += -floop-block -fgraphite-identity -floop-parallelize-all -pipe -fopen
 
 LDFLAGS := -shared -Wl,--no-undefined
 LDFLAGS += $(shell pkg-config --libs "openssl")
-LDFLAGS += $(shell pkg-config --libs "libcurl")
+CXXFLAGS += -I/usr/include/x86_64-linux-gnu
+LDFLAGS += /usr/lib/i386-linux-gnu/libcurl.so.4
 
 JOBS := $(shell nproc)
 
@@ -70,7 +71,7 @@ HELPER_SRCS := \
 HELPER_OBJS := $(patsubst src/%.cpp,obj/$(FLAGSSHA)/%.o,$(HELPER_SRCS))
 HELPER_DEPS := $(HELPER_OBJS:%.o=%.d)
 HELPER_LDFLAGS := $(shell pkg-config --libs "openssl")
-HELPER_LDFLAGS += $(shell pkg-config --libs "libcurl")
+HELPER_LDFLAGS += /usr/lib/i386-linux-gnu/libcurl.so.4
 
 bin/accela-helper: $(HELPER_OBJS)
 	@mkdir -p bin
@@ -78,6 +79,24 @@ bin/accela-helper: $(HELPER_OBJS)
 	chmod 755 $@
 
 -include $(HELPER_DEPS)
+
+TEST_NATIVE_OBJS := \
+	obj/$(FLAGSSHA)/tests/test_native_install.o \
+	obj/$(FLAGSSHA)/feats/manifestcode.o \
+	obj/$(FLAGSSHA)/feats/nativeinstall.o \
+	obj/$(FLAGSSHA)/sdk/CNetPacket.o \
+	obj/$(FLAGSSHA)/sdk/steam.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_base.pb.o \
+	obj/$(FLAGSSHA)/CppAccela/accelapath.o
+
+obj/$(FLAGSSHA)/tests/%.o: tests/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+
+bin/test_native_install: $(TEST_NATIVE_OBJS)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
+	chmod 755 $@
 
 audit-libs:
 	$(MAKE) -j $(JOBS) $(SLSSTEAMSO) bin/library-inject.so bin/accela-helper

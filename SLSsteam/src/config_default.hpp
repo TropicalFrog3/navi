@@ -151,4 +151,7 @@ ExtendedLogging: no
 MorrenusKey: ""
 RyuuKey: ""
 DepotBoxKey: ""
-HubcapKey: "")";
+HubcapKey: ""
+
+# Download mode: "native" (Steam native content system) or "accela" (accela-helper CLI)
+DownloadMode: "native")";

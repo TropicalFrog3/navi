@@ -77,6 +77,7 @@ public:
 	MTVariable<uint32_t> logLevels;
 	MTVariable<bool> dumpInterfaceMaps;
 	MTVariable<bool> extendedLogging;
+	MTVariable<std::string> downloadMode;
 
 	// API Auth
 	MTVariable<std::string> morrenusKey;
@@ -206,14 +207,14 @@ public:
 					continue;
 				}
 
-				if constexpr (std::is_same_v<T, std::string>)
-				{
-					LOG_CUSTOM(k_ELogLevelInfo | k_ELogLevelOnce, "Adding \"%s\" to %s\n", val.c_str(), name);
-				}
-				else
-				{
-					LOG_CUSTOM(k_ELogLevelInfo | k_ELogLevelOnce, "Adding %s to %s\n", std::to_string(val).c_str(), name);
-				}
+				// if constexpr (std::is_same_v<T, std::string>)
+				// {
+				// 	LOG_CUSTOM(k_ELogLevelInfo | k_ELogLevelOnce, "Adding \"%s\" to %s\n", val.c_str(), name);
+				// }
+				// else
+				// {
+				// 	LOG_CUSTOM(k_ELogLevelInfo | k_ELogLevelOnce, "Adding %s to %s\n", std::to_string(val).c_str(), name);
+				// }
 
 			}
 			catch(...)

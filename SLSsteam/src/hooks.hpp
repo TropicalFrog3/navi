@@ -209,8 +209,16 @@ namespace Hooks
 
 	//steamui.so
 	typedef void(*CGameInfoDialog_ServerResponded_t)(void*, gameserverdetails_t*);
+	//Local GCC clone: all 3 args are passed in eax/edx/ecx, plain ret, no return value used by callers
+	typedef void(__attribute__((regparm(3))) *CSteamUIAppController_FillInAppOverview_t)(void*, void*, CSteamApp*);
+	//cdecl: (this, pChangeMsg, ppOutMsg) - callers pass &local (zero-initialised) and test it after the call
+	typedef void(*CSteamUIAppController_BuildCompleteAppOverviewChange_t)(void*, void*, void**);
+	typedef void*(*CSteamUIAppController_RunFrame_t)(void*);
 
 	extern DetourHook<CGameInfoDialog_ServerResponded_t> CGameInfoDialog_ServerResponded;
+	extern DetourHook<CSteamUIAppController_FillInAppOverview_t> CSteamUIAppController_FillInAppOverview;
+	extern DetourHook<CSteamUIAppController_BuildCompleteAppOverviewChange_t> CSteamUIAppController_BuildCompleteAppOverviewChange;
+	extern DetourHook<CSteamUIAppController_RunFrame_t> CSteamUIAppController_RunFrame;
 
 	bool setup();
 	void place();

@@ -2,18 +2,15 @@
 
 #include "../config.hpp"
 #include "../globals.hpp"
-#include "../sdk/CProtoBufMsgBase.hpp"
+#include "../log.hpp"
+#include "../sdk/CNetPacket.hpp"
+#include "../sdk/protobufs/steammessages_clientserver_2.pb.h"
 
 #include <filesystem>
 #include <fstream>
 #include <mutex>
 #include <regex>
 #include <sstream>
-
-// EMSG values (from SteamKit EMsg)
-// Note: EMSG_APPOWNERSHIPTICKET_RESPONSE (858) is already in EMsgType enum
-static constexpr uint16_t EMSG_DEPOT_DECRYPTION_KEY_REQUEST  = 5438;
-static constexpr uint16_t EMSG_DEPOT_DECRYPTION_KEY_RESPONSE = 5439;
 
 static DepotKeys::KeyMap g_depotKeys;
 static std::mutex g_depotKeysMutex;
@@ -133,15 +130,15 @@ bool DepotKeys::isAccelaApp(uint32_t appId)
 	return std::filesystem::exists(luaPath);
 }
 
-static void handleDepotDecryptionKeyResponse(CProtoBufMsgBase* msg)
+static void handleDepotDecryptionKeyResponse(CNetPacket* pkt)
 {
-	auto body = msg->getBody<CMsgClientGetDepotDecryptionKeyResponse>();
+	auto body = pkt->deserializeBody<CMsgClientGetDepotDecryptionKeyResponse>();
 
-	const uint32_t depotId = body->depot_id();
-	const int32_t result = body->eresult();
+	const uint32_t depotId = body.depot_id();
+	const int32_t result = body.eresult();
 
 	LOG_INFO("DepotKeys: Received decryption key response for depot %u, eresult=%d\n",
-				 depotId, result);
+			 depotId, result);
 
 	if (result == k_EResultOK)
 	{
@@ -153,34 +150,30 @@ static void handleDepotDecryptionKeyResponse(CProtoBufMsgBase* msg)
 	if (hexKey.empty())
 	{
 		LOG_INFO("DepotKeys: No cached key for depot %u (eresult=%d), cannot inject\n",
-					 depotId, result);
+				 depotId, result);
 		return;
 	}
 
 	const std::string keyBytes = hexToBytes(hexKey);
 
-	CMsgClientGetDepotDecryptionKeyResponse localBody;
-	if (localBody.ParseFromString(body->SerializeAsString()))
-	{
-		localBody.set_eresult(k_EResultOK);
-		localBody.set_depot_encryption_key(keyBytes.data(), keyBytes.size());
-		body->ParseFromString(localBody.SerializeAsString());
+	CMsgProtoBufHeader hdr = pkt->deserializeHeader();
+	hdr.set_eresult(static_cast<int32_t>(k_EResultOK));
 
-		LOG_INFO("DepotKeys: Injected cached key for depot %u (overriding eresult %d -> OK)\n",
-					 depotId, result);
-	}
-	else
-	{
-		LOG_INFO("DepotKeys: Failed to parse depot key response for depot %u\n", depotId);
-	}
+	body.set_eresult(k_EResultOK);
+	body.set_depot_encryption_key(keyBytes.data(), keyBytes.size());
+
+	pkt->serialize(body, &hdr);
+
+	LOG_INFO("DepotKeys: Injected cached key for depot %u (overriding eresult %d -> OK)\n",
+			 depotId, result);
 }
 
-static void handleOwnershipTicketResponse(CProtoBufMsgBase* msg)
+static void handleOwnershipTicketResponse(CNetPacket* pkt)
 {
-	auto body = msg->getBody<CMsgClientGetAppOwnershipTicketResponse>();
+	auto body = pkt->deserializeBody<CMsgClientGetAppOwnershipTicketResponse>();
 
-	const uint32_t appId = body->app_id();
-	const uint32_t result = body->eresult();
+	const uint32_t appId = body.app_id();
+	const uint32_t result = body.eresult();
 
 	// If successful, let the existing ticket system handle caching
 	if (result == k_EResultOK)
@@ -195,57 +188,45 @@ static void handleOwnershipTicketResponse(CProtoBufMsgBase* msg)
 	}
 
 	LOG_INFO("DepotKeys: Ownership ticket failed for ACCELA app %u (eresult=%u), injecting OK\n",
-				 appId, result);
+			 appId, result);
 
-	// Set eresult to OK with an empty ticket — this tells Steam the app is "owned"
-	// The actual ownership validation is already handled by SLSsteam's app hooks
-	CMsgClientGetAppOwnershipTicketResponse localBody;
-	if (localBody.ParseFromString(body->SerializeAsString()))
-	{
-		localBody.set_eresult(k_EResultOK);
-		// Set a 50-byte dummy ticket that is structurally valid so Steam doesn't fail parsing
-		std::string dummyTicket(50, '\0');
-		uint32_t* pU32 = reinterpret_cast<uint32_t*>(dummyTicket.data());
-		pU32[0] = 50; // length
-		pU32[1] = 4;  // version
-		uint64_t steamId = 0x0110000100000000ULL | g_currentSteamId.steamId64;
-		*reinterpret_cast<uint64_t*>(dummyTicket.data() + 8) = steamId;
-		pU32[4] = appId; // offset 16 is appId
+	CMsgProtoBufHeader hdr = pkt->deserializeHeader();
+	hdr.set_eresult(static_cast<int32_t>(k_EResultOK));
 
-		localBody.set_ticket(dummyTicket);
-		body->ParseFromString(localBody.SerializeAsString());
+	body.set_eresult(k_EResultOK);
+	// Set a 50-byte dummy ticket that is structurally valid so Steam doesn't fail parsing
+	std::string dummyTicket(50, '\0');
+	uint32_t* pU32 = reinterpret_cast<uint32_t*>(dummyTicket.data());
+	pU32[0] = 50; // length
+	pU32[1] = 4;  // version
+	uint64_t steamId = 0x0110000100000000ULL | g_currentSteamId.steamId64;
+	*reinterpret_cast<uint64_t*>(dummyTicket.data() + 8) = steamId;
+	pU32[4] = appId; // offset 16 is appId
 
-		LOG_INFO("DepotKeys: Injected ownership ticket OK (with dummy struct) for app %u\n", appId);
-	}
-	else
-	{
-		LOG_INFO("DepotKeys: Failed to parse ownership ticket response for app %u\n", appId);
-	}
+	body.set_ticket(dummyTicket);
+	pkt->serialize(body, &hdr);
+
+	LOG_INFO("DepotKeys: Injected ownership ticket OK (with dummy struct) for app %u\n", appId);
 }
 
-void DepotKeys::recvMsg(CProtoBufMsgBase* msg)
+void DepotKeys::recvMsg(CNetPacket* pkt)
 {
-	switch (msg->type)
-	{
-		case EMSG_DEPOT_DECRYPTION_KEY_RESPONSE:
-			handleDepotDecryptionKeyResponse(msg);
-			break;
-
-		case k_EMsgClientGetAppOwnershipTicketResponse:
-			handleOwnershipTicketResponse(msg);
-			break;
-	}
-}
-
-void DepotKeys::sendMsg(CProtoBufMsgBase* msg)
-{
-	if (msg->type != EMSG_DEPOT_DECRYPTION_KEY_REQUEST)
+	if (!pkt || !pkt->isValid() || !pkt->isProtoBuf())
 	{
 		return;
 	}
 
-	auto body = msg->getBody<CMsgClientGetDepotDecryptionKey>();
+	switch (pkt->getProtoBufType())
+	{
+		case k_EMsgClientGetDepotDecryptionKeyResponse:
+			handleDepotDecryptionKeyResponse(pkt);
+			break;
 
-	LOG_INFO("DepotKeys: Requesting decryption key for depot %u (app %u)\n",
-				 body->depot_id(), body->app_id());
+		case k_EMsgClientGetAppOwnershipTicketResponse:
+			handleOwnershipTicketResponse(pkt);
+			break;
+
+		default:
+			break;
+	}
 }

@@ -95,6 +95,39 @@ namespace Patterns
 		};
 	}
 
+	namespace CSteamUIAppController
+	{
+		//NOTE: GCC emitted this as a local regparm(3) clone (this=eax, pAppOverview=edx, pApp=ecx).
+		//Verified via VPROF xref "CSteamUIAppController::FillInAppOverview" and the call site inside
+		//BuildCompleteAppOverviewChange. The cdecl copy of this function in steamui.so is unreferenced (dead).
+		//Matches the function entry directly, so no prologue walk is needed.
+		Pattern_t FillInAppOverview
+		{
+			"CSteamUIAppController::FillInAppOverview",
+			"55 89 E5 57 56 E8 ? ? ? ? 81 C6 ? ? ? ? 53 81 EC AC 00 00 00 89 45 90 89 55 9C 89 4D 98 89 75 94",
+			SigFollowMode::None,
+			&g_modSteamUI
+		};
+		//NOTE: This anchor previously (mis)labelled FillInAppOverview. It lives 0x50 bytes into
+		//BuildCompleteAppOverviewChange (verified via VPROF xref "BuildCompleteAppOverviewChange" and the
+		//"Constructed empty appoverview message in BuildCompleteAppOverviewChange" assert).
+		Pattern_t BuildCompleteAppOverviewChange
+		{
+			"CSteamUIAppController::BuildCompleteAppOverviewChange",
+			"8B 86 78 84 03 00 89 F3",
+			SigFollowMode::PrologueUpwards,
+			std::vector<int16_t> { 0x53, 0x56, 0x57, 0xE5, 0x89, 0x55 },
+			&g_modSteamUI
+		};
+		Pattern_t RunFrame
+		{
+			"CSteamUIAppController::RunFrame",
+			"55 89 E5 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 40 E8",
+			SigFollowMode::None,
+			&g_modSteamUI
+		};
+	}
+
 	namespace CSteamEngine
 	{
 		Pattern_t GetServerPipe

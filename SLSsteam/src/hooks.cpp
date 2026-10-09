@@ -19,6 +19,8 @@
 #include "libmem/libmem.h"
 #include "CppAccela/acceladownload.hpp"
 #include "feats/cdpinject.hpp"
+#include "feats/nativeinstall.hpp"
+#include "feats/manifestcode.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -38,6 +40,16 @@
 #include <map>
 #include <thread>
 #include <string>
+#include <unordered_map>
+
+//Tracks every address currently detoured by any DetourHook<T> instantiation.
+//Stacking two detours on one address makes the second trampoline copy the first hook's
+//jmp rel32 verbatim, which then jumps to garbage -> crash. Refuse that outright.
+static std::unordered_map<lm_address_t, std::string>& placedDetours()
+{
+	static std::unordered_map<lm_address_t, std::string> detours;
+	return detours;
+}
 
 static std::map<uint32_t, std::string> g_appSizes;
 static std::mutex g_appSizesMutex;
@@ -270,7 +282,31 @@ bool DetourHook<T>::setup(const VFTableInfo_t& info, T hookFn)
 template<typename T>
 void DetourHook<T>::place()
 {
+	if (!this->originalFn.address)
+	{
+		return;
+	}
+
+	auto& detours = placedDetours();
+	if (const auto it = detours.find(this->originalFn.address); it != detours.end())
+	{
+		LOG_ERROR
+		(
+			"Refusing to detour %s at 0x%x: address already detoured by %s! Check its pattern.\n",
+			this->name.c_str(),
+			this->originalFn.address,
+			it->second.c_str()
+		);
+		return;
+	}
+
 	this->size = LM_HookCode(this->originalFn.address, this->hookFn.address, &this->tramp.address);
+	if (!this->size)
+	{
+		LOG_ERROR("LM_HookCode failed for %s at 0x%x\n", this->name.c_str(), this->originalFn.address);
+		return;
+	}
+	detours.emplace(this->originalFn.address, this->name);
 	MemHlp::fixPICThunkCall(this->name.c_str(), this->originalFn.address, this->tramp.address);
 
 	LOG_DEBUG
@@ -286,13 +322,14 @@ void DetourHook<T>::place()
 template<typename T>
 void DetourHook<T>::remove()
 {
-	if (!this->size)
+	if (!this->size || !this->originalFn.address)
 	{
 		return;
 	}
 
 	LM_UnhookCode(this->originalFn.address, this->tramp.address, this->size);
 	this->size = 0;
+	placedDetours().erase(this->originalFn.address);
 
 	LOG_DEBUG("Unhooked %s\n", this->name.c_str());
 }
@@ -436,11 +473,6 @@ static uint32_t hkClientUnifiedServiceTransport_SendAndRecvMsg(CClientUnifiedSer
 	);
 
 	return ret;
-
-//	DepotKeys::recvMsg(pMsg);
-//	DepotKeys::sendMsg(pMsg);
-
-
 }
 
 static void hkCMInterface_RecvPkt(CCMInterface* pCMInterface, CNetPacket* pNetPacket)
@@ -487,7 +519,9 @@ static void hkCMInterface_RecvPkt(CCMInterface* pCMInterface, CNetPacket* pNetPa
 		}
 
 		Misc::recvMsg(pNetPacket);
+		DepotKeys::recvMsg(pNetPacket);
 		Ticket::recvMsg(pNetPacket);
+		ManifestCode::recvMsg(pNetPacket);
 	}
 
 	LOG_TRACE("Calling tramp\n");
@@ -601,6 +635,10 @@ static uint32_t hkSteamEngine_ProcessIPCFrame(CSteamEngine* pSteamEngine, HSteam
             Hooks::IClientAppManager_InstallApp.originalFn.fn
         );
 
+		NativeInstall::runFrame(
+			Hooks::IClientAppManager_InstallApp.originalFn.fn
+		);
+
 		Apps::runIPCFrame();
 		SLSAPI::runIPCFrame();
 	}
@@ -675,6 +713,7 @@ static bool hkWebSocketConnection_BBuildAndAsyncSendFrame(CWebSocketConnection* 
 
 				Apps::sendMsg(&packet);
 				FakeAppIds::sendMsg(&packet);
+				ManifestCode::sendMsg(&packet);
 			}
 
 			LOG_TRACE("Calling tramp\n");
@@ -836,9 +875,28 @@ static bool hkUserAppManager_BuildDepotDependency
 		success
 	);
 
-	Apps::buildDepotDependency(depots, sharedDepots);
+	if (NativeInstall::isNative(appId))
+	{
+		LOG_INFO
+		(
+			"BuildDepotDependency(native app %u) -> success=%i, depots=%u (alloc %u, grow %d), shared=%u\n",
+			appId,
+			success,
+			depots ? depots->size : 0,
+			depots ? depots->mem.alloc : 0,
+			depots ? static_cast<int32_t>(depots->mem.growSize) : 0,
+			sharedDepots ? sharedDepots->size : 0
+		);
+	}
 
-	return success;
+	if (!success)
+	{
+		return false;
+	}
+
+	Apps::buildDepotDependency(appId, depots, sharedDepots);
+
+	return true;
 }
 
 static bool hkClientAppManager_BCanRemotePlayTogether(IClientAppManager* pAppManager, AppId_t appId)
@@ -937,6 +995,11 @@ static bool hkClientAppManager_GetAppUpdateInfo(IClientAppManager* pClientAppMan
 	const bool success = Hooks::IClientAppManager_GetAppUpdateInfo.originalFn.fn(pClientAppManager, appId, a2);
 	LOG_ONCE("IClientAppManager::GetAppUpdateInfo(%p, %u, %p) -> %i\n", (void*)pClientAppManager, appId, (void*)a2, success);
 
+	if (NativeInstall::isNative(appId))
+	{
+		return success;
+	}
+
 	// ACCELA-installed apps must never report update info.
 	// Steam has no depot keys or content sessions for them, so any update
 	// attempt fails with "content still encrypted".
@@ -966,6 +1029,13 @@ static uint32_t hkClientAppManager_InstallApp(IClientAppManager* pClientAppManag
 		return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
 	}
 
+    // If already queued to run on the main thread or armed, pass through to original
+    if (NativeInstall::isQueuedOrArmed(appId))
+    {
+        LOG_INFO("hkClientAppManager_InstallApp: App %u already queued/armed for native install, calling original\n", appId);
+        return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
+    }
+
     LOG_DEBUG("App %u (locallyOwned=%d, isAddedAppId=%d). Triggering UI for depot selection.\n", appId, locallyOwned, g_config.isAddedAppId(appId));
 
     // Cache the install request so we can resume it after the user selects depots
@@ -976,6 +1046,8 @@ static uint32_t hkClientAppManager_InstallApp(IClientAppManager* pClientAppManag
         CDPInject::injectDepotSelectionUI(appId);
     }).detach();
 
+    // Return early, do not call original function yet. 
+    // The native install will be triggered later when the UI invokes NativeInstall::runFrame.
 	return 0;
 }
 
@@ -1005,6 +1077,13 @@ static uint32_t hkClientAppManager_UninstallApp(IClientAppManager* pClientAppMan
 {
     LOG_INFO("hkClientAppManager_UninstallApp(%p, %u)\n", (void*)pClientAppManager, appId);
 
+    if (NativeInstall::isNative(appId))
+    {
+        LOG_INFO("hkClientAppManager_UninstallApp: App %u is native, disarming and letting Steam uninstall natively\n", appId);
+        NativeInstall::disarm(appId);
+        return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
+    }
+
     // If there is an active ACCELA download for this app, cancel it
     CppAccela::Download::cancelForApp(appId);
 
@@ -1020,6 +1099,12 @@ static uint32_t hkClientAppManager_UninstallApp(IClientAppManager* pClientAppMan
 static EAppState hkClientAppManager_GetAppInstallState(IClientAppManager* pClientAppManager, uint32_t appId)
 {
     EAppState state = Hooks::IClientAppManager_GetAppInstallState.originalFn.fn(pClientAppManager, appId);
+
+    if (NativeInstall::isNative(appId))
+    {
+        // Don't strip UpdateRequired or force FullyInstalled for native installs
+        return state;
+    }
 
     if (Apps::isInstalled(appId))
     {
@@ -1289,6 +1374,63 @@ static uint32_t hkClientUser_GetAppOwnershipTicketExtendedData
 )
 {
 	LOG_TRACE("Calling original\n");
+
+	if (g_config.isAddedAppId(appId))
+	{
+		const Ticket::SavedTicket* cached = Ticket::getCachedTicket(appId);
+		if (cached && cached->ticket.size() >= sizeof(uint32_t))
+		{
+			if (ticketSize >= cached->ticket.size())
+			{
+				memcpy(pTicket, cached->ticket.data(), cached->ticket.size());
+			}
+			if (pOffAppId) *pOffAppId = 16;
+			if (pOffSteamId) *pOffSteamId = 8;
+			if (pOffSig) *pOffSig = *reinterpret_cast<const uint32_t*>(cached->ticket.data());
+			if (pSigSize) *pSigSize = 128;
+			
+			Ticket::getTicketOwnershipExtendedData(appId);
+			LOG_ONCE("Injected AppOwnershipTicket for %u from cache\n", appId);
+			return cached->ticket.size();
+		}
+
+		// Forge local app ownership ticket using app 7
+		uint32_t app7_size = Hooks::IClientUser_GetAppOwnershipTicketExtendedData.originalFn.fn(
+			pClientUser, 7, nullptr, 0, nullptr, nullptr, nullptr, nullptr);
+		
+		if (app7_size > 128)
+		{
+			std::vector<uint8_t> source(app7_size);
+			uint32_t offAppId, offSteamId, offSig, sigSize;
+			Hooks::IClientUser_GetAppOwnershipTicketExtendedData.originalFn.fn(
+				pClientUser, 7, source.data(), app7_size, &offAppId, &offSteamId, &offSig, &sigSize);
+			
+			uint32_t signedSize = app7_size - 128;
+			uint32_t forgedSize = app7_size + sizeof(AppId_t);
+			if (ticketSize >= forgedSize)
+			{
+				uint8_t* out = static_cast<uint8_t*>(pTicket);
+				memcpy(out, source.data(), signedSize);
+				memcpy(out + signedSize, &appId, sizeof(AppId_t));
+				memcpy(out + signedSize + sizeof(AppId_t), source.data() + signedSize, 128);
+			}
+			
+			if (pOffAppId) *pOffAppId = forgedSize - 128 - sizeof(AppId_t);
+			if (pOffSteamId) *pOffSteamId = 8;
+			if (pOffSig) *pOffSig = forgedSize - 128;
+			if (pSigSize) *pSigSize = 128;
+
+			if (app7_size >= 16) 
+			{
+				uint64_t steamID = reinterpret_cast<const uint64_t*>(source.data())[1];
+				Ticket::oneTimeSteamIdSpoof[appId] = CSteamId(steamID);
+			}
+
+			LOG_ONCE("Forged AppOwnershipTicket for %u from app 7 (size: %u)\n", appId, forgedSize);
+			return forgedSize;
+		}
+	}
+
 	const uint32_t size = Hooks::IClientUser_GetAppOwnershipTicketExtendedData.originalFn.fn
 	(
 		pClientUser,
@@ -1314,6 +1456,25 @@ static uint32_t hkClientUser_GetAppOwnershipTicketExtendedData
 static bool hkClientUser_GetEncryptedAppTicket(IClientUser* pClientUser, void* pTicket, uint32_t ticketSize, uint32_t* pTicketSize)
 {
 	LOG_TRACE("Calling original\n");
+	
+	const AppId_t currentAppId = FakeAppIds::getRealAppIdForCurrentPipe();
+	if (g_config.isAddedAppId(currentAppId))
+	{
+		const Ticket::SavedTicket* cached = Ticket::getCachedEncryptedTicket(currentAppId);
+		if (cached && !cached->ticket.empty())
+		{
+			if (ticketSize >= cached->ticket.size())
+			{
+				memcpy(pTicket, cached->ticket.data(), cached->ticket.size());
+			}
+			if (pTicketSize) *pTicketSize = cached->ticket.size();
+			
+			Ticket::getEncryptedAppTicket(currentAppId);
+			LOG_ONCE("Injected EncryptedAppTicket for %u from cache\n", currentAppId);
+			return true;
+		}
+	}
+
 	const bool success = Hooks::IClientUser_GetEncryptedAppTicket.originalFn.fn(pClientUser, pTicket, ticketSize, pTicketSize);
 
 	LOG_DEBUG
@@ -1330,7 +1491,7 @@ static bool hkClientUser_GetEncryptedAppTicket(IClientUser* pClientUser, void* p
 
 	if (success)
 	{
-		Ticket::getEncryptedAppTicket(FakeAppIds::getRealAppIdForCurrentPipe());
+		Ticket::getEncryptedAppTicket(currentAppId);
 	}
 
 	return success;
@@ -1477,6 +1638,31 @@ static void hkCGameInfoDialog_ServerResponded(void* pSteamMatchingPingResponse, 
 	);
 }
 
+//regparm(3): MUST match CSteamUIAppController_FillInAppOverview_t exactly, args arrive in eax/edx/ecx
+static void __attribute__((regparm(3))) hkCSteamUIAppController_FillInAppOverview(void* pThis, void* pAppOverview, CSteamApp* pApp)
+{
+	fprintf(stderr, "FillInAppOverview pThis = %p\n", pThis);
+	//Verified in steamui.so: nAppID (+0xC) is copied into the overview proto, OwnershipFlags (+0x18) bit 0 is read inline
+	if (pApp && g_config.isAddedAppId(pApp->nAppID))
+	{
+		// Force unowned games to appear as owned in the frontend UI
+		pApp->OwnershipFlags |= k_EAppOwnershipFlags_OwnsLicense;
+		if (pApp->PurchasedTime == 0)
+			pApp->PurchasedTime = 1600000000;
+	}
+	Hooks::CSteamUIAppController_FillInAppOverview.tramp.fn(pThis, pAppOverview, pApp);
+}
+
+static void hkCSteamUIAppController_BuildCompleteAppOverviewChange(void* pController, void* pChange, void** ppOutMsg)
+{
+	Hooks::CSteamUIAppController_BuildCompleteAppOverviewChange.tramp.fn(pController, pChange, ppOutMsg);
+}
+
+static void* hkCSteamUIAppController_RunFrame(void* pController)
+{
+	return Hooks::CSteamUIAppController_RunFrame.tramp.fn(pController);
+}
+
 static bool hkClientCompat_BIsCompatLayerEnabled(IClientCompat* pClientCompat)
 {
 	if (!g_pClientCompat)
@@ -1582,6 +1768,9 @@ namespace Hooks
 
 	//steamui.so
 	DetourHook<CGameInfoDialog_ServerResponded_t> CGameInfoDialog_ServerResponded;
+	DetourHook<CSteamUIAppController_FillInAppOverview_t> CSteamUIAppController_FillInAppOverview;
+	DetourHook<CSteamUIAppController_BuildCompleteAppOverviewChange_t> CSteamUIAppController_BuildCompleteAppOverviewChange;
+	DetourHook<CSteamUIAppController_RunFrame_t> CSteamUIAppController_RunFrame;
 }
 
 bool Hooks::setup()
@@ -1691,7 +1880,10 @@ bool Hooks::setup()
 
 		&& CWebSocketConnection_BBuildAndAsyncSendFrame.setup(Patterns::CWebSocketConnection::BBuildAndAsyncSendFrame, hkWebSocketConnection_BBuildAndAsyncSendFrame)
 
-		&& CGameInfoDialog_ServerResponded.setup(VFTIndexes::CGameInfoDialog::ServerResponded, hkCGameInfoDialog_ServerResponded);
+		&& CGameInfoDialog_ServerResponded.setup(VFTIndexes::CGameInfoDialog::ServerResponded, hkCGameInfoDialog_ServerResponded)
+		&& CSteamUIAppController_FillInAppOverview.setup(Patterns::CSteamUIAppController::FillInAppOverview, hkCSteamUIAppController_FillInAppOverview)
+		&& CSteamUIAppController_BuildCompleteAppOverviewChange.setup(Patterns::CSteamUIAppController::BuildCompleteAppOverviewChange, hkCSteamUIAppController_BuildCompleteAppOverviewChange)
+		&& CSteamUIAppController_RunFrame.setup(Patterns::CSteamUIAppController::RunFrame, hkCSteamUIAppController_RunFrame);
 
 
 	Hooks::place();
@@ -1727,6 +1919,9 @@ void Hooks::place()
 	CWebSocketConnection_BBuildAndAsyncSendFrame.place();
 
 	CGameInfoDialog_ServerResponded.place();
+	CSteamUIAppController_FillInAppOverview.place();
+	CSteamUIAppController_BuildCompleteAppOverviewChange.place();
+	CSteamUIAppController_RunFrame.place();
 
 	IClientCompat_BIsCompatLayerEnabled.place();
 
@@ -1914,4 +2109,8 @@ void Hooks::remove()
 	IClientUtils_GetAppId.remove();
 	IClientUtils_GetOfflineMode.remove();
 
+	CGameInfoDialog_ServerResponded.remove();
+	CSteamUIAppController_FillInAppOverview.remove();
+	CSteamUIAppController_BuildCompleteAppOverviewChange.remove();
+	CSteamUIAppController_RunFrame.remove();
 }

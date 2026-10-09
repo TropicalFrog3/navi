@@ -6,6 +6,7 @@
 #include "../atomic_file.hpp"
 
 #include "fakeappid.hpp"
+#include "nativeinstall.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -689,32 +690,155 @@ bool Apps::unlockApp(const AppId_t appId, AppOwnershipInfo_t* info)
 	return unlockApp(appId, info, g_currentSteamId);
 }
 
-void Apps::buildDepotDependency(CUtlVector<DepotInfo_t>* depots, CUtlVector<DepotInfo_t>* sharedDepots)
+// Appends to a Steam-owned CUtlVector, growing it through tier0's allocator so
+// Steam can later free/realloc the buffer itself. Refuses external buffers
+// (negative growSize marks memory Steam doesn't own, e.g. stack storage).
+static bool appendDepotInfo(CUtlVector<DepotInfo_t>* vec, const DepotInfo_t& info)
 {
-	LOG_DEBUG("Vec Alloc %u, Grow %u, Size %u\n", depots->mem.alloc, depots->mem.growSize, depots->size);
+	if (static_cast<int32_t>(vec->mem.growSize) < 0)
+	{
+		LOG_WARN("appendDepotInfo: vector uses external buffer (growSize=%d), cannot grow\n",
+		         static_cast<int32_t>(vec->mem.growSize));
+		return false;
+	}
+
+	if (vec->size >= vec->mem.alloc)
+	{
+		const uint32_t newAlloc = vec->mem.alloc ? vec->mem.alloc * 2 : 4;
+		const size_t bytes = static_cast<size_t>(newAlloc) * sizeof(DepotInfo_t);
+		void* mem = vec->mem.base
+			? Steam::Plat_Realloc(vec->mem.base, bytes)
+			: Steam::Plat_Alloc(bytes);
+		if (!mem)
+		{
+			LOG_ERROR("appendDepotInfo: allocation of %zu bytes failed\n", bytes);
+			return false;
+		}
+		vec->mem.base = reinterpret_cast<DepotInfo_t*>(mem);
+		vec->mem.alloc = newAlloc;
+	}
+
+	vec->mem.base[vec->size++] = info;
+	return true;
+}
+
+void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, CUtlVector<DepotInfo_t>* sharedDepots)
+{
+	LOG_DEBUG("buildDepotDependency: AppId=%u, Vec Alloc %u, Grow %u, Size %u\n",
+	          appId, depots->mem.alloc, depots->mem.growSize, depots->size);
 
 	const auto depotBlacklist = g_config.depotBlacklist.get();
 	const auto manifestOverrides = g_config.manifestIds.get();
+	const auto nativeSel = NativeInstall::getSelection(appId);
+	const bool isNativeApp = NativeInstall::isNative(appId);
 
-	for (unsigned int i = 0; i < depots->size; i++)
+	// Iterate backwards so removals preserve checked elements and maintain order
+	for (int i = static_cast<int>(depots->size) - 1; i >= 0; --i)
 	{
 		const auto depot = depots->at(i);
+		if (!depot) continue;
 
+		// 1. Blacklisted depots -> remove
 		if (depotBlacklist.contains(depot->depotId))
 		{
-			LOG_DEBUG("Removing %u with %llu\n", depot->depotId, depot->manifestId);
-			depots->swap(i, depots->size - 1);
+			LOG_INFO("BuildDepotDependency: Removing blacklisted depot %u for app %u\n", depot->depotId, appId);
+			for (uint32_t j = i; j + 1 < depots->size; ++j)
+			{
+				depots->mem.base[j] = depots->mem.base[j + 1];
+			}
 			depots->size--;
+			continue;
 		}
 
-		if (manifestOverrides.contains(depot->depotId))
+		// 2. Native install selection filter: drop unselected depots
+		if (isNativeApp && nativeSel.has_value())
 		{
-			const uint64_t oldId = depot->manifestId;
-			depot->manifestId = manifestOverrides.at(depot->depotId);
-			LOG_DEBUG("Overrode %u's manifest %llu with %llu\n", depot->depotId, oldId, depot->manifestId);
+			if (nativeSel->depots.find(depot->depotId) == nativeSel->depots.end())
+			{
+				LOG_INFO("BuildDepotDependency: Removing unselected depot %u for app %u\n", depot->depotId, appId);
+				for (uint32_t j = i; j + 1 < depots->size; ++j)
+				{
+					depots->mem.base[j] = depots->mem.base[j + 1];
+				}
+				depots->size--;
+				continue;
+			}
 		}
 
-		LOG_DEBUG("Depot %u for %u -> %llu\n", depot->depotId, depot->appId, depot->manifestId);
+		// 3. Manifest GID priority: Lua setManifestid > config.manifestIds > Steam default
+		if (nativeSel.has_value() && nativeSel->gid.contains(depot->depotId))
+		{
+			const uint64_t oldGid = depot->manifestId;
+			depot->manifestId = nativeSel->gid.at(depot->depotId);
+			LOG_INFO("BuildDepotDependency: Overrode depot %u manifest %llu -> %llu from Lua\n",
+			         depot->depotId, oldGid, depot->manifestId);
+		}
+		else if (manifestOverrides.contains(depot->depotId))
+		{
+			const uint64_t oldGid = depot->manifestId;
+			depot->manifestId = manifestOverrides.at(depot->depotId);
+			LOG_INFO("BuildDepotDependency: Overrode depot %u manifest %llu -> %llu from config\n",
+			         depot->depotId, oldGid, depot->manifestId);
+		}
+
+		// 4. Manifest size patching (if Lua provides non-zero size)
+		if (nativeSel.has_value() && nativeSel->size.contains(depot->depotId) && nativeSel->size.at(depot->depotId) > 0)
+		{
+			const uint64_t oldSize = depot->manifestSize;
+			depot->manifestSize = nativeSel->size.at(depot->depotId);
+			LOG_INFO("BuildDepotDependency: Patched depot %u size %llu -> %llu from Lua\n",
+			         depot->depotId, oldSize, depot->manifestSize);
+		}
+
+		LOG_DEBUG("Depot %u for %u -> manifest %llu, size %llu\n",
+		          depot->depotId, depot->appId, depot->manifestId, depot->manifestSize);
+	}
+
+	// 5. Inject selected depots Steam omitted. Unowned (AdditionalApps) titles get
+	//    an empty depot list from BuildDepotDependency, which makes the native
+	//    install commit "0 mounted depots". Add them back with Lua GID/size.
+	if (isNativeApp && nativeSel.has_value())
+	{
+		for (const uint32_t depotId : nativeSel->depots)
+		{
+			bool present = false;
+			for (uint32_t i = 0; i < depots->size; ++i)
+			{
+				if (depots->mem.base[i].depotId == depotId)
+				{
+					present = true;
+					break;
+				}
+			}
+			if (present)
+			{
+				continue;
+			}
+
+			const auto gidIt = nativeSel->gid.find(depotId);
+			if (gidIt == nativeSel->gid.end() || gidIt->second == 0)
+			{
+				LOG_WARN("BuildDepotDependency: Cannot inject depot %u for app %u, no manifest GID in Lua\n",
+				         depotId, appId);
+				continue;
+			}
+
+			DepotInfo_t info {};
+			info.depotId = depotId;
+			info.appId = appId;
+			info.manifestId = gidIt->second;
+			const auto sizeIt = nativeSel->size.find(depotId);
+			info.manifestSize = sizeIt != nativeSel->size.end() ? sizeIt->second : 0;
+
+			if (!appendDepotInfo(depots, info))
+			{
+				LOG_ERROR("BuildDepotDependency: Failed to inject depot %u for app %u\n", depotId, appId);
+				break;
+			}
+
+			LOG_INFO("BuildDepotDependency: Injected depot %u for app %u (manifest %llu, size %llu)\n",
+			         depotId, appId, info.manifestId, info.manifestSize);
+		}
 	}
 
 	for (unsigned int i = 0; i < sharedDepots->size; i++)

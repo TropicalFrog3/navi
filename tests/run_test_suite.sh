@@ -51,6 +51,12 @@ g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT
 "$REPO_ROOT/SLSsteam/bin/test_migration"
 pass "Config and Cache Migration unit tests passed successfully."
 
+step "Test Case 1b: Native Install & Manifest Code Wire-Format Unit Tests"
+echo "Compiling and running test_native_install..."
+docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest sh -c \
+    "make bin/test_native_install && ./bin/test_native_install"
+pass "Native Install and Manifest Code unit tests passed successfully."
+
 step "Test Case 3: Auto-Updater Up-to-Date Scenario (Faked Local URL)"
 SANDBOX_HOME="$TEST_TMP/fake_home"
 mkdir -p "$SANDBOX_HOME/.local/share/SLSsteam" "$SANDBOX_HOME/.config/SLSsteam"

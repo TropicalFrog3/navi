@@ -40,6 +40,6 @@ public:
 	bool saveEncryptedTicketToCache(const CMsgClientRequestEncryptedAppTicketResponse& resp);
 
 	void recvEncryptedAppTicket(CNetPacket* pkt);
-	void recvAppTicket(const CNetPacket* pkt);
+	void recvAppTicket(CNetPacket* pkt);
 	void recvMsg(CNetPacket* pkt);
 }

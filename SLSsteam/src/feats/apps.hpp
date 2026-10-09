@@ -21,7 +21,7 @@ namespace Apps
 	bool unlockApp(const AppId_t appId, AppOwnershipInfo_t* info, const CSteamId& ownerId);
 	bool unlockApp(const AppId_t appId, AppOwnershipInfo_t* info);
 
-	void buildDepotDependency(CUtlVector<DepotInfo_t>* depots, CUtlVector<DepotInfo_t>* sharedDepots);
+	void buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, CUtlVector<DepotInfo_t>* sharedDepots);
 	bool checkAppOwnership(const AppId_t appId, AppOwnershipInfo_t* info);
 	void getLegacyCDKey(const AppId_t appId);
 	void getSubscribedApps(AppId_t* appList, const uint32_t size, uint32_t& count);

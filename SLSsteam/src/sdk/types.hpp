@@ -19,6 +19,29 @@ constexpr uint64_t GAME_TYPE_SHORTCUT = 0x2000000ULL;
 constexpr ENetPacket INVALID_NETPACKET_TYPE = -1;
 constexpr ENetPacket PROTOBUF_TYPE_MASK = 0x80000000;
 
+enum EAppOwnershipFlags : uint32_t { k_EAppOwnershipFlags_None = 0, k_EAppOwnershipFlags_OwnsLicense = 1, };
+
+#pragma pack(push,1)
+struct CSteamApp
+{
+	void** vfptr;
+	uint64_t GameID;
+	AppId_t nAppID;
+	uint16_t _unknown1;
+	uint16_t _unknown2;
+	uint32_t ReleaseState;
+	uint32_t OwnershipFlags;
+	uint32_t AppStateFlags;
+	uint64_t SteamID;
+	uint32_t PurchasedTime;
+	uint32_t ChangeNumber;
+	uint32_t LicenseExpirationTime;
+	AppId_t MasterSubAppID;
+	uint32_t eProtoAppType;
+	AppId_t ParentAppID;
+};
+#pragma pack(pop)
+
 enum class ERemoteStorageSyncState
 {
 	Disabled = 0x0,

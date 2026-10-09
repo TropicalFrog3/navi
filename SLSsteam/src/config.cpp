@@ -243,6 +243,7 @@ bool CConfig::loadSettings(bool firstLoad)
 	disableUpdates = getSetting<bool>(node, "DisableUpdates", true);
 	dumpInterfaceMaps = getSetting<bool>(node, "DumpClientInterfaces", false);
 	extendedLogging = getSetting<bool>(node, "ExtendedLogging", false);
+	downloadMode = getSetting<std::string>(node, "DownloadMode", "native");
 	
 	morrenusKey = getSetting<std::string>(node, "MorrenusKey", "");
 	ryuuKey = getSetting<std::string>(node, "RyuuKey", "");
@@ -626,7 +627,7 @@ bool CConfig::addAdditionalAppId(uint32_t appId)
 		return false;
 	}
 
-	LOG_INFO("addAdditionalAppId: Appended AppID %u to AdditionalApps in %s\n", appId, configPath.c_str());
+	// LOG_INFO("addAdditionalAppId: Appended AppID %u to AdditionalApps in %s\n", appId, configPath.c_str());
 	
 	// Update memory set immediately for hooks
 	auto current = addedAppIds.get();
@@ -946,7 +947,7 @@ void scanLuaPluginsAndUpdateConfig()
 	{
 		if (!g_config.isAddedAppId(appId))
 		{
-			LOG_INFO("scanLuaPluginsAndUpdateConfig: Adding AppID %u to AdditionalApps\n", appId);
+			// LOG_INFO("scanLuaPluginsAndUpdateConfig: Adding AppID %u to AdditionalApps\n", appId);
 			g_config.addAdditionalAppId(appId);
 		}
 		else

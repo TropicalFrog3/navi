@@ -5,6 +5,7 @@
 #include "../atomic_file.hpp"
 
 #include "fakeappid.hpp"
+#include "apps.hpp"
 
 #include "base64/base64.hpp"
 #include "yaml-cpp/emitter.h"
@@ -236,16 +237,17 @@ void Ticket::recvEncryptedAppTicket(CNetPacket* pkt)
 	LOG_DEBUG("Using encryptedTicket_%u from disk\n", msg.app_id());
 }
 
-void Ticket::recvAppTicket(const CNetPacket* pkt)
+void Ticket::recvAppTicket(CNetPacket* pkt)
 {
-	const auto msg = pkt->deserializeBody<CMsgClientGetAppOwnershipTicketResponse>();
+	auto msg = pkt->deserializeBody<CMsgClientGetAppOwnershipTicketResponse>();
 	if (msg.eresult() == k_EResultOK)
 	{
 		saveTicketToCache(msg);
 		return;
 	}
 
-	//We do not load tickets from disk in the network layer, otherwise they won't be loaded in offline mode
+	LOG_DEBUG("Dropping AppOwnershipTicketResponse for %u (Access Denied)\n", msg.app_id());
+	pkt->body->type = static_cast<uint32_t>(INVALID_NETPACKET_TYPE);
 }
 
 void Ticket::recvMsg(CNetPacket* pkt)

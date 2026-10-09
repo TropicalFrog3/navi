@@ -3,6 +3,7 @@
 #include "luadownload.hpp"
 #include "removelua.hpp"
 #include "apps.hpp"
+#include "nativeinstall.hpp"
 #include "../CppAccela/acceladownload.hpp"
 #include "../CppAccela/accelaluaparser.hpp"
 #include "../sdk/IClientAppManager.hpp"
@@ -1069,8 +1070,22 @@ namespace StoreInject
 
                                     LOG_INFO("StoreInject: Received /start-download for AppID %u with depots %s\n", appId, depots.c_str());
 
-                                    bool started = CppAccela::Download::startCachedInstall(appId, urlDecode(depots));
-                                    std::string respBody = started ? "{\"success\":true}" : "{\"success\":false,\"message\":\"Could not start cached install\"}";
+                                    std::string mode = g_config.downloadMode.get();
+                                    bool started = false;
+                                    std::string decodedDepots = urlDecode(depots);
+
+                                    if (mode == "accela")
+                                    {
+                                        started = CppAccela::Download::startCachedInstall(appId, decodedDepots);
+                                    }
+                                    else // "native" default
+                                    {
+                                        started = NativeInstall::arm(appId, decodedDepots);
+                                    }
+
+                                    std::string respBody = started
+                                        ? ("{\"success\":true,\"mode\":\"" + mode + "\"}")
+                                        : "{\"success\":false,\"message\":\"Could not start cached install\"}";
                                     std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
                                     send(new_socket, response.c_str(), response.size(), 0);
                                     close(new_socket);
@@ -1090,6 +1105,7 @@ namespace StoreInject
                                     LOG_INFO("StoreInject: Received /cancel-download for AppID %u\n", appId);
 
                                     CppAccela::Download::discardCachedInstall(appId);
+                                    NativeInstall::disarm(appId);
                                     std::string respBody = "{\"success\":true}";
                                     std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
                                     send(new_socket, response.c_str(), response.size(), 0);

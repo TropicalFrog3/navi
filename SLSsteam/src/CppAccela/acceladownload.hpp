@@ -71,14 +71,27 @@ namespace CppAccela::Download
                       uint8_t  a4,
                       const std::string& selectedDepots = "");
 
+    struct CachedRequest
+    {
+        IClientAppManager* pClientAppManager = nullptr;
+        uint32_t library = 0;
+        uint8_t a4 = 0;
+    };
+
     /**
-     * Cache an install request so it can be started later via startCachedInstall.
+     * Cache an install request so it can be started later via startCachedInstall or takeCachedInstall.
      * This is used to defer the download until the user selects depots in the injected UI.
      */
     void cacheInstallRequest(IClientAppManager* pClientAppManager,
                              uint32_t appId,
                              uint32_t library,
                              uint8_t a4);
+
+    /**
+     * Extract and remove a cached install request without launching anything.
+     * Used by NativeInstall to retrieve the cached manager and parameters.
+     */
+    bool takeCachedInstall(uint32_t appId, CachedRequest& out);
 
     /**
      * Start an install request that was previously cached, passing the user's selected depots.

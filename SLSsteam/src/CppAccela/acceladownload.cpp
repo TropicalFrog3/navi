@@ -608,6 +608,23 @@ namespace CppAccela::Download
         LOG_INFO("AccelaDownload: cached install request for appid=%u\n", appId);
     }
 
+    bool takeCachedInstall(uint32_t appId, CachedRequest& out)
+    {
+        std::lock_guard<std::mutex> lock(s_cachedRequestsMutex);
+        auto it = s_cachedRequests.find(appId);
+        if (it == s_cachedRequests.end())
+        {
+            LOG_WARN("AccelaDownload: takeCachedInstall failed, no request cached for appid=%u\n", appId);
+            return false;
+        }
+        out.pClientAppManager = it->second.pClientAppManager;
+        out.library = it->second.library;
+        out.a4 = it->second.a4;
+        s_cachedRequests.erase(it);
+        LOG_INFO("AccelaDownload: took cached install request for appid=%u\n", appId);
+        return true;
+    }
+
     bool startCachedInstall(uint32_t appId, const std::string& selectedDepots)
     {
         IClientAppManager* pClientAppManager = nullptr;

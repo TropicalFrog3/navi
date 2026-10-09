@@ -4,7 +4,7 @@
 #include <string>
 #include <unordered_map>
 
-class CProtoBufMsgBase;
+class CNetPacket;
 
 namespace DepotKeys
 {
@@ -22,8 +22,5 @@ namespace DepotKeys
 	bool isAccelaApp(uint32_t appId);
 
 	// Handle incoming protobuf messages — intercept failed depot decryption key responses
-	void recvMsg(CProtoBufMsgBase* msg);
-
-	// Handle outgoing protobuf messages — log depot key requests for debugging
-	void sendMsg(CProtoBufMsgBase* msg);
+	void recvMsg(CNetPacket* pkt);
 }

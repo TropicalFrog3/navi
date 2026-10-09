@@ -16,8 +16,9 @@ struct VFTableInfo_t
 	std::string functionName;
 	lm_address_t address;
 	unsigned int index;
+	bool optional;
 
-	VFTableInfo_t(const char* typeName, const char* functionName, const unsigned int index = NO_INDEX);
+	VFTableInfo_t(const char* typeName, const char* functionName, const unsigned int index = NO_INDEX, bool optional = false);
 	bool init();
 
 	std::string getPrintName() const;
@@ -120,6 +121,7 @@ namespace VFTIndexes
 		extern VFTableInfo_t IsUserSubscribedAppInTicket;
 		extern VFTableInfo_t SetLegacyCDKey;
 	}
+
 
 	extern std::vector<VFTableInfo_t*> functions;
 	extern std::unordered_map<std::string, std::map<std::string, unsigned int>> tableMap;
