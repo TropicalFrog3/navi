@@ -7,6 +7,7 @@
 #include <optional>
 #include <vector>
 #include <mutex>
+#include <memory>
 
 class IClientAppManager;
 
@@ -33,7 +34,7 @@ namespace NativeInstall
     bool arm(uint32_t appId, const std::string& csvDepots); // Called from HTTP thread
     void disarm(uint32_t appId);                            // Disarm and remove persistence
     void runFrame(InstallAppFn original);                   // Main thread only (ProcessIPCFrame)
-    std::optional<Selection> getSelection(uint32_t appId);  // Used by BuildDepotDependency
+    std::shared_ptr<const Selection> getSelection(uint32_t appId);  // Used by BuildDepotDependency
     bool isNative(uint32_t appId);                          // Check if app is native install
     bool isQueuedOrArmed(uint32_t appId);                   // True if queued to run or already armed
     void load();                                            // Load from native_installs.yaml

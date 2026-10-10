@@ -15,7 +15,7 @@
 
 namespace NativeInstall
 {
-    static std::unordered_map<uint32_t, Selection> s_selections;
+    static std::unordered_map<uint32_t, std::shared_ptr<Selection>> s_selections;
     static std::vector<QueuedInstall> s_queuedInstalls;
     static std::mutex s_mutex;
     static bool s_initialized = false;
@@ -67,9 +67,9 @@ namespace NativeInstall
                     }
                 }
 
-                s_selections[appId] = std::move(sel);
+                s_selections[appId] = std::make_shared<Selection>(std::move(sel));
                 LOG_INFO("NativeInstall: Loaded persisted selection for appId=%u (%zu depots)\n",
-                         appId, s_selections[appId].depots.size());
+                         appId, s_selections[appId]->depots.size());
             }
         }
         catch (const std::exception& e)
@@ -86,26 +86,26 @@ namespace NativeInstall
 
         {
             std::lock_guard<std::mutex> lock(s_mutex);
-            for (const auto& [appId, sel] : s_selections)
+            for (const auto& [appId, pSel] : s_selections)
             {
                 out << YAML::Key << appId << YAML::Value << YAML::BeginMap;
 
                 out << YAML::Key << "depots" << YAML::Value << YAML::BeginSeq;
-                for (uint32_t d : sel.depots)
+                for (uint32_t d : pSel->depots)
                 {
                     out << d;
                 }
                 out << YAML::EndSeq;
 
                 out << YAML::Key << "gid" << YAML::Value << YAML::BeginMap;
-                for (const auto& [depId, gid] : sel.gid)
+                for (const auto& [depId, gid] : pSel->gid)
                 {
                     out << YAML::Key << depId << YAML::Value << gid;
                 }
                 out << YAML::EndMap;
 
                 out << YAML::Key << "size" << YAML::Value << YAML::BeginMap;
-                for (const auto& [depId, sz] : sel.size)
+                for (const auto& [depId, sz] : pSel->size)
                 {
                     out << YAML::Key << depId << YAML::Value << sz;
                 }
@@ -201,7 +201,7 @@ namespace NativeInstall
 
         {
             std::lock_guard<std::mutex> lock(s_mutex);
-            s_selections[appId] = sel;
+            s_selections[appId] = std::make_shared<Selection>(std::move(sel));
             s_queuedInstalls.push_back({ cached.pClientAppManager, appId, cached.library, cached.a4 });
         }
 
@@ -246,7 +246,7 @@ namespace NativeInstall
         }
     }
 
-    std::optional<Selection> getSelection(uint32_t appId)
+    std::shared_ptr<const Selection> getSelection(uint32_t appId)
     {
         init();
         std::lock_guard<std::mutex> lock(s_mutex);
@@ -255,7 +255,7 @@ namespace NativeInstall
         {
             return it->second;
         }
-        return std::nullopt;
+        return nullptr;
     }
 
     bool isNative(uint32_t appId)

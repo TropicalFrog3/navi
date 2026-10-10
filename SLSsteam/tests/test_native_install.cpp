@@ -176,7 +176,7 @@ static void testNativeInstallPersistenceAndArm()
     assert(NativeInstall::isQueuedOrArmed(480) && "480 must be queued or armed");
 
     auto sel = NativeInstall::getSelection(480);
-    assert(sel.has_value() && "Selection must be present");
+    assert(sel != nullptr && "Selection must be present");
     assert(sel->depots.size() == 2 && "Must have 2 selected depots");
     assert(sel->depots.count(481) == 1 && "Depot 481 missing");
     assert(sel->depots.count(482) == 1 && "Depot 482 missing");

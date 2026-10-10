@@ -753,7 +753,7 @@ void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, 
 		}
 
 		// 2. Native install selection filter: drop unselected depots
-		if (isNativeApp && nativeSel.has_value())
+		if (isNativeApp && nativeSel)
 		{
 			if (nativeSel->depots.find(depot->depotId) == nativeSel->depots.end())
 			{
@@ -768,7 +768,7 @@ void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, 
 		}
 
 		// 3. Manifest GID priority: Lua setManifestid > config.manifestIds > Steam default
-		if (nativeSel.has_value() && nativeSel->gid.contains(depot->depotId))
+		if (nativeSel && nativeSel->gid.contains(depot->depotId))
 		{
 			const uint64_t oldGid = depot->manifestId;
 			depot->manifestId = nativeSel->gid.at(depot->depotId);
@@ -784,7 +784,7 @@ void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, 
 		}
 
 		// 4. Manifest size patching (if Lua provides non-zero size)
-		if (nativeSel.has_value() && nativeSel->size.contains(depot->depotId) && nativeSel->size.at(depot->depotId) > 0)
+		if (nativeSel && nativeSel->size.contains(depot->depotId) && nativeSel->size.at(depot->depotId) > 0)
 		{
 			const uint64_t oldSize = depot->manifestSize;
 			depot->manifestSize = nativeSel->size.at(depot->depotId);
@@ -799,7 +799,11 @@ void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, 
 	// 5. Inject selected depots Steam omitted. Unowned (AdditionalApps) titles get
 	//    an empty depot list from BuildDepotDependency, which makes the native
 	//    install commit "0 mounted depots". Add them back with Lua GID/size.
-	if (isNativeApp && nativeSel.has_value())
+	//    Guard: only inject when Steam returned NO depots (size==0). When Steam
+	//    already provided platform-appropriate depots, injecting cross-platform
+	//    ones (e.g. Windows/macOS depots on Linux) is wrong and triggers
+	//    unnecessary buffer reallocation.
+	if (isNativeApp && nativeSel && depots->size == 0)
 	{
 		for (const uint32_t depotId : nativeSel->depots)
 		{
