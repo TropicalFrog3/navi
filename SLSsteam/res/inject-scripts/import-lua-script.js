@@ -1089,12 +1089,7 @@
                         checkedFiles = {};
                         updateFileList();
 
-                        // Trigger the installation window in Steam for each AppID
-                        appidsToInstall.forEach(function (id, idx) {
-                            setTimeout(function () {
-                                window.location.href = 'steam://install/' + id;
-                            }, idx * 500);
-                        });
+                        // Library hot-reload is handled dynamically via Package 0 injection; no steam://install prompt needed
                     } else {
                         status.style.color = '#ff4d4d';
                         status.innerText = 'Failed: ' + (res.message || 'Unknown error');

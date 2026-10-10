@@ -114,7 +114,6 @@ static void onFileChange(const char* filename)
 	scanLuaPluginsAndUpdateConfig();
 	DepotKeys::scanLuaPluginsForDepotKeys();
 	Licenses::queueRefresh();
-	Licenses::drainPendingRefresh();
 	LOG_NOTIFY("Config reloaded!");
 }
 
@@ -636,6 +635,12 @@ bool CConfig::addAdditionalAppId(uint32_t appId)
 	auto current = addedAppIds.get();
 	current.insert(appId);
 	addedAppIds = current;
+
+	{
+		const std::lock_guard lock(appsChangedMutex);
+		newApps.emplace(appId);
+	}
+	Licenses::queueRefresh();
 	
 	return true;
 }
@@ -746,6 +751,12 @@ bool CConfig::removeAdditionalAppId(uint32_t appId)
 	{
 		addedAppIds = current;
 		LOG_INFO("removeAdditionalAppId: Updated memory set for AppID %u\n", appId);
+
+		{
+			const std::lock_guard lock(appsChangedMutex);
+			removedApps.emplace(appId);
+		}
+		Licenses::queueRefresh();
 	}
 
 	return true;

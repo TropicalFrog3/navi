@@ -80,46 +80,64 @@ namespace NativeInstall
 
     void save()
     {
-        std::string path = getPersistPath();
-        YAML::Emitter out;
-        out << YAML::BeginMap;
-
+        try
         {
-            std::lock_guard<std::mutex> lock(s_mutex);
-            for (const auto& [appId, pSel] : s_selections)
+            std::string path = getPersistPath();
+            YAML::Emitter out;
+            out << YAML::BeginMap;
+
             {
-                out << YAML::Key << appId << YAML::Value << YAML::BeginMap;
-
-                out << YAML::Key << "depots" << YAML::Value << YAML::BeginSeq;
-                for (uint32_t d : pSel->depots)
+                std::lock_guard<std::mutex> lock(s_mutex);
+                for (const auto& [appId, pSel] : s_selections)
                 {
-                    out << d;
-                }
-                out << YAML::EndSeq;
+                    out << YAML::Key << appId << YAML::Value << YAML::BeginMap;
 
-                out << YAML::Key << "gid" << YAML::Value << YAML::BeginMap;
-                for (const auto& [depId, gid] : pSel->gid)
+                    out << YAML::Key << "depots" << YAML::Value << YAML::BeginSeq;
+                    for (uint32_t d : pSel->depots)
+                    {
+                        out << d;
+                    }
+                    out << YAML::EndSeq;
+
+                    out << YAML::Key << "gid" << YAML::Value << YAML::BeginMap;
+                    for (const auto& [depId, gid] : pSel->gid)
+                    {
+                        out << YAML::Key << depId << YAML::Value << gid;
+                    }
+                    out << YAML::EndMap;
+
+                    out << YAML::Key << "size" << YAML::Value << YAML::BeginMap;
+                    for (const auto& [depId, sz] : pSel->size)
+                    {
+                        out << YAML::Key << depId << YAML::Value << sz;
+                    }
+                    out << YAML::EndMap;
+
+                    out << YAML::EndMap;
+                }
+            }
+
+            out << YAML::EndMap;
+
+            if (out.good())
+            {
+                if (!AtomicFile::write(path, out.c_str(), true))
                 {
-                    out << YAML::Key << depId << YAML::Value << gid;
+                    LOG_ERROR("NativeInstall: Failed to write %s\n", path.c_str());
                 }
-                out << YAML::EndMap;
-
-                out << YAML::Key << "size" << YAML::Value << YAML::BeginMap;
-                for (const auto& [depId, sz] : pSel->size)
-                {
-                    out << YAML::Key << depId << YAML::Value << sz;
-                }
-                out << YAML::EndMap;
-
-                out << YAML::EndMap;
+            }
+            else
+            {
+                LOG_ERROR("NativeInstall: YAML::Emitter error: %s\n", out.GetLastError().c_str());
             }
         }
-
-        out << YAML::EndMap;
-
-        if (!AtomicFile::write(path, out.c_str(), true))
+        catch (const std::exception& e)
         {
-            LOG_ERROR("NativeInstall: Failed to write %s\n", path.c_str());
+            LOG_ERROR("NativeInstall: save failed with exception: %s\n", e.what());
+        }
+        catch (...)
+        {
+            LOG_ERROR("NativeInstall: save failed with unknown exception\n");
         }
     }
 
@@ -132,117 +150,169 @@ namespace NativeInstall
 
     bool arm(uint32_t appId, const std::string& csvDepots)
     {
-        init();
-
-        CppAccela::Download::CachedRequest cached;
-        if (!CppAccela::Download::takeCachedInstall(appId, cached))
+        try
         {
-            LOG_WARN("NativeInstall: arm failed, no cached install request for appId=%u\n", appId);
+            init();
+
+            CppAccela::Download::CachedRequest cached;
+            if (!CppAccela::Download::takeCachedInstall(appId, cached))
+            {
+                LOG_WARN("NativeInstall: arm failed, no cached install request for appId=%u\n", appId);
+                return false;
+            }
+
+            Selection sel;
+
+            // Parse user-selected depots from comma-separated string
+            std::stringstream ss(csvDepots);
+            std::string item;
+            while (std::getline(ss, item, ','))
+            {
+                while (!item.empty() && isspace(static_cast<unsigned char>(item.front()))) item.erase(item.begin());
+                while (!item.empty() && isspace(static_cast<unsigned char>(item.back()))) item.pop_back();
+                if (!item.empty())
+                {
+                    char* pEnd = nullptr;
+                    unsigned long val = std::strtoul(item.c_str(), &pEnd, 10);
+                    if (pEnd != item.c_str() && val > 0)
+                    {
+                        sel.depots.insert(static_cast<uint32_t>(val));
+                    }
+                }
+            }
+
+            LOG_INFO("NativeInstall: arming appId=%u with %zu depots: %s\n",
+                     appId, sel.depots.size(), csvDepots.c_str());
+
+            // Parse Lua plugin to collect manifest GIDs and sizes
+            std::string luaPath = CppAccela::Path::stplugDir() + "/" + std::to_string(appId) + ".lua";
+            if (std::filesystem::exists(luaPath))
+            {
+                try
+                {
+                    auto res = CppAccela::LuaParser::parseFile(luaPath);
+                    for (const auto& [depotStr, gidStr] : res.manifests)
+                    {
+                        if (depotStr.empty() || gidStr.empty()) continue;
+                        char* pEndD = nullptr;
+                        unsigned long depId = std::strtoul(depotStr.c_str(), &pEndD, 10);
+                        char* pEndG = nullptr;
+                        unsigned long long gid = std::strtoull(gidStr.c_str(), &pEndG, 10);
+                        if (pEndD != depotStr.c_str() && pEndG != gidStr.c_str() && depId > 0 && gid > 0)
+                        {
+                            sel.gid[static_cast<uint32_t>(depId)] = gid;
+                        }
+                    }
+                    for (const auto& [depotStr, szStr] : res.manifestSizes)
+                    {
+                        if (depotStr.empty() || szStr.empty()) continue;
+                        char* pEndD = nullptr;
+                        unsigned long depId = std::strtoul(depotStr.c_str(), &pEndD, 10);
+                        char* pEndS = nullptr;
+                        unsigned long long sz = std::strtoull(szStr.c_str(), &pEndS, 10);
+                        if (pEndD != depotStr.c_str() && pEndS != szStr.c_str() && depId > 0 && sz > 0)
+                        {
+                            sel.size[static_cast<uint32_t>(depId)] = sz;
+                        }
+                    }
+                }
+                catch (const std::exception& e)
+                {
+                    LOG_WARN("NativeInstall: Error parsing lua %s: %s\n", luaPath.c_str(), e.what());
+                }
+                catch (...)
+                {
+                    LOG_WARN("NativeInstall: Unknown error parsing lua %s\n", luaPath.c_str());
+                }
+            }
+
+            // Rescan depot keys from Lua files
+            DepotKeys::scanLuaPluginsForDepotKeys();
+
+            // Phase 0: Pre-cache local manifests
+            for (uint32_t depotId : sel.depots)
+            {
+                auto it = sel.gid.find(depotId);
+                if (it != sel.gid.end() && it->second != 0)
+                {
+                    try
+                    {
+                        ManifestCode::ensureManifestFile(appId, depotId, it->second);
+                    }
+                    catch (...) {}
+                }
+            }
+
+            {
+                std::lock_guard<std::mutex> lock(s_mutex);
+                s_selections[appId] = std::make_shared<Selection>(std::move(sel));
+                s_queuedInstalls.push_back({ cached.pClientAppManager, appId, cached.library, cached.a4 });
+            }
+
+            save();
+            return true;
+        }
+        catch (const std::exception& e)
+        {
+            LOG_ERROR("NativeInstall: arm exception: %s\n", e.what());
             return false;
         }
-
-        Selection sel;
-
-        // Parse user-selected depots from comma-separated string
-        std::stringstream ss(csvDepots);
-        std::string item;
-        while (std::getline(ss, item, ','))
+        catch (...)
         {
-            while (!item.empty() && isspace(static_cast<unsigned char>(item.front()))) item.erase(item.begin());
-            while (!item.empty() && isspace(static_cast<unsigned char>(item.back()))) item.pop_back();
-            if (!item.empty())
-            {
-                try
-                {
-                    sel.depots.insert(std::stoul(item));
-                }
-                catch (...) {}
-            }
+            LOG_ERROR("NativeInstall: arm unknown exception\n");
+            return false;
         }
-
-        LOG_INFO("NativeInstall: arming appId=%u with %zu depots: %s\n",
-                 appId, sel.depots.size(), csvDepots.c_str());
-
-        // Parse Lua plugin to collect manifest GIDs and sizes
-        std::string luaPath = CppAccela::Path::stplugDir() + "/" + std::to_string(appId) + ".lua";
-        if (std::filesystem::exists(luaPath))
-        {
-            auto res = CppAccela::LuaParser::parseFile(luaPath);
-            for (const auto& [depotStr, gidStr] : res.manifests)
-            {
-                try
-                {
-                    sel.gid[std::stoul(depotStr)] = std::stoull(gidStr);
-                }
-                catch (...) {}
-            }
-            for (const auto& [depotStr, szStr] : res.manifestSizes)
-            {
-                try
-                {
-                    sel.size[std::stoul(depotStr)] = std::stoull(szStr);
-                }
-                catch (...) {}
-            }
-        }
-
-        // Rescan depot keys from Lua files
-        DepotKeys::scanLuaPluginsForDepotKeys();
-
-        // Phase 0: Pre-cache local manifests
-        for (uint32_t depotId : sel.depots)
-        {
-            auto it = sel.gid.find(depotId);
-            if (it != sel.gid.end() && it->second != 0)
-            {
-                ManifestCode::ensureManifestFile(appId, depotId, it->second);
-            }
-        }
-
-        {
-            std::lock_guard<std::mutex> lock(s_mutex);
-            s_selections[appId] = std::make_shared<Selection>(std::move(sel));
-            s_queuedInstalls.push_back({ cached.pClientAppManager, appId, cached.library, cached.a4 });
-        }
-
-        save();
-        return true;
     }
 
     void disarm(uint32_t appId)
     {
+        try
         {
-            std::lock_guard<std::mutex> lock(s_mutex);
-            s_selections.erase(appId);
-            std::erase_if(s_queuedInstalls, [appId](const QueuedInstall& q) {
-                return q.appId == appId;
-            });
+            {
+                std::lock_guard<std::mutex> lock(s_mutex);
+                s_selections.erase(appId);
+                std::erase_if(s_queuedInstalls, [appId](const QueuedInstall& q) {
+                    return q.appId == appId;
+                });
+            }
+            save();
+            LOG_INFO("NativeInstall: disarmed and removed persisted selection for appId=%u\n", appId);
         }
-        save();
-        LOG_INFO("NativeInstall: disarmed and removed persisted selection for appId=%u\n", appId);
+        catch (...) {}
     }
 
     void runFrame(InstallAppFn original)
     {
-        init();
-
-        std::vector<QueuedInstall> batch;
+        try
         {
-            std::lock_guard<std::mutex> lock(s_mutex);
-            if (!s_queuedInstalls.empty())
+            init();
+
+            std::vector<QueuedInstall> batch;
             {
-                batch.swap(s_queuedInstalls);
+                std::lock_guard<std::mutex> lock(s_mutex);
+                if (!s_queuedInstalls.empty())
+                {
+                    batch.swap(s_queuedInstalls);
+                }
+            }
+
+            for (const auto& q : batch)
+            {
+                LOG_INFO("NativeInstall: Running original InstallApp on main thread for appId=%u (pMgr=%p, lib=%u, a4=%u)\n",
+                         q.appId, (void*)q.pClientAppManager, q.library, q.a4);
+                if (original)
+                {
+                    original(q.pClientAppManager, q.appId, q.library, q.a4);
+                }
             }
         }
-
-        for (const auto& q : batch)
+        catch (const std::exception& e)
         {
-            LOG_INFO("NativeInstall: Running original InstallApp on main thread for appId=%u (pMgr=%p, lib=%u, a4=%u)\n",
-                     q.appId, (void*)q.pClientAppManager, q.library, q.a4);
-            if (original)
-            {
-                original(q.pClientAppManager, q.appId, q.library, q.a4);
-            }
+            LOG_ERROR("NativeInstall: runFrame exception: %s\n", e.what());
+        }
+        catch (...)
+        {
+            LOG_ERROR("NativeInstall: runFrame unknown exception\n");
         }
     }
 

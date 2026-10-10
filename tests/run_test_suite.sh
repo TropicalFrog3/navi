@@ -39,40 +39,52 @@ export SLS_UNINSTALL_AUTO_ACCEPT=1
 
 step "Test Case 1 & 2: Config Migration and Cache Migration Unit Tests"
 echo "Building and running unit tests with test_migration..."
-make -C "$REPO_ROOT/SLSsteam" audit-libs -j"$(nproc)" >/dev/null 2>&1 || "$REPO_ROOT/SLSsteam/docker/build.sh" >/dev/null
+if [ ! -x "$REPO_ROOT/SLSsteam/bin/test_migration" ]; then
+    make -C "$REPO_ROOT/SLSsteam" audit-libs -j"$(nproc)" >/dev/null 2>&1 || "$REPO_ROOT/SLSsteam/docker/build.sh" >/dev/null
 
-g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/SLSsteam/include" \
-    "$REPO_ROOT/SLSsteam/tests/test_migration.cpp" \
-    "$REPO_ROOT/SLSsteam/src/feats/config_migration.cpp" \
-    "$REPO_ROOT/SLSsteam/src/feats/cache_migration.cpp" \
-    "$REPO_ROOT/SLSsteam/lib/libyaml-cpp.a" \
-    -o "$REPO_ROOT/SLSsteam/bin/test_migration"
+    g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/SLSsteam/include" \
+        "$REPO_ROOT/SLSsteam/tests/test_migration.cpp" \
+        "$REPO_ROOT/SLSsteam/src/feats/config_migration.cpp" \
+        "$REPO_ROOT/SLSsteam/src/feats/cache_migration.cpp" \
+        "$REPO_ROOT/SLSsteam/lib/libyaml-cpp.a" \
+        -o "$REPO_ROOT/SLSsteam/bin/test_migration"
+fi
 
 "$REPO_ROOT/SLSsteam/bin/test_migration"
 pass "Config and Cache Migration unit tests passed successfully."
 
 step "Test Case 1b: Native Install & Manifest Code Wire-Format Unit Tests"
 echo "Compiling and running test_native_install..."
-docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest sh -c \
-    "make bin/test_native_install && ./bin/test_native_install"
+if command -v docker >/dev/null 2>&1; then
+    docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest sh -c \
+        "make bin/test_native_install && ./bin/test_native_install"
+elif [ -x "$REPO_ROOT/SLSsteam/bin/test_native_install" ]; then
+    "$REPO_ROOT/SLSsteam/bin/test_native_install"
+else
+    fail "Neither docker nor precompiled bin/test_native_install found."
+fi
 pass "Native Install and Manifest Code unit tests passed successfully."
 
 step "Test Case 3: Auto-Updater Up-to-Date Scenario (Faked Local URL)"
 SANDBOX_HOME="$TEST_TMP/fake_home"
 mkdir -p "$SANDBOX_HOME/.local/share/SLSsteam" "$SANDBOX_HOME/.config/SLSsteam"
 
-# Compile test_autoupdate harness (host or docker)
-if ! g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/SLSsteam/include" \
-    "$REPO_ROOT/SLSsteam/tests/test_autoupdate.cpp" \
-    "$REPO_ROOT/SLSsteam/src/feats/autoupdate.cpp" \
-    "$REPO_ROOT/SLSsteam/src/curl.cpp" \
-    "$REPO_ROOT/SLSsteam/lib/libyaml-cpp.a" \
-    -lssl -lcrypto -lcurl \
-    -o "$REPO_ROOT/SLSsteam/bin/test_autoupdate" 2>/dev/null; then
-    docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest \
-        g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isysteminclude \
-        tests/test_autoupdate.cpp src/feats/autoupdate.cpp src/curl.cpp lib/libyaml-cpp.a \
-        -lssl -lcrypto -lcurl -o bin/test_autoupdate
+# Compile test_autoupdate harness (host or docker) if not already present
+if [ ! -x "$REPO_ROOT/SLSsteam/bin/test_autoupdate" ]; then
+    if ! g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/SLSsteam/include" \
+        "$REPO_ROOT/SLSsteam/tests/test_autoupdate.cpp" \
+        "$REPO_ROOT/SLSsteam/src/feats/autoupdate.cpp" \
+        "$REPO_ROOT/SLSsteam/src/curl.cpp" \
+        "$REPO_ROOT/SLSsteam/lib/libyaml-cpp.a" \
+        -lssl -lcrypto -lcurl \
+        -o "$REPO_ROOT/SLSsteam/bin/test_autoupdate" 2>/dev/null; then
+        if command -v docker >/dev/null 2>&1; then
+            docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest \
+                g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isysteminclude \
+                tests/test_autoupdate.cpp src/feats/autoupdate.cpp src/curl.cpp lib/libyaml-cpp.a \
+                -lssl -lcrypto -lcurl -o bin/test_autoupdate
+        fi
+    fi
 fi
 
 MOCK_VER_FILE="$TEST_TMP/version_uptodate.yaml"
@@ -408,17 +420,24 @@ pass "Uninstaller is completely idempotent."
 
 step "Test Case 8: Atomic Staging, Directory Merging, and Cancellation Recovery"
 echo "Compiling and running test_atomic_staging unit tests..."
-g++ -std=c++20 "$REPO_ROOT/SLSsteam/tests/test_atomic_staging.cpp" -o "$REPO_ROOT/SLSsteam/bin/test_atomic_staging"
+if [ ! -x "$REPO_ROOT/SLSsteam/bin/test_atomic_staging" ] && command -v g++ >/dev/null 2>&1; then
+    g++ -std=c++20 "$REPO_ROOT/SLSsteam/tests/test_atomic_staging.cpp" -o "$REPO_ROOT/SLSsteam/bin/test_atomic_staging"
+fi
 "$REPO_ROOT/SLSsteam/bin/test_atomic_staging"
 pass "Atomic staging, merge, and cancellation safety unit tests passed successfully."
 
 step "Test Case 9: Live Steam UI Flow & Native Hook Integration Test"
-if pgrep -f "ubuntu12_32/steam" >/dev/null 2>&1 && curl -s --connect-timeout 2 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
-    echo "Local host Steam CEF remote debugging active on port 8080. Running UI automation flow test..."
-    python3 "$REPO_ROOT/tests/test_steam_ui_flow.py" --skip-if-no-steam
+PYTHON_CMD="python3"
+if [ -x "$HOME/.local/share/ACCELA/.venv/bin/python" ]; then
+    PYTHON_CMD="$HOME/.local/share/ACCELA/.venv/bin/python"
+fi
+
+if pgrep -f "steam" >/dev/null 2>&1 && curl -s --connect-timeout 2 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
+    echo "Steam CEF remote debugging active on port 8080. Running UI automation flow test..."
+    $PYTHON_CMD "$REPO_ROOT/tests/test_steam_ui_flow.py" --skip-if-no-steam
     pass "Live Steam UI flow test passed successfully."
 else
-    echo -e "${YELLOW}[SKIP]${NC} Local host Steam is not running with CEF remote debugging on port 8080."
+    echo -e "${YELLOW}[SKIP]${NC} Steam is not currently running with CEF remote debugging on port 8080."
 fi
 
 step "ALL TEST CASES PASSED SUCCESSFULLY!"

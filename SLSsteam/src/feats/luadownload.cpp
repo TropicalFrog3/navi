@@ -7,6 +7,8 @@
 #include "../CppAccela/accelapath.hpp"
 #include "../CppAccela/accelazip.hpp"
 #include "../CppAccela/accelaluaparser.hpp"
+#include "depotkeys.hpp"
+#include "licenses.hpp"
 
 #include <algorithm>
 #include <cstdio>
@@ -117,10 +119,6 @@ namespace LuaDownload
                 js += "if(a) a.style.filter='" + color + "';";
             }
             js += "});";
-            if (text == "Installed!")
-            {
-                js += "window.location.href='steam://install/" + appId + "';";
-            }
             js += "})();";
 
             CDPInject::injectJS(page.webSocketDebuggerUrl, js);
@@ -579,6 +577,15 @@ namespace LuaDownload
         std::filesystem::remove_all(extractDir);
 
         LOG_INFO("LuaDownload: Successfully installed appid=%s\n", appId.c_str());
+
+        // Ensure configuration and licenses are updated immediately for live library hot-reload
+        try {
+            uint32_t id = static_cast<uint32_t>(std::stoul(appId));
+            g_config.addAdditionalAppId(id);
+            DepotKeys::scanLuaPluginsForDepotKeys();
+            Licenses::queueRefresh();
+        } catch (...) {}
+
         pushStatus(appId, "Installed!", "hue-rotate(110deg) brightness(1.2)");
         return true;
     }

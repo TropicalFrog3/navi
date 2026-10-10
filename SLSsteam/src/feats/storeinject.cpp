@@ -4,6 +4,8 @@
 #include "removelua.hpp"
 #include "apps.hpp"
 #include "nativeinstall.hpp"
+#include "depotkeys.hpp"
+#include "licenses.hpp"
 #include "../CppAccela/acceladownload.hpp"
 #include "../CppAccela/accelaluaparser.hpp"
 #include "../sdk/IClientAppManager.hpp"
@@ -435,7 +437,14 @@ namespace StoreInject
             }
         }
 
-        uint32_t appIdVal = std::stoul(appId);
+        uint32_t appIdVal = 0;
+        try { appIdVal = std::stoul(appId); } catch (...) {}
+        if (appIdVal > 0) {
+            g_config.addAdditionalAppId(appIdVal);
+            scanLuaPluginsAndUpdateConfig();
+            DepotKeys::scanLuaPluginsForDepotKeys();
+            Licenses::queueRefresh();
+        }
 
         std::string msg = "Successfully installed";
         if (luaCount > 0) {
@@ -705,8 +714,7 @@ namespace StoreInject
                                             try {
                                                 uint32_t appId = std::stoul(pid);
                                                 g_config.addAdditionalAppId(appId);
-                                                // Apps::setInstalled(appId);
-                                                // scanLuaPluginsAndUpdateConfig();
+                                                Licenses::queueRefresh();
                                             } catch (...) {
                                                 LOG_WARN("LuaDownload: Failed to register appid=%s in library\n", pid.c_str());
                                             }
@@ -990,49 +998,12 @@ namespace StoreInject
                                             std::string depotsJson = "[";
                                             bool first = true;
                                             for (auto& [depotId, info] : parseResult.depots) {
-                                                if (g_pClientApps) {
-                                                    uint32_t depotIdNum = 0;
-                                                    try { depotIdNum = std::stoul(depotId); } catch (...) {}
-                                                    
-                                                    if (depotIdNum > 0) {
-                                                        if (info.description.empty() || info.description == ("Depot " + depotId)) {
-                                                            char nameBuf[256] = {0};
-                                                            std::string key = "depots/" + depotId + "/name";
-                                                            if (g_pClientApps->getAppData(appId, key.c_str(), nameBuf, sizeof(nameBuf)) > 0 && nameBuf[0]) {
-                                                                info.description = nameBuf;
-                                                            } else {
-                                                                // If the depot has no specific name, use the game's name
-                                                                char gameNameBuf[256] = {0};
-                                                                if (g_pClientApps->getAppData(appId, "common/name", gameNameBuf, sizeof(gameNameBuf)) > 0 && gameNameBuf[0]) {
-                                                                    info.description = std::string(gameNameBuf) + " Content";
-                                                                } else {
-                                                                    info.description = "Base Game Content";
-                                                                }
-                                                            }
-                                                        }
-                                                        
-                                                        if (info.sizeBytes.empty()) {
-                                                            char sizeBuf[64] = {0};
-                                                            std::string key = "depots/" + depotId + "/maxsize";
-                                                            if (g_pClientApps->getAppData(appId, key.c_str(), sizeBuf, sizeof(sizeBuf)) > 0 && sizeBuf[0]) {
-                                                                info.sizeBytes = sizeBuf;
-                                                            }
-                                                        }
-                                                    }
-                                                }
+                                                std::string desc = info.description.empty() ? ("Depot " + depotId) : info.description;
+                                                std::string sz = info.sizeBytes;
+                                                std::string depotOs = "";
 
-                                                // Look up OS info for this depot
-                                                std::string depotOs;
-                                                if (g_pClientApps) {
-                                                    char osBuf[64] = {0};
-                                                    std::string osKey = "depots/" + depotId + "/config/oslist";
-                                                    if (g_pClientApps->getAppData(appId, osKey.c_str(), osBuf, sizeof(osBuf)) > 0 && osBuf[0]) {
-                                                        depotOs = osBuf;
-                                                    }
-                                                }
-                                                
                                                 if (!first) depotsJson += ",";
-                                                depotsJson += "{\"id\":\"" + depotId + "\",\"name\":\"" + info.description + "\",\"size\":\"" + info.sizeBytes + "\",\"os\":\"" + depotOs + "\"}";
+                                                depotsJson += "{\"id\":\"" + depotId + "\",\"name\":\"" + desc + "\",\"size\":\"" + sz + "\",\"os\":\"" + depotOs + "\"}";
                                                 first = false;
                                             }
                                             depotsJson += "]";
@@ -1059,7 +1030,13 @@ namespace StoreInject
                                 {
                                     size_t idEndPos = request.find("&", idPos);
                                     std::string idStr = request.substr(idPos + 3, (idEndPos == std::string::npos) ? std::string::npos : (idEndPos - (idPos + 3)));
-                                    uint32_t appId = std::stoul(idStr);
+                                    char* pEndApp = nullptr;
+                                    uint32_t appId = static_cast<uint32_t>(std::strtoul(idStr.c_str(), &pEndApp, 10));
+                                    if (pEndApp == idStr.c_str() || appId == 0) {
+                                        close(new_socket);
+                                        handled = true;
+                                        continue;
+                                    }
 
                                     std::string depots = "";
                                     size_t depotsPos = request.find("depots=");

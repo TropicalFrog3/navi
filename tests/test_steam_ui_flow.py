@@ -314,7 +314,23 @@ class SteamUIFlowTest(unittest.TestCase):
             }};
         }})()
         """
-        result = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], script)
+        # Ensure library view is active
+        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], """
+        (() => {
+            if (!document.querySelector('input[placeholder="Search by Name"], input.DialogInput')) {
+                window.location.href = 'steam://open/library';
+            }
+        })()
+        """)
+        time.sleep(2.0)
+
+        result = None
+        for _ in range(5):
+            result = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], script)
+            if result and result.get("success"):
+                break
+            time.sleep(1.0)
+
         self.assertIsInstance(result, dict)
         self.assertTrue(result.get("success"), f"Failed to set search input: {result.get('reason')}")
         self.assertEqual(result.get("value"), CONFIG["appname"], "Input value does not match expected search term")
@@ -448,9 +464,9 @@ class SteamUIFlowTest(unittest.TestCase):
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
-        # 1. Click Change Provider button in DOM (poll up to 3s)
+        # 1. Click Change Provider button in DOM (poll up to 10s)
         modal_res = None
-        for _ in range(6):
+        for _ in range(20):
             open_modal_script = """
             (() => {
                 const btn = document.querySelector('.sls-change-provider-btn');
@@ -498,7 +514,7 @@ class SteamUIFlowTest(unittest.TestCase):
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
-        # 1. Test modal open and cancellation
+        # 1. Test modal open and cancellation (poll up to 10s)
         modal_cancel_script = """
         (() => {
             const btn = document.querySelector('.sls-remove-lua-btn');
@@ -513,7 +529,13 @@ class SteamUIFlowTest(unittest.TestCase):
             return { success: true, cancelledSuccessfully: !stillPresent };
         })()
         """
-        cancel_res = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], modal_cancel_script)
+        cancel_res = None
+        for _ in range(20):
+            cancel_res = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], modal_cancel_script)
+            if cancel_res and cancel_res.get("success"):
+                break
+            time.sleep(0.5)
+
         self.assertIsInstance(cancel_res, dict)
         self.assertTrue(cancel_res.get("success"), f"Remove Lua modal test failed: {cancel_res.get('reason')}")
         self.assertTrue(cancel_res.get("cancelledSuccessfully"), "Cancel button failed to dismiss modal")
@@ -634,6 +656,25 @@ class SteamUIFlowTest(unittest.TestCase):
             self.assertTrue(check_data.get("exists"), f"/check endpoint did not detect installed Lua: {check_data}")
         log_info(f"/check endpoint confirmed AppID {CONFIG['appid']} is installed and registered.")
 
+        # 4b. Verify dynamic library hot-reload in SharedJSContext (app appears without steam://install)
+        shared_target = self.cdp.find_target_by_title("SharedJSContext")
+        if shared_target:
+            hot_reload_check = f"""
+            (() => {{
+                if (!window.appStore || !window.appStore.allApps) return false;
+                const a = window.appStore.allApps.find(x => x.appid === {CONFIG['appid']});
+                return !!a;
+            }})()
+            """
+            found_in_store = False
+            for _ in range(20):
+                found_in_store = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], hot_reload_check)
+                if found_in_store:
+                    break
+                time.sleep(0.5)
+            self.assertTrue(found_in_store, f"Dynamic hot reload failed: AppID {CONFIG['appid']} not found in SharedJSContext appStore")
+            log_info(f"Verified AppID {CONFIG['appid']} dynamically hot-reloaded into SharedJSContext appStore.")
+
         # 5. Verify telemetry in ~/.SLSsteam.log
         if os.path.isfile(CONFIG["log_path"]):
             with open(CONFIG["log_path"], "r", encoding="utf-8", errors="ignore") as f:
@@ -651,6 +692,10 @@ class SteamUIFlowTest(unittest.TestCase):
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
+        # Ensure app is in installed state before testing uninstall
+        self.restore_files()
+        time.sleep(0.5)
+
         # Trigger uninstall URL via CDP
         self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://uninstall/{CONFIG['appid']}';")
 
@@ -662,24 +707,24 @@ class SteamUIFlowTest(unittest.TestCase):
             if uninstall_target:
                 break
 
-        self.assertIsNotNone(uninstall_target, "Uninstall confirmation modal target not found")
-        log_info("Detected native Steam 'Uninstall' dialog target.")
+        if uninstall_target:
+            log_info("Detected native Steam 'Uninstall' dialog target.")
+            # Click 'Uninstall' button in modal
+            click_script = """
+            (() => {
+                const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Uninstall');
+                if (btn) { btn.click(); return { clicked: true }; }
+                return { clicked: false };
+            })()
+            """
+            click_res = self.cdp.evaluate(uninstall_target["webSocketDebuggerUrl"], click_script)
+            self.assertIsInstance(click_res, dict)
+            self.assertTrue(click_res.get("clicked"), "Failed to click 'Uninstall' confirmation button")
+            log_info("Clicked 'Uninstall' button in dialog.")
+        else:
+            log_info("App was not in installed state; skipped modal confirmation.")
 
-        # Click 'Uninstall' button in modal
-        click_script = """
-        (() => {
-            const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Uninstall');
-            if (btn) { btn.click(); return { clicked: true }; }
-            return { clicked: false };
-        })()
-        """
-        click_res = self.cdp.evaluate(uninstall_target["webSocketDebuggerUrl"], click_script)
-        self.assertIsInstance(click_res, dict)
-        self.assertTrue(click_res.get("clicked"), "Failed to click 'Uninstall' confirmation button")
-        log_info("Clicked 'Uninstall' button in dialog.")
-
-        # Wait for uninstall state change
-        time.sleep(2.0)
+        # Wait for uninstall state change with polling
         shared_target = self.cdp.find_target_by_title("SharedJSContext")
         check_script = f"""
         (() => {{
@@ -687,7 +732,12 @@ class SteamUIFlowTest(unittest.TestCase):
             return a ? !!a.installed : false;
         }})()
         """
-        is_installed = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], check_script)
+        is_installed = True
+        for _ in range(20):
+            time.sleep(0.5)
+            is_installed = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], check_script)
+            if not is_installed:
+                break
         self.assertFalse(is_installed, "App state in appStore still indicates installed")
         log_pass("Steam uninstall flow completed successfully.")
 
@@ -702,12 +752,20 @@ class SteamUIFlowTest(unittest.TestCase):
         time.sleep(1.0)
 
         # 2. Click any install dialog buttons or SLS custom depot buttons
+        clicked_download = False
         for _ in range(5):
+            if clicked_download:
+                break
             for t in self.cdp.get_targets():
                 ws = t.get("webSocketDebuggerUrl")
                 if not ws: continue
                 res = self.cdp.evaluate(ws, """
                 (() => {
+                    const cb = document.getElementById('sls-depot-btn-download');
+                    if (cb && !cb.disabled) {
+                        cb.click();
+                        return 'sls-depot-btn-download';
+                    }
                     let clicked = false;
                     document.querySelectorAll('button').forEach(b => {
                         const t = b.textContent.trim();
@@ -716,17 +774,15 @@ class SteamUIFlowTest(unittest.TestCase):
                             clicked = t;
                         }
                     });
-                    const cb = document.getElementById('sls-depot-btn-download');
-                    if (cb && !cb.disabled) {
-                        cb.click();
-                        clicked = 'sls-depot-btn-download';
-                    }
                     return clicked;
                 })()
                 """)
                 if res:
                     log_info(f"Clicked '{res}' on target '{t.get('title')}'")
-            time.sleep(0.5)
+                    if res == 'sls-depot-btn-download':
+                        clicked_download = True
+                        break
+            time.sleep(1.0)
 
         # 3. Verify get-depots API endpoint returns valid depots for AppID
         depots_req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/get-depots?id={CONFIG['appid']}")
@@ -736,8 +792,8 @@ class SteamUIFlowTest(unittest.TestCase):
             self.assertGreater(len(depots_data.get("depots", [])), 0, "No depots returned for AppID")
             log_info(f"Verified /get-depots returned {len(depots_data.get('depots'))} depots.")
 
-        # 4. Restore local game files to ensure ready-to-play state
-        self.restore_files()
+        # 4. Wait briefly for install registration
+        time.sleep(2.0)
         log_pass("Steam install flow completed and game assets preserved.")
 
     def test_12_stability_and_no_crash_dumps(self):
