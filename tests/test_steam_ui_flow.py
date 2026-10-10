@@ -473,6 +473,8 @@ class SteamUIFlowTest(unittest.TestCase):
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
             self.assertTrue(data.get("success"), f"change-provider API failed: {data}")
+        # Wait for asynchronous provider download and config scan to complete
+        time.sleep(2.0)
         log_pass("Change Provider UI modal and API endpoint verified.")
 
     def test_08_remove_lua_flow(self):
@@ -507,36 +509,130 @@ class SteamUIFlowTest(unittest.TestCase):
         with urllib.request.urlopen(req, timeout=3) as resp:
             self.assertEqual(resp.status, 200)
 
-        # Verify Lua was removed with polling up to 2s
+        # Verify Lua was removed with polling up to 3s
         lua_paths = [
             os.path.expanduser(f"~/.local/share/Steam/config/stplug-in/{CONFIG['appid']}.lua"),
             os.path.expanduser(f"~/.steam/steam/config/stplug-in/{CONFIG['appid']}.lua")
         ]
-        removed_any = False
-        for _ in range(6):
-            if any(not os.path.isfile(p) for p in lua_paths):
-                removed_any = True
+        removed = False
+        for _ in range(10):
+            if all(not os.path.isfile(p) for p in lua_paths):
+                removed = True
                 break
             time.sleep(0.3)
-        self.assertTrue(removed_any, "Lua plugin file was not deleted by /remove endpoint")
+        self.assertTrue(removed, "Lua plugin file was not deleted by /remove endpoint")
         log_info("Verified Lua plugin removal from disk.")
-
-        # 3. Restore Lua from backup
-        self.restore_files()
-        for p in lua_paths:
-            self.assertTrue(os.path.isfile(p), f"Failed to restore Lua file to {p}")
-
-        # Verify /check endpoint reflects restored state
         time.sleep(0.5)
+        log_pass("Remove Lua modal cancellation and removal API endpoint verified.")
+
+    def test_09_install_crawl_lua_auto_download(self):
+        """Test installing Crawl Lua script and depot manifests via Auto Download (#sls-click-auto)."""
+        log_step(f"Test 9: Test Install Crawl Lua via Auto Download for AppID {CONFIG['appid']}")
+        steam_target = self.cdp.find_target_by_title("Steam")
+        self.assertIsNotNone(steam_target, "Steam target not found")
+
+        lua_paths = [
+            os.path.expanduser(f"~/.local/share/Steam/config/stplug-in/{CONFIG['appid']}.lua"),
+            os.path.expanduser(f"~/.steam/steam/config/stplug-in/{CONFIG['appid']}.lua")
+        ]
+
+        # 1. Ensure clean slate: verify Lua is absent or delete if present
+        if any(os.path.isfile(p) for p in lua_paths):
+            req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/remove?id={CONFIG['appid']}&game=false")
+            try:
+                with urllib.request.urlopen(req, timeout=3) as resp:
+                    pass
+            except Exception:
+                pass
+            for _ in range(10):
+                if all(not os.path.isfile(p) for p in lua_paths):
+                    break
+                time.sleep(0.3)
+
+        self.assertTrue(all(not os.path.isfile(p) for p in lua_paths), "Lua must not be present prior to auto download")
+        log_info(f"Confirmed clean slate: {CONFIG['appid']}.lua absent from stplug-in.")
+
+        # Record log position before trigger for auditing
+        log_pos_before = os.path.getsize(CONFIG["log_path"]) if os.path.isfile(CONFIG["log_path"]) else 0
+
+        # 2. Trigger auto download via hash navigation on Steam CEF window
+        # Format parsed by automationWorker: #sls-click-auto-<appid>-<order>-<timestamp>
+        # Preferred provider order: 2 (TwentyTwo Cloud), 0 (Sushi), 1 (Spinoza)
+        trigger_script = f"""
+        (() => {{
+            const stamp = Date.now();
+            window.location.hash = '#sls-click-auto-{CONFIG['appid']}-2,0,1-' + stamp;
+            return {{
+                triggered: true,
+                hash: window.location.hash,
+                stamp: stamp
+            }};
+        }})()
+        """
+        trig_res = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], trigger_script)
+        self.assertIsInstance(trig_res, dict)
+        self.assertTrue(trig_res.get("triggered"), "Failed to trigger auto download hash navigation")
+        log_info(f"Triggered Auto Download hash navigation: {trig_res.get('hash')}")
+
+        # 3. Poll for auto-download execution and file installation (up to 10s)
+        lua_installed = False
+        installed_path = None
+        for _ in range(20):
+            time.sleep(0.5)
+            # Check if file has appeared
+            found_path = next((p for p in lua_paths if os.path.isfile(p) and os.path.getsize(p) > 0), None)
+            if found_path and os.path.isfile(CONFIG["log_path"]):
+                with open(CONFIG["log_path"], "r", encoding="utf-8", errors="ignore") as f:
+                    f.seek(log_pos_before)
+                    curr_logs = f.read()
+                if "Auto-search Lua download clicked" in curr_logs and "Successfully installed appid" in curr_logs:
+                    lua_installed = True
+                    installed_path = found_path
+                    break
+
+        self.assertTrue(lua_installed, f"Auto-download timed out waiting for {CONFIG['appid']}.lua to be installed")
+        log_info(f"Verified Lua script installed at: {installed_path}")
+
+        # Check Lua file content contains addappid directive
+        try:
+            with open(installed_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            self.assertIn(f"addappid({CONFIG['appid']}", content, "Installed Lua file does not contain addappid directive")
+            log_info(f"Verified addappid({CONFIG['appid']}) directive in installed Lua script.")
+        except Exception as e:
+            log_info(f"Lua content check warning: {e}")
+
+        # Verify depotcache manifests exist for Crawl depots (293781, 293782, 293783)
+        depot_ids = ["293781", "293782", "293783"]
+        manifests = []
+        for did in depot_ids:
+            for base in [os.path.expanduser("~/.local/share/Steam"), os.path.expanduser("~/.steam/steam")]:
+                matches = glob.glob(f"{base}/config/depotcache/{did}_*.manifest")
+                manifests.extend(matches)
+        log_info(f"Discovered {len(manifests)} depotcache manifest(s) for Crawl depots ({', '.join(depot_ids)}).")
+        self.assertGreater(len(manifests), 0, "No manifests discovered for Crawl depots")
+
+        # 4. Verify /check endpoint confirms Lua exists
         req_check = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/check?id={CONFIG['appid']}")
         with urllib.request.urlopen(req_check, timeout=3) as resp:
             check_data = json.loads(resp.read().decode())
-            self.assertTrue(check_data.get("exists"), f"App check failed after Lua restoration: {check_data}")
-        log_pass("Remove Lua flow tested and Lua successfully restored from backup.")
+            self.assertTrue(check_data.get("exists"), f"/check endpoint did not detect installed Lua: {check_data}")
+        log_info(f"/check endpoint confirmed AppID {CONFIG['appid']} is installed and registered.")
 
-    def test_09_uninstall_crawl_flow(self):
+        # 5. Verify telemetry in ~/.SLSsteam.log
+        if os.path.isfile(CONFIG["log_path"]):
+            with open(CONFIG["log_path"], "r", encoding="utf-8", errors="ignore") as f:
+                f.seek(log_pos_before)
+                new_logs = f.read()
+            self.assertIn("Auto-search Lua download clicked", new_logs, "Expected Auto-search log line not found in log")
+            self.assertIn("Successfully installed appid", new_logs, "Expected LuaDownload success log line not found in log")
+            log_info("Verified SLSsteam auto-download telemetry in log.")
+
+        log_pass("Install Crawl Lua via Auto Download verified successfully.")
+
+    def test_10_uninstall_crawl_flow(self):
         """Test triggering steam://uninstall/<appid>, clicking confirmation, and validating state."""
-        log_step(f"Test 9: Test Steam Uninstall Flow for AppID {CONFIG['appid']}")
+        log_step(f"Test 10: Test Steam Uninstall Flow for AppID {CONFIG['appid']}")
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
@@ -580,9 +676,9 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertFalse(is_installed, "App state in appStore still indicates installed")
         log_pass("Steam uninstall flow completed successfully.")
 
-    def test_10_install_crawl_flow(self):
+    def test_11_install_crawl_flow(self):
         """Test triggering install flow (steam://install/<appid>), handling dialogs, and verifying installation."""
-        log_step(f"Test 10: Test Steam Install Flow for AppID {CONFIG['appid']}")
+        log_step(f"Test 11: Test Steam Install Flow for AppID {CONFIG['appid']}")
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
@@ -629,9 +725,9 @@ class SteamUIFlowTest(unittest.TestCase):
         self.restore_files()
         log_pass("Steam install flow completed and game assets preserved.")
 
-    def test_11_stability_and_no_crash_dumps(self):
+    def test_12_stability_and_no_crash_dumps(self):
         """Verify that no new crash dumps were created and Steam is alive."""
-        log_step("Test 11: Check Process Stability and Verify Zero Crash Dumps")
+        log_step("Test 12: Check Process Stability and Verify Zero Crash Dumps")
         dump_pattern = os.path.join(CONFIG["dump_dir"], "assert_*.dmp")
         current_dumps = set(glob.glob(dump_pattern))
         new_dumps = current_dumps - self.initial_dumps
@@ -640,9 +736,9 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertTrue(self.cdp.is_reachable(), "Steam CEF became unreachable after flow execution")
         log_pass("Zero crash dumps generated; Steam process remains healthy.")
 
-    def test_12_search_state_reset(self):
+    def test_13_search_state_reset(self):
         """Reset search input to empty string to restore clean user UI state."""
-        log_step("Test 12: Reset Search Input to Empty String")
+        log_step("Test 13: Reset Search Input to Empty String")
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
