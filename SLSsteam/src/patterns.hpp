@@ -59,7 +59,6 @@ namespace Patterns
 		extern Pattern_t FillInAppOverview;
 		extern Pattern_t BuildCompleteAppOverviewChange;
 		extern Pattern_t RunFrame;
-		extern Pattern_t OnLicensesUpdated;
 	}
 
 	namespace CPackageInfoCache

@@ -5,6 +5,8 @@
 
 #include "libmem/libmem.h"
 
+using SigFollowMode = MemHlp::SigFollowMode;
+
 
 Pattern_t::Pattern_t(const char* name, const char* pattern, MemHlp::SigFollowMode followMode, lm_module_t* module)
 	:
@@ -31,6 +33,24 @@ bool Pattern_t::find()
 		LOG_INFO("Trying fallback pattern for CAPIJob::GetPlayerStats\n");
 		address = MemHlp::searchSignature(name.c_str(), "E8 ? ? ? ? 83 C4 10 89 C5 E9 ? ? ? ? C7 86 ? ? ? ? 00 00 00 00", module ? *module : g_modSteamClient , followMode, &prologue[0], prologue.size());
 	}
+	else if (address == LM_ADDRESS_BAD && name == "CSteamUIAppController::FillInAppOverview")
+	{
+		LOG_INFO("Trying fallback patterns for CSteamUIAppController::FillInAppOverview\n");
+		address = MemHlp::searchSignature(name.c_str(), "55 89 E5 57 56 E8 ? ? ? ? 81 C6 ? ? ? ? 53 81 EC AC 00 00 00", module ? *module : g_modSteamClient, SigFollowMode::None);
+		if (address == LM_ADDRESS_BAD)
+		{
+			address = MemHlp::searchSignature(name.c_str(), "55 89 E5 57 E8 ? ? ? ? 81 C7 ? ? ? ? 56 53 81 EC AC 00 00 00", module ? *module : g_modSteamClient, SigFollowMode::None);
+		}
+	}
+	else if (address == LM_ADDRESS_BAD && name == "CSteamUIAppController::BuildCompleteAppOverviewChange")
+	{
+		LOG_INFO("Trying fallback patterns for CSteamUIAppController::BuildCompleteAppOverviewChange\n");
+		address = MemHlp::searchSignature(name.c_str(), "8B 86 78 84 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, &prologue[0], prologue.size());
+		if (address == LM_ADDRESS_BAD)
+		{
+			address = MemHlp::searchSignature(name.c_str(), "8B 86 38 88 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, &prologue[0], prologue.size());
+		}
+	}
 	return address != LM_ADDRESS_BAD;
 }
 
@@ -49,8 +69,6 @@ bool Patterns::init()
 
 	return found;
 }
-
-using SigFollowMode = MemHlp::SigFollowMode;
 
 namespace Patterns
 {
@@ -99,22 +117,24 @@ namespace Patterns
 	{
 		//NOTE: GCC emitted this as a local regparm(3) clone (this=eax, pAppOverview=edx, pApp=ecx).
 		//Verified via VPROF xref "CSteamUIAppController::FillInAppOverview" and the call site inside
-		//BuildCompleteAppOverviewChange. The cdecl copy of this function in steamui.so is unreferenced (dead).
-		//Matches the function entry directly, so no prologue walk is needed.
+		//BuildCompleteAppOverviewChange.
+		//Anchor: 0xac stack frame allocation + saving (this=eax, pAppOverview=edx, pApp=ecx).
+		//PrologueUpwards with { 0x57, 0xE5, 0x89, 0x55 } lands on 55 89 E5 57 (function entry) across all GCC variations.
 		Pattern_t FillInAppOverview
 		{
 			"CSteamUIAppController::FillInAppOverview",
-			"55 89 E5 57 56 E8 ? ? ? ? 81 C6 ? ? ? ? 53 81 EC AC 00 00 00 89 45 90 89 55 9C 89 4D 98 89 75 94",
-			SigFollowMode::None,
+			"81 EC AC 00 00 00 89 45 90 89 55 9C 89 4D 98",
+			SigFollowMode::PrologueUpwards,
+			std::vector<int16_t> { 0x57, 0xE5, 0x89, 0x55 },
 			&g_modSteamUI
 		};
-		//NOTE: This anchor previously (mis)labelled FillInAppOverview. It lives 0x50 bytes into
-		//BuildCompleteAppOverviewChange (verified via VPROF xref "BuildCompleteAppOverviewChange" and the
-		//"Constructed empty appoverview message in BuildCompleteAppOverviewChange" assert).
+		//NOTE: Lives 0x50 bytes into BuildCompleteAppOverviewChange (verified via VPROF xref "BuildCompleteAppOverviewChange"
+		//and "Constructed empty appoverview message in BuildCompleteAppOverviewChange" assert).
+		//Matches both older (offset 0x38478) and newer SteamOS (offset 0x38838) builds.
 		Pattern_t BuildCompleteAppOverviewChange
 		{
 			"CSteamUIAppController::BuildCompleteAppOverviewChange",
-			"8B 86 78 84 03 00 89 F3",
+			"8B 86 ? ? 03 00 89 F3 8B 40 44 C6 42 2C 01 83 4A 08 01 83 C2 10",
 			SigFollowMode::PrologueUpwards,
 			std::vector<int16_t> { 0x53, 0x56, 0x57, 0xE5, 0x89, 0x55 },
 			&g_modSteamUI
@@ -123,13 +143,6 @@ namespace Patterns
 		{
 			"CSteamUIAppController::RunFrame",
 			"55 89 E5 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 40 E8",
-			SigFollowMode::None,
-			&g_modSteamUI
-		};
-		Pattern_t OnLicensesUpdated
-		{
-			"CSteamUIAppController::OnLicensesUpdated",
-			"55 89 E5 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 74 8B 75 08 FF 75 0C 8D 86 54 03 00 00",
 			SigFollowMode::None,
 			&g_modSteamUI
 		};
