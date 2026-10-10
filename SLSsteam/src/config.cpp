@@ -556,6 +556,9 @@ bool CConfig::addAdditionalAppId(uint32_t appId)
 						if (static_cast<uint32_t>(std::stoul(val)) == appId)
 						{
 							LOG_INFO("addAdditionalAppId: AppID %u already in AdditionalApps\n", appId);
+							auto current = addedAppIds.get();
+							current.insert(appId);
+							addedAppIds = current;
 							return true;
 						}
 					}

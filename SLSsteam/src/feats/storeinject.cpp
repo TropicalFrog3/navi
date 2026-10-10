@@ -910,7 +910,12 @@ namespace StoreInject
                                         }
                                     }
 
-                                    bool exists = isUnlocked && (gameExists || luaExists);
+                                    if (luaExists && !isUnlocked) {
+                                        g_config.addAdditionalAppId(appId);
+                                        isUnlocked = true;
+                                    }
+
+                                    bool exists = (isUnlocked || luaExists) && (gameExists || luaExists);
                                     bool pending = g_pendingRestartApps.count(appId) > 0;
                                     bool downloading = CppAccela::Download::isPending(appId);
                                     // Also treat as downloading if the progress JSON exists with a
@@ -1460,6 +1465,21 @@ namespace StoreInject
                                 close(new_socket);
                             }
                         }
+                        else if (request.find("/clear-pending?id=") != std::string::npos)
+                        {
+                            size_t idPos = request.find("id=");
+                            size_t endPos = request.find_first_of(" &", idPos);
+                            if (endPos != std::string::npos)
+                            {
+                                std::string idStr = request.substr(idPos + 3, endPos - (idPos + 3));
+                                uint32_t appId = std::stoul(idStr);
+                                g_pendingRestartApps.erase(appId);
+                                const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
+                                send(new_socket, response, strlen(response), 0);
+                                close(new_socket);
+                                handled = true;
+                            }
+                        }
                         else if (request.find("/remove?id=") != std::string::npos)
                         {
                             size_t idPos = request.find("id=");
@@ -1468,7 +1488,11 @@ namespace StoreInject
                             {
                                 std::string idStr = request.substr(idPos + 3, endPos - (idPos + 3));
                                 uint32_t appId = std::stoul(idStr);
-                                g_pendingRestartApps.insert(appId);
+                                if (request.find("pending=false") != std::string::npos) {
+                                    g_pendingRestartApps.erase(appId);
+                                } else {
+                                    g_pendingRestartApps.insert(appId);
+                                }
                                 
                                 bool deleteGame = (request.find("game=true") != std::string::npos);
                                 

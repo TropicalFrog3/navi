@@ -282,7 +282,7 @@ static void testProviderSidecarFormatAndEscaping()
     std::filesystem::create_directories(tempDir);
 
     // Write a provider file with special characters
-    std::string provFile = (tempDir / "293780.provider").string();
+    std::string provFile = (tempDir / "1443430.provider").string();
     {
         std::ofstream pf(provFile);
         pf << "Hubcap \"Special\" \\Provider\\\n";
@@ -316,18 +316,18 @@ static void testRemoveLuaPatternScanning()
     std::filesystem::path pluginDir = std::filesystem::temp_directory_path() / "sls_removelua_test";
     std::filesystem::create_directories(pluginDir);
 
-    uint32_t targetAppId = 293780;
+    uint32_t targetAppId = 1443430;
     std::string idStr = std::to_string(targetAppId);
 
     // Create test files:
-    // 1. Target lua with addappid(293780)
+    // 1. Target lua with addappid(1443430)
     {
-        std::ofstream f(pluginDir / "crawl.lua");
-        f << "-- Crawl configuration\naddappid(" << targetAppId << ")\nsetname(\"Crawl\")\n";
+        std::ofstream f(pluginDir / "rogue.lua");
+        f << "-- Rogue configuration\naddappid(" << targetAppId << ")\nsetname(\"Rogue\")\n";
     }
-    // 2. Target lua with spaces addappid( 293780 )
+    // 2. Target lua with spaces addappid( 1443430 )
     {
-        std::ofstream f(pluginDir / "crawl_alt.lua");
+        std::ofstream f(pluginDir / "rogue_alt.lua");
         f << "addappid( " << targetAppId << " )\n";
     }
     // 3. Unrelated lua (must NOT be touched)
@@ -342,7 +342,7 @@ static void testRemoveLuaPatternScanning()
     }
     // 5. Target manifest
     {
-        std::ofstream f(pluginDir / (idStr + "_293781.manifest"));
+        std::ofstream f(pluginDir / (idStr + "_1443431.manifest"));
         f << "MANIFEST_BINARY_DATA\n";
     }
     // 6. Unrelated manifest
@@ -390,10 +390,10 @@ static void testRemoveLuaPatternScanning()
     // Assertions
     assert(std::filesystem::exists(pluginDir / "unrelated.lua") && "Unrelated Lua must not be deleted");
     assert(std::filesystem::exists(pluginDir / "504230_504231.manifest") && "Unrelated manifest must not be deleted");
-    assert(!std::filesystem::exists(pluginDir / "crawl.lua") && "crawl.lua must be deleted");
-    assert(!std::filesystem::exists(pluginDir / "crawl_alt.lua") && "crawl_alt.lua must be deleted");
+    assert(!std::filesystem::exists(pluginDir / "rogue.lua") && "rogue.lua must be deleted");
+    assert(!std::filesystem::exists(pluginDir / "rogue_alt.lua") && "rogue_alt.lua must be deleted");
     assert(!std::filesystem::exists(pluginDir / (idStr + ".provider")) && "provider file must be deleted");
-    assert(!std::filesystem::exists(pluginDir / (idStr + "_293781.manifest")) && "crawl manifest must be deleted");
+    assert(!std::filesystem::exists(pluginDir / (idStr + "_1443431.manifest")) && "rogue manifest must be deleted");
 
     std::filesystem::remove_all(pluginDir);
     std::cout << "  - RemoveLua pattern scan correctly deleted " << deletedFiles.size() << " files while preserving unrelated plugins.\n";

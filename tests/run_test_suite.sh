@@ -427,9 +427,15 @@ fi
 pass "Atomic staging, merge, and cancellation safety unit tests passed successfully."
 
 step "Test Case 9: Live Steam UI Flow & Native Hook Integration Test"
-PYTHON_CMD="python3"
-if [ -x "$HOME/.local/share/ACCELA/.venv/bin/python" ]; then
-    PYTHON_CMD="$HOME/.local/share/ACCELA/.venv/bin/python"
+PYTHON_CMD=""
+for cand in python3 /usr/bin/python3 "$HOME/.local/share/ACCELA/.venv/bin/python"; do
+    if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "import websocket" >/dev/null 2>&1; then
+        PYTHON_CMD="$cand"
+        break
+    fi
+done
+if [ -z "$PYTHON_CMD" ]; then
+    PYTHON_CMD="python3"
 fi
 
 if pgrep -f "steam" >/dev/null 2>&1 && curl -s --connect-timeout 2 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then

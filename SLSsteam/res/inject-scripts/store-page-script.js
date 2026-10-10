@@ -992,7 +992,7 @@
                 // Check unlock status via callback server
                 if (appUnlockStatus[productID] !== undefined) {
                     var cached = appUnlockStatus[productID];
-                    if (cached && (cached.exists || cached.pending)) {
+                    if (cached && cached.exists) {
                         setupRemoveButton(bpLink, bpBtn, productID, null);
                     } else {
                         setupDownloadButton(bpLink, bpBtn, productID, null);
@@ -1005,7 +1005,7 @@
                             .then(function(r) { clearTimeout(timeoutId); return r.json(); })
                             .then(function(data) {
                                 appUnlockStatus[pid] = data;
-                                var isUnlocked = data.exists || data.pending;
+                                var isUnlocked = data.exists;
                                 if (isUnlocked) {
                                     setupRemoveButton(ll, lb, pid, null);
                                 } else {
@@ -1097,7 +1097,7 @@
                 // Check unlock status via callback server
                 if (appUnlockStatus[productID] !== undefined) {
                     var cached = appUnlockStatus[productID];
-                    if (cached && (cached.exists || cached.pending)) {
+                    if (cached && cached.exists) {
                         setupRemoveButton(luaLink, luaBtn, productID, cartBtn);
                     } else {
                         setupDownloadButton(luaLink, luaBtn, productID, cartBtn);
@@ -1111,7 +1111,7 @@
                             .then(function(r) { clearTimeout(timeoutId); return r.json(); })
                             .then(function(data) {
                                 appUnlockStatus[pid] = data;
-                                var isUnlocked = data.exists || data.pending;
+                                var isUnlocked = data.exists;
                                 if (isUnlocked) {
                                     setupRemoveButton(ll, lb, pid, cb);
                                 } else {

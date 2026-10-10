@@ -116,6 +116,9 @@
                                     if (fiber.memoizedProps.appid) { appid = String(fiber.memoizedProps.appid); break; }
                                     if (fiber.memoizedProps.appID) { appid = String(fiber.memoizedProps.appID); break; }
                                     if (fiber.memoizedProps.unAppID) { appid = String(fiber.memoizedProps.unAppID); break; }
+                                    if (fiber.memoizedProps.overview && fiber.memoizedProps.overview.appid) { appid = String(fiber.memoizedProps.overview.appid); break; }
+                                    if (fiber.memoizedProps.app && fiber.memoizedProps.app.appid) { appid = String(fiber.memoizedProps.app.appid); break; }
+                                    if (fiber.memoizedProps.details && fiber.memoizedProps.details.appid) { appid = String(fiber.memoizedProps.details.appid); break; }
                                 }
                                 fiber = fiber.return;
                             }
@@ -173,9 +176,10 @@
                 delete pendingChecks[containerKey];
 
                 if (data.exists || data.pending) {
+                    if (parentNode) delete parentNode.dataset.slsNoLua;
                     createRemoveButton(manageContainer, appid, data.pending, data.onlineFixInstalled, data.autoCrackInstalled, data.provider);
                 } else {
-                    noLuaAppIds[appid] = true;
+                    if (parentNode) parentNode.dataset.slsNoLua = appid;
                 }
             })
             .catch(function() {
@@ -680,8 +684,8 @@
             // If this exact container is already injected for this appid, skip
             if (parentNode.dataset.slsInjected === appid) return;
 
-            // If we already confirmed this appid has NO lua, skip
-            if (noLuaAppIds[appid]) return;
+            // If this container was already checked and confirmed to have no lua, skip
+            if (parentNode.dataset.slsNoLua === appid) return;
 
             // If a /check is already in-flight for this appid+container, skip
             var containerKey = appid + '_' + (parentNode.dataset.slsKey || (parentNode.dataset.slsKey = Math.random().toString(36).slice(2)));
@@ -701,6 +705,16 @@
             addRemoveLuaButton();
         });
     }
+
+    window.__slsRefreshButtons = function(targetAppId) {
+        document.querySelectorAll('[data-sls-injected], [data-sls-no-lua]').forEach(function(el) {
+            if (!targetAppId || el.dataset.slsInjected === String(targetAppId) || el.dataset.slsNoLua === String(targetAppId)) {
+                delete el.dataset.slsInjected;
+                delete el.dataset.slsNoLua;
+            }
+        });
+        addRemoveLuaButton();
+    };
 
     var observer = new MutationObserver(debouncedAddButtons);
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
