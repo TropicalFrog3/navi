@@ -75,5 +75,6 @@ prod-release/*
 SLSsteam-n-ACCELA.zip
 .ag*/*
 *.py
+!tests/*.py
 .cla*/*
 steam-os/*

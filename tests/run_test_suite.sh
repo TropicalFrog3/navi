@@ -412,6 +412,15 @@ g++ -std=c++20 "$REPO_ROOT/SLSsteam/tests/test_atomic_staging.cpp" -o "$REPO_ROO
 "$REPO_ROOT/SLSsteam/bin/test_atomic_staging"
 pass "Atomic staging, merge, and cancellation safety unit tests passed successfully."
 
+step "Test Case 9: Live Steam UI Flow & Native Hook Integration Test"
+if curl -s --connect-timeout 2 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
+    echo "Steam CEF remote debugging active on port 8080. Running UI automation flow test..."
+    python3 "$REPO_ROOT/tests/test_steam_ui_flow.py" --skip-if-no-steam
+    pass "Live Steam UI flow test passed successfully."
+else
+    echo -e "${YELLOW}[SKIP]${NC} Steam is not currently running with CEF remote debugging on port 8080."
+fi
+
 step "ALL TEST CASES PASSED SUCCESSFULLY!"
-echo -e "${GREEN}>>> All Test Cases passed with 0 errors and zero external network calls.${NC}"
+echo -e "${GREEN}>>> All Test Cases passed with 0 errors.${NC}"
 exit 0

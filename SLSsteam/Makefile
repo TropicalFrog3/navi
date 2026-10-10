@@ -98,6 +98,14 @@ bin/test_native_install: $(TEST_NATIVE_OBJS)
 	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
 	chmod 755 $@
 
+test: bin/test_native_install
+	./bin/test_native_install
+
+test-flow:
+	python3 ../tests/test_steam_ui_flow.py
+
+test-all: test test-flow
+
 audit-libs:
 	$(MAKE) -j $(JOBS) $(SLSSTEAMSO) bin/library-inject.so bin/accela-helper
 	$(MAKE) link-bins
@@ -209,4 +217,7 @@ release: rebuild zips
 	clean \
 	build \
 	rebuild \
-	release
+	release \
+	test \
+	test-flow \
+	test-all
