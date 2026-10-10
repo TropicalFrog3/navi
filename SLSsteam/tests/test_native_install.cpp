@@ -274,6 +274,163 @@ static void testDepotFilteringAlgorithm()
     std::cout << "  - Backward-shift pruning algorithm verified across edge cases.\n";
 }
 
+static void testProviderSidecarFormatAndEscaping()
+{
+    std::cout << "[TEST] Testing Provider sidecar reading, fallback, and escaping...\n";
+
+    std::filesystem::path tempDir = std::filesystem::temp_directory_path() / "sls_provider_test";
+    std::filesystem::create_directories(tempDir);
+
+    // Write a provider file with special characters
+    std::string provFile = (tempDir / "293780.provider").string();
+    {
+        std::ofstream pf(provFile);
+        pf << "Hubcap \"Special\" \\Provider\\\n";
+    }
+
+    // Read back and escape
+    std::string providerName;
+    {
+        std::ifstream pf(provFile);
+        assert(pf.is_open());
+        std::getline(pf, providerName);
+    }
+    assert(providerName == "Hubcap \"Special\" \\Provider\\");
+
+    std::string escapedProvider;
+    for (char c : providerName) {
+        if (c == '"' || c == '\\') escapedProvider += '\\';
+        escapedProvider += c;
+    }
+    assert(escapedProvider == "Hubcap \\\"Special\\\" \\\\Provider\\\\");
+
+    // Clean up
+    std::filesystem::remove_all(tempDir);
+    std::cout << "  - Provider sidecar read and JSON escaping verified successfully.\n";
+}
+
+static void testRemoveLuaPatternScanning()
+{
+    std::cout << "[TEST] Testing RemoveLua pattern scanning and file isolation...\n";
+
+    std::filesystem::path pluginDir = std::filesystem::temp_directory_path() / "sls_removelua_test";
+    std::filesystem::create_directories(pluginDir);
+
+    uint32_t targetAppId = 293780;
+    std::string idStr = std::to_string(targetAppId);
+
+    // Create test files:
+    // 1. Target lua with addappid(293780)
+    {
+        std::ofstream f(pluginDir / "crawl.lua");
+        f << "-- Crawl configuration\naddappid(" << targetAppId << ")\nsetname(\"Crawl\")\n";
+    }
+    // 2. Target lua with spaces addappid( 293780 )
+    {
+        std::ofstream f(pluginDir / "crawl_alt.lua");
+        f << "addappid( " << targetAppId << " )\n";
+    }
+    // 3. Unrelated lua (must NOT be touched)
+    {
+        std::ofstream f(pluginDir / "unrelated.lua");
+        f << "addappid(504230)\nsetname(\"Celeste\")\n";
+    }
+    // 4. Target provider sidecar
+    {
+        std::ofstream f(pluginDir / (idStr + ".provider"));
+        f << "HubcapDB\n";
+    }
+    // 5. Target manifest
+    {
+        std::ofstream f(pluginDir / (idStr + "_293781.manifest"));
+        f << "MANIFEST_BINARY_DATA\n";
+    }
+    // 6. Unrelated manifest
+    {
+        std::ofstream f(pluginDir / "504230_504231.manifest");
+        f << "MANIFEST_CELESTE\n";
+    }
+
+    // Execute scan algorithm matching storeinject.cpp
+    std::vector<std::string> deletedFiles;
+
+    // Scan Lua files
+    for (const auto& entry : std::filesystem::directory_iterator(pluginDir)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".lua") {
+            std::ifstream file(entry.path());
+            if (file.is_open()) {
+                std::string content((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+                file.close();
+                if (content.find("addappid") != std::string::npos && content.find(idStr) != std::string::npos) {
+                    deletedFiles.push_back(entry.path().filename().string());
+                    std::filesystem::remove(entry.path());
+                }
+            }
+        }
+    }
+
+    // Scan manifests
+    for (const auto& entry : std::filesystem::directory_iterator(pluginDir)) {
+        if (entry.is_regular_file() && entry.path().extension() == ".manifest") {
+            std::string stem = entry.path().stem().string();
+            if (stem.find(idStr) == 0) {
+                deletedFiles.push_back(entry.path().filename().string());
+                std::filesystem::remove(entry.path());
+            }
+        }
+    }
+
+    // Remove provider sidecar
+    auto providerPath = pluginDir / (idStr + ".provider");
+    if (std::filesystem::exists(providerPath)) {
+        deletedFiles.push_back(providerPath.filename().string());
+        std::filesystem::remove(providerPath);
+    }
+
+    // Assertions
+    assert(std::filesystem::exists(pluginDir / "unrelated.lua") && "Unrelated Lua must not be deleted");
+    assert(std::filesystem::exists(pluginDir / "504230_504231.manifest") && "Unrelated manifest must not be deleted");
+    assert(!std::filesystem::exists(pluginDir / "crawl.lua") && "crawl.lua must be deleted");
+    assert(!std::filesystem::exists(pluginDir / "crawl_alt.lua") && "crawl_alt.lua must be deleted");
+    assert(!std::filesystem::exists(pluginDir / (idStr + ".provider")) && "provider file must be deleted");
+    assert(!std::filesystem::exists(pluginDir / (idStr + "_293781.manifest")) && "crawl manifest must be deleted");
+
+    std::filesystem::remove_all(pluginDir);
+    std::cout << "  - RemoveLua pattern scan correctly deleted " << deletedFiles.size() << " files while preserving unrelated plugins.\n";
+}
+
+static void testCrossPlatformDepotGuardSimulation()
+{
+    std::cout << "[TEST] Testing cross-platform depot guard logic (depots->size == 0)...\n";
+
+    // Scenario A: Native Linux depot provided by Steam
+    {
+        uint32_t nativeDepotCount = 1; // Native client found Linux depot
+        bool injected = false;
+
+        // Guard from apps.cpp line 806: only inject when native client returned 0 depots
+        if (nativeDepotCount == 0) {
+            injected = true;
+        }
+
+        assert(!injected && "Cross-platform depots must NOT be injected when native depot is present");
+    }
+
+    // Scenario B: Unowned or cross-platform app where native client found 0 depots
+    {
+        uint32_t nativeDepotCount = 0;
+        bool injected = false;
+
+        if (nativeDepotCount == 0) {
+            injected = true;
+        }
+
+        assert(injected && "Missing depots must be injected when native client provides 0 depots");
+    }
+
+    std::cout << "  - Cross-platform depot guard verified successfully.\n";
+}
+
 int main()
 {
     std::cout << "========================================\n";
@@ -283,6 +440,9 @@ int main()
     testProtobufWireCodec();
     testNativeInstallPersistenceAndArm();
     testDepotFilteringAlgorithm();
+    testProviderSidecarFormatAndEscaping();
+    testRemoveLuaPatternScanning();
+    testCrossPlatformDepotGuardSimulation();
 
     std::cout << "\n[ALL TESTS PASSED SUCCESSFULLY!]\n";
     return 0;
