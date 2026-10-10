@@ -19,6 +19,8 @@ std::map<std::string, std::unordered_set<std::string>> Updater::clientHashMap = 
 
 constexpr static const char* urls[] =
 {
+	"https://raw.githubusercontent.com/TropicalFrog3/SLSsteam_n_ACCELA/refs/heads/main/SLSsteam/res/updates.yaml",
+	"https://cdn.jsdelivr.net/gh/TropicalFrog3/SLSsteam_n_ACCELA/SLSsteam/res/updates.yaml",
 	"https://raw.githubusercontent.com/AceSLS/SLSsteam/refs/heads/main/res/updates.yaml",
 	"https://cdn.jsdelivr.net/gh/AceSLS/SLSsteam/res/updates.yaml"
 };
@@ -41,25 +43,60 @@ bool Updater::init()
 		buf << fstream.rdbuf();
 		data = buf.str();
 		fstream.close();
-		LOG_INFO("Using local override updates.yaml\n");
-	}
-	else
-	{
-	int res;
-
-	for (const auto url : urls)
-	{
-		res = Curl::getString(url, data);
-		LOG_INFO("Curl Res: %u for %s with len %i\n", res, url, data.size());
-
-		if (res == 0 && data.starts_with("SafeModeHashes:\n")) //User reported empty responses
+		if (data.starts_with("SafeModeHashes:\n"))
 		{
 			downloadSuccess = true;
-			break;
+			LOG_INFO("Using local override updates.yaml\n");
 		}
-
-		LOG_WARN("Download updates.yaml failed!\n");
 	}
+
+	if (!downloadSuccess)
+	{
+		int res;
+
+		for (const auto url : urls)
+		{
+			res = Curl::getString(url, data);
+			LOG_INFO("Curl Res: %u for %s with len %i\n", res, url, data.size());
+
+			if (res == 0 && data.starts_with("SafeModeHashes:\n")) //User reported empty responses
+			{
+				downloadSuccess = true;
+				break;
+			}
+
+			LOG_WARN("Download updates.yaml failed!\n");
+		}
+	}
+
+	if (!downloadSuccess)
+	{
+		const char* home = std::getenv("HOME");
+		std::vector<std::string> bundledPaths = {
+			"./res/updates.yaml",
+			"../res/updates.yaml"
+		};
+		if (home)
+		{
+			bundledPaths.push_back(std::string(home) + "/.local/share/SLSsteam/res/updates.yaml");
+		}
+		for (const auto& bp : bundledPaths)
+		{
+			if (std::filesystem::exists(bp))
+			{
+				std::ifstream fstream(bp.c_str());
+				std::stringstream buf;
+				buf << fstream.rdbuf();
+				data = buf.str();
+				fstream.close();
+				if (data.starts_with("SafeModeHashes:\n"))
+				{
+					downloadSuccess = true;
+					LOG_INFO("Using bundled %s\n", bp.c_str());
+					break;
+				}
+			}
+		}
 	}
 
 	if (!downloadSuccess)

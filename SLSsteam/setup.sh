@@ -157,6 +157,10 @@ install_slssteam()
 	smart_copy ./bin "$SLSDIR" || return 1
 	mkdir -p "$SLSDIR/res"
 	smart_copy ./res "$SLSDIR/res" || return 1
+	if [ -f "./res/updates.yaml" ]; then
+		mkdir -p "$HOME/.config/SLSsteam"
+		cp -f "./res/updates.yaml" "$HOME/.config/SLSsteam/updates.yaml"
+	fi
 
 	# Bundle ACCELA deps (DepotDownloaderMod + .NET dependencies) if found
 	# in adjacent ACCELA directories or installed ACCELA location.

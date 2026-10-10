@@ -132,15 +132,30 @@ class SteamUIFlowTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.cdp = SteamCDPClient(CONFIG["port"])
-        if not cls.cdp.is_reachable():
+        start_time = time.time()
+        ready = False
+        while time.time() - start_time < 30:
+            if cls.cdp.is_reachable():
+                try:
+                    targets = cls.cdp.get_targets()
+                    titles = [t.get("title", "") for t in targets]
+                    if "Steam" in titles and "SharedJSContext" in titles:
+                        ready = True
+                        break
+                except Exception:
+                    pass
+            time.sleep(1)
+
+        if not ready:
             if CONFIG["skip_if_no_steam"]:
-                raise unittest.SkipTest(f"Steam CEF is not running on port {CONFIG['port']}.")
+                raise unittest.SkipTest(f"Steam CEF is not running or missing targets on port {CONFIG['port']}.")
             else:
                 cls.fail(cls, f"Cannot connect to Steam CEF remote debugging at http://127.0.0.1:{CONFIG['port']}.")
 
         # Record baseline dumps count
-        dump_pattern = os.path.join(CONFIG["dump_dir"], "assert_*.dmp")
-        cls.initial_dumps = set(glob.glob(dump_pattern))
+        cls.initial_dumps = set()
+        for p in [os.path.join(CONFIG["dump_dir"], "assert_*.dmp"), os.path.join(CONFIG["dump_dir"], "crash_*.dmp")]:
+            cls.initial_dumps.update(glob.glob(p))
 
         # Record baseline log size
         if os.path.isfile(CONFIG["log_path"]):
@@ -728,8 +743,9 @@ class SteamUIFlowTest(unittest.TestCase):
     def test_12_stability_and_no_crash_dumps(self):
         """Verify that no new crash dumps were created and Steam is alive."""
         log_step("Test 12: Check Process Stability and Verify Zero Crash Dumps")
-        dump_pattern = os.path.join(CONFIG["dump_dir"], "assert_*.dmp")
-        current_dumps = set(glob.glob(dump_pattern))
+        current_dumps = set()
+        for p in [os.path.join(CONFIG["dump_dir"], "assert_*.dmp"), os.path.join(CONFIG["dump_dir"], "crash_*.dmp")]:
+            current_dumps.update(glob.glob(p))
         new_dumps = current_dumps - self.initial_dumps
 
         self.assertEqual(len(new_dumps), 0, f"Steam generated crash dump(s) during test: {new_dumps}")

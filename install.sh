@@ -185,5 +185,15 @@ if ! install_safe_steam_wrapper; then
     exit 1
 fi
 
+# Headcrab on SteamOS forces 'SafeMode: yes' in config.yaml.
+# Ensure SafeMode is set to 'no' and copy updates.yaml so steamclient hash differences do not abort startup.
+if [ -f "$HOME/.config/SLSsteam/config.yaml" ]; then
+    sed -i 's/^SafeMode: .*/SafeMode: no/' "$HOME/.config/SLSsteam/config.yaml"
+fi
+if [ -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" ]; then
+    mkdir -p "$HOME/.config/SLSsteam"
+    cp -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" "$HOME/.config/SLSsteam/updates.yaml"
+fi
+
 log_info "Full installation complete!"
 echo -e "${GREEN}ACCELA, SLSsteam, and Headcrab have been installed to their respective locations in ~/.local/share/${NC}"
