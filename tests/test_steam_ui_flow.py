@@ -305,8 +305,10 @@ class SteamUIFlowTest(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        # Restore backup files if necessary
-        cls.restore_files()
+        # Clean up temporary backup directory
+        bdir = CONFIG["backup_dir"]
+        if os.path.isdir(bdir):
+            shutil.rmtree(bdir, ignore_errors=True)
 
     @classmethod
     def backup_files(cls):
@@ -380,6 +382,37 @@ class SteamUIFlowTest(unittest.TestCase):
                     except Exception:
                         pass
 
+    def navigate_url(self, url):
+        """Execute a steam:// navigation via SteamClient.URL, CLI, or window.location."""
+        # 1. Native SteamClient.URL.ExecuteSteamURL via SharedJSContext
+        try:
+            shared = self.cdp.find_target_by_title("SharedJSContext")
+            if shared and shared.get("webSocketDebuggerUrl"):
+                self.cdp.evaluate(
+                    shared["webSocketDebuggerUrl"],
+                    f"if (typeof SteamClient !== 'undefined' && SteamClient.URL && SteamClient.URL.ExecuteSteamURL) {{ SteamClient.URL.ExecuteSteamURL('{url}'); }}"
+                )
+        except Exception:
+            pass
+
+        # 2. Linux CLI fallback if steam is in PATH
+        try:
+            env = os.environ.copy()
+            if "DISPLAY" not in env: env["DISPLAY"] = ":0"
+            if "WAYLAND_DISPLAY" not in env: env["WAYLAND_DISPLAY"] = "wayland-0"
+            if "XDG_RUNTIME_DIR" not in env: env["XDG_RUNTIME_DIR"] = "/run/user/1000"
+            subprocess.run(["steam", url], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
+        except Exception:
+            pass
+
+        # 3. Direct window.location.href on Steam target
+        try:
+            steam_target = self.cdp.find_target_by_title("Steam")
+            if steam_target and steam_target.get("webSocketDebuggerUrl"):
+                self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = '{url}';")
+        except Exception:
+            pass
+
     def test_01_cef_targets_and_process(self):
         """Verify Steam process is alive and primary CEF windows are exposed."""
         log_step("Test 1: Verify Steam CEF Targets and Process Vitality")
@@ -400,10 +433,52 @@ class SteamUIFlowTest(unittest.TestCase):
         """Verify that game lua is NOT installed and NOT present in LUAs collection prior to store download."""
         log_step(f"Test 2: Verify Clean Slate Preflight for AppID {CONFIG['appid']}")
         appid = CONFIG["appid"]
+        # If the app is currently installed in Steam or on disk, cleanly uninstall it first
+        if self.is_app_installed_in_steam(appid) or self.is_app_installed_on_disk(appid):
+            log_info(f"AppID {appid} was previously installed; performing clean preflight uninstallation...")
+            self.navigate_url(f"steam://uninstall/{appid}")
+            for _ in range(12):
+                time.sleep(0.5)
+                utarget = self.cdp.find_target_by_title("Uninstall")
+                if utarget:
+                    self.cdp.evaluate(utarget["webSocketDebuggerUrl"], """
+                    (() => {
+                        const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Uninstall');
+                        if (btn) { btn.click(); return { clicked: true }; }
+                        return { clicked: false };
+                    })()
+                    """)
+                    break
+            for _ in range(30):
+                time.sleep(0.5)
+                if not self.is_app_installed_in_steam(appid) and not self.is_app_installed_on_disk(appid):
+                    break
+            log_info("Preflight clean uninstallation complete.")
+
         lua_paths = [
             os.path.expanduser(f"~/.local/share/Steam/config/stplug-in/{appid}.lua"),
             os.path.expanduser(f"~/.steam/steam/config/stplug-in/{appid}.lua")
         ]
+        manifest_paths = [
+            os.path.expanduser(f"~/.local/share/Steam/steamapps/appmanifest_{appid}.acf"),
+            os.path.expanduser(f"~/.steam/steam/steamapps/appmanifest_{appid}.acf")
+        ]
+        # Clean stale test artifacts from previous aborted test runs
+        for p in lua_paths:
+            if os.path.isfile(p):
+                try:
+                    os.remove(p)
+                    log_info(f"Cleaned stale test lua before preflight: {p}")
+                except Exception as e:
+                    log_warn(f"Failed to remove stale lua {p}: {e}")
+        for mp in manifest_paths:
+            if os.path.isfile(mp):
+                try:
+                    os.remove(mp)
+                    log_info(f"Cleaned stale test appmanifest before preflight: {mp}")
+                except Exception as e:
+                    log_warn(f"Failed to remove stale manifest {mp}: {e}")
+
         self.assertTrue(all(not os.path.isfile(p) for p in lua_paths), f"Preflight error: {appid}.lua must not be present on disk before store download")
         log_info(f"Confirmed clean slate: {appid}.lua absent from stplug-in.")
 
@@ -424,7 +499,20 @@ class SteamUIFlowTest(unittest.TestCase):
                 }}
             }})()
             """
-            pre_res = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], pre_col_check)
+            for _ in range(5):
+                pre_res = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], pre_col_check)
+                if not (pre_res and pre_res.get("found")):
+                    break
+                self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], f"""
+                (() => {{
+                    try {{
+                        const cols = window.collectionStore.GetUserCollectionsByName('LUAs');
+                        if (cols && cols.length > 0) window.collectionStore.AddOrRemoveApp([{appid}], false, cols[0].id);
+                    }} catch(e) {{}}
+                }})()
+                """)
+                time.sleep(0.5)
+
             if pre_res and pre_res.get("found"):
                 self.fail(f"Pre-download check failed: AppID {appid} is already present in LUAs collection before download!")
             log_info(f"Verified AppID {appid} is NOT present in LUAs collection prior to download.")
@@ -440,7 +528,7 @@ class SteamUIFlowTest(unittest.TestCase):
         appname = CONFIG["appname"]
 
         log_info(f"Navigating Steam client to Store page for {appname} (AppID {appid})...")
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://store/{appid}';")
+        self.navigate_url(f"steam://store/{appid}")
 
         store_target = None
         for i in range(40):
@@ -449,19 +537,23 @@ class SteamUIFlowTest(unittest.TestCase):
             if store_target:
                 break
             if i in (8, 18):
-                self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://store/{appid}';")
+                self.navigate_url(f"steam://store/{appid}")
         self.assertIsNotNone(store_target, f"Timed out waiting for store page target for AppID {appid}")
         log_info(f"Connected to store page CEF target: '{store_target.get('title')}'")
 
         # Clean any stale localStorage session and in-memory caches, then reload page
-        self.cdp.evaluate(store_target["webSocketDebuggerUrl"], f"""
-        (() => {{
-            localStorage.removeItem('sls-session-{appid}');
-            if (typeof appUnlockStatus !== 'undefined') delete appUnlockStatus[{appid}];
-            if (typeof globalDownloadSessions !== 'undefined') delete globalDownloadSessions[{appid}];
-            window.location.reload();
-        }})()
-        """)
+        try:
+            self.cdp.evaluate(store_target["webSocketDebuggerUrl"], f"""
+            (() => {{
+                localStorage.removeItem('sls-session-{appid}');
+                if (typeof appUnlockStatus !== 'undefined') delete appUnlockStatus[{appid}];
+                if (typeof globalDownloadSessions !== 'undefined') delete globalDownloadSessions[{appid}];
+                window.location.reload();
+            }})()
+            """)
+        except Exception:
+            pass
+        time.sleep(1.5)
 
         btn_check_script = """
         (() => {
@@ -475,11 +567,14 @@ class SteamUIFlowTest(unittest.TestCase):
         })()
         """
         btn_ready = False
-        for _ in range(20):
-            res = self.cdp.evaluate(store_target["webSocketDebuggerUrl"], btn_check_script)
-            if res and res.get("mounted") and res.get("text") == "Download Lua":
-                btn_ready = True
-                break
+        for _ in range(25):
+            try:
+                res = self.cdp.evaluate(store_target["webSocketDebuggerUrl"], btn_check_script)
+                if res and res.get("mounted") and res.get("text") == "Download Lua":
+                    btn_ready = True
+                    break
+            except Exception:
+                pass
             time.sleep(0.5)
         self.assertTrue(btn_ready, "Download Lua button was not mounted with text 'Download Lua' in store DOM")
         log_info("Verified SLS 'Download Lua' button mounted and visible on store page.")
@@ -608,7 +703,7 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertIsNotNone(steam_target, "Steam target not found")
 
         log_info("Navigating client back to Library view...")
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], "window.location.href = 'steam://open/library';")
+        self.navigate_url("steam://open/library")
         time.sleep(1.5)
 
         # Set search input
@@ -683,6 +778,7 @@ class SteamUIFlowTest(unittest.TestCase):
                 found_target = True
                 log_info(f"Found tracking target: {target.get('title')}")
                 break
+            self.navigate_url(f"steam://nav/games/details/{CONFIG['appid']}")
             time.sleep(0.5)
 
         self.assertTrue(found_target, f"Timed out waiting for detail view target containing '{expected_tracking}'")
@@ -753,13 +849,14 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertTrue(check_detected, f"/check endpoint did not detect installed Lua: {check_data}")
         log_info(f"/check endpoint confirmed AppID {CONFIG['appid']} is installed and registered.")
 
-        # Verify depotcache manifests
+        # Verify depotcache manifests in native depotcache and legacy config/depotcache
         depot_ids = [CONFIG["depot_id"]]
         manifests = []
         for did in depot_ids:
             for base in [os.path.expanduser("~/.local/share/Steam"), os.path.expanduser("~/.steam/steam")]:
-                matches = glob.glob(f"{base}/config/depotcache/{did}_*.manifest")
-                manifests.extend(matches)
+                for dname in ["depotcache", "config/depotcache"]:
+                    matches = glob.glob(f"{base}/{dname}/{did}_*.manifest")
+                    manifests.extend(matches)
         log_info(f"Discovered {len(manifests)} depotcache manifest(s) for {CONFIG['appname']} depots ({', '.join(depot_ids)}).")
         self.assertGreater(len(manifests), 0, f"No manifests discovered for {CONFIG['appname']} depots")
         log_pass("Game detail view and dynamic hot reload verified.")
@@ -963,7 +1060,7 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertIsNotNone(steam_target)
 
         # Ensure on Rogue details view
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://nav/games/details/{CONFIG['appid']}';")
+        self.navigate_url(f"steam://nav/games/details/{CONFIG['appid']}")
         time.sleep(1.0)
 
         # 1. Click Change Provider button in DOM (poll up to 10s)
@@ -1011,48 +1108,125 @@ class SteamUIFlowTest(unittest.TestCase):
         time.sleep(2.0)
         log_pass("Change Provider UI modal and API endpoint verified.")
 
+    def is_app_installed_on_disk(self, appid):
+        """Check if an appmanifest file exists with StateFlags indicating installed."""
+        steam_paths = [
+            os.path.expanduser("~/.local/share/Steam"),
+            os.path.expanduser("~/.steam/steam")
+        ]
+        for base in list(steam_paths):
+            vdf = os.path.join(base, "steamapps/libraryfolders.vdf")
+            if os.path.isfile(vdf):
+                try:
+                    with open(vdf, "r", encoding="utf-8", errors="ignore") as f:
+                        for line in f:
+                            if '"path"' in line:
+                                parts = line.split('"')
+                                if len(parts) >= 4 and os.path.isdir(parts[3]):
+                                    p = parts[3]
+                                    if p not in steam_paths:
+                                        steam_paths.append(p)
+                except Exception:
+                    pass
+
+        for base in steam_paths:
+            manifest = os.path.join(base, f"steamapps/appmanifest_{appid}.acf")
+            if os.path.isfile(manifest):
+                try:
+                    with open(manifest, "r", encoding="utf-8", errors="ignore") as f:
+                        content = f.read()
+                        for line in content.splitlines():
+                            if '"StateFlags"' in line:
+                                parts = line.split('"')
+                                if len(parts) >= 4:
+                                    flags = int(parts[3])
+                                    if flags & 4:
+                                        return True
+                except Exception:
+                    pass
+        return False
+
+    def is_app_installed_in_steam(self, appid):
+        """Check SharedJSContext MobX appStore or overview for installed status."""
+        shared_target = self.cdp.find_target_by_title("SharedJSContext")
+        if not shared_target or not shared_target.get("webSocketDebuggerUrl"):
+            return False
+        res = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], f"""
+        (() => {{
+            const a = window.appStore.allApps.find(x => x.appid === {appid});
+            if (a && a.installed) return true;
+            const overview = window.appStore.GetAppOverviewByAppID({appid});
+            if (overview && overview.installed) return true;
+            if (overview && overview.per_client_data && overview.per_client_data[0]) {{
+                if (overview.per_client_data[0].display_status === 11) return true;
+            }}
+            return false;
+        }})()
+        """)
+        return bool(res)
+
     def test_11_install_rogue_flow(self):
-        """Test triggering install flow (steam://install/<appid>), handling dialogs, and verifying installation."""
+        """Test triggering install flow (steam://install/<appid>), handling dialogs, and strictly verifying installation."""
         log_step(f"Test 11: Test Steam Install Flow for AppID {CONFIG['appid']}")
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
         # 1. Trigger UI install navigation
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://install/{CONFIG['appid']}';")
+        self.navigate_url(f"steam://install/{CONFIG['appid']}")
         time.sleep(1.0)
 
-        # 2. Click any install dialog buttons or SLS custom depot buttons
-        clicked_download = False
-        for _ in range(5):
-            if clicked_download:
+        # 2a. Click native Steam install dialog button ("Install" / "Next >")
+        clicked_native_install = False
+        for _ in range(10):
+            for t in self.cdp.get_targets():
+                ws = t.get("webSocketDebuggerUrl")
+                if not ws: continue
+                res = self.cdp.evaluate(ws, """
+                (() => {
+                    const btn = Array.from(document.querySelectorAll('button')).find(b => {
+                        const t = (b.innerText || b.textContent || '').trim();
+                        const isPrimary = b.className && b.className.includes('Primary');
+                        return (t === 'Install' || t === 'Next >' || t === 'Next' || t === 'I Agree' || t === 'Finish') &&
+                               b.id !== 'sls-depot-btn-download' && b.offsetParent !== null;
+                    });
+                    if (btn) {
+                        btn.click();
+                        return (btn.innerText || btn.textContent || '').trim();
+                    }
+                    return null;
+                })()
+                """)
+                if res:
+                    log_info(f"Clicked native Steam '{res}' button on target '{t.get('title')}'")
+                    clicked_native_install = True
+                    break
+            if clicked_native_install:
                 break
+            time.sleep(0.5)
+
+        # 2b. Click SLS custom depot download button (#sls-depot-btn-download)
+        clicked_depot_download = False
+        for _ in range(10):
             for t in self.cdp.get_targets():
                 ws = t.get("webSocketDebuggerUrl")
                 if not ws: continue
                 res = self.cdp.evaluate(ws, """
                 (() => {
                     const cb = document.getElementById('sls-depot-btn-download');
-                    if (cb && !cb.disabled) {
+                    if (cb && !cb.disabled && cb.offsetParent !== null) {
                         cb.click();
-                        return 'sls-depot-btn-download';
+                        return true;
                     }
-                    let clicked = false;
-                    document.querySelectorAll('button').forEach(b => {
-                        const t = b.textContent.trim();
-                        if (t === 'Install' || t === 'Next >' || t === 'Next' || t === 'I Agree' || t === 'Finish') {
-                            b.click();
-                            clicked = t;
-                        }
-                    });
-                    return clicked;
+                    return false;
                 })()
                 """)
                 if res:
-                    log_info(f"Clicked '{res}' on target '{t.get('title')}'")
-                    if res == 'sls-depot-btn-download':
-                        clicked_download = True
-                        break
-            time.sleep(1.0)
+                    log_info(f"Clicked '#sls-depot-btn-download' on target '{t.get('title')}'")
+                    clicked_depot_download = True
+                    break
+            if clicked_depot_download:
+                break
+            time.sleep(0.5)
 
         # 3. Verify get-depots API endpoint returns valid depots for AppID
         depots_req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/get-depots?id={CONFIG['appid']}")
@@ -1062,60 +1236,76 @@ class SteamUIFlowTest(unittest.TestCase):
             self.assertGreater(len(depots_data.get("depots", [])), 0, "No depots returned for AppID")
             log_info(f"Verified /get-depots returned {len(depots_data.get('depots'))} depots.")
 
-        # 4. Wait briefly for install registration
-        time.sleep(2.0)
-        log_pass("Steam install flow completed and game assets preserved.")
+        # 4. Strict Installation Verification: Poll up to 45s for genuine installation
+        log_info(f"Polling for installation of AppID {CONFIG['appid']} ('{CONFIG['appname']}')...")
+        installed = False
+        on_disk = False
+        in_steam = False
+        for sec in range(45):
+            time.sleep(1.0)
+            on_disk = self.is_app_installed_on_disk(CONFIG['appid'])
+            in_steam = self.is_app_installed_in_steam(CONFIG['appid'])
+            if on_disk and in_steam:
+                installed = True
+                log_info(f"Verified installation completed after {sec + 1}s!")
+                break
+            if (sec + 1) % 5 == 0:
+                log_info(f"Awaiting install completion ({sec + 1}s elapsed, on_disk={on_disk}, in_steam={in_steam})...")
+
+        self.assertTrue(on_disk, f"AppID {CONFIG['appid']} ('{CONFIG['appname']}') was NOT installed! appmanifest with StateFlags=4 not found on disk.")
+        self.assertTrue(in_steam, f"AppID {CONFIG['appid']} ('{CONFIG['appname']}') was NOT installed! appStore.installed is False in SharedJSContext.")
+        self.assertTrue(installed, f"AppID {CONFIG['appid']} ('{CONFIG['appname']}') installation verification failed.")
+        log_pass("Steam install flow completed and game is truthfully installed.")
 
     def test_12_uninstall_rogue_flow(self):
-        """Test triggering steam://uninstall/<appid>, clicking confirmation, and validating state."""
+        """Test triggering steam://uninstall/<appid>, clicking confirmation, and validating uninstallation."""
         log_step(f"Test 12: Test Steam Uninstall Flow for AppID {CONFIG['appid']}")
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
-        # Trigger uninstall URL via CDP
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://uninstall/{CONFIG['appid']}';")
+        # 1. Assert app is currently installed before testing uninstall
+        self.assertTrue(self.is_app_installed_on_disk(CONFIG['appid']) or self.is_app_installed_in_steam(CONFIG['appid']),
+                        f"Cannot test uninstall: AppID {CONFIG['appid']} is not currently installed!")
 
-        # Find 'Uninstall' modal target with polling
+        # 2. Trigger uninstall URL via CDP
+        self.navigate_url(f"steam://uninstall/{CONFIG['appid']}")
+
+        # 3. Find native 'Uninstall' modal target with polling
         uninstall_target = None
-        for _ in range(8):
+        for _ in range(12):
             time.sleep(0.5)
             uninstall_target = self.cdp.find_target_by_title("Uninstall")
             if uninstall_target:
                 break
 
-        if uninstall_target:
-            log_info("Detected native Steam 'Uninstall' dialog target.")
-            # Click 'Uninstall' button in modal
-            click_script = """
-            (() => {
-                const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Uninstall');
-                if (btn) { btn.click(); return { clicked: true }; }
-                return { clicked: false };
-            })()
-            """
-            click_res = self.cdp.evaluate(uninstall_target["webSocketDebuggerUrl"], click_script)
-            self.assertIsInstance(click_res, dict)
-            self.assertTrue(click_res.get("clicked"), "Failed to click 'Uninstall' confirmation button")
-            log_info("Clicked 'Uninstall' button in dialog.")
-        else:
-            log_info("App was not in installed state; skipped modal confirmation.")
+        self.assertIsNotNone(uninstall_target, "Native Steam 'Uninstall' confirmation dialog did not appear!")
+        log_info("Detected native Steam 'Uninstall' dialog target.")
 
-        # Wait for uninstall state change with polling
-        shared_target = self.cdp.find_target_by_title("SharedJSContext")
-        check_script = f"""
-        (() => {{
-            const a = window.appStore.allApps.find(a => a.appid === {CONFIG['appid']});
-            return a ? !!a.installed : false;
-        }})()
+        # Click 'Uninstall' button in modal
+        click_script = """
+        (() => {
+            const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Uninstall');
+            if (btn) { btn.click(); return { clicked: true }; }
+            return { clicked: false };
+        })()
         """
-        is_installed = True
-        for _ in range(20):
+        click_res = self.cdp.evaluate(uninstall_target["webSocketDebuggerUrl"], click_script)
+        self.assertIsInstance(click_res, dict)
+        self.assertTrue(click_res.get("clicked"), "Failed to click 'Uninstall' confirmation button")
+        log_info("Clicked 'Uninstall' button in dialog.")
+
+        # 4. Wait for uninstall state change with polling (up to 20s)
+        uninstalled = False
+        for _ in range(40):
             time.sleep(0.5)
-            is_installed = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], check_script)
-            if not is_installed:
+            on_disk = self.is_app_installed_on_disk(CONFIG['appid'])
+            in_steam = self.is_app_installed_in_steam(CONFIG['appid'])
+            if not on_disk and not in_steam:
+                uninstalled = True
                 break
-        self.assertFalse(is_installed, "App state in appStore still indicates installed")
-        log_pass("Steam uninstall flow completed successfully.")
+
+        self.assertTrue(uninstalled, f"Uninstall failed: appmanifest still on disk ({self.is_app_installed_on_disk(CONFIG['appid'])}) or appStore.installed is True ({self.is_app_installed_in_steam(CONFIG['appid'])})")
+        log_pass("Steam uninstall flow completed and app was successfully uninstalled.")
 
     def test_13_remove_lua_flow(self):
         """Test Remove Lua UI modal, cancel action, remove action, and restoration."""
@@ -1124,7 +1314,7 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertIsNotNone(steam_target)
 
         # Ensure on Rogue details view
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = 'steam://nav/games/details/{CONFIG['appid']}';")
+        self.navigate_url(f"steam://nav/games/details/{CONFIG['appid']}")
         time.sleep(1.0)
 
         # 1. Test modal open and cancellation (poll up to 10s)
@@ -1210,7 +1400,7 @@ class SteamUIFlowTest(unittest.TestCase):
         if not steam_target:
             return
 
-        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], "window.location.href = 'steam://open/library';")
+        self.navigate_url("steam://open/library")
         time.sleep(1.0)
 
         reset_script = """

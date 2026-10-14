@@ -369,6 +369,7 @@ namespace ManifestCode
 
         std::string manifestFilename = std::to_string(depotId) + "_" + std::to_string(manifestGid) + ".manifest";
         std::string manifestPath = depotcacheDir + "/" + manifestFilename;
+        std::string legacyPath = CppAccela::Path::findSteamRoot() + "/config/depotcache/" + manifestFilename;
 
         // Primary Check: Already in local cache
         if (std::filesystem::exists(manifestPath))
@@ -379,6 +380,22 @@ namespace ManifestCode
             {
                 LOG_INFO("ManifestCode: Found local manifest %s (size %llu bytes)\n", manifestPath.c_str(), static_cast<unsigned long long>(sz));
                 return true;
+            }
+        }
+
+        // Secondary Check: If in legacy config/depotcache, promote/copy to native depotcache
+        if (!legacyPath.empty() && std::filesystem::exists(legacyPath))
+        {
+            std::error_code ec;
+            auto sz = std::filesystem::file_size(legacyPath, ec);
+            if (!ec && sz > 0)
+            {
+                if (AtomicFile::copy(legacyPath, manifestPath))
+                {
+                    LOG_INFO("ManifestCode: Promoted legacy manifest %s to %s (size %llu bytes)\n",
+                             legacyPath.c_str(), manifestPath.c_str(), static_cast<unsigned long long>(sz));
+                    return true;
+                }
             }
         }
 
@@ -393,6 +410,10 @@ namespace ManifestCode
             if (AtomicFile::write(manifestPath, content, true))
             {
                 LOG_INFO("ManifestCode: Successfully downloaded and cached manifest to %s\n", manifestPath.c_str());
+                if (!legacyPath.empty())
+                {
+                    AtomicFile::write(legacyPath, content, true);
+                }
                 return true;
             }
         }

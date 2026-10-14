@@ -525,18 +525,22 @@ namespace LuaDownload
         pushStatus(appId, "Installing...");
 
         // Clean up any old manifests from previous provider in depotcache to prevent orphan bloat
-        try {
-            for (const auto& entry : std::filesystem::directory_iterator(depotcacheDir)) {
-                if (entry.is_regular_file() && entry.path().extension() == ".manifest") {
-                    std::string stem = entry.path().stem().string();
-                    if (stem.find(appId) == 0) {
-                        std::filesystem::remove(entry.path());
+        std::string legacyDepotcache = CppAccela::Path::findSteamRoot() + "/config/depotcache";
+        for (const auto& d : { depotcacheDir, legacyDepotcache }) {
+            if (d.empty() || !std::filesystem::exists(d)) continue;
+            try {
+                for (const auto& entry : std::filesystem::directory_iterator(d)) {
+                    if (entry.is_regular_file() && entry.path().extension() == ".manifest") {
+                        std::string stem = entry.path().stem().string();
+                        if (stem.find(appId) == 0) {
+                            std::filesystem::remove(entry.path());
+                        }
                     }
                 }
-            }
-        } catch (...) {}
+            } catch (...) {}
+        }
 
-        // Install manifest files to depotcache
+        // Install manifest files to depotcache and mirror to config/depotcache
         for (const auto& manifestPath : files.manifestFiles)
         {
             std::string filename = std::filesystem::path(manifestPath).filename().string();
@@ -549,6 +553,12 @@ namespace LuaDownload
             else
             {
                 LOG_INFO("LuaDownload: Failed to atomically copy manifest %s\n", filename.c_str());
+            }
+
+            if (!legacyDepotcache.empty() && legacyDepotcache != depotcacheDir)
+            {
+                std::filesystem::create_directories(legacyDepotcache);
+                AtomicFile::copy(manifestPath, legacyDepotcache + "/" + filename);
             }
         }
 

@@ -188,7 +188,10 @@ def cmd_nav(inspector, args):
 
     print(f"{BLUE}==>{RESET} Navigating to Store for AppID {BOLD}{appid}{RESET}...")
     
-    # Try navigating via window.location.href or protocol
+    # Try navigating via SteamClient.URL or window.location.href or protocol
+    shared = inspector.find_target("SharedJSContext")
+    if shared:
+        inspector.evaluate(shared["webSocketDebuggerUrl"], f"if (typeof SteamClient !== 'undefined' && SteamClient.URL && SteamClient.URL.ExecuteSteamURL) SteamClient.URL.ExecuteSteamURL('{protocol_url}');")
     nav_script = f"""
     (() => {{
         window.location.href = '{protocol_url}';

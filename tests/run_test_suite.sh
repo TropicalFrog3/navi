@@ -308,6 +308,8 @@ mkdir -p "$UNINSTALL_HOME/.local/share/SLSsteam" \
          "$UNINSTALL_HOME/.local/share/Steam/config/stplug-in" \
          "$UNINSTALL_HOME/.local/share/Steam/config/depotcache" \
          "$UNINSTALL_HOME/.steam/steam/config/depotcache" \
+         "$UNINSTALL_HOME/.local/share/Steam/depotcache" \
+         "$UNINSTALL_HOME/.steam/steam/depotcache" \
          "$UNINSTALL_HOME/.headcrab" \
          "$UNINSTALL_HOME/.local/bin" \
          "$UNINSTALL_HOME/.local/share/applications" \
@@ -327,6 +329,7 @@ echo "untouchable_plugin_manifest" > "$UNINSTALL_HOME/.steam/steam/config/stplug
 echo "untouchable_lua_script2" > "$UNINSTALL_HOME/.local/share/Steam/config/stplug-in/200.lua"
 echo "untouchable_steam_depotcache_manifest" > "$UNINSTALL_HOME/.local/share/Steam/config/depotcache/789_101.manifest"
 echo "untouchable_steam_depotcache_manifest2" > "$UNINSTALL_HOME/.steam/steam/config/depotcache/789_102.manifest"
+echo "untouchable_steam_depotcache_manifest3" > "$UNINSTALL_HOME/.local/share/Steam/depotcache/789_103.manifest"
 
 # Category 2 files: Steam wrapper and backup
 echo "ORIGINAL_NATIVE_STEAM" > "$UNINSTALL_HOME/.local/bin/steam.pre-slssteam.bak"
@@ -364,7 +367,8 @@ fi
 
 # Verify Steam depotcache manifests PRESERVED intact
 if [ ! -f "$UNINSTALL_HOME/.local/share/Steam/config/depotcache/789_101.manifest" ] || \
-   [ ! -f "$UNINSTALL_HOME/.steam/steam/config/depotcache/789_102.manifest" ]; then
+   [ ! -f "$UNINSTALL_HOME/.steam/steam/config/depotcache/789_102.manifest" ] || \
+   [ ! -f "$UNINSTALL_HOME/.local/share/Steam/depotcache/789_103.manifest" ]; then
     fail "Steam depotcache manifests were deleted! Must be strictly preserved."
 fi
 
@@ -408,7 +412,8 @@ if [ ! -f "$UNINSTALL_HOME/.steam/steam/config/stplug-in/100.lua" ]; then
     fail "Steam plugin luas were deleted during config removal! Must be strictly preserved."
 fi
 if [ ! -f "$UNINSTALL_HOME/.local/share/Steam/config/depotcache/789_101.manifest" ] || \
-   [ ! -f "$UNINSTALL_HOME/.steam/steam/config/depotcache/789_102.manifest" ]; then
+   [ ! -f "$UNINSTALL_HOME/.steam/steam/config/depotcache/789_102.manifest" ] || \
+   [ ! -f "$UNINSTALL_HOME/.local/share/Steam/depotcache/789_103.manifest" ]; then
     fail "Steam depotcache manifests were deleted during config removal! Must be strictly preserved."
 fi
 pass "Uninstaller correctly removed Category 3 user configs while strictly keeping manifests and luas."
@@ -428,7 +433,7 @@ pass "Atomic staging, merge, and cancellation safety unit tests passed successfu
 
 step "Test Case 9: Live Steam UI Flow & Native Hook Integration Test"
 PYTHON_CMD=""
-for cand in python3 /usr/bin/python3 "$HOME/.local/share/ACCELA/.venv/bin/python"; do
+for cand in "$HOME/deck_venv/bin/python" python3 /usr/bin/python3 "$HOME/.local/share/ACCELA/.venv/bin/python"; do
     if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "import websocket" >/dev/null 2>&1; then
         PYTHON_CMD="$cand"
         break
@@ -438,7 +443,7 @@ if [ -z "$PYTHON_CMD" ]; then
     PYTHON_CMD="python3"
 fi
 
-if pgrep -f "steam" >/dev/null 2>&1 && curl -s --connect-timeout 2 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
+if pgrep -f "steam" >/dev/null 2>&1 && [ -d "$HOME/.local/share/Steam/steamapps" ] && curl -s --connect-timeout 2 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
     echo "Steam CEF remote debugging active on port 8080. Running UI automation flow test..."
     $PYTHON_CMD "$REPO_ROOT/tests/test_steam_ui_flow.py" --skip-if-no-steam
     pass "Live Steam UI flow test passed successfully."

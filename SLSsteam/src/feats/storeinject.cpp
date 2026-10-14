@@ -303,9 +303,11 @@ namespace StoreInject
             return "{\"success\":false,\"message\":\"Steam root directory not found.\"}";
         }
 
-        std::filesystem::path depotcache = std::filesystem::path(steamRoot) / "config" / "depotcache";
+        std::filesystem::path depotcache = std::filesystem::path(steamRoot) / "depotcache";
+        std::filesystem::path legacyDepotcache = std::filesystem::path(steamRoot) / "config" / "depotcache";
         std::filesystem::path stplugin = std::filesystem::path(steamRoot) / "config" / "stplug-in";
         std::filesystem::create_directories(depotcache);
+        std::filesystem::create_directories(legacyDepotcache);
         std::filesystem::create_directories(stplugin);
 
         int luaCount = 0;
@@ -391,10 +393,13 @@ namespace StoreInject
                 }
 
                 for (const auto& mf : zipManifestFiles) {
-                    std::string dest = (depotcache / std::filesystem::path(mf).filename()).string();
+                    std::string mfName = std::filesystem::path(mf).filename().string();
+                    std::string dest = (depotcache / mfName).string();
+                    std::string legacyDest = (legacyDepotcache / mfName).string();
                     if (AtomicFile::copy(mf, dest)) {
                         manifestCount++;
                     }
+                    AtomicFile::copy(mf, legacyDest);
                 }
 
                 if (!zipLuaFiles.empty()) {
@@ -418,10 +423,13 @@ namespace StoreInject
                 std::filesystem::remove_all(extractDir);
             }
             else if (ext == ".manifest") {
-                std::string dest = (depotcache / std::filesystem::path(file.name).filename()).string();
+                std::string mfName = std::filesystem::path(file.name).filename().string();
+                std::string dest = (depotcache / mfName).string();
+                std::string legacyDest = (legacyDepotcache / mfName).string();
                 if (AtomicFile::write(dest, decodedData, true)) {
                     manifestCount++;
                 }
+                AtomicFile::write(legacyDest, decodedData, true);
             }
             else if (ext == ".lua") {
                 std::string destFilename = std::filesystem::path(file.name).filename().string();
@@ -585,20 +593,21 @@ namespace StoreInject
                                                     }
                                                 }
                                                 
-                                                // Remove manifests from depotcache
+                                                // Remove manifests from depotcache and config/depotcache
                                                 std::filesystem::path configPath = std::filesystem::path(pluginDir).parent_path();
-                                                std::filesystem::path depotcachePath = configPath / "depotcache";
-                                                if (std::filesystem::exists(depotcachePath)) {
-                                                    for (const auto& entry : std::filesystem::directory_iterator(depotcachePath)) {
-                                                        if (entry.is_regular_file()) {
-                                                            auto path = entry.path();
-                                                            if (path.extension() == ".manifest") {
-                                                                std::string stem = path.stem().string();
-                                                                size_t underscorePos = stem.find('_');
-                                                                std::string appIdStr = (underscorePos != std::string::npos) ? stem.substr(0, underscorePos) : stem;
-                                                                if (appIdStr == pid) {
-                                                                    std::filesystem::remove(path);
-                                                                    LOG_INFO("RemoveLua: Deleted manifest %s from depotcache\n", path.c_str());
+                                                for (const auto& dPath : { configPath.parent_path() / "depotcache", configPath / "depotcache" }) {
+                                                    if (std::filesystem::exists(dPath)) {
+                                                        for (const auto& entry : std::filesystem::directory_iterator(dPath)) {
+                                                            if (entry.is_regular_file()) {
+                                                                auto path = entry.path();
+                                                                if (path.extension() == ".manifest") {
+                                                                    std::string stem = path.stem().string();
+                                                                    size_t underscorePos = stem.find('_');
+                                                                    std::string appIdStr = (underscorePos != std::string::npos) ? stem.substr(0, underscorePos) : stem;
+                                                                    if (appIdStr == pid) {
+                                                                        std::filesystem::remove(path);
+                                                                        LOG_INFO("RemoveLua: Deleted manifest %s from depotcache\n", path.c_str());
+                                                                    }
                                                                 }
                                                             }
                                                         }
@@ -1547,21 +1556,22 @@ namespace StoreInject
                                         }
                                     }
 
-                                    // 3. Remove manifests from depotcache
+                                    // 3. Remove manifests from depotcache and config/depotcache
                                     std::filesystem::path configPath = std::filesystem::path(pluginDir).parent_path();
-                                    std::filesystem::path depotcachePath = configPath / "depotcache";
-                                    if (std::filesystem::exists(depotcachePath)) {
-                                        try {
-                                            for (const auto& entry : std::filesystem::directory_iterator(depotcachePath)) {
-                                                if (entry.is_regular_file() && entry.path().extension() == ".manifest") {
-                                                    std::string stem = entry.path().stem().string();
-                                                    if (stem.find(idStr) == 0) {
-                                                        std::filesystem::remove(entry.path());
-                                                        LOG_INFO("RemoveLua: Deleted manifest %s from depotcache\n", entry.path().c_str());
+                                    for (const auto& dPath : { configPath.parent_path() / "depotcache", configPath / "depotcache" }) {
+                                        if (std::filesystem::exists(dPath)) {
+                                            try {
+                                                for (const auto& entry : std::filesystem::directory_iterator(dPath)) {
+                                                    if (entry.is_regular_file() && entry.path().extension() == ".manifest") {
+                                                        std::string stem = entry.path().stem().string();
+                                                        if (stem.find(idStr) == 0) {
+                                                             std::filesystem::remove(entry.path());
+                                                             LOG_INFO("RemoveLua: Deleted manifest %s from depotcache\n", entry.path().c_str());
+                                                        }
                                                     }
                                                 }
-                                            }
-                                        } catch(...) {}
+                                            } catch(...) {}
+                                        }
                                     }
                                 }
 

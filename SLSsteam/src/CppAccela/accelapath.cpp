@@ -51,8 +51,10 @@ namespace CppAccela::Path
         const std::string root = findSteamRoot();
         if (root.empty()) return {};
 
-        const fs::path dir = fs::path(root) / "config" / "depotcache";
+        const fs::path dir = fs::path(root) / "depotcache";
+        const fs::path legacyDir = fs::path(root) / "config" / "depotcache";
         fs::create_directories(dir);
+        fs::create_directories(legacyDir);
         return dir.string();
     }
 
