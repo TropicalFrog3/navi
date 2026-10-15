@@ -80,7 +80,6 @@ public:
 	MTVariable<std::string> downloadMode;
 
 	// API Auth
-	MTVariable<std::string> morrenusKey;
 	MTVariable<std::string> ryuuKey;
 	MTVariable<std::string> depotBoxKey;
 	MTVariable<std::string> hubcapKey;
@@ -279,7 +278,7 @@ public:
 	bool removeAdditionalAppId(uint32_t appId);
 	
 	// Write auth to config.yaml
-	bool updateApiAuth(const std::string& morrenusKey, const std::string& ryuuKey, const std::string& depotBoxKey, const std::string& hubcapKey);
+	bool updateApiAuth(const std::string& ryuuKey, const std::string& depotBoxKey, const std::string& hubcapKey);
 
 	bool shouldExcludeAppId(const AppId_t appId, const bool ignoreAdditionalApps = false);
 	CSteamId getDenuvoGameOwner(const AppId_t appId);

@@ -150,13 +150,32 @@
         { name: 'Ryuu', key: 'sls-ryuu-key', url: 'https://generator.ryuu.lol' },
         { name: 'DepotBox', key: 'sls-dpbx-key', url: 'https://depotbox.org/' },
         { name: 'HubcapDB', key: 'sls-hubcap-key', url: 'https://hubcapmanifest.com/api-keys/stats' },
-        { name: 'Morrenus', key: 'sls-morr-key', url: '#' },
-        { name: 'Sushi', key: 'sls-sushi-key', url: '#' },
-        { name: 'Spinoza', key: 'sls-spinoza-key', url: '#' },
-        { name: 'TwentyTwo Cloud', key: 'sls-twentytwo-key', url: '#' }
+        { name: 'Spinoza', key: 'sls-spinoza-key', url: '#' }
     ];
 
     function getProviderOrder() {
+        if (localStorage.getItem('sls-lua-provider-order-v') !== '2') {
+            var oldSaved = (localStorage.getItem('sls-lua-provider-order') || '').split(',');
+            var migrated = [];
+            var indexMap = { 0: 0, 1: 1, 2: 2, 5: 3 }; // Ryuu, DepotBox, HubcapDB, Spinoza
+            oldSaved.forEach(function(value) {
+                var idx = parseInt(value, 10);
+                var target = indexMap[idx];
+                if (target !== undefined && migrated.indexOf(target) === -1) {
+                    migrated.push(target);
+                }
+            });
+            for (var j = 0; j < luaProviders.length; j++) {
+                if (migrated.indexOf(j) === -1) migrated.push(j);
+            }
+            localStorage.setItem('sls-lua-provider-order', migrated.join(','));
+            localStorage.removeItem('sls-morr-key');
+            localStorage.removeItem('sls-sushi-key');
+            localStorage.removeItem('sls-twentytwo-key');
+            localStorage.setItem('sls-lua-provider-order-v', '2');
+            return migrated;
+        }
+
         var saved = (localStorage.getItem('sls-lua-provider-order') || '').split(',');
         var order = [];
         saved.forEach(function(value) {
@@ -180,11 +199,10 @@
     }
 
     function sendApiKeys() {
-        var morr = localStorage.getItem('sls-morr-key') || '%MORR_KEY%';
         var ryuu = localStorage.getItem('sls-ryuu-key') || '%RYUU_KEY%';
         var dpbx = localStorage.getItem('sls-dpbx-key') || '%DPBX_KEY%';
         var hubcap = localStorage.getItem('sls-hubcap-key') || '%HUBCAP_KEY%';
-        window.location.hash = 'sls-auth-MORR=' + encodeURIComponent(morr) + '&RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
+        window.location.hash = 'sls-auth-RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
     }
 
     function sendLuaRequest(appid, providerIndex, customOrder) {
@@ -833,7 +851,6 @@
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
-        var currentMorr = localStorage.getItem('sls-morr-key') || '%MORR_KEY%';
         var currentRyuu = localStorage.getItem('sls-ryuu-key') || '%RYUU_KEY%';
         var currentDpbx = localStorage.getItem('sls-dpbx-key') || '%DPBX_KEY%';
         var currentHubcap = localStorage.getItem('sls-hubcap-key') || '%HUBCAP_KEY%';
@@ -855,13 +872,6 @@
                         '<a href="https://hubcapmanifest.com/" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>' +
                     '</div>' +
                     '<input id="sls-hubcap" type="text" value="' + currentHubcap + '" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:\'Motiva Sans\', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>' +
-                '</div>' +
-                '<div style="margin-bottom:16px;">' +
-                    '<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">' +
-                        '<span>Morrenus API Key</span>' +
-                        '<a href="https://manifest.morrenus.xyz/api-keys/stats" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>' +
-                    '</div>' +
-                    '<input id="sls-morr" type="text" value="' + currentMorr + '" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:\'Motiva Sans\', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>' +
                 '</div>' +
                 '<div style="margin-bottom:16px;">' +
                     '<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">' +
@@ -893,7 +903,7 @@
             ' #sls-btn-save:hover { background: #2d73ff !important; }' +
             ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
             ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }' +
-            ' #sls-hubcap:focus, #sls-morr:focus, #sls-ryuu:focus, #sls-dpbx:focus { border-color: #6366f1 !important; }';
+            ' #sls-hubcap:focus, #sls-ryuu:focus, #sls-dpbx:focus { border-color: #6366f1 !important; }';
 
         overlay.appendChild(style);
         document.body.appendChild(overlay);
@@ -927,14 +937,12 @@
 
         saveBtn.onclick = function() {
             var hubcap = document.getElementById('sls-hubcap').value;
-            var morr = document.getElementById('sls-morr').value;
             var ryuu = document.getElementById('sls-ryuu').value;
             var dpbx = document.getElementById('sls-dpbx').value;
             localStorage.setItem('sls-hubcap-key', hubcap);
-            localStorage.setItem('sls-morr-key', morr);
             localStorage.setItem('sls-ryuu-key', ryuu);
             localStorage.setItem('sls-dpbx-key', dpbx);
-            window.location.hash = 'sls-auth-MORR=' + encodeURIComponent(morr) + '&RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
+            window.location.hash = 'sls-auth-RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
             close();
 
             var toast = document.createElement('div');

@@ -247,7 +247,6 @@ bool CConfig::loadSettings(bool firstLoad)
 	extendedLogging = getSetting<bool>(node, "ExtendedLogging", false);
 	downloadMode = getSetting<std::string>(node, "DownloadMode", "native");
 	
-	morrenusKey = getSetting<std::string>(node, "MorrenusKey", "");
 	ryuuKey = getSetting<std::string>(node, "RyuuKey", "");
 	depotBoxKey = getSetting<std::string>(node, "DepotBoxKey", "");
 	hubcapKey = getSetting<std::string>(node, "HubcapKey", "");
@@ -765,7 +764,7 @@ bool CConfig::removeAdditionalAppId(uint32_t appId)
 	return true;
 }
 
-bool CConfig::updateApiAuth(const std::string& newMorrenus, const std::string& newRyuu, const std::string& newDepotBox, const std::string& newHubcap)
+bool CConfig::updateApiAuth(const std::string& newRyuu, const std::string& newDepotBox, const std::string& newHubcap)
 {
 	const std::string configPath = getPath();
 	std::ifstream inFile(configPath);
@@ -786,29 +785,21 @@ bool CConfig::updateApiAuth(const std::string& newMorrenus, const std::string& n
 		return escaped;
 	};
 
-	const std::string morrenus = quoteYaml(newMorrenus);
 	const std::string ryuu = quoteYaml(newRyuu);
 	const std::string depotBox = quoteYaml(newDepotBox);
 	const std::string hubcap = quoteYaml(newHubcap);
 
 	std::vector<std::string> lines;
 	std::string line;
-	bool foundMorrenus = false;
 	bool foundRyuu = false;
 	bool foundDepotBox = false;
 	bool foundHubcap = false;
-
 
 	while (std::getline(inFile, line))
 	{
 		if (line.find("MorrenusKey:") == 0)
 		{
-			if (!foundMorrenus)
-			{
-				lines.push_back("MorrenusKey: \"" + morrenus + "\"");
-				foundMorrenus = true;
-			}
-			// else: drop duplicate line
+			continue; // Drop legacy MorrenusKey line
 		}
 		else if (line.find("RyuuKey:") == 0)
 		{
@@ -848,7 +839,6 @@ bool CConfig::updateApiAuth(const std::string& newMorrenus, const std::string& n
 	}
 	inFile.close();
 
-	if (!foundMorrenus) lines.push_back("MorrenusKey: \"" + morrenus + "\"");
 	if (!foundRyuu) lines.push_back("RyuuKey: \"" + ryuu + "\"");
 	if (!foundDepotBox) lines.push_back("DepotBoxKey: \"" + depotBox + "\"");
 	if (!foundHubcap) lines.push_back("HubcapKey: \"" + hubcap + "\"");

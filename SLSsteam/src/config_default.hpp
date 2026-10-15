@@ -148,7 +148,6 @@ DumpClientInterfaces: no
 
 #Logs all calls to Steamworks (this makes the logfile huge! Only useful for debugging/analyzing
 ExtendedLogging: no
-MorrenusKey: ""
 RyuuKey: ""
 DepotBoxKey: ""
 HubcapKey: ""

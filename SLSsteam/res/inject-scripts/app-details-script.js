@@ -340,10 +340,7 @@
         { name: 'Ryuu' },
         { name: 'DepotBox' },
         { name: 'HubcapDB' },
-        { name: 'Morrenus' },
-        { name: 'Sushi' },
-        { name: 'Spinoza' },
-        { name: 'TwentyTwo Cloud' }
+        { name: 'Spinoza' }
     ];
 
     function openChangeProviderModal(appid, currentProvider) {

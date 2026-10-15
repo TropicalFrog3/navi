@@ -737,66 +737,48 @@ namespace StoreInject
                         searchPos = idStart;
                     }
 
-                    // Check for #sls-auth-MORR=
+                    // Check for #sls-auth-
                     searchPos = 0;
-                    while ((searchPos = response.find("#sls-auth-MORR=", searchPos)) != std::string::npos)
+                    while ((searchPos = response.find("#sls-auth-", searchPos)) != std::string::npos)
                     {
-                        size_t mStart = searchPos + 15;
-                        size_t mEnd = response.find("&RYUU=", mStart);
-                        if (mEnd != std::string::npos)
+                        size_t authStart = searchPos + 10;
+                        size_t cEnd = response.find("-TS=", authStart);
+                        if (cEnd != std::string::npos)
                         {
-                            size_t rStart = mEnd + 6;
-                            size_t dpbxPos = response.find("&DPBX=", rStart);
-                            size_t hubcapPos = response.find("&HUBCAP=", rStart);
-                            size_t cEnd = response.find("-TS=", rStart);
-                            if (cEnd != std::string::npos)
+                            std::string authParams = response.substr(authStart, cEnd - authStart);
+                            std::string timestamp = response.substr(cEnd + 4, response.find_first_of("\"", cEnd + 4) - (cEnd + 4));
+
+                            if (timestamp != lastProcessedTimestamp)
                             {
-                                std::string morr = urlDecode(response.substr(mStart, mEnd - mStart));
-                                std::string ryuu;
-                                std::string dpbx;
-                                std::string hubcap;
+                                lastProcessedTimestamp = timestamp;
+                                LOG_INFO("API Settings received via CDP UI! Updating config...\n");
 
-                                if (dpbxPos != std::string::npos && dpbxPos < cEnd)
+                                auto extractParam = [&](const std::string& paramName) -> std::string {
+                                    size_t p = authParams.find(paramName + "=");
+                                    if (p == std::string::npos) return "";
+                                    size_t vStart = p + paramName.length() + 1;
+                                    size_t vEnd = authParams.find('&', vStart);
+                                    if (vEnd == std::string::npos) vEnd = authParams.length();
+                                    return urlDecode(authParams.substr(vStart, vEnd - vStart));
+                                };
+
+                                std::string ryuu = extractParam("RYUU");
+                                std::string dpbx = extractParam("DPBX");
+                                std::string hubcap = extractParam("HUBCAP");
+                                std::string morr = extractParam("MORR");
+
+                                if (hubcap.empty() && !morr.empty())
                                 {
-                                    ryuu = urlDecode(response.substr(rStart, dpbxPos - rStart));
-                                    if (hubcapPos != std::string::npos && hubcapPos < cEnd)
-                                    {
-                                        dpbx = urlDecode(response.substr(dpbxPos + 6, hubcapPos - (dpbxPos + 6)));
-                                        hubcap = urlDecode(response.substr(hubcapPos + 8, cEnd - (hubcapPos + 8)));
-                                    }
-                                    else
-                                    {
-                                        dpbx = urlDecode(response.substr(dpbxPos + 6, cEnd - (dpbxPos + 6)));
-                                    }
-                                }
-                                else
-                                {
-                                    if (hubcapPos != std::string::npos && hubcapPos < cEnd)
-                                    {
-                                        ryuu = urlDecode(response.substr(rStart, hubcapPos - rStart));
-                                        hubcap = urlDecode(response.substr(hubcapPos + 8, cEnd - (hubcapPos + 8)));
-                                    }
-                                    else
-                                    {
-                                        ryuu = urlDecode(response.substr(rStart, cEnd - rStart));
-                                    }
+                                    hubcap = morr;
                                 }
 
-                                std::string timestamp = response.substr(cEnd + 4, response.find_first_of("\"", cEnd + 4) - (cEnd + 4));
-
-                                if (timestamp != lastProcessedTimestamp)
-                                {
-                                    lastProcessedTimestamp = timestamp;
-                                    LOG_INFO("API Settings received via CDP UI! Updating config...\n");
-                                    if (!morr.empty()) g_config.morrenusKey = morr;
-                                    if (!ryuu.empty()) g_config.ryuuKey = ryuu;
-                                    if (!dpbx.empty()) g_config.depotBoxKey = dpbx;
-                                    if (!hubcap.empty()) g_config.hubcapKey = hubcap;
-                                    g_config.updateApiAuth(g_config.morrenusKey.get(), g_config.ryuuKey.get(), g_config.depotBoxKey.get(), g_config.hubcapKey.get());
-                                }
+                                if (!ryuu.empty()) g_config.ryuuKey = ryuu;
+                                if (!dpbx.empty()) g_config.depotBoxKey = dpbx;
+                                if (!hubcap.empty()) g_config.hubcapKey = hubcap;
+                                g_config.updateApiAuth(g_config.ryuuKey.get(), g_config.depotBoxKey.get(), g_config.hubcapKey.get());
                             }
                         }
-                        searchPos = mStart;
+                        searchPos = cEnd == std::string::npos ? authStart : cEnd;
                     }
 
                     // Trigger the C++ CDP injector every 5 seconds to inject new pages

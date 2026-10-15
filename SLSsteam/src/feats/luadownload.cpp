@@ -53,23 +53,8 @@ namespace LuaDownload
             200, 404, 60
         },
         {
-            "Morrenus",
-            "https://hubcapmanifest.com/api/v1/manifest/<appid>",
-            200, 404, 60
-        },
-        {
-            "Sushi",
-            "https://raw.githubusercontent.com/sushi-dev55-alt/sushitools-games-repo-alt/refs/heads/main/<appid>.zip",
-            200, 404, 60
-        },
-        {
             "Spinoza",
             "https://github.com/SPIN0ZAi/SB_manifest_DB/archive/refs/heads/<appid>.zip",
-            200, 404, 60
-        },
-        {
-            "TwentyTwo Cloud",
-            "https://twentytwocloud.com/secure_download?auth=1771526723_73652ce834428eea993e88dd1ccbe5be_442b8efb5c05f1bf8ea5ca46&appid=<appid>",
             200, 404, 60
         },
     };
@@ -386,14 +371,6 @@ namespace LuaDownload
                     {
                         authHeader = "Authorization: Bearer " + g_config.hubcapKey.get();
                     }
-                    else if (!g_config.morrenusKey.get().empty())
-                    {
-                        authHeader = "Authorization: Bearer " + g_config.morrenusKey.get();
-                    }
-                }
-                else if (std::string(api.name) == "Morrenus")
-                {
-                    authHeader = "Authorization: Bearer " + g_config.morrenusKey.get();
                 }
                 else if (std::string(api.name) == "Ryuu (API Key)")
                 {
