@@ -150,14 +150,17 @@
         { name: 'Ryuu', key: 'sls-ryuu-key', url: 'https://generator.ryuu.lol' },
         { name: 'DepotBox', key: 'sls-dpbx-key', url: 'https://depotbox.org/' },
         { name: 'HubcapDB', key: 'sls-hubcap-key', url: 'https://hubcapmanifest.com/api-keys/stats' },
-        { name: 'Spinoza', key: 'sls-spinoza-key', url: '#' }
+        { name: 'Spinoza', key: 'sls-spinoza-key', url: '#' },
+        { name: 'OpenSteamTool', key: 'sls-ost-key', url: '#' },
+        { name: 'wudrm', key: 'sls-wudrm-key', url: '#' },
+        { name: 'steamrun', key: 'sls-steamrun-key', url: 'https://manifest.steam.run' }
     ];
 
     function getProviderOrder() {
-        if (localStorage.getItem('sls-lua-provider-order-v') !== '2') {
+        if (localStorage.getItem('sls-lua-provider-order-v') !== '3') {
             var oldSaved = (localStorage.getItem('sls-lua-provider-order') || '').split(',');
             var migrated = [];
-            var indexMap = { 0: 0, 1: 1, 2: 2, 5: 3 }; // Ryuu, DepotBox, HubcapDB, Spinoza
+            var indexMap = { 0: 0, 1: 1, 2: 2, 3: 3, 5: 3 }; // Ryuu, DepotBox, HubcapDB, Spinoza (supports migration from v1 or v2)
             oldSaved.forEach(function(value) {
                 var idx = parseInt(value, 10);
                 var target = indexMap[idx];
@@ -172,7 +175,7 @@
             localStorage.removeItem('sls-morr-key');
             localStorage.removeItem('sls-sushi-key');
             localStorage.removeItem('sls-twentytwo-key');
-            localStorage.setItem('sls-lua-provider-order-v', '2');
+            localStorage.setItem('sls-lua-provider-order-v', '3');
             return migrated;
         }
 

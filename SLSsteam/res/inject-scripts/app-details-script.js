@@ -340,7 +340,10 @@
         { name: 'Ryuu' },
         { name: 'DepotBox' },
         { name: 'HubcapDB' },
-        { name: 'Spinoza' }
+        { name: 'Spinoza' },
+        { name: 'OpenSteamTool' },
+        { name: 'wudrm' },
+        { name: 'steamrun' }
     ];
 
     function openChangeProviderModal(appid, currentProvider) {

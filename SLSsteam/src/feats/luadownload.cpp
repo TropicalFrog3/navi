@@ -11,6 +11,7 @@
 #include "licenses.hpp"
 
 #include <algorithm>
+#include <cctype>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -34,28 +35,44 @@ namespace LuaDownload
         int successCode;
         int unavailableCode;
         int timeoutSec;           // CURLOPT_TIMEOUT — 0 means use default (60)
+        bool useProxy;            // Enables custom headless browser proxy fallback (CDPInject::downloadViaPage)
     };
 
     static const ApiProvider g_apis[] = {
         {
             "Ryuu (API Key)",
             "https://generator.ryuu.lol/secure_download?appid=<appid>&source=SLSsteam-<steamid>&auth_code=",
-            200, 404, 60
+            200, 404, 60, false
         },
         {
             "DepotBox",
             "https://depotbox.org/api/direct-download?appid=<appid>",
-            200, 404, 900
+            200, 404, 900, false
         },
         {
             "HubcapDB",
             "https://hubcapmanifest.com/api/v1/manifest/<appid>",
-            200, 404, 60
+            200, 404, 60, false
         },
         {
             "Spinoza",
             "https://github.com/SPIN0ZAi/SB_manifest_DB/archive/refs/heads/<appid>.zip",
-            200, 404, 60
+            200, 404, 60, false
+        },
+        {
+            "OpenSteamTool",
+            "https://manifest.opensteamtool.com/<appid>",
+            200, 404, 60, false
+        },
+        {
+            "wudrm",
+            "http://gmrc.wudrm.com/manifest/<appid>",
+            200, 404, 60, false
+        },
+        {
+            "steamrun",
+            "https://manifest.steam.run/api/depot/<appid>",
+            200, 404, 60, false
         },
     };
 
@@ -393,14 +410,14 @@ namespace LuaDownload
                 int httpCode = downloadToFile(url, zipPath, api.name, authHeader, api.timeoutSec);
                 LOG_DEBUG("LuaDownload: API '%s' returned HTTP %d\n", api.name, httpCode);
 
-                // Steam browser fallback for Ryuu when curl fails (e.g. Cloudflare blocks direct requests)
-                if (std::string(api.name) == "Ryuu (API Key)" && httpCode != api.successCode)
+                // Custom headless browser proxy fallback when curl fails (e.g. Cloudflare / anti-bot blocks direct requests)
+                if (api.useProxy && httpCode != api.successCode)
                 {
-                    LOG_INFO("LuaDownload: Ryuu curl failed (HTTP %d), trying Steam browser fallback...\n", httpCode);
-                    pushStatus(appId, std::string("Trying ") + api.name + " (browser)...");
+                    LOG_INFO("LuaDownload: API '%s' curl failed (HTTP %d), trying custom browser proxy fallback...\n", api.name, httpCode);
+                    pushStatus(appId, std::string("Trying ") + api.name + " (browser proxy)...");
                     std::filesystem::remove(zipPath); // Remove any partial/invalid file from curl
                     httpCode = CDPInject::downloadViaPage(url, zipPath);
-                    LOG_DEBUG("LuaDownload: Ryuu browser fallback returned HTTP %d\n", httpCode);
+                    LOG_DEBUG("LuaDownload: API '%s' browser proxy fallback returned HTTP %d\n", api.name, httpCode);
                 }
 
                 if (httpCode == api.unavailableCode)
@@ -417,10 +434,10 @@ namespace LuaDownload
                     continue;
                 }
 
-                // If downloaded file is a raw Lua file (e.g. from HubcapDB /api/v1/lua/<appid>), handle it directly
+                // If downloaded file is not a zip archive (e.g. raw Lua file, steamrun JSON, or wudrm plain manifest GID)
                 if (!isValidZip(zipPath))
                 {
-                    // Check if it's a valid Lua file with manifests
+                    // 1. Check if it's already a valid Lua file with manifests (e.g. HubcapDB raw Lua)
                     auto luaData = CppAccela::LuaParser::parseFile(zipPath);
                     if (luaData.valid && !luaData.manifests.empty())
                     {
@@ -432,6 +449,136 @@ namespace LuaDownload
                         downloaded = true;
                         successApi = api.name;
                         break;
+                    }
+
+                    // Read content for structured text / JSON inspection
+                    std::string rawContent;
+                    {
+                        std::ifstream ifs(zipPath, std::ios::binary);
+                        if (ifs.is_open())
+                        {
+                            rawContent.assign((std::istreambuf_iterator<char>(ifs)),
+                                              std::istreambuf_iterator<char>());
+                        }
+                    }
+
+                    // 2. Check for steamrun depot list JSON (contains "depots" array)
+                    if (rawContent.find("\"depots\"") != std::string::npos)
+                    {
+                        struct DepotManifestEntry
+                        {
+                            std::string depotId;
+                            std::string manifestId;
+                            std::string sizeBytes;
+                        };
+                        std::vector<DepotManifestEntry> depotEntries;
+
+                        const std::regex objRegex(R"(\{[^{}]+\})");
+                        const std::regex depotIdRe(R"lit("depotid"\s*:\s*(\d+))lit");
+                        const std::regex manifestIdRe(R"lit("manifestid"\s*:\s*"(\d+)")lit");
+                        const std::regex sizeRe(R"lit("size_bytes"\s*:\s*(\d+))lit");
+
+                        auto objBegin = std::sregex_iterator(rawContent.begin(), rawContent.end(), objRegex);
+                        auto objEnd = std::sregex_iterator();
+
+                        for (auto it = objBegin; it != objEnd; ++it)
+                        {
+                            std::string block = it->str();
+                            std::smatch mDepot, mManifest, mSize;
+                            if (std::regex_search(block, mDepot, depotIdRe) &&
+                                std::regex_search(block, mManifest, manifestIdRe))
+                            {
+                                DepotManifestEntry entry;
+                                entry.depotId = mDepot[1].str();
+                                entry.manifestId = mManifest[1].str();
+                                if (std::regex_search(block, mSize, sizeRe))
+                                {
+                                    entry.sizeBytes = mSize[1].str();
+                                }
+                                depotEntries.push_back(entry);
+                            }
+                        }
+
+                        if (!depotEntries.empty())
+                        {
+                            LOG_INFO("LuaDownload: API '%s' returned %zu depot(s) for appid=%s\n",
+                                     api.name, depotEntries.size(), appId.c_str());
+                            std::filesystem::create_directories(extractDir);
+
+                            std::string synthLuaPath = extractDir + "/" + appId + ".lua";
+                            std::ofstream luaOut(synthLuaPath);
+                            if (luaOut.is_open())
+                            {
+                                luaOut << "addappid(" << appId << ")\n";
+                                for (const auto& d : depotEntries)
+                                {
+                                    if (!d.sizeBytes.empty())
+                                    {
+                                        luaOut << "setManifestid(" << d.depotId << ", \"" << d.manifestId << "\", " << d.sizeBytes << ")\n";
+                                    }
+                                    else
+                                    {
+                                        luaOut << "setManifestid(" << d.depotId << ", \"" << d.manifestId << "\")\n";
+                                    }
+                                }
+                                luaOut.close();
+                            }
+
+                            // Download binary manifests for each depot from steamrun
+                            for (const auto& d : depotEntries)
+                            {
+                                std::string manifestUrl = "https://manifest.steam.run/api/download_manifest?depot_id=" +
+                                                          d.depotId + "&manifest_id=" + d.manifestId;
+                                std::string manifestFile = extractDir + "/" + d.depotId + "_" + d.manifestId + ".manifest";
+                                pushStatus(appId, "Downloading depot " + d.depotId + "...");
+                                int code = downloadToFile(manifestUrl, manifestFile, api.name, authHeader, 60);
+                                if (code == 200)
+                                {
+                                    LOG_INFO("LuaDownload: Downloaded manifest for depot %s -> %s\n",
+                                             d.depotId.c_str(), manifestFile.c_str());
+                                }
+                                else
+                                {
+                                    LOG_INFO("LuaDownload: Failed to download manifest for depot %s (HTTP %d)\n",
+                                             d.depotId.c_str(), code);
+                                }
+                            }
+
+                            std::filesystem::remove(zipPath);
+                            downloaded = true;
+                            successApi = api.name;
+                            break;
+                        }
+                    }
+
+                    // 3. Check for wudrm plain-text manifest GID (numeric string)
+                    std::string trimmed = rawContent;
+                    trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
+                        return !std::isspace(ch);
+                    }));
+                    trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch) {
+                        return !std::isspace(ch);
+                    }).base(), trimmed.end());
+
+                    bool isNumeric = !trimmed.empty() && std::all_of(trimmed.begin(), trimmed.end(), ::isdigit);
+                    if (isNumeric && trimmed.length() > 5 && trimmed != "0")
+                    {
+                        LOG_INFO("LuaDownload: API '%s' returned a plain-text manifest ID: %s\n",
+                                 api.name, trimmed.c_str());
+                        std::filesystem::create_directories(extractDir);
+                        std::string synthLuaPath = extractDir + "/" + appId + ".lua";
+                        std::ofstream luaOut(synthLuaPath);
+                        if (luaOut.is_open())
+                        {
+                            luaOut << "addappid(" << appId << ")\n";
+                            luaOut << "setManifestid(" << appId << ", \"" << trimmed << "\")\n";
+                            luaOut.close();
+
+                            std::filesystem::remove(zipPath);
+                            downloaded = true;
+                            successApi = api.name;
+                            break;
+                        }
                     }
 
                     LOG_INFO("LuaDownload: API '%s' returned non-zip / invalid Lua file\n", api.name);
@@ -476,10 +623,42 @@ namespace LuaDownload
 
         if (files.luaFile.empty())
         {
-            LOG_INFO("LuaDownload: No %s.lua found in the zip\n", appId.c_str());
-            std::filesystem::remove_all(extractDir);
-            std::filesystem::remove(zipPath);
-            return false;
+            if (!files.manifestFiles.empty())
+            {
+                LOG_INFO("LuaDownload: No %s.lua found, but found %zu manifest(s). Synthesizing Lua file...\n",
+                         appId.c_str(), files.manifestFiles.size());
+                std::string synthLuaPath = extractDir + "/" + appId + ".lua";
+                std::ofstream luaOut(synthLuaPath);
+                if (luaOut.is_open())
+                {
+                    luaOut << "addappid(" << appId << ")\n";
+                    for (const auto& mf : files.manifestFiles)
+                    {
+                        std::string stem = std::filesystem::path(mf).stem().string();
+                        size_t underPos = stem.find('_');
+                        if (underPos != std::string::npos)
+                        {
+                            std::string depotId = stem.substr(0, underPos);
+                            std::string manifestGid = stem.substr(underPos + 1);
+                            luaOut << "setManifestid(" << depotId << ", \"" << manifestGid << "\")\n";
+                        }
+                        else
+                        {
+                            luaOut << "setManifestid(" << stem << ", \"0\")\n";
+                        }
+                    }
+                    luaOut.close();
+                    files.luaFile = synthLuaPath;
+                }
+            }
+
+            if (files.luaFile.empty())
+            {
+                LOG_INFO("LuaDownload: No %s.lua found in the zip\n", appId.c_str());
+                std::filesystem::remove_all(extractDir);
+                std::filesystem::remove(zipPath);
+                return false;
+            }
         }
 
         LOG_INFO("LuaDownload: Found lua: %s, manifests: %zu\n",
