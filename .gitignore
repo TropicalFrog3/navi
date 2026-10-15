@@ -1,5 +1,7 @@
 # Build artifacts and object files
-bin/
+/bin/
+SLSsteam/bin/
+!ACCELA-20260127111800-linux-source/bin/
 obj/
 build/
 dist/
@@ -63,6 +65,10 @@ Thumbs.db
 *.out
 zip/
 dist/
+/core
+SLSsteam/core
+core.[0-9]*
+*.dmp
 
 # Nix
 result/
@@ -74,7 +80,6 @@ release/*
 prod-release/*
 SLSsteam-n-ACCELA.zip
 .ag*/*
-*.py
-!tests/*.py
 .cla*/*
 steam-os/*
+tests/archive/
