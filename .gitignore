@@ -1,7 +1,7 @@
 # Build artifacts and object files
 /bin/
 SLSsteam/bin/
-!ACCELA-20260127111800-linux-source/bin/
+!ACCELA/bin/
 obj/
 build/
 dist/
@@ -11,6 +11,8 @@ dist/
 *.dylib
 *.exe
 *.dll
+!ACCELA/bin/src/deps/*.dll
+!ACCELA/bin/src/deps/**/*.dll
 
 # Python
 __pycache__/
@@ -25,7 +27,6 @@ ENV/
 env/
 .env
 .Python
-*.so
 
 # C++
 .clangd
@@ -55,7 +56,6 @@ lib/
 # System files
 .git/
 .github/
-.DS_Store
 Thumbs.db
 
 # Generated/Temporary files
@@ -64,7 +64,6 @@ Thumbs.db
 *.log
 *.out
 zip/
-dist/
 /core
 SLSsteam/core
 core.[0-9]*

@@ -41,7 +41,7 @@ Verify that `.manifest` files placed manually into `$SteamRoot/config/depotcache
 
 2. Run `manifest_packager.py` for the AppID:
    ```bash
-   python3 ACCELA-20260127111800-linux-source/bin/src/scripts/manifest_packager.py 293780
+   python3 ACCELA/bin/src/scripts/manifest_packager.py 293780
    ```
 
 3. **Expected result:**
@@ -72,7 +72,7 @@ Verify that `.manifest` files placed manually into `$SteamRoot/config/depotcache
 
 1. Run `manifest_packager.py` again for the same AppID:
    ```bash
-   python3 ACCELA-20260127111800-linux-source/bin/src/scripts/manifest_packager.py 293780
+   python3 ACCELA/bin/src/scripts/manifest_packager.py 293780
    ```
 
 2. **Expected result:**
@@ -82,7 +82,7 @@ Verify that `.manifest` files placed manually into `$SteamRoot/config/depotcache
 
 3. Verify the ZIP contents:
    ```bash
-   ZIP_PATH=$(python3 ACCELA-20260127111800-linux-source/bin/src/scripts/manifest_packager.py 293780 2>/dev/null)
+   ZIP_PATH=$(python3 ACCELA/bin/src/scripts/manifest_packager.py 293780 2>/dev/null)
    unzip -l "$ZIP_PATH"
    # Should show:
    #   293780.lua
@@ -104,7 +104,7 @@ Verify that `.manifest` files placed manually into `$SteamRoot/config/depotcache
 
 2. Run `manifest_packager.py` again:
    ```bash
-   python3 ACCELA-20260127111800-linux-source/bin/src/scripts/manifest_packager.py 293780
+   python3 ACCELA/bin/src/scripts/manifest_packager.py 293780
    ```
 
 3. **Expected result:**
@@ -121,7 +121,7 @@ Verify that `.manifest` files placed manually into `$SteamRoot/config/depotcache
 
 2. **Without starting ACCELA or any other application**, run `manifest_packager.py`:
    ```bash
-   python3 ACCELA-20260127111800-linux-source/bin/src/scripts/manifest_packager.py 293780
+   python3 ACCELA/bin/src/scripts/manifest_packager.py 293780
    ```
 
 3. **Expected result:**

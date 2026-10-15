@@ -5,7 +5,7 @@ set -e
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SLS_DIR="$REPO_ROOT/SLSsteam"
-ACCELA_DIR="$REPO_ROOT/ACCELA-20260127111800-linux-source"
+ACCELA_DIR="$REPO_ROOT/ACCELA"
 PROD_SLS_DIR="$REPO_ROOT/prod-release/SLSsteam"
 PROD_ACCELA_DIR="$REPO_ROOT/prod-release/ACCELA"
 

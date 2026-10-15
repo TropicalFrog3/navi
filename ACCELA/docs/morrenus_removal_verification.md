@@ -15,7 +15,7 @@ This document verifies that all Morrenus API references have been completely rem
 ### 1. Search for "morrenus" in Python files
 
 ```bash
-grep -r "morrenus" ACCELA-20260127111800-linux-source/bin/src/ --include="*.py"
+grep -r "morrenus" ACCELA/bin/src/ --include="*.py"
 ```
 
 **Result:** ✅ **PASS** — Zero results returned (exit code 1)
@@ -27,7 +27,7 @@ No Python files contain the string "morrenus" (case-insensitive search would als
 ### 2. Verify `morrenus_api.py` is deleted
 
 ```bash
-ls -la ACCELA-20260127111800-linux-source/bin/src/core/morrenus_api.py
+ls -la ACCELA/bin/src/core/morrenus_api.py
 ```
 
 **Result:** ✅ **PASS** — File does not exist
@@ -41,7 +41,7 @@ ls: cannot access 'bin/src/core/morrenus_api.py': No such file or directory
 ### 3. Verify `fetchmanifest.py` is deleted
 
 ```bash
-ls -la ACCELA-20260127111800-linux-source/bin/src/ui/dialogs/fetchmanifest.py
+ls -la ACCELA/bin/src/ui/dialogs/fetchmanifest.py
 ```
 
 **Result:** ✅ **PASS** — File does not exist
@@ -71,7 +71,7 @@ The following files were modified to remove Morrenus API imports and calls:
 To verify no `ImportError` or `ModuleNotFoundError` occurs at startup:
 
 ```bash
-python3 ACCELA-20260127111800-linux-source/bin/src/main.py --help
+python3 ACCELA/bin/src/main.py --help
 ```
 
 **Expected:** Application starts without import errors (may fail on other dependencies like PyQt6, but NOT on `morrenus_api`)
