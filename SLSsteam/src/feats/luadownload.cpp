@@ -750,6 +750,7 @@ namespace LuaDownload
             g_config.addAdditionalAppId(id);
             DepotKeys::scanLuaPluginsForDepotKeys();
             Licenses::queueRefresh();
+            CDPInject::ensureCompatTool(id);
         } catch (...) {}
 
         pushStatus(appId, "Installed!", "hue-rotate(110deg) brightness(1.2)");

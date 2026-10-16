@@ -35,7 +35,7 @@ public:
 	
 	constexpr bool isValid() const
 	{
-		return this != nullptr && body != nullptr && getType() != INVALID_NETPACKET_TYPE && size > sizeof(CNetPacketBody);
+		return body != nullptr && getType() != INVALID_NETPACKET_TYPE && size > sizeof(CNetPacketBody);
 	}
 	
 	constexpr ENetPacket getType() const

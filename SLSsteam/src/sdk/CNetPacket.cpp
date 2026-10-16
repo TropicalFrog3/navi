@@ -5,7 +5,7 @@ std::string CNetPacket::getProtoBufTypeName() const
 {
 	auto name = std::string("Unknown");
 
-	if (!this || !body || !isProtoBuf())
+	if (!body || !isProtoBuf())
 	{
 		return name;
 	}
@@ -22,7 +22,7 @@ std::string CNetPacket::getProtoBufTypeName() const
 CMsgProtoBufHeader CNetPacket::deserializeHeader() const
 {
 	CMsgProtoBufHeader header;
-	if (!this || !body || size < sizeof(CNetPacketBody) + body->headerSize)
+	if (!body || size < sizeof(CNetPacketBody) + body->headerSize)
 	{
 		return header;
 	}
@@ -40,8 +40,6 @@ CMsgProtoBufHeader CNetPacket::deserializeHeader() const
 
 void CNetPacket::free()
 {
-	if (!this) return;
-
 	if (body)
 	{
 		Steam::Plat_Free(body);

@@ -237,6 +237,17 @@ done
 # ==============================================================================
 if [ "$REMOVE_CONFIGS" -eq 1 ]; then
     log_info "Removing user configuration and cache files..."
+    # Preserve updates.yaml backups so client version history is never lost
+    if [ -d "$HOME/.config/SLSsteam" ]; then
+        for b in "$HOME/.config/SLSsteam"/updates.yaml.bak-*; do
+            if [ -f "$b" ]; then
+                mkdir -p "$HOME/.config/SLSsteam_backups"
+                cp -a "$b" "$HOME/.config/SLSsteam_backups/"
+                log_info "Preserved updates.yaml backup: $(basename "$b") in ~/.config/SLSsteam_backups/"
+            fi
+        done
+    fi
+
     CONFIG_DIRS=(
         "$HOME/.config/SLSsteam"
         "$HOME/.config/Tachibana Labs"

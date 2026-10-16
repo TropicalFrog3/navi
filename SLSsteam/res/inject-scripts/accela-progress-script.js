@@ -745,7 +745,15 @@
     }
 
     var observer = new MutationObserver(debouncedSync);
-    observer.observe(document.body, { childList: true, subtree: true });
+    var targetNode = document.body || document.documentElement;
+    if (targetNode) {
+        observer.observe(targetNode, { childList: true, subtree: true });
+    } else {
+        document.addEventListener('DOMContentLoaded', function() {
+            var el = document.body || document.documentElement;
+            if (el) observer.observe(el, { childList: true, subtree: true });
+        });
+    }
 
     // Initial immediate sync
     syncDownloads();

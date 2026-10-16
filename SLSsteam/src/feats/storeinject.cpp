@@ -528,9 +528,29 @@ namespace StoreInject
                     std::string response;
                     char buf[4096];
                     int n;
+                    size_t headerEnd = std::string::npos;
+                    size_t contentLength = 0;
                     while ((n = read(sock, buf, sizeof(buf) - 1)) > 0) {
                         buf[n] = '\0';
                         response += buf;
+                        if (headerEnd == std::string::npos) {
+                            headerEnd = response.find("\r\n\r\n");
+                            if (headerEnd != std::string::npos) {
+                                size_t cl = response.find("Content-Length:");
+                                if (cl == std::string::npos) cl = response.find("content-length:");
+                                if (cl != std::string::npos && cl < headerEnd) {
+                                    size_t vs = response.find_first_not_of(" \t", cl + 15);
+                                    size_t ve = response.find_first_of("\r\n", vs);
+                                    if (vs != std::string::npos && ve != std::string::npos) {
+                                        try { contentLength = std::stoul(response.substr(vs, ve - vs)); } catch (...) {}
+                                    }
+                                }
+                            }
+                        }
+                        if (headerEnd != std::string::npos) {
+                            if (contentLength > 0 && response.size() >= headerEnd + 4 + contentLength) break;
+                            if (contentLength == 0 && response.rfind(']') != std::string::npos) break;
+                        }
                     }
 
                     // Check for #sls-click-removelua- in any URL

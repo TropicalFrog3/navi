@@ -95,7 +95,14 @@ AppId_t FakeAppIds::getRealAppIdFromEnv(const HSteamPipe pipe)
 	}
 	else
 	{
-		LOG_ERROR("No SteamAppId in %s for %s! Using 0\n", environPath.c_str(), exeName.c_str());
+		if (exeName == "steam" || exeName == "steamwebhelper")
+		{
+			LOG_DEBUG("No SteamAppId in %s for %s! Using 0\n", environPath.c_str(), exeName.c_str());
+		}
+		else
+		{
+			LOG_WARN("No SteamAppId in %s for %s! Using 0\n", environPath.c_str(), exeName.c_str());
+		}
 	}
 
 	fakeAppIdMap[pipe] = appId;

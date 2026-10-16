@@ -7,9 +7,9 @@
 #include <sstream>
 
 
-VFTableInfo_t::VFTableInfo_t(const char* typeName, const char* functionName, const unsigned int index, const bool optional)
+VFTableInfo_t::VFTableInfo_t(const char* typeName, const char* functionName, const unsigned int index, const bool optional, const bool hasFallback)
 	:
-	typeName(typeName), functionName(functionName), index(index), optional(optional)
+	typeName(typeName), functionName(functionName), address(0), index(index), optional(optional), hasFallback(hasFallback)
 {
 	VFTIndexes::functions.emplace_back(this);
 }
@@ -18,6 +18,13 @@ bool VFTableInfo_t::init()
 {
 	if (!Decompiler::vftables.contains(typeName))
 	{
+		if (hasFallback)
+		{
+			LOG_INFO("%s: vftable absent, using fallback\n", typeName.c_str());
+			address = 0;
+			index = NO_INDEX;
+			return true;
+		}
 		if (optional)
 		{
 			LOG_WARN("%s not found in Decompiler::vftables!\n", typeName.c_str());
@@ -37,6 +44,13 @@ bool VFTableInfo_t::init()
 		const auto& tbl = VFTIndexes::tableMap.at(typeName);
 		if (!tbl.contains(functionName))
 		{
+			if (hasFallback)
+			{
+				LOG_INFO("%s: native vfunc absent, using fallback\n", functionName.c_str());
+				address = 0;
+				index = NO_INDEX;
+				return true;
+			}
 			if (optional)
 			{
 				LOG_WARN("%s not found (optional hook skipped)\n", functionName.c_str());
@@ -54,6 +68,13 @@ bool VFTableInfo_t::init()
 
 	if (index >= funcs.size())
 	{
+		if (hasFallback)
+		{
+			LOG_INFO("%s: vtable index out of bounds, using fallback\n", getPrintName().c_str());
+			address = 0;
+			index = NO_INDEX;
+			return true;
+		}
 		if (optional)
 		{
 			LOG_WARN("%s index bigger than vtable size!\n", getPrintName().c_str());
@@ -248,6 +269,7 @@ namespace VFTIndexes
 			"16IClientCompatMap",
 			"GetAvailableCompatToolsForApp",
 			VFTableInfo_t::NO_INDEX,
+			false,
 			true
 		};
 		VFTableInfo_t GetCompatToolDisplayName
@@ -291,6 +313,139 @@ namespace VFTIndexes
 		{
 			"23IClientRemoteStorageMap",
 			"IsCloudEnabledForApp"
+		};
+		VFTableInfo_t IsCloudSyncOnSuspendAvailableForApp
+		{
+			"23IClientRemoteStorageMap",
+			"IsCloudSyncOnSuspendAvailableForApp",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t IsCloudSyncOnSuspendEnabledForApp
+		{
+			"23IClientRemoteStorageMap",
+			"IsCloudSyncOnSuspendEnabledForApp",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t EvaluateRemoteStorageSyncState
+		{
+			"23IClientRemoteStorageMap",
+			"EvaluateRemoteStorageSyncState",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t GetLastKnownSyncState
+		{
+			"23IClientRemoteStorageMap",
+			"GetLastKnownSyncState",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t GetRemoteStorageSyncState
+		{
+			"23IClientRemoteStorageMap",
+			"GetRemoteStorageSyncState",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t HaveLatestFilesLocally
+		{
+			"23IClientRemoteStorageMap",
+			"HaveLatestFilesLocally",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t SynchronizeApp
+		{
+			"23IClientRemoteStorageMap",
+			"SynchronizeApp",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t RunAutoCloudOnAppLaunch
+		{
+			"23IClientRemoteStorageMap",
+			"RunAutoCloudOnAppLaunch",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t RunAutoCloudOnAppExit
+		{
+			"23IClientRemoteStorageMap",
+			"RunAutoCloudOnAppExit",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t PerformAppPlatformChangeFileBackup
+		{
+			"23IClientRemoteStorageMap",
+			"PerformAppPlatformChangeFileBackup",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t PerformAppPlatformChangeFileRestore
+		{
+			"23IClientRemoteStorageMap",
+			"PerformAppPlatformChangeFileRestore",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t ResolveSyncConflict
+		{
+			"23IClientRemoteStorageMap",
+			"ResolveSyncConflict",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t IsAppSyncInProgress
+		{
+			"23IClientRemoteStorageMap",
+			"IsAppSyncInProgress",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t BIsFileSyncing
+		{
+			"23IClientRemoteStorageMap",
+			"BIsFileSyncing",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t LoadLocalFileInfoCache
+		{
+			"23IClientRemoteStorageMap",
+			"LoadLocalFileInfoCache",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t InitializeUGCQuotaUsage
+		{
+			"23IClientRemoteStorageMap",
+			"InitializeUGCQuotaUsage",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t GetConflictingFileTimestamps
+		{
+			"23IClientRemoteStorageMap",
+			"GetConflictingFileTimestamps",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t GetPendingRemoteOperationInfo
+		{
+			"23IClientRemoteStorageMap",
+			"GetPendingRemoteOperationInfo",
+			VFTableInfo_t::NO_INDEX,
+			true
+		};
+		VFTableInfo_t ResetFileRequestState
+		{
+			"23IClientRemoteStorageMap",
+			"ResetFileRequestState",
+			VFTableInfo_t::NO_INDEX,
+			true
 		};
 	}
 

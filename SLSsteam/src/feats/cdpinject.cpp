@@ -248,6 +248,46 @@ namespace CDPInject
         return std::string(buf, n).find("101") != std::string::npos;
     }
 
+    static bool sendExact(int sock, const void* data, size_t len)
+    {
+        size_t total = 0;
+        const char* ptr = static_cast<const char*>(data);
+        while (total < len)
+        {
+            ssize_t n = send(sock, ptr + total, len - total, 0);
+            if (n <= 0)
+            {
+                if (n < 0 && errno == EINTR)
+                {
+                    continue;
+                }
+                return false;
+            }
+            total += n;
+        }
+        return true;
+    }
+
+    static bool readExact(int sock, void* buf, size_t len)
+    {
+        size_t total = 0;
+        char* ptr = static_cast<char*>(buf);
+        while (total < len)
+        {
+            ssize_t n = read(sock, ptr + total, len - total);
+            if (n <= 0)
+            {
+                if (n < 0 && errno == EINTR)
+                {
+                    continue;
+                }
+                return false;
+            }
+            total += n;
+        }
+        return true;
+    }
+
     /**
      * Send a WebSocket text frame (masked, as required by RFC 6455 for clients).
      */
@@ -273,8 +313,9 @@ namespace CDPInject
         else
         {
             frame.push_back(0xFF); // 127 | 0x80
+            uint64_t len64 = static_cast<uint64_t>(len);
             for (int i = 7; i >= 0; i--)
-                frame.push_back(static_cast<uint8_t>((len >> (8 * i)) & 0xFF));
+                frame.push_back(static_cast<uint8_t>((len64 >> (8 * i)) & 0xFF));
         }
 
         // Masking key (4 random bytes)
@@ -287,18 +328,17 @@ namespace CDPInject
         for (size_t i = 0; i < len; i++)
             frame.push_back(static_cast<uint8_t>(payload[i]) ^ mask[i % 4]);
 
-        ssize_t sent = send(sock, frame.data(), frame.size(), 0);
-        return sent == static_cast<ssize_t>(frame.size());
+        return sendExact(sock, frame.data(), frame.size());
     }
 
     /**
      * Receive a WebSocket frame and return the payload.
-     * Only handles text/binary frames up to ~64KB (sufficient for CDP responses).
+     * Handles text/binary frames of arbitrary size.
      */
     static std::string wsRecvFrame(int sock)
     {
         uint8_t header[2];
-        if (read(sock, header, 2) != 2) return {};
+        if (!readExact(sock, header, 2)) return {};
 
         bool masked = (header[1] & 0x80) != 0;
         uint64_t payloadLen = header[1] & 0x7F;
@@ -306,13 +346,13 @@ namespace CDPInject
         if (payloadLen == 126)
         {
             uint8_t ext[2];
-            if (read(sock, ext, 2) != 2) return {};
+            if (!readExact(sock, ext, 2)) return {};
             payloadLen = (static_cast<uint64_t>(ext[0]) << 8) | ext[1];
         }
         else if (payloadLen == 127)
         {
             uint8_t ext[8];
-            if (read(sock, ext, 8) != 8) return {};
+            if (!readExact(sock, ext, 8)) return {};
             payloadLen = 0;
             for (int i = 0; i < 8; i++)
                 payloadLen = (payloadLen << 8) | ext[i];
@@ -321,19 +361,13 @@ namespace CDPInject
         uint8_t maskKey[4] = {};
         if (masked)
         {
-            if (read(sock, maskKey, 4) != 4) return {};
+            if (!readExact(sock, maskKey, 4)) return {};
         }
 
         // Read payload in chunks
         std::string payload;
         payload.resize(payloadLen);
-        size_t totalRead = 0;
-        while (totalRead < payloadLen)
-        {
-            ssize_t n = read(sock, &payload[totalRead], payloadLen - totalRead);
-            if (n <= 0) break;
-            totalRead += n;
-        }
+        if (!readExact(sock, payload.data(), payloadLen)) return {};
 
         if (masked)
         {
@@ -430,10 +464,16 @@ namespace CDPInject
             return false;
         }
 
+        int sndbuf = 262144;
+        setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
+        int rcvbuf = 262144;
+        setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
+
         struct timeval tv;
-        tv.tv_sec = 2; // 2 seconds timeout
+        tv.tv_sec = 6; // 6 seconds timeout
         tv.tv_usec = 0;
         setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
 
         std::string wsKey = generateWsKey();
         if (!wsHandshake(sock, host, port, path, wsKey))
@@ -741,6 +781,17 @@ namespace CDPInject
             return false;
         }
 
+        int sndbuf = 262144;
+        setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &sndbuf, sizeof(sndbuf));
+        int rcvbuf = 262144;
+        setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &rcvbuf, sizeof(rcvbuf));
+
+        struct timeval tv;
+        tv.tv_sec = 4;
+        tv.tv_usec = 0;
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
+
         std::string wsKey = generateWsKey();
         if (!wsHandshake(sock, host, port, path, wsKey))
         {
@@ -880,6 +931,25 @@ namespace CDPInject
                 std::string js = "if (window.appStore && window.appStore.m_mapApps) { window.appStore.m_mapApps.delete(" + std::to_string(appId) + "); }";
                 injectJS(page.webSocketDebuggerUrl, js);
                 LOG_INFO("CDPInject::notifyAppRemoved: Deleted AppID %u from SharedJSContext m_mapApps\n", appId);
+            }
+        }
+    }
+
+    void ensureCompatTool(uint32_t appId)
+    {
+        auto pages = fetchPages();
+        for (const auto& page : pages)
+        {
+            if (page.title == "SharedJSContext")
+            {
+                std::string js =
+                    "try {"
+                    "  if (typeof SteamClient !== 'undefined' && SteamClient.Apps && SteamClient.Apps.SpecifyCompatTool) {"
+                    "    SteamClient.Apps.SpecifyCompatTool(" + std::to_string(appId) + ", 'proton_experimental');"
+                    "  }"
+                    "} catch(e) {}";
+                injectJS(page.webSocketDebuggerUrl, js);
+                LOG_INFO("CDPInject::ensureCompatTool: Ensured compat tool for AppID %u\n", appId);
             }
         }
     }

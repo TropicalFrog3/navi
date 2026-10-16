@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../sdk/sdk.hpp"
+#include "../sdk/protobufs/steammessages_clientserver.pb.h"
 
 #include <string>
 #include <unordered_map>

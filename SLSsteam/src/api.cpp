@@ -46,10 +46,17 @@ void SLSAPI::onFileChange(const char* filename)
 	}
 
 	std::string cmd;
-	cmd.resize(128);
-	fstream.getline(cmd.data(), cmd.size());
+	if (!std::getline(fstream, cmd) || cmd.empty())
+	{
+		fstream.close();
+		return;
+	}
+	if (!cmd.empty() && cmd.back() == '\r')
+	{
+		cmd.pop_back();
+	}
 
-	LOG_DEBUG("API Running %s\n", cmd.c_str());
+	LOG_INFO("API Running %s\n", cmd.c_str());
 	const auto split = Utils::strsplit(const_cast<char*>(cmd.c_str()), "|");
 
 	//Compatibility Manager
@@ -135,6 +142,11 @@ void SLSAPI::onFileChange(const char* filename)
 
 done:
 	fstream.close();
+	{
+		const std::lock_guard guard(cmdMutex);
+		runCompatOps();
+		runInstallOps();
+	}
 }
 
 void SLSAPI::init()
@@ -166,10 +178,7 @@ void SLSAPI::init()
 
 void SLSAPI::runCompatOps()
 {
-	if (!g_pClientCompat)
-	{
-		return;
-	}
+	static IClientCompat s_dummyCompat;
 
 	while (compatOps.size())
 	{
@@ -179,16 +188,18 @@ void SLSAPI::runCompatOps()
 		{
 			case CompatOp_t::OpType::Dump:
 			{
+				IClientCompat* pCompat = g_pClientCompat ? g_pClientCompat : &s_dummyCompat;
+
 				//We do not allocate anything, it'll just mess up
 				//Luckily the function allocates for us
 				CUtlVector<CUtlString> tools { };
-				g_pClientCompat->getCompatToolsForApp(op->appId, &tools);
+				pCompat->getCompatToolsForApp(op->appId, &tools);
 
 				std::ostringstream toolsSS;
 				for (size_t i = 0; i < tools.size; i++)
 				{
 					const char* name = tools.at(i)->get();
-					const char* displayName = g_pClientCompat->getDisplayName(name);
+					const char* displayName = pCompat->getDisplayName(name);
 
 					if (toolsSS.str().size() > 0)
 					{
@@ -206,6 +217,11 @@ void SLSAPI::runCompatOps()
 
 			case CompatOp_t::OpType::Get:
 			{
+				if (!g_pClientCompat)
+				{
+					return; // wait for g_pClientCompat
+				}
+
 				if (!g_pClientCompat->isCompatToolEnabled(op->appId))
 				{
 					LOG_API("Get compatibility tool for %u: Compatibility tool is disabled!\n", op->appId);
@@ -222,6 +238,11 @@ void SLSAPI::runCompatOps()
 
 			case CompatOp_t::OpType::Set:
 			{
+				if (!g_pClientCompat)
+				{
+					return; // wait for g_pClientCompat
+				}
+
 				//Steam calls them with the same values
 				g_pClientCompat->specifyCompatTool(op->appId, op->tool.c_str(), "", 250);
 				LOG_DEBUG("Set compatibility tool for %u to %s\n", op->appId, op->tool.c_str());
@@ -229,7 +250,6 @@ void SLSAPI::runCompatOps()
 				break;
 			}
 		}
-
 
 		compatOps.erase(op);
 	}

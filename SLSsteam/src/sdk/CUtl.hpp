@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <type_traits>
 
 constexpr static size_t CUTL_DEFAULT_ALLOC = 0x16;
 
@@ -169,6 +170,23 @@ SDK_Class CUtlVector
 public:
 	CUtlMemory<T> mem;
 	uint32_t size;
+
+	~CUtlVector()
+	{
+		purge();
+	}
+
+	void purge()
+	{
+		if constexpr (!std::is_void_v<T> && !std::is_trivially_destructible_v<T>)
+		{
+			for (uint32_t i = 0; i < size; ++i)
+			{
+				at(i)->~T();
+			}
+		}
+		size = 0;
+	}
 
 	constexpr T* at(uint32_t index)
 	{

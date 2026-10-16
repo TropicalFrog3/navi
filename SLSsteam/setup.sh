@@ -159,7 +159,30 @@ install_slssteam()
 	smart_copy ./res "$SLSDIR/res" || return 1
 	if [ -f "./res/updates.yaml" ]; then
 		mkdir -p "$HOME/.config/SLSsteam"
-		cp -f "./res/updates.yaml" "$HOME/.config/SLSsteam/updates.yaml"
+		DEST_UPDATES="$HOME/.config/SLSsteam/updates.yaml"
+		if [ ! -f "$DEST_UPDATES" ]; then
+			cp -a "./res/updates.yaml" "$DEST_UPDATES"
+		else
+			TS="$(date +%Y%m%d-%H%M%S)"
+			cp -a "$DEST_UPDATES" "$DEST_UPDATES.bak-$TS"
+			python3 - <<'EOF' "./res/updates.yaml" "$DEST_UPDATES"
+import sys, re
+src_file, dest_file = sys.argv[1], sys.argv[2]
+with open(src_file, 'r', encoding='utf-8') as f: src_text = f.read()
+with open(dest_file, 'r', encoding='utf-8') as f: dest_text = f.read()
+dest_hashes = set(re.findall(r'-\s+([0-9a-f]{64})', dest_text))
+src_matches = re.findall(r'(\s+-\s+([0-9a-f]{64})(?:[^\n]*))', src_text)
+new_lines = [line.rstrip() for line, h in src_matches if h not in dest_hashes]
+if new_lines:
+    beta_pos = dest_text.find("beta-v1.2.0:")
+    if beta_pos != -1:
+        eol = dest_text.find("\n", beta_pos)
+        updated_text = dest_text[:eol+1] + "\n".join(new_lines) + "\n" + dest_text[eol+1:]
+    else:
+        updated_text = dest_text.rstrip() + "\n" + "\n".join(new_lines) + "\n"
+    with open(dest_file, 'w', encoding='utf-8') as f: f.write(updated_text)
+EOF
+		fi
 	fi
 
 	# Bundle ACCELA deps (DepotDownloaderMod + .NET dependencies) if found

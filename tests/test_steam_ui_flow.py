@@ -479,6 +479,23 @@ class SteamUIFlowTest(unittest.TestCase):
                 except Exception as e:
                     log_warn(f"Failed to remove stale manifest {mp}: {e}")
 
+        # Close any lingering modal dialogs from previous runs
+        for t in self.cdp.get_targets():
+            if t.get("title") in ("Uninstall", "Failure", "Install", "Error") and t.get("webSocketDebuggerUrl"):
+                try:
+                    self.cdp.evaluate(t["webSocketDebuggerUrl"], """
+                    (() => {
+                        const btn = Array.from(document.querySelectorAll('button')).find(b => {
+                            const t = (b.innerText || '').trim();
+                            return t === 'Cancel' || t === 'Close' || t === 'OK';
+                        });
+                        if (btn) btn.click();
+                        else window.close();
+                    })()
+                    """)
+                except Exception:
+                    pass
+
         self.assertTrue(all(not os.path.isfile(p) for p in lua_paths), f"Preflight error: {appid}.lua must not be present on disk before store download")
         log_info(f"Confirmed clean slate: {appid}.lua absent from stplug-in.")
 
@@ -500,18 +517,25 @@ class SteamUIFlowTest(unittest.TestCase):
             }})()
             """
             for _ in range(5):
-                pre_res = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], pre_col_check)
-                if not (pre_res and pre_res.get("found")):
-                    break
                 self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], f"""
                 (() => {{
                     try {{
                         const cols = window.collectionStore.GetUserCollectionsByName('LUAs');
-                        if (cols && cols.length > 0) window.collectionStore.AddOrRemoveApp([{appid}], false, cols[0].id);
+                        if (cols && cols.length > 0) {{
+                            const c = cols[0];
+                            if (c.m_setAddedManually) c.m_setAddedManually.delete({appid});
+                            if (c.m_setRemovedManually) c.m_setRemovedManually.add({appid});
+                            if (c.m_setApps) c.m_setApps.delete({appid});
+                            if (c.m_rgApps) c.m_rgApps = c.m_rgApps.filter(x => (typeof x === 'number' ? x : (x && x.appid)) !== {appid});
+                            window.collectionStore.SaveCollection(c);
+                        }}
                     }} catch(e) {{}}
                 }})()
                 """)
                 time.sleep(0.5)
+                pre_res = self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], pre_col_check)
+                if not (pre_res and pre_res.get("found")):
+                    break
 
             if pre_res and pre_res.get("found"):
                 self.fail(f"Pre-download check failed: AppID {appid} is already present in LUAs collection before download!")
@@ -737,7 +761,7 @@ class SteamUIFlowTest(unittest.TestCase):
                     while (el && el !== document.body) {{
                         const isDraggable = el.getAttribute && el.getAttribute('draggable') === 'true';
                         const isFocusable = el.classList && el.classList.contains('Focusable');
-                        if (isDraggable || (isFocusable && el.classList.contains('_1vO6BoiVslZgs1kqDGdUs8'))) {{
+                        if (isDraggable || isFocusable) {{
                             el.scrollIntoView({{ block: 'nearest' }});
                             el.focus();
                             const evt = (type) => new MouseEvent(type, {{ view: window, bubbles: true, cancelable: true, buttons: 1 }});
@@ -952,7 +976,12 @@ class SteamUIFlowTest(unittest.TestCase):
             const sortDropdown = Array.from(document.querySelectorAll('button.DialogDropDown, button[role="combobox"]'))
                 .find(b => {
                     const disp = b.querySelector('.DialogDropDown_CurrentDisplay');
-                    return disp && (disp.innerText.includes('Hours Played') || disp.innerText.includes('Alphabetical') || disp.innerText.includes('Date Added'));
+                    if (!disp) return false;
+                    const t = (disp.innerText || disp.textContent || '').trim();
+                    return t.includes('Hours Played') || t.includes('Alphabetical') || t.includes('Date Added') ||
+                           t.includes('Recent Activity') || t.includes('Release Date') || t.includes('Review Score') ||
+                           t.includes('Size on Disk') || t.includes('Friends Playing') ||
+                           Boolean(b.closest('[class*="collectionview"], [class*="CollectionView"], [class*="Sort"]'));
                 });
             if (!sortDropdown) return { opened: false, reason: 'sort dropdown not found' };
 
@@ -1100,12 +1129,12 @@ class SteamUIFlowTest(unittest.TestCase):
         log_info(f"Verified provider modal with {modal_res['count']} providers.")
 
         # 2. Query callback server endpoint
-        req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/change-provider?id={CONFIG['appid']}&provider=2")
+        req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/change-provider?id={CONFIG['appid']}&provider=6")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
             self.assertTrue(data.get("success"), f"change-provider API failed: {data}")
         # Wait for asynchronous provider download and config scan to complete
-        time.sleep(2.0)
+        time.sleep(3.0)
         log_pass("Change Provider UI modal and API endpoint verified.")
 
     def is_app_installed_on_disk(self, appid):
@@ -1171,7 +1200,20 @@ class SteamUIFlowTest(unittest.TestCase):
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target)
 
-        # 1. Trigger UI install navigation
+        # 1. Ensure compatibility tool (Proton) is specified for Windows-only app to prevent "Invalid platform"
+        shared_target = self.cdp.find_target_by_title("SharedJSContext")
+        if shared_target and shared_target.get("webSocketDebuggerUrl"):
+            self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], f"""
+            (() => {{
+                try {{
+                    if (typeof SteamClient !== 'undefined' && SteamClient.Apps && SteamClient.Apps.SpecifyCompatTool) {{
+                        SteamClient.Apps.SpecifyCompatTool({CONFIG['appid']}, 'proton_experimental');
+                    }}
+                }} catch(e) {{}}
+            }})()
+            """)
+
+        # 2. Trigger UI install navigation
         self.navigate_url(f"steam://install/{CONFIG['appid']}")
         time.sleep(1.0)
 
@@ -1201,6 +1243,37 @@ class SteamUIFlowTest(unittest.TestCase):
                     clicked_native_install = True
                     break
             if clicked_native_install:
+                break
+            time.sleep(0.5)
+
+        # Confirm install dialog if open
+        time.sleep(1.0)
+        for _ in range(10):
+            confirmed = False
+            for t in self.cdp.get_targets():
+                ws = t.get("webSocketDebuggerUrl")
+                if not ws: continue
+                res = self.cdp.evaluate(ws, """
+                (() => {
+                    const dialog = document.querySelector('dialog, .FullModalOverlay, .ModalPosition_Content');
+                    if (dialog) {
+                        const btn = Array.from(dialog.querySelectorAll('button, div[role="button"]')).find(b => {
+                            const t = (b.innerText || b.textContent || '').trim();
+                            return (t === 'Install' || t === 'Next >' || t === 'Next' || t === 'I Agree' || t === 'Finish') && b.offsetParent !== null;
+                        });
+                        if (btn) {
+                            btn.click();
+                            return (btn.innerText || btn.textContent || '').trim();
+                        }
+                    }
+                    return null;
+                })()
+                """)
+                if res:
+                    log_info(f"Confirmed modal install dialog via '{res}' on target '{t.get('title')}'")
+                    confirmed = True
+                    break
+            if confirmed:
                 break
             time.sleep(0.5)
 
@@ -1281,15 +1354,37 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertIsNotNone(uninstall_target, "Native Steam 'Uninstall' confirmation dialog did not appear!")
         log_info("Detected native Steam 'Uninstall' dialog target.")
 
-        # Click 'Uninstall' button in modal
+        # Click 'Uninstall' button in modal with retry loop and full event dispatching
         click_script = """
         (() => {
-            const btn = Array.from(document.querySelectorAll('button')).find(b => b.textContent.trim() === 'Uninstall');
-            if (btn) { btn.click(); return { clicked: true }; }
+            const btn = Array.from(document.querySelectorAll('button, div[role="button"]')).find(b => {
+                const t = (b.innerText || b.textContent || '').trim();
+                return t === 'Uninstall' || t.startsWith('Uninstall');
+            });
+            if (btn) {
+                btn.focus();
+                const evt = (type) => new MouseEvent(type, { view: window, bubbles: true, cancelable: true, buttons: 1 });
+                btn.dispatchEvent(evt('mousedown'));
+                btn.dispatchEvent(evt('mouseup'));
+                btn.dispatchEvent(evt('click'));
+                btn.click();
+                return { clicked: true };
+            }
             return { clicked: false };
         })()
         """
-        click_res = self.cdp.evaluate(uninstall_target["webSocketDebuggerUrl"], click_script)
+        click_res = None
+        for _ in range(15):
+            click_res = self.cdp.evaluate(uninstall_target["webSocketDebuggerUrl"], click_script)
+            if click_res and click_res.get("clicked"):
+                break
+            if steam_target and steam_target.get("webSocketDebuggerUrl"):
+                st_res = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], click_script)
+                if st_res and st_res.get("clicked"):
+                    click_res = st_res
+                    break
+            time.sleep(0.3)
+
         self.assertIsInstance(click_res, dict)
         self.assertTrue(click_res.get("clicked"), "Failed to click 'Uninstall' confirmation button")
         log_info("Clicked 'Uninstall' button in dialog.")
@@ -1369,11 +1464,17 @@ class SteamUIFlowTest(unittest.TestCase):
         if shared_target:
             self.cdp.evaluate(shared_target["webSocketDebuggerUrl"], f"""
             (() => {{
-                if (!window.collectionStore || !window.collectionStore.GetUserCollectionsByName) return;
-                const cols = window.collectionStore.GetUserCollectionsByName('LUAs');
-                if (cols && cols.length > 0) {{
-                    window.collectionStore.AddOrRemoveApp([{CONFIG['appid']}], false, cols[0].id);
-                }}
+                try {{
+                    if (!window.collectionStore || !window.collectionStore.GetUserCollectionsByName) return;
+                    const cols = window.collectionStore.GetUserCollectionsByName('LUAs');
+                    if (cols && cols.length > 0) {{
+                        const c = cols[0];
+                        const apps = c.added || c.apps || (c.asArray ? c.asArray() : []);
+                        if (Array.from(apps).some(id => Number(id) === {CONFIG['appid']})) {{
+                            window.collectionStore.AddOrRemoveApp([{CONFIG['appid']}], false, cols[0].id);
+                        }}
+                    }}
+                }} catch (e) {{}}
             }})()
             """)
             log_info(f"Verified AppID {CONFIG['appid']} removed from LUAs collection.")

@@ -185,14 +185,69 @@ if ! install_safe_steam_wrapper; then
     exit 1
 fi
 
+# Detect Steam client version and steamclient.so hash
+CLIENT_VER=$(grep -oP '"version"\s+"\K[0-9]+' ~/.local/share/Steam/package/steam_client_*.manifest 2>/dev/null | head -1 || true)
+CLIENT_SHA=$(sha256sum ~/.local/share/Steam/ubuntu12_32/steamclient.so 2>/dev/null | cut -d' ' -f1 || true)
+if [ -n "$CLIENT_VER" ] || [ -n "$CLIENT_SHA" ]; then
+    log_info "Steam client ${CLIENT_VER:-unknown} (${CLIENT_SHA:-unknown})"
+fi
+
 # Headcrab on SteamOS forces 'SafeMode: yes' in config.yaml.
-# Ensure SafeMode is set to 'no' and copy updates.yaml so steamclient hash differences do not abort startup.
+# Preserve the user's config options while disabling SafeMode so hash differences don't abort startup.
 if [ -f "$HOME/.config/SLSsteam/config.yaml" ]; then
     sed -i 's/^SafeMode: .*/SafeMode: no/' "$HOME/.config/SLSsteam/config.yaml"
 fi
+
+# Merge updates.yaml safely: union hashes, never overwrite, preserve backups and client hash
 if [ -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" ]; then
     mkdir -p "$HOME/.config/SLSsteam"
-    cp -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" "$HOME/.config/SLSsteam/updates.yaml"
+    DEST_UPDATES="$HOME/.config/SLSsteam/updates.yaml"
+    SRC_UPDATES="$SCRIPT_DIR/SLSsteam/res/updates.yaml"
+
+    if [ ! -f "$DEST_UPDATES" ]; then
+        cp -a "$SRC_UPDATES" "$DEST_UPDATES"
+        log_info "Installed initial updates.yaml."
+    else
+        TS="$(date +%Y%m%d-%H%M%S)"
+        cp -a "$DEST_UPDATES" "$DEST_UPDATES.bak-$TS"
+        python3 - <<'EOF' "$SRC_UPDATES" "$DEST_UPDATES" "$CLIENT_SHA" "$CLIENT_VER"
+import sys, os, re
+
+src_file = sys.argv[1]
+dest_file = sys.argv[2]
+client_sha = sys.argv[3] if len(sys.argv) > 3 else ""
+client_ver = sys.argv[4] if len(sys.argv) > 4 else ""
+
+with open(src_file, 'r', encoding='utf-8') as f:
+    src_text = f.read()
+with open(dest_file, 'r', encoding='utf-8') as f:
+    dest_text = f.read()
+
+dest_hashes = set(re.findall(r'-\s+([0-9a-f]{64})', dest_text))
+src_matches = re.findall(r'(\s+-\s+([0-9a-f]{64})(?:[^\n]*))', src_text)
+
+new_lines = []
+for line, h in src_matches:
+    if h not in dest_hashes:
+        new_lines.append(line.rstrip())
+        dest_hashes.add(h)
+
+if client_sha and re.match(r'^[0-9a-f]{64}$', client_sha) and client_sha not in dest_hashes:
+    new_lines.append(f"    - {client_sha} # local-{client_ver or 'client'}")
+    dest_hashes.add(client_sha)
+
+if new_lines:
+    beta_pos = dest_text.find("beta-v1.2.0:")
+    if beta_pos != -1:
+        eol = dest_text.find("\n", beta_pos)
+        updated_text = dest_text[:eol+1] + "\n".join(new_lines) + "\n" + dest_text[eol+1:]
+    else:
+        updated_text = dest_text.rstrip() + "\n" + "\n".join(new_lines) + "\n"
+    with open(dest_file, 'w', encoding='utf-8') as f:
+        f.write(updated_text)
+EOF
+        log_info "Safely merged updates.yaml; preserved existing hashes and client hash."
+    fi
 fi
 
 log_info "Full installation complete!"

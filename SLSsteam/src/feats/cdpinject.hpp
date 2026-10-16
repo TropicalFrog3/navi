@@ -62,4 +62,9 @@ namespace CDPInject
      * Delete an uninstalled/removed app from CEF's SharedJSContext appStore.m_mapApps.
      */
     void notifyAppRemoved(uint32_t appId);
+
+    /**
+     * Ensure Steam on Linux assigns a compatibility tool (Proton) to an app so it installs without "Invalid platform".
+     */
+    void ensureCompatTool(uint32_t appId);
 }

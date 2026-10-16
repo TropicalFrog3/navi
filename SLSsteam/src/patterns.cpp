@@ -20,19 +20,21 @@ Pattern_t::Pattern_t(const char* name, const char* pattern, MemHlp::SigFollowMod
 	pattern(pattern),
 	followMode(followMode),
 	prologue(prologue),
-	module(module),
-	optional(optional)
+	optional(optional),
+	address(0),
+	module(module)
 {
 	Patterns::patterns.emplace_back(this);
 }
 
 bool Pattern_t::find()
 {
-	address = MemHlp::searchSignature(name.c_str(), pattern.c_str(), module ? *module : g_modSteamClient , followMode, &prologue[0], prologue.size());
+	const int16_t* pPrologue = prologue.empty() ? nullptr : prologue.data();
+	address = MemHlp::searchSignature(name.c_str(), pattern.c_str(), module ? *module : g_modSteamClient, followMode, pPrologue, prologue.size());
 	if (address == LM_ADDRESS_BAD && name == "CAPIJob::GetPlayerStats")
 	{
 		LOG_INFO("Trying fallback pattern for CAPIJob::GetPlayerStats\n");
-		address = MemHlp::searchSignature(name.c_str(), "E8 ? ? ? ? 83 C4 10 89 C5 E9 ? ? ? ? C7 86 ? ? ? ? 00 00 00 00", module ? *module : g_modSteamClient , followMode, &prologue[0], prologue.size());
+		address = MemHlp::searchSignature(name.c_str(), "E8 ? ? ? ? 83 C4 10 89 C5 E9 ? ? ? ? C7 86 ? ? ? ? 00 00 00 00", module ? *module : g_modSteamClient, followMode, pPrologue, prologue.size());
 	}
 	else if (address == LM_ADDRESS_BAD && name == "CSteamUIAppController::FillInAppOverview")
 	{
@@ -46,16 +48,24 @@ bool Pattern_t::find()
 	else if (address == LM_ADDRESS_BAD && name == "CSteamUIAppController::BuildCompleteAppOverviewChange")
 	{
 		LOG_INFO("Trying fallback patterns for CSteamUIAppController::BuildCompleteAppOverviewChange\n");
-		address = MemHlp::searchSignature(name.c_str(), "8B 86 78 84 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, &prologue[0], prologue.size());
+		address = MemHlp::searchSignature(name.c_str(), "8B 86 ? ? 03 00 89 F3 8B 40 44 C6 ? 2C 01 83 4A 08 01 83 C2 10", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, pPrologue, prologue.size());
 		if (address == LM_ADDRESS_BAD)
 		{
-			address = MemHlp::searchSignature(name.c_str(), "8B 86 38 88 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, &prologue[0], prologue.size());
+			address = MemHlp::searchSignature(name.c_str(), "8B 86 78 84 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, pPrologue, prologue.size());
+		}
+		if (address == LM_ADDRESS_BAD)
+		{
+			address = MemHlp::searchSignature(name.c_str(), "8B 86 38 88 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, pPrologue, prologue.size());
 		}
 	}
 	else if (address == LM_ADDRESS_BAD && name == "CUser::GetSubscribedApps")
 	{
-		LOG_INFO("Trying fallback pattern for CUser::GetSubscribedApps\n");
-		address = MemHlp::searchSignature(name.c_str(), "55 89 E5 57 8D 7D ? 56 53 83 EC 2C 8B 75 10", module ? *module : g_modSteamClient, SigFollowMode::None);
+		LOG_INFO("Trying fallback patterns for CUser::GetSubscribedApps\n");
+		address = MemHlp::searchSignature(name.c_str(), "E8 ? ? ? ? 89 C6 83 C4 ? 85 C0 0F 84 ? ? ? ? 8B 9D ? ? ? ? 39 D8", module ? *module : g_modSteamClient, SigFollowMode::Relative);
+		if (address == LM_ADDRESS_BAD)
+		{
+			address = MemHlp::searchSignature(name.c_str(), "E8 ? ? ? ? 89 C6 83 C4 ? 85 C0 0F 85 ? ? ? ? 8B 9D ? ? ? ? 39 D8", module ? *module : g_modSteamClient, SigFollowMode::Relative);
+		}
 	}
 	return address != LM_ADDRESS_BAD;
 }
@@ -70,11 +80,13 @@ bool Patterns::init()
 		{
 			if (pattern->optional)
 			{
-				LOG_WARN("Failed to find optional pattern: %s\n", pattern->name.c_str());
-				continue;
+				LOG_WARN("Optional pattern not found: %s\n", pattern->name.c_str());
 			}
-			LOG_WARN("Failed to find pattern: %s\n", pattern->name.c_str());
-			found = false;
+			else
+			{
+				LOG_WARN("Failed to find pattern: %s\n", pattern->name.c_str());
+				found = false;
+			}
 		}
 	}
 
@@ -139,17 +151,13 @@ namespace Patterns
 			std::vector<int16_t> { 0x57, 0xE5, 0x89, 0x55 },
 			&g_modSteamUI
 		};
-		//NOTE: Lives 0x50 bytes into BuildCompleteAppOverviewChange (verified via VPROF xref "BuildCompleteAppOverviewChange"
-		//and "Constructed empty appoverview message in BuildCompleteAppOverviewChange" assert).
-		//Matches both older (offset 0x38478) and newer SteamOS (offset 0x38838) builds.
+		//NOTE: Entry of BuildCompleteAppOverviewChange matching both Desktop and Steam Deck builds.
 		Pattern_t BuildCompleteAppOverviewChange
 		{
 			"CSteamUIAppController::BuildCompleteAppOverviewChange",
-			"8B 86 ? ? 03 00 89 F3 8B 40 44 C6 42 2C 01 83 4A 08 01 83 C2 10",
-			SigFollowMode::PrologueUpwards,
-			std::vector<int16_t> { 0x53, 0x56, 0x57, 0xE5, 0x89, 0x55 },
-			&g_modSteamUI,
-			true
+			"55 89 E5 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 81 EC 8C 00 00 00 8B 7D 08 89 5D A4",
+			SigFollowMode::None,
+			&g_modSteamUI
 		};
 		Pattern_t RunFrame
 		{
@@ -218,13 +226,13 @@ namespace Patterns
 		Pattern_t GetSubscribedApps
 		{
 			"CUser::GetSubscribedApps",
-			"E8 ? ? ? ? 89 C6 83 C4 ? 85 C0 0F 84 ? ? ? ? 8B 9D ? ? ? ? 39 D8",
-			SigFollowMode::Relative
+			"55 89 E5 57 56 E8 ? ? ? ? 81 C6 ? ? ? ? 53 83 C4 80 0F B6 45 14 6A 00 6A 00 88 45 8F 8D 45 D0",
+			SigFollowMode::None
 		};
 		Pattern_t MarkLicenseAsChanged
 		{
 			"CUser::MarkLicenseAsChanged",
-			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 74 24 40 8B 44 24 48 8B BE 14 1B 00 00",
+			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 74 24 40 8B 44 24 48 8B BE ? ? ? 00 88 44 24 1C",
 			SigFollowMode::None,
 			nullptr,
 			true
@@ -232,7 +240,7 @@ namespace Patterns
 		Pattern_t ProcessPendingLicenseUpdates
 		{
 			"CUser::ProcessPendingLicenseUpdates",
-			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 44 24 40 8B 88 7C 1C 00 00",
+			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 44 24 40 8B 88 ? ? ? 00 85 C9 0F 8E",
 			SigFollowMode::None,
 			nullptr,
 			true

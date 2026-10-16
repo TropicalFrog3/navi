@@ -962,10 +962,9 @@
 
         // Big Picture Mode detection
         var bpSummary = document.getElementById('summaryBarTop');
-        var bpWrapper = document.getElementById('carouselContainerWrapper');
         var match = window.location.href.match(/\/(app|sub)\/([0-9]+)/);
         
-        if (bpSummary && bpWrapper && match) {
+        if (bpSummary && match) {
             var productID = match[2];
             if (!document.getElementById('sls-bp-lua-btn-container-' + productID)) {
                 var bpContainer = document.createElement('div');
@@ -1051,14 +1050,16 @@
             }
         }
 
-        var isBigPicture = document.getElementById('summaryBarTop') || document.getElementById('carouselContainerWrapper') || document.querySelector('.gamepadui') || (document.body && document.body.classList.contains('gamepadui'));
-        if (isBigPicture) {
+        var desktopMatch = window.location.href.match(/\/(app|sub)\/([0-9]+)/);
+        var curProductId = desktopMatch ? desktopMatch[2] : null;
+        var bpBtnContainer = curProductId ? document.getElementById('sls-bp-lua-btn-container-' + curProductId) : null;
+        if (bpBtnContainer && bpBtnContainer.isConnected) {
             var rogueDesktopBtn = document.querySelector('.btn_addtocart.sls-lua-btn');
             if (rogueDesktopBtn) rogueDesktopBtn.remove();
         }
-        var desktopMatch = window.location.href.match(/\/(app|sub)\/([0-9]+)/);
-        if (!isBigPicture && desktopMatch && !document.querySelector('.sls-lua-btn[data-sls-appid="' + desktopMatch[2] + '"]')) {
-            var productID = desktopMatch[2];
+
+        if (!bpBtnContainer && desktopMatch && !document.querySelector('.sls-lua-btn[data-sls-appid="' + curProductId + '"]')) {
+            var productID = curProductId;
             var cartBtn = null;
             var cartBtns = document.querySelectorAll('.btn_addtocart, .btn_add_to_cart');
             for (var i = 0; i < cartBtns.length; i++) {
@@ -1149,6 +1150,8 @@
                 }
                 var insertionPoint = appName || header.firstChild;
                 header.insertBefore(luaBtn, insertionPoint);
+            } else if (cartBtn && cartBtn.parentNode) {
+                cartBtn.parentNode.insertBefore(luaBtn, cartBtn);
             } else {
                 var purchaseArea = document.getElementById('game_area_purchase') || document.querySelector('.game_area_purchase') || document.querySelector('.game_area_comingsoon') || document.querySelector('.game_bg') || document.querySelector('.rightcol');
                 if (purchaseArea) {

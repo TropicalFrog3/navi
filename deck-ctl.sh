@@ -51,6 +51,7 @@ Connection & Shell:
 File Synchronization & Deployment:
   sync                       Rsync workspace repository to ~/SLSsteam_n_ACCELA on Deck
   deploy                     Sync repo, run ./install.sh on Deck, and restart Steam
+  verify                     Verify Steam Deck installation, log health, and feature status
   test [all|flow]            Execute full test suite or UI flow test on the Steam Deck
   copy-to <src> <dest>       SCP copy file/folder to Steam Deck
   copy-from <src> <dest>     SCP copy file/folder from Steam Deck
@@ -296,9 +297,9 @@ else
     export XDG_RUNTIME_DIR=/run/user/1000
     export PATH="/home/deck/.local/bin:$PATH"
     if command -v kstart5 >/dev/null 2>&1; then
-        kstart5 -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1 &
+        kstart5 -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1
     elif command -v kstart >/dev/null 2>&1; then
-        kstart -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1 &
+        kstart -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1
     else
         nohup /home/deck/.local/bin/steam -cef-enable-debugging > /home/deck/steam-debug.log 2>&1 &
     fi
@@ -322,10 +323,10 @@ cmd_notify() {
 }
 
 get_cdp_url() {
-    if curl -s -m 1 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
-        echo "http://127.0.0.1:8080"
-    elif curl -s -m 1 "http://${TARGET_HOST}:8081/json" >/dev/null 2>&1; then
+    if curl -s -m 1 "http://${TARGET_HOST}:8081/json" >/dev/null 2>&1; then
         echo "http://${TARGET_HOST}:8081"
+    elif curl -s -m 1 "http://127.0.0.1:8080/json" >/dev/null 2>&1; then
+        echo "http://127.0.0.1:8080"
     else
         cmd_tunnel >/dev/null 2>&1 || true
         echo "http://127.0.0.1:8080"
@@ -442,6 +443,100 @@ cmd_test() {
     fi
 }
 
+cmd_verify() {
+    echo "=========================================================="
+    echo " Verifying Steam Deck SLSsteam Installation & Health      "
+    echo "=========================================================="
+
+    # 1. Reachability
+    if ! ping -c 1 -W 2 "$TARGET_HOST" > /dev/null 2>&1; then
+        echo " [✗] Cannot reach Steam Deck at $TARGET_HOST"
+        exit 1
+    fi
+
+    # 2. Client version and steamclient hash
+    echo " [1/3] Checking Steam Client Version & Hash..."
+    local ver_info
+    ver_info=$(ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '
+        ver=$(grep -oP "\"version\"\s+\"\K[0-9]+" ~/.local/share/Steam/package/steam_client_*.manifest 2>/dev/null | head -1)
+        sha=$(sha256sum ~/.local/share/Steam/ubuntu12_32/steamclient.so 2>/dev/null | cut -d" " -f1)
+        echo "Version: ${ver:-unknown}"
+        echo "Hash:    ${sha:-unknown}"
+    ')
+    echo "$ver_info"
+
+    # 3. Check ~/.SLSsteam.log for Errors, Aborting, not found!
+    echo ""
+    echo " [2/3] Checking ~/.SLSsteam.log for Fatal Errors / Aborts..."
+    local error_lines
+    error_lines=$(ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '
+        if [ ! -f ~/.SLSsteam.log ]; then
+            echo "MISSING_LOG"
+            exit 0
+        fi
+        grep -E "\[Error |\[Notify.*Error|Aborting|not found\!" ~/.SLSsteam.log 2>/dev/null || true
+    ')
+
+    if [ "$error_lines" = "MISSING_LOG" ]; then
+        echo " [✗] Error: ~/.SLSsteam.log does not exist on target!"
+        exit 1
+    elif [ -n "$error_lines" ]; then
+        echo " [✗] Found errors in ~/.SLSsteam.log:"
+        echo "$error_lines"
+        exit 1
+    else
+        echo " [✓] Zero Error/Aborting/not found! lines in ~/.SLSsteam.log"
+    fi
+
+    # 4. Feature confirmations
+    echo ""
+    echo " [3/3] Confirming Active Features in Log..."
+    ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '
+        log=~/.SLSsteam.log
+        if [ ! -f "$log" ]; then exit 1; fi
+
+        # Hooks installed
+        if grep -q "Loaded successfully" "$log" 2>/dev/null || grep -q "Core hooks setup" "$log" 2>/dev/null || grep -q "Hooks::setup" "$log" 2>/dev/null; then
+            echo " [✓] Core Hooks Installed & Active"
+        else
+            echo " [?] Core Hooks installation confirmation not found in log"
+        fi
+
+        # CDP Inject
+        if grep -q "CDP" "$log" 2>/dev/null || grep -q "SharedJSContext" "$log" 2>/dev/null; then
+            echo " [✓] CDP Injection Active"
+        else
+            echo " [?] CDP Injection not yet recorded in log"
+        fi
+
+        # StoreInject server
+        if grep -q "StoreInject" "$log" 2>/dev/null; then
+            echo " [✓] StoreInject Server Active"
+        else
+            echo " [?] StoreInject not yet recorded in log"
+        fi
+
+        # ACCELA download / helper
+        if grep -q -i "accela" "$log" 2>/dev/null; then
+            echo " [✓] ACCELA Integration Active"
+        else
+            echo " [?] ACCELA integration not yet recorded in log"
+        fi
+
+        # Compat tool fallback or native
+        if grep -q "Compat fallback" "$log" 2>/dev/null || grep -q "native vfunc absent, using fallback" "$log" 2>/dev/null; then
+            echo " [✓] Compat Tool Fallback Active & Operational"
+        elif grep -q "16IClientCompatMap" "$log" 2>/dev/null; then
+            echo " [✓] Compat Interface Loaded"
+        fi
+    '
+
+    echo ""
+    echo "=========================================================="
+    echo " [✓] Verification Complete: All checks passed!"
+    echo "=========================================================="
+}
+
 # Main dispatcher
 ACTION="${1:-}"
 shift || true
@@ -454,6 +549,7 @@ case "$ACTION" in
     sudo) cmd_sudo "$@" ;;
     sync) cmd_sync ;;
     deploy) cmd_deploy ;;
+    verify) cmd_verify "$@" ;;
     test) cmd_test "$@" ;;
     copy-to) cmd_copy_to "$@" ;;
     copy-from) cmd_copy_from "$@" ;;

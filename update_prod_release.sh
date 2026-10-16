@@ -18,6 +18,18 @@ mkdir -p "$PROD_SLS_DIR/bin"
 mkdir -p "$PROD_SLS_DIR/res"
 cp "$SLS_DIR/bin/SLSsteam.so" "$PROD_SLS_DIR/bin/"
 cp "$SLS_DIR/bin/library-inject.so" "$PROD_SLS_DIR/bin/"
+# Verify that updates.yaml did not lose any hashes
+prev_hashes=0
+if [ -f "$PROD_SLS_DIR/res/updates.yaml" ]; then
+    prev_hashes=$(grep -cE '^\s*-\s+[0-9a-f]{64}' "$PROD_SLS_DIR/res/updates.yaml" || true)
+fi
+new_hashes=$(grep -cE '^\s*-\s+[0-9a-f]{64}' "$SLS_DIR/res/updates.yaml")
+if [ "$new_hashes" -lt "$prev_hashes" ]; then
+    echo "ERROR: updates.yaml hash count decreased ($new_hashes < $prev_hashes)! Aborting."
+    exit 1
+fi
+echo "Verified updates.yaml: $new_hashes hashes (previous: $prev_hashes)"
+
 [ -f "$SLS_DIR/bin/accela-helper" ] && cp "$SLS_DIR/bin/accela-helper" "$PROD_SLS_DIR/bin/"
 cp "$SLS_DIR/res/updates.yaml" "$PROD_SLS_DIR/res/"
 cp "$SLS_DIR/res/config.yaml" "$PROD_SLS_DIR/res/"

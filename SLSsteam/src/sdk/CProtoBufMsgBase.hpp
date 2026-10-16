@@ -13,6 +13,7 @@
 #include "protobufs/steammessages_player.steamclient.pb.h"
 
 #include <cstdint>
+#include <string>
 
 
 enum EGameFlags
@@ -22,6 +23,7 @@ enum EGameFlags
 	k_EGameFlagMultiplayer = 1 << 13,
 };
 
+//Base class for both CProtoBufMsg and CProtoBufMsgResponse
 SDK_Class CProtoBufMsgBase
 {
 public:
@@ -39,10 +41,21 @@ public:
 	
 	template<typename T> constexpr T* getBody() const
 	{
-		if (!this || !__pBody)
+		if (!__pBody)
 		{
 			return nullptr;
 		}
 		return reinterpret_cast<T*>(__pBody);
+	}
+
+	std::string getProtoBufTypeName() const
+	{
+		const EMsg type = getProtoBufType();
+		if (!EMsg_IsValid(type))
+		{
+			return "Unknown";
+		}
+
+		return EMsg_Name(type);
 	}
 }; //0x34

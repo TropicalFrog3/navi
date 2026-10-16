@@ -8,6 +8,7 @@
 #include "fakeappid.hpp"
 #include "nativeinstall.hpp"
 #include "licenses.hpp"
+#include "depotkeys.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -1131,30 +1132,86 @@ void Apps::runIPCFrame()
 
 bool Apps::shouldDisableCloud(const AppId_t appId)
 {
-	if (!g_config.disableCloud.get())
+	if (!appId || appId == 7 || appId == 2371090 || !g_config.disableCloud.get())
 	{
 		return false;
 	}
 
-	//isSubscribed goes through the hooked CheckAppOwnership which sets ownsLicense=true
-	//for injected apps, so we must also check isAddedAppId directly
-	return g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId);
+	if (g_config.isAddedAppId(appId) ||
+	    isInstalled(appId) ||
+	    isOnlineFixInstalled(appId) ||
+	    isAutoCrackInstalled(appId) ||
+	    NativeInstall::isNative(appId) ||
+	    DepotKeys::isAccelaApp(appId))
+	{
+		return true;
+	}
+
+	if (!g_pSteamEngine)
+	{
+		return true;
+	}
+
+	auto* user = g_pSteamEngine->getUser(0);
+	if (!user)
+	{
+		return true;
+	}
+
+	return !user->isSubscribed(appId);
 }
 
 bool Apps::shouldDisableCDKey(const AppId_t appId)
 {
-	return g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId);
+	if (!appId || appId == 7)
+	{
+		return false;
+	}
+
+	if (g_config.isAddedAppId(appId))
+	{
+		return true;
+	}
+
+	if (!g_pSteamEngine)
+	{
+		return true;
+	}
+
+	auto* user = g_pSteamEngine->getUser(0);
+	if (!user)
+	{
+		return true;
+	}
+
+	return !user->isSubscribed(appId);
 }
 
 bool Apps::shouldDisableUpdates(const AppId_t appId)
 {
-	if (!g_config.disableUpdates.get())
+	if (!appId || appId == 7 || !g_config.disableUpdates.get())
 	{
 		return false;
 	}
 
 	//Using AdditionalApps here aswell so users can manually block updates
-	return g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId);
+	if (g_config.isAddedAppId(appId))
+	{
+		return true;
+	}
+
+	if (!g_pSteamEngine)
+	{
+		return true;
+	}
+
+	auto* user = g_pSteamEngine->getUser(0);
+	if (!user)
+	{
+		return true;
+	}
+
+	return !user->isSubscribed(appId);
 }
 
 void Apps::sendAndRecvLastPlayedTimes(const char* name, CPlayer_GetLastPlayedTimes_Response* recv)

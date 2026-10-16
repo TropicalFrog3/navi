@@ -188,12 +188,21 @@ namespace CppAccela::LuaParser
             result.manifests[depotId]     = manifestGid;
             result.manifestSizes[depotId] = sizeBytes;
 
-            // Also store directly on the DepotInfo if it exists
+            // Also store directly on the DepotInfo if it exists, or create DepotInfo
             auto depotIt = result.depots.find(depotId);
             if (depotIt != result.depots.end())
             {
                 depotIt->second.manifestGid = manifestGid;
                 depotIt->second.sizeBytes   = sizeBytes;
+            }
+            else
+            {
+                DepotInfo info;
+                info.depotId     = depotId;
+                info.manifestGid = manifestGid;
+                info.sizeBytes   = sizeBytes;
+                info.description = "Depot " + depotId;
+                result.depots[depotId] = std::move(info);
             }
         }
     }

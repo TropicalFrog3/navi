@@ -114,9 +114,51 @@ namespace Hooks
 	typedef uint32_t(*IClientFriends_GetFriendGamePlayed_t)(void*, uint64_t, GamePlayed_t*);
 
 	typedef bool(*IClientRemoteStorage_IsCloudEnabledForApp_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_EvaluateRemoteStorageSyncState_t)(void*, AppId_t, bool);
+	typedef ERemoteStorageSyncState(*IClientRemoteStorage_GetLastKnownSyncState_t)(void*, AppId_t);
+	typedef ERemoteStorageSyncState(*IClientRemoteStorage_GetRemoteStorageSyncState_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_HaveLatestFilesLocally_t)(void*, AppId_t);
+	typedef uint64_t(*IClientRemoteStorage_SynchronizeApp_t)(void*, AppId_t, int, void*, void*);
+	typedef void(*IClientRemoteStorage_RunAutoCloudOnAppLaunch_t)(void*, AppId_t);
+	typedef void(*IClientRemoteStorage_RunAutoCloudOnAppExit_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_PerformAppPlatformChangeFileBackup_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_PerformAppPlatformChangeFileRestore_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_ResolveSyncConflict_t)(void*, AppId_t, bool);
+	typedef bool(*IClientRemoteStorage_IsAppSyncInProgress_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_BIsFileSyncing_t)(void*, AppId_t, const char*);
+	typedef bool(*IClientRemoteStorage_LoadLocalFileInfoCache_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_InitializeUGCQuotaUsage_t)(void*, AppId_t);
+	typedef bool(*IClientRemoteStorage_GetConflictingFileTimestamps_t)(void*, AppId_t, uint32_t*, uint32_t*);
+	typedef bool(*IClientRemoteStorage_GetPendingRemoteOperationInfo_t)(void*, AppId_t, void*, void*);
+	typedef bool(*IClientRemoteStorage_ResetFileRequestState_t)(void*, AppId_t);
+	typedef ERemoteStorageSyncState(*CUserRemoteStorage_InternalGetSyncState_t)(void*, AppId_t, int);
+	typedef bool(*CClientJobRemoteStorageSync_BYieldingRunJob_t)(void*);
 
 	extern DetourHook<TraceIPC_t> TraceIPC;
 	extern DetourHook<IClientRemoteStorage_IsCloudEnabledForApp_t> IClientRemoteStorage_IsCloudEnabledForApp;
+	extern DetourHook<IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp_t> IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp;
+	extern DetourHook<IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp_t> IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp;
+	extern DetourHook<IClientRemoteStorage_EvaluateRemoteStorageSyncState_t> IClientRemoteStorage_EvaluateRemoteStorageSyncState;
+	extern DetourHook<IClientRemoteStorage_GetLastKnownSyncState_t> IClientRemoteStorage_GetLastKnownSyncState;
+	extern DetourHook<IClientRemoteStorage_GetRemoteStorageSyncState_t> IClientRemoteStorage_GetRemoteStorageSyncState;
+	extern DetourHook<IClientRemoteStorage_HaveLatestFilesLocally_t> IClientRemoteStorage_HaveLatestFilesLocally;
+	extern DetourHook<IClientRemoteStorage_SynchronizeApp_t> IClientRemoteStorage_SynchronizeApp;
+	extern DetourHook<IClientRemoteStorage_RunAutoCloudOnAppLaunch_t> IClientRemoteStorage_RunAutoCloudOnAppLaunch;
+	extern DetourHook<IClientRemoteStorage_RunAutoCloudOnAppExit_t> IClientRemoteStorage_RunAutoCloudOnAppExit;
+	extern DetourHook<IClientRemoteStorage_PerformAppPlatformChangeFileBackup_t> IClientRemoteStorage_PerformAppPlatformChangeFileBackup;
+	extern DetourHook<IClientRemoteStorage_PerformAppPlatformChangeFileRestore_t> IClientRemoteStorage_PerformAppPlatformChangeFileRestore;
+	extern DetourHook<IClientRemoteStorage_ResolveSyncConflict_t> IClientRemoteStorage_ResolveSyncConflict;
+	extern DetourHook<IClientRemoteStorage_IsAppSyncInProgress_t> IClientRemoteStorage_IsAppSyncInProgress;
+	extern DetourHook<IClientRemoteStorage_BIsFileSyncing_t> IClientRemoteStorage_BIsFileSyncing;
+	extern DetourHook<IClientRemoteStorage_LoadLocalFileInfoCache_t> IClientRemoteStorage_LoadLocalFileInfoCache;
+	extern DetourHook<IClientRemoteStorage_InitializeUGCQuotaUsage_t> IClientRemoteStorage_InitializeUGCQuotaUsage;
+	extern DetourHook<IClientRemoteStorage_GetConflictingFileTimestamps_t> IClientRemoteStorage_GetConflictingFileTimestamps;
+	extern DetourHook<IClientRemoteStorage_GetPendingRemoteOperationInfo_t> IClientRemoteStorage_GetPendingRemoteOperationInfo;
+	extern DetourHook<IClientRemoteStorage_ResetFileRequestState_t> IClientRemoteStorage_ResetFileRequestState;
+	extern DetourHook<CUserRemoteStorage_InternalGetSyncState_t> CUserRemoteStorage_InternalGetSyncState;
+	extern DetourHook<CClientJobRemoteStorageSync_BYieldingRunJob_t> CClientJobRemoteStorageSync_BYieldingRunJob;
 
 	extern DetourHook<IClientApps_RunIPCFrame_t> IClientApps_RunIPCFrame;
 	extern DetourHook<IClientRemoteStorage_RunIPCFrame_t> IClientRemoteStorage_RunIPCFrame;
@@ -154,7 +196,6 @@ namespace Hooks
 
 	extern DetourHook<IClientFriends_GetFriendGamePlayed_t> IClientFriends_GetFriendGamePlayed;
 
-	extern DetourHook<IClientRemoteStorage_IsCloudEnabledForApp_t> IClientRemoteStorage_IsCloudEnabledForApp;
 
 	typedef unsigned int(*IClientApps_GetDLCCount_t)(IClientApps*, AppId_t);
 	typedef bool(*IClientApps_GetDLCDataByIndex_t)(IClientApps*, AppId_t, int, AppId_t*, bool*, char*, size_t);
