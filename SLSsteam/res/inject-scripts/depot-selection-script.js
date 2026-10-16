@@ -369,18 +369,23 @@
                     osBadge = buildOsBadge(depot.os);
                 }
 
+                var hasKey = (depot.hasKey !== false);
+                var keyBadge = hasKey ? '' : ' <span class="sls-os-badge" style="background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.25);">No Key</span>';
+
                 var dOs = (depot.os || '').toLowerCase();
                 var shouldCheck = false;
-                if (hasLinuxDepot) {
-                    shouldCheck = (!dOs || dOs.indexOf('linux') !== -1);
-                } else {
-                    shouldCheck = (!dOs || dOs.indexOf('windows') !== -1);
+                if (hasKey) {
+                    if (hasLinuxDepot) {
+                        shouldCheck = (!dOs || dOs.indexOf('linux') !== -1);
+                    } else {
+                        shouldCheck = (!dOs || dOs.indexOf('windows') !== -1);
+                    }
                 }
                 
-                html += '<label class="sls-depot-item">' +
-                    '<input type="checkbox" class="sls-depot-checkbox" value="' + depot.id + '"' + (depot.os ? ' data-os="' + depot.os + '"' : '') + (shouldCheck ? ' checked' : '') + '>' +
+                html += '<label class="sls-depot-item"' + (!hasKey ? ' style="opacity:0.5;cursor:not-allowed;" title="Cannot download: No AES decryption key available"' : '') + '>' +
+                    '<input type="checkbox" class="sls-depot-checkbox" value="' + depot.id + '"' + (!hasKey ? ' disabled' : '') + (depot.os ? ' data-os="' + depot.os + '"' : '') + (shouldCheck ? ' checked' : '') + '>' +
                     '<div class="sls-depot-info">' +
-                        '<div class="sls-depot-name">' + displayName + osBadge + '</div>' +
+                        '<div class="sls-depot-name">' + displayName + osBadge + keyBadge + '</div>' +
                         '<div class="sls-depot-meta">' +
                             '<span>ID: ' + depot.id + '</span>' +
                             '<span>' + sizeStr + '</span>' +

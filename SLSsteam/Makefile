@@ -87,19 +87,41 @@ TEST_NATIVE_OBJS := \
 	obj/$(FLAGSSHA)/sdk/CNetPacket.o \
 	obj/$(FLAGSSHA)/sdk/steam.o \
 	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_base.pb.o \
-	obj/$(FLAGSSHA)/CppAccela/accelapath.o
+	obj/$(FLAGSSHA)/CppAccela/accelapath.o \
+	obj/$(FLAGSSHA)/CppAccela/accelazip.o
 
 obj/$(FLAGSSHA)/tests/%.o: tests/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+
+TEST_KEY_FIRST_OBJS := \
+	obj/$(FLAGSSHA)/tests/test_key_first.o \
+	obj/$(FLAGSSHA)/feats/depotkeys.o \
+	obj/$(FLAGSSHA)/feats/luagenerator.o \
+	obj/$(FLAGSSHA)/sdk/binarykv.o \
+	obj/$(FLAGSSHA)/sdk/CNetPacket.o \
+	obj/$(FLAGSSHA)/sdk/steam.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_base.pb.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_clientserver_2.pb.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_clientserver.pb.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/enums.pb.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/enums_clientserver.pb.o \
+	obj/$(FLAGSSHA)/sdk/protobufs/encrypted_app_ticket.pb.o \
+	obj/$(FLAGSSHA)/CppAccela/accelapath.o
 
 bin/test_native_install: $(TEST_NATIVE_OBJS)
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
 	chmod 755 $@
 
-test: bin/test_native_install
+bin/test_key_first: $(TEST_KEY_FIRST_OBJS)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
+	chmod 755 $@
+
+test: bin/test_native_install bin/test_key_first
 	./bin/test_native_install
+	./bin/test_key_first
 
 test-flow:
 	python3 ../tests/test_steam_ui_flow.py

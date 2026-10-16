@@ -973,12 +973,15 @@ namespace StoreInject
                                         }
                                     }
 
-                                    if (luaExists && !isUnlocked) {
+                                    bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
+                                    if (luaExists && !isUnlocked && (locallyOwned || DepotKeys::isAccelaApp(appId))) {
                                         g_config.addAdditionalAppId(appId);
                                         isUnlocked = true;
                                     }
 
-                                    bool exists = (isUnlocked || luaExists) && (gameExists || luaExists);
+                                    // Only report exists as true if the game files actually exist on disk.
+                                    // Merely having a Lua plugin without game content should not mark the game as Downloaded.
+                                    bool exists = gameExists;
                                     bool pending = g_pendingRestartApps.count(appId) > 0;
                                     bool downloading = CppAccela::Download::isPending(appId);
                                     // Also treat as downloading if the progress JSON exists with a
@@ -1063,19 +1066,52 @@ namespace StoreInject
                                     if (std::filesystem::exists(luaPath)) {
                                         auto parseResult = CppAccela::LuaParser::parseFile(luaPath.string());
                                         if (parseResult.valid) {
+                                            std::map<std::string, CppAccela::LuaParser::DepotInfo> allDepots;
+                                            for (auto& [depotId, info] : parseResult.depots) {
+                                                allDepots[depotId] = info;
+                                            }
+                                            for (auto& [depotId, gid] : parseResult.manifests) {
+                                                if (allDepots.find(depotId) == allDepots.end()) {
+                                                    CppAccela::LuaParser::DepotInfo info;
+                                                    info.depotId = depotId;
+                                                    info.manifestGid = gid;
+                                                    auto szIt = parseResult.manifestSizes.find(depotId);
+                                                    if (szIt != parseResult.manifestSizes.end()) {
+                                                        info.sizeBytes = szIt->second;
+                                                    }
+                                                    allDepots[depotId] = info;
+                                                }
+                                            }
+
                                             std::string depotsJson = "[";
                                             bool first = true;
-                                            for (auto& [depotId, info] : parseResult.depots) {
+                                            size_t validKeysCount = 0;
+                                            for (auto& [depotId, info] : allDepots) {
+                                                uint32_t dId = 0;
+                                                try { dId = std::stoul(depotId); } catch (...) {}
+                                                std::string key = info.key;
+                                                if (key.empty() && dId > 0) {
+                                                    key = DepotKeys::getDepotKey(dId);
+                                                }
+                                                bool hasKey = (key.size() == 64);
+                                                if (hasKey) validKeysCount++;
+
                                                 std::string desc = info.description.empty() ? ("Depot " + depotId) : info.description;
                                                 std::string sz = info.sizeBytes;
                                                 std::string depotOs = "";
 
                                                 if (!first) depotsJson += ",";
-                                                depotsJson += "{\"id\":\"" + depotId + "\",\"name\":\"" + desc + "\",\"size\":\"" + sz + "\",\"os\":\"" + depotOs + "\"}";
+                                                depotsJson += "{\"id\":\"" + depotId + "\",\"name\":\"" + desc + "\",\"size\":\"" + sz + "\",\"os\":\"" + depotOs + "\",\"hasKey\":" + (hasKey ? "true" : "false") + "}";
                                                 first = false;
                                             }
                                             depotsJson += "]";
-                                            respBody = "{\"success\":true,\"depots\":" + depotsJson + "}";
+
+                                            bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
+                                            if (!locallyOwned && validKeysCount == 0) {
+                                                respBody = "{\"success\":false,\"message\":\"No AES decryption keys available for this app. Cannot download.\"}";
+                                            } else {
+                                                respBody = "{\"success\":true,\"depots\":" + depotsJson + "}";
+                                            }
                                         } else {
                                             respBody = "{\"success\":false,\"message\":\"Invalid Lua plugin file\"}";
                                         }
@@ -1130,7 +1166,7 @@ namespace StoreInject
 
                                     std::string respBody = started
                                         ? ("{\"success\":true,\"mode\":\"" + mode + "\"}")
-                                        : "{\"success\":false,\"message\":\"Could not start cached install\"}";
+                                        : "{\"success\":false,\"message\":\"Could not start install (no decryption keys available)\"}";
                                     std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
                                     send(new_socket, response.c_str(), response.size(), 0);
                                     close(new_socket);

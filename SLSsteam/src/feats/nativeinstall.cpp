@@ -1,6 +1,7 @@
 #include "nativeinstall.hpp"
 #include "manifestcode.hpp"
 #include "depotkeys.hpp"
+#include "luagenerator.hpp"
 #include "../log.hpp"
 #include "../config.hpp"
 #include "../atomic_file.hpp"
@@ -184,6 +185,12 @@ namespace NativeInstall
             LOG_INFO("NativeInstall: arming appId=%u with %zu depots: %s\n",
                      appId, sel.depots.size(), csvDepots.c_str());
 
+            // If app has keys in depot_keys.yaml, ensure Lua plugin is generated/fresh
+            if (DepotKeys::hasKeysForApp(appId))
+            {
+                LuaGenerator::generateForApp(appId);
+            }
+
             // Parse Lua plugin to collect manifest GIDs and sizes
             std::string luaPath = CppAccela::Path::stplugDir() + "/" + std::to_string(appId) + ".lua";
             if (std::filesystem::exists(luaPath))
@@ -228,6 +235,32 @@ namespace NativeInstall
 
             // Rescan depot keys from Lua files
             DepotKeys::scanLuaPluginsForDepotKeys();
+
+            // Guard: For unowned apps, bail if any selected depot has no decryption key
+            bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
+            if (!locallyOwned)
+            {
+                std::unordered_set<uint32_t> validDepots;
+                for (uint32_t depotId : sel.depots)
+                {
+                    std::string key = DepotKeys::getDepotKey(depotId);
+                    if (!key.empty())
+                    {
+                        validDepots.insert(depotId);
+                    }
+                    else
+                    {
+                        LOG_WARN("NativeInstall: Depot %u for app %u has no decryption key (skipping)\n", depotId, appId);
+                    }
+                }
+                sel.depots = std::move(validDepots);
+
+                if (sel.depots.empty())
+                {
+                    LOG_WARN("NativeInstall: BAIL! No depots with decryption keys available for unowned app %u, aborting install\n", appId);
+                    return false;
+                }
+            }
 
             // Phase 0: Pre-cache local manifests
             for (uint32_t depotId : sel.depots)

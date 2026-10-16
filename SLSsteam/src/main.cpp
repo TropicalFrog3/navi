@@ -173,6 +173,7 @@ static void setup()
 		return;
 	}
 
+	DepotKeys::loadDepotKeysYaml();
 	scanLuaPluginsAndUpdateConfig();
 	DepotKeys::scanLuaPluginsForDepotKeys();
 

@@ -6,6 +6,7 @@
 #include "../src/CppAccela/acceladownload.hpp"
 #include "../src/CppAccela/accelaluaparser.hpp"
 #include "../src/CppAccela/accelapath.hpp"
+#include "../src/CppAccela/accelazip.hpp"
 #include "../src/feats/depotkeys.hpp"
 #include <cassert>
 #include <filesystem>
@@ -46,12 +47,21 @@ std::string CConfig::getDir() const
     return std::string(h ? h : "/tmp") + "/.config/SLSsteam";
 }
 
+CSteamEngine* g_pSteamEngine = nullptr;
+
 namespace CppAccela::LuaParser {
     ParseResult parseFile(const std::string&) { return {}; }
 }
 
 namespace DepotKeys {
     void scanLuaPluginsForDepotKeys() {}
+    void loadDepotKeysYaml() {}
+    bool hasKeysForApp(uint32_t) { return false; }
+    std::string getDepotKey(uint32_t) { return "1122334455667788990011223344556677889900112233445566778899001122"; }
+}
+
+namespace LuaGenerator {
+    bool generateForApp(uint32_t) { return false; }
 }
 
 namespace CppAccela::Download {
@@ -431,6 +441,103 @@ static void testCrossPlatformDepotGuardSimulation()
     std::cout << "  - Cross-platform depot guard verified successfully.\n";
 }
 
+static void testZipAssemblyAndCacheExtraction()
+{
+    std::cout << "[TEST] Testing Zip assembly and cache extraction across provider formats...\n";
+
+    std::filesystem::path tempDir = std::filesystem::temp_directory_path() / "sls_zip_test";
+    std::filesystem::create_directories(tempDir);
+
+    // Scenario A: Lua-only ZIP (e.g. wudrm / OpenSteamTool / raw Lua)
+    {
+        std::string luaPath = (tempDir / "480.lua").string();
+        {
+            std::ofstream f(luaPath);
+            f << "addappid(480)\nsetManifestid(480, \"1234567890\")\n";
+        }
+
+        std::string provPath = (tempDir / "480.provider").string();
+        {
+            std::ofstream f(provPath);
+            f << "wudrm\n";
+        }
+
+        std::string zipPath = (tempDir / "480.zip").string();
+
+        // Assemble with empty manifestPaths
+        bool assembled = CppAccela::Zip::assemble(zipPath, luaPath, {}, provPath);
+        assert(assembled && "assemble must succeed with empty manifest list (Lua-only)");
+
+        assert(CppAccela::Zip::isValid(zipPath) && "Generated zip must be valid");
+
+        // Extract to a separate directory
+        std::string extractDir = (tempDir / "480_extracted").string();
+        bool extracted = CppAccela::Zip::extract(zipPath, extractDir);
+        assert(extracted && "extract must succeed on generated zip");
+
+        auto files = CppAccela::Zip::findFiles(extractDir, "480");
+        assert(!files.luaFile.empty() && "findFiles must locate 480.lua");
+        assert(!files.providerFile.empty() && "findFiles must locate 480.provider");
+        assert(files.manifestFiles.empty() && "manifestFiles must be empty for Lua-only zip");
+
+        // Verify provider content
+        std::ifstream pf(files.providerFile);
+        std::string provContent;
+        std::getline(pf, provContent);
+        assert(provContent == "wudrm" && "Provider content must be wudrm");
+    }
+
+    // Scenario B: Lua + Manifests ZIP (e.g. steamrun / DepotBox)
+    {
+        std::string luaPath = (tempDir / "1000.lua").string();
+        {
+            std::ofstream f(luaPath);
+            f << "addappid(1000)\nsetManifestid(1001, \"11111\")\nsetManifestid(1002, \"22222\")\n";
+        }
+
+        std::string provPath = (tempDir / "1000.provider").string();
+        {
+            std::ofstream f(provPath);
+            f << "steamrun\n";
+        }
+
+        std::string m1 = (tempDir / "1001_11111.manifest").string();
+        {
+            std::ofstream f(m1);
+            f << "BINARY_DEPOT_MANIFEST_1";
+        }
+        std::string m2 = (tempDir / "1002_22222.manifest").string();
+        {
+            std::ofstream f(m2);
+            f << "BINARY_DEPOT_MANIFEST_2";
+        }
+
+        std::string zipPath = (tempDir / "1000.zip").string();
+
+        bool assembled = CppAccela::Zip::assemble(zipPath, luaPath, { m1, m2 }, provPath);
+        assert(assembled && "assemble must succeed with manifest list");
+        assert(CppAccela::Zip::isValid(zipPath) && "Generated steamrun zip must be valid");
+
+        std::string extractDir = (tempDir / "1000_extracted").string();
+        bool extracted = CppAccela::Zip::extract(zipPath, extractDir);
+        assert(extracted && "extract must succeed on steamrun zip");
+
+        auto files = CppAccela::Zip::findFiles(extractDir, "1000");
+        assert(!files.luaFile.empty() && "findFiles must locate 1000.lua");
+        assert(!files.providerFile.empty() && "findFiles must locate 1000.provider");
+        assert(files.manifestFiles.size() == 2 && "manifestFiles must contain both manifests");
+
+        std::ifstream pf(files.providerFile);
+        std::string provContent;
+        std::getline(pf, provContent);
+        assert(provContent == "steamrun" && "Provider content must be steamrun");
+    }
+
+    // Clean up
+    std::filesystem::remove_all(tempDir);
+    std::cout << "  - Universal Zip assembly and extraction verified successfully.\n";
+}
+
 int main()
 {
     std::cout << "========================================\n";
@@ -443,6 +550,7 @@ int main()
     testProviderSidecarFormatAndEscaping();
     testRemoveLuaPatternScanning();
     testCrossPlatformDepotGuardSimulation();
+    testZipAssemblyAndCacheExtraction();
 
     std::cout << "\n[ALL TESTS PASSED SUCCESSFULLY!]\n";
     return 0;

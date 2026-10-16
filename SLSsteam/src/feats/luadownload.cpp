@@ -259,6 +259,40 @@ namespace LuaDownload
         return CppAccela::Zip::findFiles(extractDir, appId);
     }
 
+    // ── Key validation helper ──────────────────────────────────────────
+
+    static bool hasUsableKeys(uint32_t appId, const CppAccela::LuaParser::ParseResult& luaData)
+    {
+        if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId))
+        {
+            return true; // Owned on Steam, Steam fetches depot keys directly
+        }
+
+        DepotKeys::loadDepotKeysYaml();
+
+        // Check if any depot in luaData has a valid 64-hex key
+        for (const auto& [depotIdStr, info] : luaData.depots)
+        {
+            if (info.key.size() == 64) return true;
+            uint32_t dId = 0;
+            try { dId = static_cast<uint32_t>(std::stoul(depotIdStr)); } catch (...) {}
+            if (dId > 0 && DepotKeys::getDepotKey(dId).size() == 64) return true;
+        }
+
+        // Also check manifests in case depots weren't in addappid
+        for (const auto& [depotIdStr, _] : luaData.manifests)
+        {
+            uint32_t dId = 0;
+            try { dId = static_cast<uint32_t>(std::stoul(depotIdStr)); } catch (...) {}
+            if (dId > 0 && DepotKeys::getDepotKey(dId).size() == 64) return true;
+        }
+
+        // Also check if depot_keys.yaml has any keys registered for this app
+        if (DepotKeys::hasKeysForApp(appId)) return true;
+
+        return false;
+    }
+
     // ── Main download & install ────────────────────────────────────────
 
     bool downloadAndInstall(const std::string& appId, int providerIndex,
@@ -267,6 +301,9 @@ namespace LuaDownload
     {
         LOG_INFO("LuaDownload: Starting download for appid=%s\n", appId.c_str());
         pushStatus(appId, "Checking APIs...");
+
+        uint32_t targetAppId = 0;
+        try { targetAppId = static_cast<uint32_t>(std::stoul(appId)); } catch (...) {}
 
         // Find Steam root
         std::string steamRoot = findSteamRoot();
@@ -293,19 +330,8 @@ namespace LuaDownload
         std::string existingLua = stplugDir + "/" + appId + ".lua";
         if (std::filesystem::exists(existingLua))
         {
-            // Verify the lua actually contains addappid(<appId>) — a lua from a
-            // previous partial/mismatched install won't, and the config scanner
-            // will mark it stale.  If it's bad, delete it and re-download.
-            bool luaValid = false;
-            {
-                std::ifstream luaFile(existingLua);
-                if (luaFile.is_open())
-                {
-                    std::string content((std::istreambuf_iterator<char>(luaFile)),
-                                         std::istreambuf_iterator<char>());
-                    luaValid = content.find("addappid(" + appId + ")") != std::string::npos;
-                }
-            }
+            auto existingData = CppAccela::LuaParser::parseFile(existingLua);
+            bool luaValid = existingData.valid && !existingData.manifests.empty() && hasUsableKeys(targetAppId, existingData);
 
             if (forceDownload)
             {
@@ -316,12 +342,12 @@ namespace LuaDownload
             {
                 if (luaValid)
                 {
-                    LOG_INFO("LuaDownload: Lua script already exists for appid=%s, skipping\n", appId.c_str());
+                    LOG_INFO("LuaDownload: Lua script already exists and valid for appid=%s, skipping\n", appId.c_str());
                     pushStatus(appId, "Already installed", "hue-rotate(110deg) brightness(1.2)");
                     return true;
                 }
 
-                LOG_INFO("LuaDownload: Existing lua for appid=%s is invalid/mismatched, re-downloading\n", appId.c_str());
+                LOG_INFO("LuaDownload: Existing lua for appid=%s is invalid or lacks decryption keys, re-downloading\n", appId.c_str());
                 std::filesystem::remove(existingLua);
             }
         }
@@ -334,6 +360,7 @@ namespace LuaDownload
         std::string extractDir = tempDir + "/" + appId + "_extracted";
 
         bool downloaded = false;
+        bool missingKeysDetected = false;
         std::string successApi;
 
         // Check if zip is already cached
@@ -441,10 +468,34 @@ namespace LuaDownload
                     auto luaData = CppAccela::LuaParser::parseFile(zipPath);
                     if (luaData.valid && !luaData.manifests.empty())
                     {
+                        if (!hasUsableKeys(targetAppId, luaData))
+                        {
+                            LOG_INFO("LuaDownload: API '%s' returned raw Lua without decryption keys for unowned app %s\n", api.name, appId.c_str());
+                            missingKeysDetected = true;
+                            std::filesystem::remove(zipPath);
+                            continue;
+                        }
+
                         LOG_INFO("LuaDownload: API '%s' returned a raw Lua script for appid=%s\n", api.name, appId.c_str());
                         std::filesystem::create_directories(extractDir);
                         std::string targetLuaPath = extractDir + "/" + appId + ".lua";
                         std::filesystem::rename(zipPath, targetLuaPath);
+
+                        // Save provider sidecar
+                        std::string provSidecar = extractDir + "/" + appId + ".provider";
+                        AtomicFile::write(provSidecar, api.name);
+
+                        // Package into a valid zip archive at zipPath so it is cached
+                        if (CppAccela::Zip::assemble(zipPath, targetLuaPath, {}, provSidecar))
+                        {
+                            LOG_INFO("LuaDownload: Assembled cached zip for raw Lua appid=%s at %s\n",
+                                     appId.c_str(), zipPath.c_str());
+                        }
+                        else
+                        {
+                            LOG_WARN("LuaDownload: Failed to assemble cached zip for raw Lua appid=%s\n",
+                                     appId.c_str());
+                        }
 
                         downloaded = true;
                         successApi = api.name;
@@ -501,6 +552,42 @@ namespace LuaDownload
 
                         if (!depotEntries.empty())
                         {
+                            bool steamrunKeysOk = false;
+                            if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(targetAppId))
+                            {
+                                steamrunKeysOk = true;
+                            }
+                            else
+                            {
+                                DepotKeys::loadDepotKeysYaml();
+                                if (DepotKeys::hasKeysForApp(targetAppId))
+                                {
+                                    steamrunKeysOk = true;
+                                }
+                                else
+                                {
+                                    for (const auto& d : depotEntries)
+                                    {
+                                        uint32_t dId = 0;
+                                        try { dId = static_cast<uint32_t>(std::stoul(d.depotId)); } catch (...) {}
+                                        if (dId > 0 && DepotKeys::getDepotKey(dId).size() == 64)
+                                        {
+                                            steamrunKeysOk = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (!steamrunKeysOk)
+                            {
+                                LOG_INFO("LuaDownload: API '%s' provides manifests without decryption keys for unowned app %s\n",
+                                         api.name, appId.c_str());
+                                missingKeysDetected = true;
+                                std::filesystem::remove(zipPath);
+                                continue;
+                            }
+
                             LOG_INFO("LuaDownload: API '%s' returned %zu depot(s) for appid=%s\n",
                                      api.name, depotEntries.size(), appId.c_str());
                             std::filesystem::create_directories(extractDir);
@@ -524,6 +611,7 @@ namespace LuaDownload
                                 luaOut.close();
                             }
 
+                            std::vector<std::string> manifestPaths;
                             // Download binary manifests for each depot from steamrun
                             for (const auto& d : depotEntries)
                             {
@@ -536,6 +624,7 @@ namespace LuaDownload
                                 {
                                     LOG_INFO("LuaDownload: Downloaded manifest for depot %s -> %s\n",
                                              d.depotId.c_str(), manifestFile.c_str());
+                                    manifestPaths.push_back(manifestFile);
                                 }
                                 else
                                 {
@@ -544,7 +633,23 @@ namespace LuaDownload
                                 }
                             }
 
+                            // Save provider sidecar
+                            std::string provSidecar = extractDir + "/" + appId + ".provider";
+                            AtomicFile::write(provSidecar, api.name);
+
+                            // Package into a valid zip archive at zipPath so it is cached
                             std::filesystem::remove(zipPath);
+                            if (CppAccela::Zip::assemble(zipPath, synthLuaPath, manifestPaths, provSidecar))
+                            {
+                                LOG_INFO("LuaDownload: Assembled cached zip for steamrun appid=%s at %s (%zu manifests)\n",
+                                         appId.c_str(), zipPath.c_str(), manifestPaths.size());
+                            }
+                            else
+                            {
+                                LOG_WARN("LuaDownload: Failed to assemble cached zip for steamrun appid=%s\n",
+                                         appId.c_str());
+                            }
+
                             downloaded = true;
                             successApi = api.name;
                             break;
@@ -563,6 +668,30 @@ namespace LuaDownload
                     bool isNumeric = !trimmed.empty() && std::all_of(trimmed.begin(), trimmed.end(), ::isdigit);
                     if (isNumeric && trimmed.length() > 5 && trimmed != "0")
                     {
+                        bool wudrmKeysOk = false;
+                        if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(targetAppId))
+                        {
+                            wudrmKeysOk = true;
+                        }
+                        else
+                        {
+                            DepotKeys::loadDepotKeysYaml();
+                            uint32_t dId = targetAppId;
+                            if (DepotKeys::hasKeysForApp(targetAppId) || DepotKeys::getDepotKey(dId).size() == 64)
+                            {
+                                wudrmKeysOk = true;
+                            }
+                        }
+
+                        if (!wudrmKeysOk)
+                        {
+                            LOG_INFO("LuaDownload: API '%s' provides manifests without decryption keys for unowned app %s\n",
+                                     api.name, appId.c_str());
+                            missingKeysDetected = true;
+                            std::filesystem::remove(zipPath);
+                            continue;
+                        }
+
                         LOG_INFO("LuaDownload: API '%s' returned a plain-text manifest ID: %s\n",
                                  api.name, trimmed.c_str());
                         std::filesystem::create_directories(extractDir);
@@ -574,7 +703,23 @@ namespace LuaDownload
                             luaOut << "setManifestid(" << appId << ", \"" << trimmed << "\")\n";
                             luaOut.close();
 
+                            // Save provider sidecar
+                            std::string provSidecar = extractDir + "/" + appId + ".provider";
+                            AtomicFile::write(provSidecar, api.name);
+
+                            // Package into a valid zip archive at zipPath so it is cached
                             std::filesystem::remove(zipPath);
+                            if (CppAccela::Zip::assemble(zipPath, synthLuaPath, {}, provSidecar))
+                            {
+                                LOG_INFO("LuaDownload: Assembled cached zip for %s appid=%s at %s\n",
+                                         api.name, appId.c_str(), zipPath.c_str());
+                            }
+                            else
+                            {
+                                LOG_WARN("LuaDownload: Failed to assemble cached zip for %s appid=%s\n",
+                                         api.name, appId.c_str());
+                            }
+
                             downloaded = true;
                             successApi = api.name;
                             break;
@@ -595,8 +740,15 @@ namespace LuaDownload
 
         if (!downloaded)
         {
-            LOG_INFO("LuaDownload: No API had the game for appid=%s\n", appId.c_str());
-            pushStatus(appId, "Not available", "hue-rotate(0deg) brightness(1.0)");
+            LOG_INFO("LuaDownload: No API had the game or usable decryption keys for appid=%s\n", appId.c_str());
+            if (missingKeysDetected)
+            {
+                pushStatus(appId, "No decryption key", "hue-rotate(0deg) brightness(1.0)");
+            }
+            else
+            {
+                pushStatus(appId, "Not available", "hue-rotate(0deg) brightness(1.0)");
+            }
             return false;
         }
 
@@ -664,7 +816,7 @@ namespace LuaDownload
         LOG_INFO("LuaDownload: Found lua: %s, manifests: %zu\n",
                       files.luaFile.c_str(), files.manifestFiles.size());
 
-        // Validate the Lua file — must have at least one manifest
+        // Validate the Lua file — must have at least one manifest, and for unowned apps, must have decryption key(s)
         {
             auto luaData = CppAccela::LuaParser::parseFile(files.luaFile);
             if (!luaData.valid || luaData.manifests.empty())
@@ -674,6 +826,16 @@ namespace LuaDownload
                 std::filesystem::remove_all(extractDir);
                 std::filesystem::remove(zipPath);
                 pushStatus(appId, "Invalid Lua (no manifests)", "hue-rotate(0deg) brightness(1.0)");
+                return false;
+            }
+
+            if (!hasUsableKeys(targetAppId, luaData))
+            {
+                LOG_WARN("LuaDownload: BAIL! No decryption key available for app %s depots (via %s) — cannot decrypt\n",
+                         appId.c_str(), successApi.c_str());
+                std::filesystem::remove_all(extractDir);
+                std::filesystem::remove(zipPath);
+                pushStatus(appId, "No decryption key", "hue-rotate(0deg) brightness(1.0)");
                 return false;
             }
         }
@@ -733,9 +895,30 @@ namespace LuaDownload
         // Save provider name to a sidecar file so the UI can show it
         {
             std::string providerPath = stplugDir + "/" + appId + ".provider";
-            if (AtomicFile::write(providerPath, successApi))
+            std::string provNameToSave = successApi;
+            if (provNameToSave == "Cache")
             {
-                LOG_DEBUG("LuaDownload: Saved provider info -> %s\n", providerPath.c_str());
+                if (!files.providerFile.empty() && std::filesystem::exists(files.providerFile))
+                {
+                    std::ifstream pIn(files.providerFile);
+                    std::string line;
+                    if (std::getline(pIn, line) && !line.empty())
+                    {
+                        provNameToSave = line;
+                    }
+                }
+                else if (std::filesystem::exists(providerPath))
+                {
+                    // Keep existing provider attribution
+                    provNameToSave.clear();
+                }
+            }
+            if (!provNameToSave.empty())
+            {
+                if (AtomicFile::write(providerPath, provNameToSave))
+                {
+                    LOG_DEBUG("LuaDownload: Saved provider info -> %s\n", providerPath.c_str());
+                }
             }
         }
 

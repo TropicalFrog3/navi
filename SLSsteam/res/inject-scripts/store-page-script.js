@@ -232,7 +232,7 @@
         { match: /installing/i,  pct: 82 },
         { match: /installed/i,   pct: 100 },
     ];
-    var SLS_FAIL_TEXTS = /not available|failed|not found|steam not|no api/i;
+    var SLS_FAIL_TEXTS = /not available|failed|not found|steam not|no api|no decryption key|missing decryption key/i;
 
     function injectLoadingBarStyles() {
         if (document.getElementById('sls-bar-style')) return;

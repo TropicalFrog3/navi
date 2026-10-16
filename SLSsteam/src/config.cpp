@@ -103,13 +103,14 @@ static void onFileChange(const char* filename)
 	if (filename)
 	{
 		std::string s(filename);
-		if (!s.ends_with(".lua") && !s.ends_with(".manifest") && s != "config.yaml")
+		if (!s.ends_with(".lua") && !s.ends_with(".manifest") && s != "config.yaml" && s != "depot_keys.yaml")
 		{
 			return;
 		}
 		LOG_DEBUG("onFileChange triggered by %s\n", filename);
 	}
 
+	DepotKeys::loadDepotKeysYaml();
 	g_config.loadSettings();
 	scanLuaPluginsAndUpdateConfig();
 	DepotKeys::scanLuaPluginsForDepotKeys();
@@ -947,6 +948,12 @@ void scanLuaPluginsAndUpdateConfig()
 				// Not a valid AppID filename, ignore
 			}
 		}
+	}
+
+	// Also include any AppIDs configured in depot_keys.yaml
+	for (const uint32_t appId : DepotKeys::getAllAppIdsWithKeys())
+	{
+		collectedAppIds.emplace(appId);
 	}
 
 	// 5. For each collected AppID: if not already in addedAppIds, add it

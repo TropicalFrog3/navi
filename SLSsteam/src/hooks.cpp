@@ -16,6 +16,7 @@
 #include "patterns.hpp"
 #include "vftableinfo.hpp"
 #include "feats/depotkeys.hpp"
+#include "feats/luagenerator.hpp"
 #include "libmem/libmem.h"
 #include "CppAccela/acceladownload.hpp"
 #include "feats/cdpinject.hpp"
@@ -199,8 +200,6 @@ static int32_t hkClientApps_GetAppData(void* pClientApps, uint32_t appId, const 
 // Hook for getAppDataSection (VFT[5]) - intercepts bulk VDF section queries
 static uint32_t hkClientApps_GetAppDataSection(void* pClientApps, uint32_t appId, int section, char* pChOut, uint32_t outSize)
 {
-
-
     uint32_t ret = Hooks::IClientApps_GetAppDataSection.originalFn.fn(pClientApps, appId, section, pChOut, outSize);
     
     if (ret > 0 && pChOut && (section == 2 || section == 4))
@@ -212,6 +211,11 @@ static uint32_t hkClientApps_GetAppDataSection(void* pClientApps, uint32_t appId
             fwrite(pChOut, 1, ret, f);
             fclose(f);
         }
+    }
+
+    if (ret > 0 && section == 7 /* k_EAppInfoSectionDepots */ && DepotKeys::hasKeysForApp(appId))
+    {
+        LuaGenerator::generateForApp(appId);
     }
     
     return ret;
@@ -1234,6 +1238,8 @@ static void hkClientApps_RunIPCFrame(void* pClientApps, void* a1, void* a2, void
 
 		// Pre-fetch sizes for all unlocked games in a background thread
 		std::thread([]() {
+			LuaGenerator::syncAllAppsWithKeys();
+
 			auto apps = g_config.addedAppIds.get();
 			for (auto appId : apps) {
 				FetchAppSizeThread(appId);
@@ -1915,6 +1921,14 @@ static void __attribute__((regparm(3))) hkCSteamUIAppController_FillInAppOvervie
 			// If previously injected but now removed, clear artificial ownership
 			pApp->OwnershipFlags &= ~k_EAppOwnershipFlags_OwnsLicense;
 			pApp->PurchasedTime = 0;
+		}
+
+		// If Steam marked the app as installed, but no actual game files exist on disk
+		// (e.g. manifest decryption failed or 0 depots mounted), clear the installed bit
+		if ((pApp->AppStateFlags & 4) && !Apps::gameFilesExist(pApp->nAppID))
+		{
+			pApp->AppStateFlags &= ~4;
+			pApp->AppStateFlags |= 1;
 		}
 	}
 	Hooks::CSteamUIAppController_FillInAppOverview.tramp.fn(pThis, pAppOverview, pApp);

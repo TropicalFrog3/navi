@@ -26,17 +26,19 @@ namespace CppAccela::Zip
 
     /**
      * Assemble a flat ZIP (no compression, no path stripping) at `zipPath`
-     * containing `luaPath` and every file listed in `manifestPaths`.
+     * containing `luaPath` and every file listed in `manifestPaths` (if any).
+     * Optionally includes `providerPath` (sidecar metadata) if non-empty and exists.
      *
      * Equivalent to:
-     *   zip -j -0 <zipPath> <luaPath> <manifestPaths...>
+     *   zip -j -0 <zipPath> <luaPath> [manifestPaths...] [providerPath]
      *
      * Returns true on success.
      * On failure the partially-written zip is removed.
      */
     bool assemble(const std::string& zipPath,
                   const std::string& luaPath,
-                  const std::vector<std::string>& manifestPaths);
+                  const std::vector<std::string>& manifestPaths = {},
+                  const std::string& providerPath = "");
 
     /**
      * Extract `zipPath` into `destDir` (created if absent).
@@ -54,6 +56,7 @@ namespace CppAccela::Zip
     struct ExtractedFiles
     {
         std::string              luaFile;       ///< Full path to <appid>.lua
+        std::string              providerFile;  ///< Full path to <appid>.provider (if found)
         std::vector<std::string> manifestFiles; ///< Full paths to every *.manifest
     };
 

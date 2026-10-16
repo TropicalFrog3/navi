@@ -1,4 +1,5 @@
 #include "depotkeys.hpp"
+#include "luagenerator.hpp"
 
 #include "../config.hpp"
 #include "../globals.hpp"
@@ -12,7 +13,11 @@
 #include <regex>
 #include <sstream>
 
+#include <yaml-cpp/yaml.h>
+
 static DepotKeys::KeyMap g_depotKeys;
+static DepotKeys::KeyMap g_yamlDepotKeys;
+static DepotKeys::AppDepotsMap g_appDepots;
 static std::mutex g_depotKeysMutex;
 
 static std::string hexToBytes(const std::string& hex)
@@ -28,12 +33,118 @@ static std::string hexToBytes(const std::string& hex)
 	return bytes;
 }
 
+std::string DepotKeys::getDepotKeysYamlPath()
+{
+	return g_config.getDir() + "/depot_keys.yaml";
+}
+
+void DepotKeys::loadDepotKeysYaml()
+{
+	const std::string path = getDepotKeysYamlPath();
+	if (!std::filesystem::exists(path))
+	{
+		LOG_INFO("DepotKeys: %s does not exist, skipping YAML load\n", path.c_str());
+		return;
+	}
+
+	try
+	{
+		YAML::Node root = YAML::LoadFile(path);
+		if (!root || !root.IsMap())
+		{
+			LOG_WARN("DepotKeys: %s is not a valid YAML map\n", path.c_str());
+			return;
+		}
+
+		KeyMap newYamlKeys;
+		AppDepotsMap newAppDepots;
+
+		for (const auto& entry : root)
+		{
+			std::string keyStr = entry.first.as<std::string>();
+			char* pEnd = nullptr;
+			unsigned long parsedAppId = std::strtoul(keyStr.c_str(), &pEnd, 10);
+			if (pEnd == keyStr.c_str() || parsedAppId == 0)
+			{
+				continue; // Skip non-numeric top-level keys
+			}
+
+			const uint32_t appId = static_cast<uint32_t>(parsedAppId);
+			const YAML::Node& valNode = entry.second;
+
+			if (!valNode.IsMap())
+			{
+				continue;
+			}
+
+			// Support both nested `depots:` map and direct `depotId: key` map
+			const YAML::Node depotsNode = valNode["depots"] ? valNode["depots"] : valNode;
+
+			if (depotsNode.IsMap())
+			{
+				for (const auto& dEntry : depotsNode)
+				{
+					std::string dKeyStr = dEntry.first.as<std::string>();
+					char* pEndD = nullptr;
+					unsigned long parsedDepotId = std::strtoul(dKeyStr.c_str(), &pEndD, 10);
+					if (pEndD == dKeyStr.c_str() || parsedDepotId == 0)
+					{
+						continue; // Not a numeric depot ID (e.g. title or comment)
+					}
+
+					const uint32_t depotId = static_cast<uint32_t>(parsedDepotId);
+					if (!dEntry.second.IsScalar())
+					{
+						continue;
+					}
+
+					std::string hexKey = dEntry.second.as<std::string>();
+					while (!hexKey.empty() && isspace(static_cast<unsigned char>(hexKey.front()))) hexKey.erase(hexKey.begin());
+					while (!hexKey.empty() && isspace(static_cast<unsigned char>(hexKey.back()))) hexKey.pop_back();
+
+					if (hexKey.size() == 64)
+					{
+						newYamlKeys[depotId] = hexKey;
+						newAppDepots[appId].insert(depotId);
+					}
+					else
+					{
+						LOG_WARN("DepotKeys: Invalid key length (%zu != 64) for depot %u under app %u in %s\n",
+						         hexKey.size(), depotId, appId, path.c_str());
+					}
+				}
+			}
+		}
+
+		{
+			std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+			g_yamlDepotKeys = std::move(newYamlKeys);
+			g_appDepots = std::move(newAppDepots);
+			// Merge YAML keys into g_depotKeys with priority
+			for (const auto& [depotId, hexKey] : g_yamlDepotKeys)
+			{
+				g_depotKeys[depotId] = hexKey;
+			}
+		}
+
+		LOG_INFO("DepotKeys: Loaded %zu depot key(s) for %zu app(s) from %s\n",
+		         g_yamlDepotKeys.size(), g_appDepots.size(), path.c_str());
+	}
+	catch (const std::exception& e)
+	{
+		LOG_ERROR("DepotKeys: Exception loading %s: %s\n", path.c_str(), e.what());
+	}
+	catch (...)
+	{
+		LOG_ERROR("DepotKeys: Unknown error loading %s\n", path.c_str());
+	}
+}
+
 void DepotKeys::scanLuaPluginsForDepotKeys()
 {
 	std::string pluginDir = g_config.getPluginDir();
 	if (pluginDir.empty())
 	{
-		// LOG_INFO("DepotKeys: Cannot locate plugin directory\n");
 		LOG_INFO("DepotKeys: Cannot locate plugin directory\n");
 		return;
 	}
@@ -80,10 +191,6 @@ void DepotKeys::scanLuaPluginsForDepotKeys()
 				if (hexKey.size() == 64) // 32 bytes = 64 hex chars (AES-256)
 				{
 					newKeys[depotId] = hexKey;
-					// LOG_INFO("DepotKeys: Loaded key for depot %u (from %s)\n",
-					// 			 depotId, entry.path().filename().c_str());
-					// LOG_INFO("DepotKeys: Loaded key for depot %u (from %s)\n",
-							//  depotId, entry.path().filename().c_str());
 				}
 				else
 				{
@@ -102,9 +209,14 @@ void DepotKeys::scanLuaPluginsForDepotKeys()
 	{
 		std::lock_guard<std::mutex> lock(g_depotKeysMutex);
 		g_depotKeys = std::move(newKeys);
+		// Prioritize keys from depot_keys.yaml
+		for (const auto& [depotId, hexKey] : g_yamlDepotKeys)
+		{
+			g_depotKeys[depotId] = hexKey;
+		}
 	}
 
-	LOG_INFO("DepotKeys: Scan complete, loaded %zu depot key(s)\n", g_depotKeys.size());
+	LOG_INFO("DepotKeys: Scan complete, total loaded %zu depot key(s)\n", g_depotKeys.size());
 }
 
 std::string DepotKeys::getDepotKey(uint32_t depotId)
@@ -121,13 +233,50 @@ std::string DepotKeys::getDepotKey(uint32_t depotId)
 bool DepotKeys::isAccelaApp(uint32_t appId)
 {
 	std::lock_guard<std::mutex> lock(g_depotKeysMutex);
-	// An app is ACCELA-managed if we have any depot key for it or its depots
-	// Depot IDs are typically appId or appId+1, etc.
-	// But the most reliable check: does the Lua plugin exist?
+	if (g_appDepots.count(appId) > 0)
+	{
+		return true;
+	}
+	// Fallback check: does the Lua plugin exist and have a valid depot decryption key?
 	std::string pluginDir = g_config.getPluginDir();
 	if (pluginDir.empty()) return false;
 	std::string luaPath = pluginDir + "/" + std::to_string(appId) + ".lua";
-	return std::filesystem::exists(luaPath);
+	if (!std::filesystem::exists(luaPath)) return false;
+
+	std::ifstream file(luaPath);
+	if (!file.is_open()) return false;
+	std::string content((std::istreambuf_iterator<char>(file)),
+	                     std::istreambuf_iterator<char>());
+	const std::regex depotKeyRegex(R"re(addappid\(\s*\d+\s*,\s*\d+\s*,\s*"([0-9a-fA-F]{64})"\s*\))re");
+	return std::regex_search(content, depotKeyRegex);
+}
+
+bool DepotKeys::hasKeysForApp(uint32_t appId)
+{
+	std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+	return g_appDepots.count(appId) > 0;
+}
+
+std::unordered_set<uint32_t> DepotKeys::getDepotsForApp(uint32_t appId)
+{
+	std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+	auto it = g_appDepots.find(appId);
+	if (it != g_appDepots.end())
+	{
+		return it->second;
+	}
+	return {};
+}
+
+std::unordered_set<uint32_t> DepotKeys::getAllAppIdsWithKeys()
+{
+	std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+	std::unordered_set<uint32_t> apps;
+	for (const auto& [appId, _] : g_appDepots)
+	{
+		apps.insert(appId);
+	}
+	return apps;
 }
 
 static void handleDepotDecryptionKeyResponse(CNetPacket* pkt)
@@ -146,7 +295,13 @@ static void handleDepotDecryptionKeyResponse(CNetPacket* pkt)
 		return;
 	}
 
-	const std::string hexKey = DepotKeys::getDepotKey(depotId);
+	std::string hexKey = DepotKeys::getDepotKey(depotId);
+	if (hexKey.empty())
+	{
+		// Try reloading depot_keys.yaml in case it was updated on disk while Steam was running
+		DepotKeys::loadDepotKeysYaml();
+		hexKey = DepotKeys::getDepotKey(depotId);
+	}
 	if (hexKey.empty())
 	{
 		LOG_INFO("DepotKeys: No cached key for depot %u (eresult=%d), cannot inject\n",
@@ -185,6 +340,12 @@ static void handleOwnershipTicketResponse(CNetPacket* pkt)
 	if (!DepotKeys::isAccelaApp(appId))
 	{
 		return;
+	}
+
+	// If app has keys configured in depot_keys.yaml, ensure Lua plugin is generated/fresh
+	if (DepotKeys::hasKeysForApp(appId))
+	{
+		LuaGenerator::generateForApp(appId);
 	}
 
 	LOG_INFO("DepotKeys: Ownership ticket failed for ACCELA app %u (eresult=%u), injecting OK\n",

@@ -830,6 +830,15 @@ void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, 
 				continue;
 			}
 
+			// Decryption key guard: do not inject depot for unowned apps if no decryption key is cached
+			bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
+			if (!locallyOwned && DepotKeys::getDepotKey(depotId).empty())
+			{
+				LOG_WARN("BuildDepotDependency: Bailing depot %u for app %u - no decryption key\n",
+				         depotId, appId);
+				continue;
+			}
+
 			DepotInfo_t info {};
 			info.depotId = depotId;
 			info.appId = appId;
