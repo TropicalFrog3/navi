@@ -29,6 +29,11 @@ const char* IClientCompat::getDisplayName(const char* name)
 
 void IClientCompat::getCompatToolsForApp(const AppId_t appId, CUtlVector<CUtlString>* pVecTools)
 {
+	if (VFTIndexes::IClientCompat::GetAvailableCompatToolsForApp.index == VFTableInfo_t::NO_INDEX)
+	{
+		return;
+	}
+
 	MemHlp::callVFunc<void(*)(void*, CUtlVector<CUtlString>*, AppId_t)>
 	(
 		VFTIndexes::IClientCompat::GetAvailableCompatToolsForApp.index,

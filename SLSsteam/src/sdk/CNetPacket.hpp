@@ -26,16 +26,16 @@ public:
 SDK_Class CNetPacket
 {
 public:
-	uint8_t __pad0x0[0x4];			//0x0
-	CNetPacketBody* body;			//0x4
-	uint32_t size;					//0x8
-	int32_t refs;					//0xC
-	CNetPacketBody* originalBody;	//0x10
-	uint8_t __pad0x10[0xC];			//0x14
+	uint8_t __pad0x0[0xC];			//0x0
+	CNetPacketBody* body;			//0xC
+	uint32_t size;					//0x10
+	int32_t refs;					//0x14
+	CNetPacketBody* originalBody;	//0x18
+	uint8_t __pad0x1c[0x20];		//0x1C - 0x3B (sizeof 0x38+)
 	
 	constexpr bool isValid() const
 	{
-		return getType() != INVALID_NETPACKET_TYPE && size > sizeof(CNetPacketBody);
+		return this != nullptr && body != nullptr && getType() != INVALID_NETPACKET_TYPE && size > sizeof(CNetPacketBody);
 	}
 	
 	constexpr ENetPacket getType() const
@@ -54,10 +54,10 @@ public:
 	{
 		if (getType() == INVALID_NETPACKET_TYPE)
 		{
-			return INVALID_NETPACKET_TYPE;
+			return false;
 		}
 
-		return getType() & PROTOBUF_TYPE_MASK;
+		return (getType() & PROTOBUF_TYPE_MASK) != 0;
 	}
 
 	constexpr EMsg getProtoBufType() const
@@ -130,11 +130,15 @@ public:
 	}
 	
 	template<typename T>
-	constexpr T deserializeBody() const
+	T deserializeBody() const
 	{
-		const uintptr_t msgOffset = body->headerSize + sizeof(CNetPacketBody);
 		auto msg = T();
+		if (!body || size < sizeof(CNetPacketBody) + body->headerSize)
+		{
+			return msg;
+		}
 
+		const uintptr_t msgOffset = body->headerSize + sizeof(CNetPacketBody);
 		msg.ParseFromArray(reinterpret_cast<uint8_t*>(body) + msgOffset, size - msgOffset);
 
 		return msg;

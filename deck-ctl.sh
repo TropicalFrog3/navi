@@ -296,9 +296,9 @@ else
     export XDG_RUNTIME_DIR=/run/user/1000
     export PATH="/home/deck/.local/bin:$PATH"
     if command -v kstart5 >/dev/null 2>&1; then
-        kstart5 -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1
+        kstart5 -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1 &
     elif command -v kstart >/dev/null 2>&1; then
-        kstart -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1
+        kstart -- /home/deck/.local/bin/steam -cef-enable-debugging > /dev/null 2>&1 &
     else
         nohup /home/deck/.local/bin/steam -cef-enable-debugging > /home/deck/steam-debug.log 2>&1 &
     fi

@@ -878,6 +878,58 @@ namespace StoreInject
                                 handled = true;
                             }
                         }
+                        else if (request.find("/lua_apps") != std::string::npos)
+                        {
+                            try {
+                                std::set<uint32_t> appIds;
+
+                                // 1. Scan pluginDir for all <appid>.lua files
+                                std::string pluginDir = g_config.getPluginDir();
+                                if (!pluginDir.empty() && std::filesystem::exists(pluginDir))
+                                {
+                                    for (const auto& entry : std::filesystem::directory_iterator(pluginDir))
+                                    {
+                                        if (entry.is_regular_file() && entry.path().extension() == ".lua")
+                                        {
+                                            std::string stem = entry.path().stem().string();
+                                            try {
+                                                uint32_t aid = std::stoul(stem);
+                                                if (aid > 0)
+                                                    appIds.insert(aid);
+                                            } catch (...) {}
+                                        }
+                                    }
+                                }
+
+                                // 2. Also include any addedAppIds from g_config
+                                for (const auto& aid : g_config.addedAppIds.get())
+                                {
+                                    if (aid > 0)
+                                        appIds.insert(aid);
+                                }
+
+                                std::string json = "{\"appids\":[";
+                                bool first = true;
+                                for (uint32_t aid : appIds)
+                                {
+                                    if (!first) json += ",";
+                                    first = false;
+                                    json += std::to_string(aid);
+                                }
+                                json += "]}";
+
+                                std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(json.size()) + "\r\n\r\n" + json;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            } catch (...) {
+                                std::string respBody = "{\"appids\":[]}";
+                                std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            }
+                        }
                         else if (request.find("/check?id=") != std::string::npos)
                         {
                             try {

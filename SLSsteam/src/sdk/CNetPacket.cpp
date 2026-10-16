@@ -5,7 +5,7 @@ std::string CNetPacket::getProtoBufTypeName() const
 {
 	auto name = std::string("Unknown");
 
-	if (!isProtoBuf())
+	if (!this || !body || !isProtoBuf())
 	{
 		return name;
 	}
@@ -21,10 +21,15 @@ std::string CNetPacket::getProtoBufTypeName() const
 
 CMsgProtoBufHeader CNetPacket::deserializeHeader() const
 {
+	CMsgProtoBufHeader header;
+	if (!this || !body || size < sizeof(CNetPacketBody) + body->headerSize)
+	{
+		return header;
+	}
+
 	const uintptr_t headerOffset = sizeof(CNetPacketBody);
 	uint8_t* mem = reinterpret_cast<uint8_t*>(body) + headerOffset;
 
-	CMsgProtoBufHeader header;
 	if (!header.ParseFromArray(mem, body->headerSize))
 	{
 		LOG_ERROR("Failed to parse header!\n");
@@ -35,7 +40,12 @@ CMsgProtoBufHeader CNetPacket::deserializeHeader() const
 
 void CNetPacket::free()
 {
-	Steam::Plat_Free(body);
+	if (!this) return;
+
+	if (body)
+	{
+		Steam::Plat_Free(body);
+	}
 
 	size = 0;
 	body = nullptr;

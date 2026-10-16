@@ -246,7 +246,9 @@ namespace VFTIndexes
 		VFTableInfo_t GetAvailableCompatToolsForApp
 		{
 			"16IClientCompatMap",
-			"GetAvailableCompatToolsForApp"
+			"GetAvailableCompatToolsForApp",
+			VFTableInfo_t::NO_INDEX,
+			true
 		};
 		VFTableInfo_t GetCompatToolDisplayName
 		{

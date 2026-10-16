@@ -267,6 +267,11 @@ bool DetourHook<T>::setup(const Pattern_t& pattern, T hookFn)
 	this->originalFn.address = pattern.address;
 	this->hookFn.fn = hookFn;
 
+	if (pattern.address == LM_ADDRESS_BAD)
+	{
+		return pattern.optional;
+	}
+
 	return true;
 }
 
@@ -283,7 +288,7 @@ bool DetourHook<T>::setup(const VFTableInfo_t& info, T hookFn)
 template<typename T>
 void DetourHook<T>::place()
 {
-	if (!this->originalFn.address)
+	if (!this->originalFn.address || this->originalFn.address == LM_ADDRESS_BAD)
 	{
 		return;
 	}
@@ -323,7 +328,7 @@ void DetourHook<T>::place()
 template<typename T>
 void DetourHook<T>::remove()
 {
-	if (!this->size || !this->originalFn.address)
+	if (!this->size || !this->originalFn.address || this->originalFn.address == LM_ADDRESS_BAD)
 	{
 		return;
 	}
@@ -437,7 +442,14 @@ static uint32_t hkAppDataCache_BParseResponseFromMessage(void* pAppDataCache, CP
 		ret
 	);
 
-	Apps::parseProductInfoFromResponse(pMsg->getBody<CMsgClientPICSProductInfoResponse>());
+	if (ret && pMsg && pMsg->getProtoBufType() == k_EMsgClientPICSProductInfoResponse)
+	{
+		auto* productInfo = pMsg->getBody<CMsgClientPICSProductInfoResponse>();
+		if (productInfo)
+		{
+			Apps::parseProductInfoFromResponse(productInfo);
+		}
+	}
 
 	return ret;
 }
@@ -478,6 +490,12 @@ static uint32_t hkClientUnifiedServiceTransport_SendAndRecvMsg(CClientUnifiedSer
 
 static void hkCMInterface_RecvPkt(CCMInterface* pCMInterface, CNetPacket* pNetPacket)
 {
+	if (!pNetPacket)
+	{
+		Hooks::CCMInterface_RecvPkt.tramp.fn(pCMInterface, pNetPacket);
+		return;
+	}
+
 	LOG_DEBUG
 	(
 		"RecvPkt with CMInterface at %p %s -> 0x%x\n",
@@ -1909,7 +1927,8 @@ bool Hooks::setup()
 
 		&& CGameInfoDialog_ServerResponded.setup(VFTIndexes::CGameInfoDialog::ServerResponded, hkCGameInfoDialog_ServerResponded)
 		&& CSteamUIAppController_FillInAppOverview.setup(Patterns::CSteamUIAppController::FillInAppOverview, hkCSteamUIAppController_FillInAppOverview)
-		&& CSteamUIAppController_BuildCompleteAppOverviewChange.setup(Patterns::CSteamUIAppController::BuildCompleteAppOverviewChange, hkCSteamUIAppController_BuildCompleteAppOverviewChange)
+		&& (Patterns::CSteamUIAppController::BuildCompleteAppOverviewChange.address == LM_ADDRESS_BAD
+			|| CSteamUIAppController_BuildCompleteAppOverviewChange.setup(Patterns::CSteamUIAppController::BuildCompleteAppOverviewChange, hkCSteamUIAppController_BuildCompleteAppOverviewChange))
 		&& CSteamUIAppController_RunFrame.setup(Patterns::CSteamUIAppController::RunFrame, hkCSteamUIAppController_RunFrame);
 
 

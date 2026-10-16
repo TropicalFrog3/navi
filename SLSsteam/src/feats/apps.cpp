@@ -996,6 +996,11 @@ void Apps::getSubscribedApps(AppId_t* appList, const uint32_t size, uint32_t& co
 
 void Apps::parseProductInfoFromResponse(CMsgClientPICSProductInfoResponse* msg)
 {
+	if (!msg)
+	{
+		return;
+	}
+
 	std::lock_guard lock(pendingLicenseChangesMutex);
 
 	auto set = std::unordered_set<AppId_t>();

@@ -779,34 +779,27 @@ namespace CDPInject
 
         if (pagesToInject.empty()) return;
 
-        // Lazy-loaded cache
-        static std::string cachedStorePageScript;
-        if (cachedStorePageScript.empty())
-        {
-            std::string storePageScript = loadResourceFile("store-page-script.js");
-            if (storePageScript.empty()) {
-                LOG_DEBUG("CDPInject::injectStorePages: Failed to load store-page-script.js\n");
-                return;
-            }
-
-            std::string ryuuKey = g_config.ryuuKey.get();
-            std::string dpbxKey = g_config.depotBoxKey.get();
-            std::string hubcapKey = g_config.hubcapKey.get();
-
-            size_t pos;
-            if ((pos = storePageScript.find("%RYUU_KEY%")) != std::string::npos)
-                storePageScript.replace(pos, 10, ryuuKey);
-            if ((pos = storePageScript.find("%DPBX_KEY%")) != std::string::npos)
-                storePageScript.replace(pos, 10, dpbxKey);
-            if ((pos = storePageScript.find("%HUBCAP_KEY%")) != std::string::npos)
-                storePageScript.replace(pos, 12, hubcapKey);
-
-            cachedStorePageScript = std::move(storePageScript);
+        std::string storePageScript = loadResourceFile("store-page-script.js");
+        if (storePageScript.empty()) {
+            LOG_DEBUG("CDPInject::injectStorePages: Failed to load store-page-script.js\n");
+            return;
         }
+
+        std::string ryuuKey = g_config.ryuuKey.get();
+        std::string dpbxKey = g_config.depotBoxKey.get();
+        std::string hubcapKey = g_config.hubcapKey.get();
+
+        size_t pos;
+        if ((pos = storePageScript.find("%RYUU_KEY%")) != std::string::npos)
+            storePageScript.replace(pos, 10, ryuuKey);
+        if ((pos = storePageScript.find("%DPBX_KEY%")) != std::string::npos)
+            storePageScript.replace(pos, 10, dpbxKey);
+        if ((pos = storePageScript.find("%HUBCAP_KEY%")) != std::string::npos)
+            storePageScript.replace(pos, 12, hubcapKey);
 
         for (const auto& wsUrl : pagesToInject)
         {
-            injectJS(wsUrl, cachedStorePageScript);
+            injectJS(wsUrl, storePageScript);
         }
     }
 

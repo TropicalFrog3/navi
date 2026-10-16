@@ -8,19 +8,20 @@
 using SigFollowMode = MemHlp::SigFollowMode;
 
 
-Pattern_t::Pattern_t(const char* name, const char* pattern, MemHlp::SigFollowMode followMode, lm_module_t* module)
+Pattern_t::Pattern_t(const char* name, const char* pattern, MemHlp::SigFollowMode followMode, lm_module_t* module, bool optional)
 	:
-	Pattern_t(name, pattern, followMode, std::vector<int16_t>(), module)
+	Pattern_t(name, pattern, followMode, std::vector<int16_t>(), module, optional)
 {
 }
 
-Pattern_t::Pattern_t(const char* name, const char* pattern, MemHlp::SigFollowMode followMode, std::vector<int16_t> prologue, lm_module_t* module)
+Pattern_t::Pattern_t(const char* name, const char* pattern, MemHlp::SigFollowMode followMode, std::vector<int16_t> prologue, lm_module_t* module, bool optional)
 	:
 	name(name),
 	pattern(pattern),
 	followMode(followMode),
 	prologue(prologue),
-	module(module)
+	module(module),
+	optional(optional)
 {
 	Patterns::patterns.emplace_back(this);
 }
@@ -51,6 +52,11 @@ bool Pattern_t::find()
 			address = MemHlp::searchSignature(name.c_str(), "8B 86 38 88 03 00 89 F3", module ? *module : g_modSteamClient, SigFollowMode::PrologueUpwards, &prologue[0], prologue.size());
 		}
 	}
+	else if (address == LM_ADDRESS_BAD && name == "CUser::GetSubscribedApps")
+	{
+		LOG_INFO("Trying fallback pattern for CUser::GetSubscribedApps\n");
+		address = MemHlp::searchSignature(name.c_str(), "55 89 E5 57 8D 7D ? 56 53 83 EC 2C 8B 75 10", module ? *module : g_modSteamClient, SigFollowMode::None);
+	}
 	return address != LM_ADDRESS_BAD;
 }
 
@@ -62,6 +68,11 @@ bool Patterns::init()
 	{
 		if (!pattern->find())
 		{
+			if (pattern->optional)
+			{
+				LOG_WARN("Failed to find optional pattern: %s\n", pattern->name.c_str());
+				continue;
+			}
 			LOG_WARN("Failed to find pattern: %s\n", pattern->name.c_str());
 			found = false;
 		}
@@ -137,7 +148,8 @@ namespace Patterns
 			"8B 86 ? ? 03 00 89 F3 8B 40 44 C6 42 2C 01 83 4A 08 01 83 C2 10",
 			SigFollowMode::PrologueUpwards,
 			std::vector<int16_t> { 0x53, 0x56, 0x57, 0xE5, 0x89, 0x55 },
-			&g_modSteamUI
+			&g_modSteamUI,
+			true
 		};
 		Pattern_t RunFrame
 		{
@@ -213,13 +225,17 @@ namespace Patterns
 		{
 			"CUser::MarkLicenseAsChanged",
 			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 74 24 40 8B 44 24 48 8B BE 14 1B 00 00",
-			SigFollowMode::None
+			SigFollowMode::None,
+			nullptr,
+			true
 		};
 		Pattern_t ProcessPendingLicenseUpdates
 		{
 			"CUser::ProcessPendingLicenseUpdates",
 			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 2C 8B 44 24 40 8B 88 7C 1C 00 00",
-			SigFollowMode::None
+			SigFollowMode::None,
+			nullptr,
+			true
 		};
 		Pattern_t PostCallback
 		{
