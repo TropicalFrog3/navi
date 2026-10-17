@@ -33,6 +33,8 @@ namespace Apps
 	extern std::set<uint32_t> onlineFixApps;
 	extern std::set<uint32_t> autoCrackApps;
 
+	bool isNonSteamApp(uint32_t appId);
+
 	bool isInstalled(uint32_t appId);
 	void setInstalled(uint32_t appId);
 	void removeInstalled(uint32_t appId);

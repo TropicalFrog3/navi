@@ -84,6 +84,7 @@ TEST_NATIVE_OBJS := \
 	obj/$(FLAGSSHA)/tests/test_native_install.o \
 	obj/$(FLAGSSHA)/feats/manifestcode.o \
 	obj/$(FLAGSSHA)/feats/nativeinstall.o \
+	obj/$(FLAGSSHA)/feats/apps.o \
 	obj/$(FLAGSSHA)/sdk/CNetPacket.o \
 	obj/$(FLAGSSHA)/sdk/steam.o \
 	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_base.pb.o \

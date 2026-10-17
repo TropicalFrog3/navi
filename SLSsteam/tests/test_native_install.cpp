@@ -1,5 +1,6 @@
 #include "../src/feats/manifestcode.hpp"
 #include "../src/feats/nativeinstall.hpp"
+#include "../src/feats/apps.hpp"
 #include "../src/sdk/IClientAppManager.hpp"
 #include "../src/config.hpp"
 #include "../src/log.hpp"
@@ -45,6 +46,11 @@ std::string CConfig::getDir() const
 {
     const char* h = getenv("HOME");
     return std::string(h ? h : "/tmp") + "/.config/SLSsteam";
+}
+
+bool CConfig::shouldExcludeAppId(const AppId_t appId, const bool)
+{
+    return appId == 999999u;
 }
 
 CSteamEngine* g_pSteamEngine = nullptr;
@@ -538,6 +544,41 @@ static void testZipAssemblyAndCacheExtraction()
     std::cout << "  - Universal Zip assembly and extraction verified successfully.\n";
 }
 
+static void testNonSteamAppClassification()
+{
+    std::cout << "[TEST] Testing Non-Steam AppID classification...\n";
+
+    // Non-Steam shortcut IDs with bit 31 set
+    assert(Apps::isNonSteamApp(2783438810u) && "Super Mario Wonder must be detected as non-Steam");
+    assert(Apps::isNonSteamApp(3576629899u) && "Splatoon 3 must be detected as non-Steam");
+    assert(Apps::isNonSteamApp(2147483648u) && "0x80000000 boundary must be detected as non-Steam");
+
+    // Internal range >= 10^9
+    assert(Apps::isNonSteamApp(1000000000u) && "1E9 boundary must be detected as non-Steam");
+
+    // Genuine Steam AppIDs
+    assert(!Apps::isNonSteamApp(480u) && "Spacewar must not be non-Steam");
+    assert(!Apps::isNonSteamApp(1443430u) && "Rogue must not be non-Steam");
+    assert(!Apps::isNonSteamApp(4993040u) && "The Nun must not be non-Steam");
+    assert(!Apps::isNonSteamApp(3155980u) && "Stranded & Naked must not be non-Steam");
+
+    // AppID 0 is invalid
+    assert(Apps::isNonSteamApp(0u) && "AppID 0 must be detected as non-Steam");
+
+    // Config exclusions (stubbed 999999u)
+    assert(Apps::isNonSteamApp(999999u) && "Excluded AppID must be detected as non-Steam");
+
+    // State flags contract: non-Steam app flags must never be stripped
+    uint32_t shortcutState = 4;
+    if (!Apps::isNonSteamApp(2783438810u))
+    {
+        shortcutState &= ~4;
+    }
+    assert(shortcutState == 4 && "Non-Steam shortcut AppStateFlags must be preserved");
+
+    std::cout << "  - Non-Steam AppID classification verified successfully.\n";
+}
+
 int main()
 {
     std::cout << "========================================\n";
@@ -551,6 +592,7 @@ int main()
     testRemoveLuaPatternScanning();
     testCrossPlatformDepotGuardSimulation();
     testZipAssemblyAndCacheExtraction();
+    testNonSteamAppClassification();
 
     std::cout << "\n[ALL TESTS PASSED SUCCESSFULLY!]\n";
     return 0;

@@ -960,6 +960,16 @@ namespace StoreInject
                                     std::string idStr = request.substr(idPos + 3, (endPos == std::string::npos) ? std::string::npos : (endPos - (idPos + 3)));
                                     uint32_t appId = std::stoul(idStr);
                                     LOG_INFO("StoreInject: Received /check for AppID %u\n", appId);
+
+                                    if (Apps::isNonSteamApp(appId))
+                                    {
+                                        std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
+                                        response += "{\"exists\":false,\"hasLua\":false,\"gameExists\":false,\"isUnlocked\":false,\"pending\":false,\"downloading\":false,\"paused\":false,\"onlineFixInstalled\":false,\"autoCrackInstalled\":false,\"provider\":\"\"}";
+                                        send(new_socket, response.c_str(), response.size(), 0);
+                                        close(new_socket);
+                                        handled = true;
+                                        continue;
+                                    }
                                     
                                     bool gameExists = Apps::gameFilesExist(appId);
                                     bool luaExists = false;
@@ -1062,6 +1072,16 @@ namespace StoreInject
                                     uint32_t appId = std::stoul(idStr);
                                     LOG_INFO("StoreInject: Received /get-depots for AppID %u\n", appId);
 
+                                    if (Apps::isNonSteamApp(appId))
+                                    {
+                                        std::string respBody = "{\"success\":false,\"message\":\"Non-Steam game has no Steam depots\"}";
+                                        std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                        send(new_socket, response.c_str(), response.size(), 0);
+                                        close(new_socket);
+                                        handled = true;
+                                        continue;
+                                    }
+
                                     std::string pluginDir = g_config.getPluginDir();
                                     auto luaPath = std::filesystem::path(pluginDir) / (idStr + ".lua");
                                     std::string respBody;
@@ -1139,6 +1159,16 @@ namespace StoreInject
                                     char* pEndApp = nullptr;
                                     uint32_t appId = static_cast<uint32_t>(std::strtoul(idStr.c_str(), &pEndApp, 10));
                                     if (pEndApp == idStr.c_str() || appId == 0) {
+                                        close(new_socket);
+                                        handled = true;
+                                        continue;
+                                    }
+
+                                    if (Apps::isNonSteamApp(appId))
+                                    {
+                                        std::string respBody = "{\"success\":false,\"message\":\"Cannot download non-Steam game\"}";
+                                        std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                        send(new_socket, response.c_str(), response.size(), 0);
                                         close(new_socket);
                                         handled = true;
                                         continue;

@@ -959,7 +959,7 @@ static bool hkClientAppManager_BCanRemotePlayTogether(IClientAppManager* pAppMan
 
 static void* hkClientAppManager_LaunchApp(IClientAppManager* pAppManager, AppId_t* pAppId, void* a2, void* a3, void* a4)
 {
-	if (pAppId)
+	if (pAppId && !Apps::isNonSteamApp(*pAppId))
 	{
 		LOG_ONCE
 		(
@@ -1036,7 +1036,7 @@ static bool hkClientAppManager_GetAppUpdateInfo(IClientAppManager* pClientAppMan
 	const bool success = Hooks::IClientAppManager_GetAppUpdateInfo.originalFn.fn(pClientAppManager, appId, a2);
 	LOG_ONCE("IClientAppManager::GetAppUpdateInfo(%p, %u, %p) -> %i\n", (void*)pClientAppManager, appId, (void*)a2, success);
 
-	if (NativeInstall::isNative(appId))
+	if (Apps::isNonSteamApp(appId) || NativeInstall::isNative(appId))
 	{
 		return success;
 	}
@@ -1063,17 +1063,38 @@ static uint32_t hkClientAppManager_InstallApp(IClientAppManager* pClientAppManag
 {
     LOG_INFO("hkClientAppManager_InstallApp(%p, %u, %u, %u)\n", (void*)pClientAppManager, appId, library, a4);
 
-    bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
-    
-	if(locallyOwned && !g_config.isAddedAppId(appId))
-	{
-		return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
-	}
+    // 1. Skip non-Steam shortcuts and internal AppIDs immediately
+    if (Apps::isNonSteamApp(appId))
+    {
+        LOG_INFO("hkClientAppManager_InstallApp: App %u is a non-Steam game/shortcut, passing through to original\n", appId);
+        return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
+    }
 
-    // If already queued to run on the main thread or armed, pass through to original
+    // 2. Skip locally owned Steam games that are not SLS-unlocked
+    bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
+    if (locallyOwned && !g_config.isAddedAppId(appId))
+    {
+        return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
+    }
+
+    // 3. Skip if already queued to run on main thread or armed for native install
     if (NativeInstall::isQueuedOrArmed(appId))
     {
         LOG_INFO("hkClientAppManager_InstallApp: App %u already queued/armed for native install, calling original\n", appId);
+        return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
+    }
+
+    // 4. Skip if already downloaded/installed via ACCELA or Steam
+    if (Apps::isInstalled(appId) || Apps::gameFilesExist(appId))
+    {
+        LOG_INFO("hkClientAppManager_InstallApp: App %u already installed, skipping depot selection\n", appId);
+        return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
+    }
+
+    // 5. Skip if an ACCELA download is already active/pending for this app
+    if (CppAccela::Download::isPending(appId))
+    {
+        LOG_INFO("hkClientAppManager_InstallApp: App %u download already pending, skipping depot selection\n", appId);
         return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
     }
 
@@ -1089,7 +1110,7 @@ static uint32_t hkClientAppManager_InstallApp(IClientAppManager* pClientAppManag
 
     // Return early, do not call original function yet. 
     // The native install will be triggered later when the UI invokes NativeInstall::runFrame.
-	return 0;
+    return 0;
 }
 
 static void hkClientAppManager_ChangeAppDownloadQueuePlacement(IClientAppManager* pClientAppManager, uint32_t appId, uint32_t placement)
@@ -1118,6 +1139,11 @@ static uint32_t hkClientAppManager_UninstallApp(IClientAppManager* pClientAppMan
 {
     LOG_INFO("hkClientAppManager_UninstallApp(%p, %u)\n", (void*)pClientAppManager, appId);
 
+    if (Apps::isNonSteamApp(appId))
+    {
+        return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
+    }
+
     if (NativeInstall::isNative(appId))
     {
         LOG_INFO("hkClientAppManager_UninstallApp: App %u is native, disarming and letting Steam uninstall natively\n", appId);
@@ -1141,9 +1167,9 @@ static EAppState hkClientAppManager_GetAppInstallState(IClientAppManager* pClien
 {
     EAppState state = Hooks::IClientAppManager_GetAppInstallState.originalFn.fn(pClientAppManager, appId);
 
-    if (NativeInstall::isNative(appId))
+    if (Apps::isNonSteamApp(appId) || NativeInstall::isNative(appId))
     {
-        // Don't strip UpdateRequired or force FullyInstalled for native installs
+        // Don't strip UpdateRequired or force FullyInstalled for non-Steam games or native installs
         return state;
     }
 
@@ -1700,6 +1726,13 @@ static void __attribute__((regparm(3))) hkCSteamUIAppController_FillInAppOvervie
 	//Verified in steamui.so: nAppID (+0xC) is copied into the overview proto, OwnershipFlags (+0x18) bit 0 is read inline
 	if (pApp)
 	{
+		// Non-Steam shortcuts: do not modify ownership or state flags
+		if (Apps::isNonSteamApp(pApp->nAppID))
+		{
+			Hooks::CSteamUIAppController_FillInAppOverview.tramp.fn(pThis, pAppOverview, pApp);
+			return;
+		}
+
 		if (g_config.isAddedAppId(pApp->nAppID))
 		{
 			// Force unowned games to appear as owned in the frontend UI
@@ -1716,7 +1749,8 @@ static void __attribute__((regparm(3))) hkCSteamUIAppController_FillInAppOvervie
 
 		// If Steam marked the app as installed, but no actual game files exist on disk
 		// (e.g. manifest decryption failed or 0 depots mounted), clear the installed bit
-		if ((pApp->AppStateFlags & 4) && !Apps::gameFilesExist(pApp->nAppID))
+		// Native installs are managed by Steam directly and must not have their state stripped.
+		if (!NativeInstall::isNative(pApp->nAppID) && (pApp->AppStateFlags & 4) && !Apps::gameFilesExist(pApp->nAppID))
 		{
 			pApp->AppStateFlags &= ~4;
 			pApp->AppStateFlags |= 1;

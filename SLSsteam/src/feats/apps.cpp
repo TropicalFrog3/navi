@@ -512,6 +512,28 @@ void Apps::deleteGameFiles(uint32_t appId)
     }
 }
 
+bool Apps::isNonSteamApp(uint32_t appId)
+{
+    // AppID 0 is invalid
+    if (appId == 0)
+        return true;
+
+    // Bit 31 set: standard Valve non-Steam shortcut CRC mask (appId >= 0x80000000)
+    if ((appId & 0x80000000u) != 0)
+        return true;
+
+    // Valve reserved internal range (>= 1,000,000,000)
+    constexpr AppId_t ONE_BILLION = 1000000000u;
+    if (appId >= ONE_BILLION)
+        return true;
+
+    // Whitelist/blacklist exclusions
+    if (g_config.shouldExcludeAppId(appId))
+        return true;
+
+    return false;
+}
+
 bool Apps::gameFilesExist(uint32_t appId)
 {
     LOG_INFO("Apps::gameFilesExist(%u)\n", appId);

@@ -856,6 +856,12 @@ namespace CDPInject
 
     void injectDepotSelectionUI(uint32_t appId)
     {
+        if (Apps::isNonSteamApp(appId))
+        {
+            LOG_INFO("CDPInject::injectDepotSelectionUI: Skipping non-Steam shortcut AppID %u\n", appId);
+            return;
+        }
+
         auto pages = fetchPages();
         if (pages.empty())
         {
