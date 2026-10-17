@@ -106,23 +106,6 @@ namespace VFTIndexes
 		extern VFTableInfo_t IsCloudEnabledForApp;
 		extern VFTableInfo_t IsCloudSyncOnSuspendAvailableForApp;
 		extern VFTableInfo_t IsCloudSyncOnSuspendEnabledForApp;
-		extern VFTableInfo_t EvaluateRemoteStorageSyncState;
-		extern VFTableInfo_t GetLastKnownSyncState;
-		extern VFTableInfo_t GetRemoteStorageSyncState;
-		extern VFTableInfo_t HaveLatestFilesLocally;
-		extern VFTableInfo_t SynchronizeApp;
-		extern VFTableInfo_t RunAutoCloudOnAppLaunch;
-		extern VFTableInfo_t RunAutoCloudOnAppExit;
-		extern VFTableInfo_t PerformAppPlatformChangeFileBackup;
-		extern VFTableInfo_t PerformAppPlatformChangeFileRestore;
-		extern VFTableInfo_t ResolveSyncConflict;
-		extern VFTableInfo_t IsAppSyncInProgress;
-		extern VFTableInfo_t BIsFileSyncing;
-		extern VFTableInfo_t LoadLocalFileInfoCache;
-		extern VFTableInfo_t InitializeUGCQuotaUsage;
-		extern VFTableInfo_t GetConflictingFileTimestamps;
-		extern VFTableInfo_t GetPendingRemoteOperationInfo;
-		extern VFTableInfo_t ResetFileRequestState;
 	}
 
 	namespace IClientUtils

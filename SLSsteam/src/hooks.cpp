@@ -1310,216 +1310,7 @@ static bool hkClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp(void* pClien
 	return Hooks::IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp.tramp.fn(pClientRemoteStorage, appId);
 }
 
-static bool hkClientRemoteStorage_EvaluateRemoteStorageSyncState(void* pClientRemoteStorage, AppId_t appId, bool bUnknown)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Blocked EvaluateRemoteStorageSyncState for %u\n", appId);
-		return false;
-	}
 
-	return Hooks::IClientRemoteStorage_EvaluateRemoteStorageSyncState.tramp.fn(pClientRemoteStorage, appId, bUnknown);
-}
-
-static ERemoteStorageSyncState hkClientRemoteStorage_GetLastKnownSyncState(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		return ERemoteStorageSyncState::Disabled;
-	}
-
-	return Hooks::IClientRemoteStorage_GetLastKnownSyncState.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static ERemoteStorageSyncState hkClientRemoteStorage_GetRemoteStorageSyncState(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (GetRemoteStorageSyncState -> Disabled)\n", appId);
-		return ERemoteStorageSyncState::Disabled;
-	}
-
-	return Hooks::IClientRemoteStorage_GetRemoteStorageSyncState.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_HaveLatestFilesLocally(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		return true;
-	}
-
-	return Hooks::IClientRemoteStorage_HaveLatestFilesLocally.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static uint64_t hkClientRemoteStorage_SynchronizeApp(void* pClientRemoteStorage, AppId_t appId, int eSyncType, void* a4, void* a5)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Blocked SynchronizeApp for %u\n", appId);
-		return 0;
-	}
-
-	return Hooks::IClientRemoteStorage_SynchronizeApp.tramp.fn(pClientRemoteStorage, appId, eSyncType, a4, a5);
-}
-
-static void hkClientRemoteStorage_RunAutoCloudOnAppLaunch(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Blocked RunAutoCloudOnAppLaunch for %u\n", appId);
-		return;
-	}
-
-	Hooks::IClientRemoteStorage_RunAutoCloudOnAppLaunch.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static void hkClientRemoteStorage_RunAutoCloudOnAppExit(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Blocked RunAutoCloudOnAppExit for %u\n", appId);
-		return;
-	}
-
-	Hooks::IClientRemoteStorage_RunAutoCloudOnAppExit.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_PerformAppPlatformChangeFileBackup(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (PerformAppPlatformChangeFileBackup)\n", appId);
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_PerformAppPlatformChangeFileBackup.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_PerformAppPlatformChangeFileRestore(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (PerformAppPlatformChangeFileRestore)\n", appId);
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_PerformAppPlatformChangeFileRestore.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_ResolveSyncConflict(void* pClientRemoteStorage, AppId_t appId, bool bUseLocal)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (ResolveSyncConflict)\n", appId);
-		return true;
-	}
-
-	return Hooks::IClientRemoteStorage_ResolveSyncConflict.tramp.fn(pClientRemoteStorage, appId, bUseLocal);
-}
-
-static bool hkClientRemoteStorage_IsAppSyncInProgress(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_IsAppSyncInProgress.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_BIsFileSyncing(void* pClientRemoteStorage, AppId_t appId, const char* pchFile)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_BIsFileSyncing.tramp.fn(pClientRemoteStorage, appId, pchFile);
-}
-
-static bool hkClientRemoteStorage_LoadLocalFileInfoCache(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (LoadLocalFileInfoCache)\n", appId);
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_LoadLocalFileInfoCache.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_InitializeUGCQuotaUsage(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (InitializeUGCQuotaUsage)\n", appId);
-		return true;
-	}
-
-	return Hooks::IClientRemoteStorage_InitializeUGCQuotaUsage.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static bool hkClientRemoteStorage_GetConflictingFileTimestamps(void* pClientRemoteStorage, AppId_t appId, uint32_t* pLocal, uint32_t* pRemote)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		if (pLocal) *pLocal = 0;
-		if (pRemote) *pRemote = 0;
-		LOG_INFO("Disabled cloud for %u (GetConflictingFileTimestamps)\n", appId);
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_GetConflictingFileTimestamps.tramp.fn(pClientRemoteStorage, appId, pLocal, pRemote);
-}
-
-static bool hkClientRemoteStorage_GetPendingRemoteOperationInfo(void* pClientRemoteStorage, AppId_t appId, void* a3, void* a4)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (GetPendingRemoteOperationInfo)\n", appId);
-		return false;
-	}
-
-	return Hooks::IClientRemoteStorage_GetPendingRemoteOperationInfo.tramp.fn(pClientRemoteStorage, appId, a3, a4);
-}
-
-static bool hkClientRemoteStorage_ResetFileRequestState(void* pClientRemoteStorage, AppId_t appId)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (ResetFileRequestState)\n", appId);
-		return true;
-	}
-
-	return Hooks::IClientRemoteStorage_ResetFileRequestState.tramp.fn(pClientRemoteStorage, appId);
-}
-
-static ERemoteStorageSyncState hkUserRemoteStorage_InternalGetSyncState(void* pClientRemoteStorage, AppId_t appId, int flags)
-{
-	if (Apps::shouldDisableCloud(appId))
-	{
-		LOG_INFO("Disabled cloud for %u (InternalGetSyncState -> Disabled)\n", appId);
-		return ERemoteStorageSyncState::Disabled;
-	}
-
-	return Hooks::CUserRemoteStorage_InternalGetSyncState.tramp.fn(pClientRemoteStorage, appId, flags);
-}
-
-static bool hkClientJobRemoteStorageSync_BYieldingRunJob(void* pJob)
-{
-	if (pJob)
-	{
-		AppId_t appId = *reinterpret_cast<const AppId_t*>((uintptr_t)pJob + 0x124);
-		if (Apps::shouldDisableCloud(appId))
-		{
-			LOG_INFO("Disabled cloud for %u (CClientJobRemoteStorageSync::BYieldingRunJob)\n", appId);
-			return true;
-		}
-	}
-
-	return Hooks::CClientJobRemoteStorageSync_BYieldingRunJob.tramp.fn(pJob);
-}
 
 static void hkClientRemoteStorage_RunIPCFrame(void* pClientRemoteStorage, void* a1, void* a2, void* a3)
 {
@@ -2017,25 +1808,7 @@ namespace Hooks
 	DetourHook<IClientRemoteStorage_IsCloudEnabledForApp_t> IClientRemoteStorage_IsCloudEnabledForApp;
 	DetourHook<IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp_t> IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp;
 	DetourHook<IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp_t> IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp;
-	DetourHook<IClientRemoteStorage_EvaluateRemoteStorageSyncState_t> IClientRemoteStorage_EvaluateRemoteStorageSyncState;
-	DetourHook<IClientRemoteStorage_GetLastKnownSyncState_t> IClientRemoteStorage_GetLastKnownSyncState;
-	DetourHook<IClientRemoteStorage_GetRemoteStorageSyncState_t> IClientRemoteStorage_GetRemoteStorageSyncState;
-	DetourHook<IClientRemoteStorage_HaveLatestFilesLocally_t> IClientRemoteStorage_HaveLatestFilesLocally;
-	DetourHook<IClientRemoteStorage_SynchronizeApp_t> IClientRemoteStorage_SynchronizeApp;
-	DetourHook<IClientRemoteStorage_RunAutoCloudOnAppLaunch_t> IClientRemoteStorage_RunAutoCloudOnAppLaunch;
-	DetourHook<IClientRemoteStorage_RunAutoCloudOnAppExit_t> IClientRemoteStorage_RunAutoCloudOnAppExit;
-	DetourHook<IClientRemoteStorage_PerformAppPlatformChangeFileBackup_t> IClientRemoteStorage_PerformAppPlatformChangeFileBackup;
-	DetourHook<IClientRemoteStorage_PerformAppPlatformChangeFileRestore_t> IClientRemoteStorage_PerformAppPlatformChangeFileRestore;
-	DetourHook<IClientRemoteStorage_ResolveSyncConflict_t> IClientRemoteStorage_ResolveSyncConflict;
-	DetourHook<IClientRemoteStorage_IsAppSyncInProgress_t> IClientRemoteStorage_IsAppSyncInProgress;
-	DetourHook<IClientRemoteStorage_BIsFileSyncing_t> IClientRemoteStorage_BIsFileSyncing;
-	DetourHook<IClientRemoteStorage_LoadLocalFileInfoCache_t> IClientRemoteStorage_LoadLocalFileInfoCache;
-	DetourHook<IClientRemoteStorage_InitializeUGCQuotaUsage_t> IClientRemoteStorage_InitializeUGCQuotaUsage;
-	DetourHook<IClientRemoteStorage_GetConflictingFileTimestamps_t> IClientRemoteStorage_GetConflictingFileTimestamps;
-	DetourHook<IClientRemoteStorage_GetPendingRemoteOperationInfo_t> IClientRemoteStorage_GetPendingRemoteOperationInfo;
-	DetourHook<IClientRemoteStorage_ResetFileRequestState_t> IClientRemoteStorage_ResetFileRequestState;
-	DetourHook<CUserRemoteStorage_InternalGetSyncState_t> CUserRemoteStorage_InternalGetSyncState;
-	DetourHook<CClientJobRemoteStorageSync_BYieldingRunJob_t> CClientJobRemoteStorageSync_BYieldingRunJob;
+
 
 	DetourHook<IClientApps_RunIPCFrame_t> IClientApps_RunIPCFrame;
 	DetourHook<IClientRemoteStorage_RunIPCFrame_t> IClientRemoteStorage_RunIPCFrame;
@@ -2163,71 +1936,7 @@ bool Hooks::setup()
 		setupStorageHook(IClientRemoteStorage_IsCloudEnabledForApp, VFTIndexes::IClientRemoteStorage::IsCloudEnabledForApp, hkClientRemoteStorage_IsCloudEnabledForApp);
 		setupStorageHook(IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp, VFTIndexes::IClientRemoteStorage::IsCloudSyncOnSuspendAvailableForApp, hkClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp);
 		setupStorageHook(IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp, VFTIndexes::IClientRemoteStorage::IsCloudSyncOnSuspendEnabledForApp, hkClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp);
-		setupStorageHook(IClientRemoteStorage_EvaluateRemoteStorageSyncState, VFTIndexes::IClientRemoteStorage::EvaluateRemoteStorageSyncState, hkClientRemoteStorage_EvaluateRemoteStorageSyncState);
-		setupStorageHook(IClientRemoteStorage_GetLastKnownSyncState, VFTIndexes::IClientRemoteStorage::GetLastKnownSyncState, hkClientRemoteStorage_GetLastKnownSyncState);
-		setupStorageHook(IClientRemoteStorage_GetRemoteStorageSyncState, VFTIndexes::IClientRemoteStorage::GetRemoteStorageSyncState, hkClientRemoteStorage_GetRemoteStorageSyncState);
-		setupStorageHook(IClientRemoteStorage_HaveLatestFilesLocally, VFTIndexes::IClientRemoteStorage::HaveLatestFilesLocally, hkClientRemoteStorage_HaveLatestFilesLocally);
-		setupStorageHook(IClientRemoteStorage_SynchronizeApp, VFTIndexes::IClientRemoteStorage::SynchronizeApp, hkClientRemoteStorage_SynchronizeApp);
-		setupStorageHook(IClientRemoteStorage_RunAutoCloudOnAppLaunch, VFTIndexes::IClientRemoteStorage::RunAutoCloudOnAppLaunch, hkClientRemoteStorage_RunAutoCloudOnAppLaunch);
-		setupStorageHook(IClientRemoteStorage_RunAutoCloudOnAppExit, VFTIndexes::IClientRemoteStorage::RunAutoCloudOnAppExit, hkClientRemoteStorage_RunAutoCloudOnAppExit);
-		setupStorageHook(IClientRemoteStorage_PerformAppPlatformChangeFileBackup, VFTIndexes::IClientRemoteStorage::PerformAppPlatformChangeFileBackup, hkClientRemoteStorage_PerformAppPlatformChangeFileBackup);
-		setupStorageHook(IClientRemoteStorage_PerformAppPlatformChangeFileRestore, VFTIndexes::IClientRemoteStorage::PerformAppPlatformChangeFileRestore, hkClientRemoteStorage_PerformAppPlatformChangeFileRestore);
-		setupStorageHook(IClientRemoteStorage_ResolveSyncConflict, VFTIndexes::IClientRemoteStorage::ResolveSyncConflict, hkClientRemoteStorage_ResolveSyncConflict);
-		setupStorageHook(IClientRemoteStorage_IsAppSyncInProgress, VFTIndexes::IClientRemoteStorage::IsAppSyncInProgress, hkClientRemoteStorage_IsAppSyncInProgress);
-		setupStorageHook(IClientRemoteStorage_BIsFileSyncing, VFTIndexes::IClientRemoteStorage::BIsFileSyncing, hkClientRemoteStorage_BIsFileSyncing);
-		setupStorageHook(IClientRemoteStorage_LoadLocalFileInfoCache, VFTIndexes::IClientRemoteStorage::LoadLocalFileInfoCache, hkClientRemoteStorage_LoadLocalFileInfoCache);
-		setupStorageHook(IClientRemoteStorage_InitializeUGCQuotaUsage, VFTIndexes::IClientRemoteStorage::InitializeUGCQuotaUsage, hkClientRemoteStorage_InitializeUGCQuotaUsage);
-		setupStorageHook(IClientRemoteStorage_GetConflictingFileTimestamps, VFTIndexes::IClientRemoteStorage::GetConflictingFileTimestamps, hkClientRemoteStorage_GetConflictingFileTimestamps);
-		setupStorageHook(IClientRemoteStorage_GetPendingRemoteOperationInfo, VFTIndexes::IClientRemoteStorage::GetPendingRemoteOperationInfo, hkClientRemoteStorage_GetPendingRemoteOperationInfo);
-		setupStorageHook(IClientRemoteStorage_ResetFileRequestState, VFTIndexes::IClientRemoteStorage::ResetFileRequestState, hkClientRemoteStorage_ResetFileRequestState);
 
-		// Resolve and hook InternalGetSyncState helper from GetLastKnownSyncState (VFT 72)
-		if (VFTIndexes::IClientRemoteStorage::GetLastKnownSyncState.index != VFTableInfo_t::NO_INDEX
-			&& VFTIndexes::IClientRemoteStorage::GetLastKnownSyncState.index < storage.functions.size())
-		{
-			uintptr_t fnAddr = storage.functions[VFTIndexes::IClientRemoteStorage::GetLastKnownSyncState.index];
-			const uint8_t* pCode = reinterpret_cast<const uint8_t*>(fnAddr);
-			uintptr_t targetHelper = 0;
-			for (size_t i = 0; i < 300; ++i)
-			{
-				if (pCode[i] == 0xe8)
-				{
-					int32_t rel = *reinterpret_cast<const int32_t*>(pCode + i + 1);
-					uintptr_t dst = fnAddr + i + 5 + rel;
-					const uint8_t* pDst = reinterpret_cast<const uint8_t*>(dst);
-					if (pDst[0] == 0x55 && pDst[1] == 0x89 && pDst[2] == 0xe5)
-					{
-						targetHelper = dst;
-						break;
-					}
-				}
-			}
-
-			if (targetHelper != 0)
-			{
-				CUserRemoteStorage_InternalGetSyncState.setup
-				(
-					"CUserRemoteStorage::InternalGetSyncState",
-					targetHelper,
-					hkUserRemoteStorage_InternalGetSyncState
-				);
-			}
-		}
-
-		if (Decompiler::vftables.contains("27CClientJobRemoteStorageSync"))
-		{
-			auto& vft = Decompiler::vftables["27CClientJobRemoteStorageSync"];
-			vft.analyze();
-			if (vft.functions.size() > 18)
-			{
-				CClientJobRemoteStorageSync_BYieldingRunJob.setup
-				(
-					"CClientJobRemoteStorageSync::BYieldingRunJob",
-					vft.functions[18],
-					hkClientJobRemoteStorageSync_BYieldingRunJob
-				);
-			}
-		}
 	}
 
 	Licenses::init();
@@ -2315,25 +2024,7 @@ void Hooks::place()
 	IClientRemoteStorage_IsCloudEnabledForApp.place();
 	IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp.place();
 	IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp.place();
-	IClientRemoteStorage_EvaluateRemoteStorageSyncState.place();
-	IClientRemoteStorage_GetLastKnownSyncState.place();
-	IClientRemoteStorage_GetRemoteStorageSyncState.place();
-	IClientRemoteStorage_HaveLatestFilesLocally.place();
-	IClientRemoteStorage_SynchronizeApp.place();
-	IClientRemoteStorage_RunAutoCloudOnAppLaunch.place();
-	IClientRemoteStorage_RunAutoCloudOnAppExit.place();
-	IClientRemoteStorage_PerformAppPlatformChangeFileBackup.place();
-	IClientRemoteStorage_PerformAppPlatformChangeFileRestore.place();
-	IClientRemoteStorage_ResolveSyncConflict.place();
-	IClientRemoteStorage_IsAppSyncInProgress.place();
-	IClientRemoteStorage_BIsFileSyncing.place();
-	IClientRemoteStorage_LoadLocalFileInfoCache.place();
-	IClientRemoteStorage_InitializeUGCQuotaUsage.place();
-	IClientRemoteStorage_GetConflictingFileTimestamps.place();
-	IClientRemoteStorage_GetPendingRemoteOperationInfo.place();
-	IClientRemoteStorage_ResetFileRequestState.place();
-	CUserRemoteStorage_InternalGetSyncState.place();
-	CClientJobRemoteStorageSync_BYieldingRunJob.place();
+
 }
 
 void Hooks::placeVFTHooks()
@@ -2489,25 +2180,7 @@ void Hooks::remove()
 	IClientRemoteStorage_IsCloudEnabledForApp.remove();
 	IClientRemoteStorage_IsCloudSyncOnSuspendAvailableForApp.remove();
 	IClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp.remove();
-	IClientRemoteStorage_EvaluateRemoteStorageSyncState.remove();
-	IClientRemoteStorage_GetLastKnownSyncState.remove();
-	IClientRemoteStorage_GetRemoteStorageSyncState.remove();
-	IClientRemoteStorage_HaveLatestFilesLocally.remove();
-	IClientRemoteStorage_SynchronizeApp.remove();
-	IClientRemoteStorage_RunAutoCloudOnAppLaunch.remove();
-	IClientRemoteStorage_RunAutoCloudOnAppExit.remove();
-	IClientRemoteStorage_PerformAppPlatformChangeFileBackup.remove();
-	IClientRemoteStorage_PerformAppPlatformChangeFileRestore.remove();
-	IClientRemoteStorage_ResolveSyncConflict.remove();
-	IClientRemoteStorage_IsAppSyncInProgress.remove();
-	IClientRemoteStorage_BIsFileSyncing.remove();
-	IClientRemoteStorage_LoadLocalFileInfoCache.remove();
-	IClientRemoteStorage_InitializeUGCQuotaUsage.remove();
-	IClientRemoteStorage_GetConflictingFileTimestamps.remove();
-	IClientRemoteStorage_GetPendingRemoteOperationInfo.remove();
-	IClientRemoteStorage_ResetFileRequestState.remove();
-	CUserRemoteStorage_InternalGetSyncState.remove();
-	CClientJobRemoteStorageSync_BYieldingRunJob.remove();
+
 
 	//VFT Hooks
 	IClientAppManager_BCanRemotePlayTogether.remove();

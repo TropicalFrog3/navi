@@ -979,9 +979,8 @@ namespace StoreInject
                                         isUnlocked = true;
                                     }
 
-                                    // Only report exists as true if the game files actually exist on disk.
-                                    // Merely having a Lua plugin without game content should not mark the game as Downloaded.
-                                    bool exists = gameExists;
+                                    // Report exists as true if the Lua plugin exists or if the app is unlocked and has game files
+                                    bool exists = (isUnlocked || luaExists) && (gameExists || luaExists);
                                     bool pending = g_pendingRestartApps.count(appId) > 0;
                                     bool downloading = CppAccela::Download::isPending(appId);
                                     // Also treat as downloading if the progress JSON exists with a
@@ -1034,6 +1033,9 @@ namespace StoreInject
                                     
                                     std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
                                     response += "{\"exists\":" + std::string(exists ? "true" : "false") + 
+                                               ",\"hasLua\":" + std::string(luaExists ? "true" : "false") +
+                                               ",\"gameExists\":" + std::string(gameExists ? "true" : "false") +
+                                               ",\"isUnlocked\":" + std::string(isUnlocked ? "true" : "false") +
                                                ",\"pending\":" + std::string(pending ? "true" : "false") +
                                                ",\"downloading\":" + std::string(downloading ? "true" : "false") +
                                                ",\"paused\":" + std::string(paused ? "true" : "false") +

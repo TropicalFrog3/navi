@@ -175,7 +175,7 @@
             .then(function(data) {
                 delete pendingChecks[containerKey];
 
-                if (data.exists || data.pending) {
+                if (data.exists || data.hasLua || (data.provider && data.provider.length > 0) || data.pending) {
                     if (parentNode) delete parentNode.dataset.slsNoLua;
                     createRemoveButton(manageContainer, appid, data.pending, data.onlineFixInstalled, data.autoCrackInstalled, data.provider);
                 } else {
@@ -707,6 +707,7 @@
     }
 
     window.__slsRefreshButtons = function(targetAppId) {
+        pendingChecks = {};
         document.querySelectorAll('[data-sls-injected], [data-sls-no-lua]').forEach(function(el) {
             if (!targetAppId || el.dataset.slsInjected === String(targetAppId) || el.dataset.slsNoLua === String(targetAppId)) {
                 delete el.dataset.slsInjected;
