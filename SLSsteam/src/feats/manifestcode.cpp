@@ -1,7 +1,7 @@
 #include "manifestcode.hpp"
 #include "../log.hpp"
 #include "../sdk/CNetPacket.hpp"
-#include "../CppAccela/accelapath.hpp"
+#include "../model/paths.hpp"
 #include "../atomic_file.hpp"
 #include "../config.hpp"
 
@@ -364,12 +364,12 @@ namespace ManifestCode
     {
         if (depotId == 0 || manifestGid == 0) return false;
 
-        std::string depotcacheDir = CppAccela::Path::depotcacheDir();
+        std::string depotcacheDir = Paths::depotcacheDir();
         if (depotcacheDir.empty()) return false;
 
         std::string manifestFilename = std::to_string(depotId) + "_" + std::to_string(manifestGid) + ".manifest";
         std::string manifestPath = depotcacheDir + "/" + manifestFilename;
-        std::string legacyPath = CppAccela::Path::findSteamRoot() + "/config/depotcache/" + manifestFilename;
+        std::string legacyPath = Paths::findSteamRoot() + "/config/depotcache/" + manifestFilename;
 
         // Primary Check: Already in local cache
         if (std::filesystem::exists(manifestPath))

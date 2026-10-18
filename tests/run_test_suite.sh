@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # tests/run_test_suite.sh
-# Comprehensive offline verification test suite for SLSsteam & ACCELA
+# Comprehensive offline verification test suite for SLSsteam
 # Tests config migration, cache migration, cache backups, atomic updates,
 # payload integrity checks, rollbacks, faked URLs, and category uninstallation.
 #
@@ -11,6 +11,10 @@ REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 TEST_TMP="$(mktemp -d /tmp/sls_test_suite_XXXXXX)"
 
 trap 'rm -rf "$TEST_TMP"' EXIT
+
+# Load legacy migration variables and helper functions
+# shellcheck source=/dev/null
+source "$REPO_ROOT/scripts/legacy_migration.sh"
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -114,10 +118,11 @@ mkdir -p "$SANDBOX_HOME/.config/SLSsteam"
 echo "LogLevels: '0x0'" > "$SANDBOX_HOME/.config/SLSsteam/config.yaml"
 
 # Setup initial cache dirs and untouchable manifest dir
-mkdir -p "$SANDBOX_HOME/.local/share/ACCELA/depots"
-echo "dummy_cache_content" > "$SANDBOX_HOME/.local/share/ACCELA/depots/100.dat"
-mkdir -p "$SANDBOX_HOME/.local/share/ACCELA/morrenus_manifests"
-echo "untouchable_manifest_content" > "$SANDBOX_HOME/.local/share/ACCELA/morrenus_manifests/100.manifest"
+set_legacy_paths "$SANDBOX_HOME"
+mkdir -p "$LEGACY_DEPOTS_DIR"
+echo "dummy_cache_content" > "$LEGACY_DEPOTS_DIR/100.dat"
+mkdir -p "$LEGACY_MANIFESTS_DIR"
+echo "untouchable_manifest_content" > "$LEGACY_MANIFESTS_DIR/100.manifest"
 
 # 2. Build mock release archive
 RELEASE_SRC="$TEST_TMP/mock_release_src"
@@ -187,7 +192,7 @@ if ! ls "$SANDBOX_HOME/.local/share/SLSsteam/cache_backups/" >/dev/null 2>&1; th
 fi
 
 # Verify manifest directory was untouched and NOT backed up
-if [ ! -f "$SANDBOX_HOME/.local/share/ACCELA/morrenus_manifests/100.manifest" ]; then
+if [ ! -f "$LEGACY_MANIFESTS_DIR/100.manifest" ]; then
     fail "Manifest file was modified or deleted during update!"
 fi
 if find "$SANDBOX_HOME/.local/share/SLSsteam/cache_backups/" -name "morrenus_manifests" | grep -q .; then
@@ -302,8 +307,9 @@ pass "Rollback verified: previous live installation was successfully restored."
 
 step "Test Case 7: Uninstaller Category Isolation & Idempotency"
 UNINSTALL_HOME="$TEST_TMP/uninstall_home"
+set_legacy_paths "$UNINSTALL_HOME"
 mkdir -p "$UNINSTALL_HOME/.local/share/SLSsteam" \
-         "$UNINSTALL_HOME/.local/share/ACCELA/morrenus_manifests" \
+         "$LEGACY_MANIFESTS_DIR" \
          "$UNINSTALL_HOME/.steam/steam/config/stplug-in" \
          "$UNINSTALL_HOME/.local/share/Steam/config/stplug-in" \
          "$UNINSTALL_HOME/.local/share/Steam/config/depotcache" \
@@ -319,11 +325,11 @@ mkdir -p "$UNINSTALL_HOME/.local/share/SLSsteam" \
 
 # Category 1 files
 echo "binary" > "$UNINSTALL_HOME/.local/share/SLSsteam/SLSsteam.so"
-echo "binary" > "$UNINSTALL_HOME/.local/share/ACCELA/accela"
+echo "binary" > "$LEGACY_APP_BIN"
 echo "binary" > "$UNINSTALL_HOME/.headcrab/headcrab"
 
 # Preserved manifest and lua files (strictly untouched, no deletion, no changes)
-echo "untouchable_manifest_100" > "$UNINSTALL_HOME/.local/share/ACCELA/morrenus_manifests/100.manifest"
+echo "untouchable_manifest_100" > "$LEGACY_MANIFESTS_DIR/100.manifest"
 echo "untouchable_lua_script" > "$UNINSTALL_HOME/.steam/steam/config/stplug-in/100.lua"
 echo "untouchable_plugin_manifest" > "$UNINSTALL_HOME/.steam/steam/config/stplug-in/100.manifest"
 echo "untouchable_lua_script2" > "$UNINSTALL_HOME/.local/share/Steam/config/stplug-in/200.lua"
@@ -334,7 +340,7 @@ echo "untouchable_steam_depotcache_manifest3" > "$UNINSTALL_HOME/.local/share/St
 # Category 2 files: Steam wrapper and backup
 echo "ORIGINAL_NATIVE_STEAM" > "$UNINSTALL_HOME/.local/bin/steam.pre-slssteam.bak"
 echo "MODIFIED_SLS_WRAPPER with SLSsteam LD_AUDIT" > "$UNINSTALL_HOME/.local/bin/steam"
-echo "Desktop Entry for accela" > "$UNINSTALL_HOME/.local/share/applications/accela.desktop"
+echo "Desktop Entry" > "$UNINSTALL_HOME/.local/share/applications/$LEGACY_DESKTOP_NAME"
 echo "tracking" > "$UNINSTALL_HOME/.SLSsteam.installed"
 
 # Category 3 files: User configs
@@ -349,12 +355,12 @@ HOME="$UNINSTALL_HOME" SLS_UNINSTALL_KEEP_CONFIGS=1 "$REPO_ROOT/uninstall.sh"
 if [ -d "$UNINSTALL_HOME/.local/share/SLSsteam" ] || [ -d "$UNINSTALL_HOME/.headcrab" ]; then
     fail "Category 1 directories were not removed!"
 fi
-if [ -f "$UNINSTALL_HOME/.local/share/ACCELA/accela" ]; then
-    fail "ACCELA binary was not removed!"
+if [ -f "$LEGACY_APP_BIN" ]; then
+    fail "Legacy application binary was not removed!"
 fi
 
 # Verify morrenus_manifests PRESERVED intact
-if [ ! -f "$UNINSTALL_HOME/.local/share/ACCELA/morrenus_manifests/100.manifest" ]; then
+if [ ! -f "$LEGACY_MANIFESTS_DIR/100.manifest" ]; then
     fail "morrenus_manifests was deleted! Must be strictly preserved."
 fi
 
@@ -380,8 +386,8 @@ WRAPPER_CONTENT=$(cat "$UNINSTALL_HOME/.local/bin/steam")
 if [ "$WRAPPER_CONTENT" != "ORIGINAL_NATIVE_STEAM" ]; then
     fail "Restored wrapper content does not match original backup!"
 fi
-if [ -f "$UNINSTALL_HOME/.local/share/applications/accela.desktop" ]; then
-    fail "accela.desktop was not removed!"
+if [ -f "$UNINSTALL_HOME/.local/share/applications/$LEGACY_DESKTOP_NAME" ]; then
+    fail "Legacy desktop entry was not removed!"
 fi
 if [ -f "$UNINSTALL_HOME/.SLSsteam.installed" ]; then
     fail "Tracking file was not removed!"
@@ -405,7 +411,7 @@ if [ -f "$UNINSTALL_HOME/.config/SLSsteam/config.yaml" ] || [ -f "$UNINSTALL_HOM
 fi
 
 # Verify morrenus_manifests, stplug-in, and depotcache are STILL preserved even when configs are removed
-if [ ! -f "$UNINSTALL_HOME/.local/share/ACCELA/morrenus_manifests/100.manifest" ]; then
+if [ ! -f "$LEGACY_MANIFESTS_DIR/100.manifest" ]; then
     fail "morrenus_manifests was deleted during config removal! Must be strictly preserved."
 fi
 if [ ! -f "$UNINSTALL_HOME/.steam/steam/config/stplug-in/100.lua" ]; then
@@ -432,8 +438,9 @@ fi
 pass "Atomic staging, merge, and cancellation safety unit tests passed successfully."
 
 step "Test Case 9: Live Steam UI Flow & Native Hook Integration Test"
+set_legacy_paths "$HOME"
 PYTHON_CMD=""
-for cand in "$HOME/deck_venv/bin/python" python3 /usr/bin/python3 "$HOME/.local/share/ACCELA/.venv/bin/python"; do
+for cand in "$HOME/deck_venv/bin/python" python3 /usr/bin/python3 "$LEGACY_VENV_PYTHON"; do
     if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "import websocket" >/dev/null 2>&1; then
         PYTHON_CMD="$cand"
         break

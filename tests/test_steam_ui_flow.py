@@ -2,7 +2,7 @@
 """
 tests/test_steam_ui_flow.py
 ===========================
-Comprehensive end-to-end integration and flow test for SLSsteam & ACCELA against live Steam:
+Comprehensive end-to-end integration and flow test for SLSsteam against live Steam:
   1. CEF preflight & process vitality check
   2. SharedJSContext MobX store inspection
   3. React controlled search input automation
@@ -1544,7 +1544,7 @@ def main():
     CONFIG["skip_if_no_steam"] = args.skip_if_no_steam
 
     print(f"\n{BOLD}================================================================{RESET}")
-    print(f"{BOLD}SLSsteam & ACCELA: Automated Full Lifecycle Steam UI Flow Test{RESET}")
+    print(f"{BOLD}SLSsteam: Automated Full Lifecycle Steam UI Flow Test{RESET}")
     print(f"Target: AppID {CONFIG['appid']} ('{CONFIG['appname']}') on CEF port {CONFIG['port']}")
     print(f"{BOLD}================================================================{RESET}")
 

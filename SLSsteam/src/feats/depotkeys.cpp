@@ -230,7 +230,7 @@ std::string DepotKeys::getDepotKey(uint32_t depotId)
 	return "";
 }
 
-bool DepotKeys::isAccelaApp(uint32_t appId)
+bool DepotKeys::isKeyManagedApp(uint32_t appId)
 {
 	std::lock_guard<std::mutex> lock(g_depotKeysMutex);
 	if (g_appDepots.count(appId) > 0)
@@ -336,8 +336,8 @@ static void handleOwnershipTicketResponse(CNetPacket* pkt)
 		return;
 	}
 
-	// Only intercept for ACCELA-managed apps
-	if (!DepotKeys::isAccelaApp(appId))
+	// Only intercept for key-managed apps
+	if (!DepotKeys::isKeyManagedApp(appId))
 	{
 		return;
 	}
@@ -348,7 +348,7 @@ static void handleOwnershipTicketResponse(CNetPacket* pkt)
 		LuaGenerator::generateForApp(appId);
 	}
 
-	LOG_INFO("DepotKeys: Ownership ticket failed for ACCELA app %u (eresult=%u), injecting OK\n",
+	LOG_INFO("DepotKeys: Ownership ticket failed for app %u (eresult=%u), injecting OK\n",
 			 appId, result);
 
 	CMsgProtoBufHeader hdr = pkt->deserializeHeader();

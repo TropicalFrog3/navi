@@ -1,7 +1,6 @@
 # Build artifacts and object files
 /bin/
 SLSsteam/bin/
-!ACCELA/bin/
 obj/
 build/
 dist/
@@ -11,8 +10,6 @@ dist/
 *.dylib
 *.exe
 *.dll
-!ACCELA/bin/src/deps/*.dll
-!ACCELA/bin/src/deps/**/*.dll
 
 # Python
 __pycache__/
@@ -84,7 +81,7 @@ Dev-Plan.txt
 
 release/*
 prod-release/*
-SLSsteam-n-ACCELA.zip
+SLSsteam.zip
 .ag*/*
 .cla*/*
 steam-os/*

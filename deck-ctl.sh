@@ -49,7 +49,7 @@ Connection & Shell:
   tunnel-stop                Terminate CEF port 8080 SSH tunnel
 
 File Synchronization & Deployment:
-  sync                       Rsync workspace repository to ~/SLSsteam_n_ACCELA on Deck
+  sync                       Rsync workspace repository to ~/SLSsteam on Deck
   deploy                     Sync repo, run ./install.sh on Deck, and restart Steam
   verify                     Verify Steam Deck installation, log health, and feature status
   test [all|flow]            Execute full test suite or UI flow test on the Steam Deck
@@ -132,11 +132,11 @@ EOF
         # Check repository sync state on Deck
         local repo_status
         repo_status=$(ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" \
-          "[ -d ~/SLSsteam_n_ACCELA ] && echo 'EXISTS' || echo 'MISSING'")
+          "[ -d ~/SLSsteam ] && echo 'EXISTS' || echo 'MISSING'")
         if [ "$repo_status" = "EXISTS" ]; then
-            echo " [✓] Workspace Sync       : ~/SLSsteam_n_ACCELA exists on Deck"
+            echo " [✓] Workspace Sync       : ~/SLSsteam exists on Deck"
         else
-            echo " [!] Workspace Sync       : ~/SLSsteam_n_ACCELA not found (run: $(basename "$0") sync)"
+            echo " [!] Workspace Sync       : ~/SLSsteam not found (run: $(basename "$0") sync)"
         fi
     else
         echo " [✗] SSH Authentication   : FAILED ($TARGET_USER@$TARGET_HOST)"
@@ -183,7 +183,7 @@ cmd_sudo() {
 
 cmd_sync() {
     echo "=========================================================="
-    echo " Syncing workspace to Steam Deck: ~/SLSsteam_n_ACCELA"
+    echo " Syncing workspace to Steam Deck: ~/SLSsteam"
     echo "=========================================================="
     rsync -avz --delete-after \
       --exclude '.git' \
@@ -191,7 +191,7 @@ cmd_sync() {
       --exclude '.vscode' \
       --exclude '.claude' \
       --exclude 'steam-os/' \
-      --exclude 'SLSsteam-n-ACCELA.zip' \
+      --exclude 'SLSsteam.zip' \
       --exclude '.venv' \
       --exclude 'venv' \
       --exclude '__pycache__' \
@@ -199,7 +199,7 @@ cmd_sync() {
       --exclude '*.ppm' \
       --exclude '*.log' \
       -e "ssh ${SSH_OPTS[*]}" \
-      "$REPO_DIR/" "$TARGET_USER@$TARGET_HOST:~/SLSsteam_n_ACCELA/"
+      "$REPO_DIR/" "$TARGET_USER@$TARGET_HOST:~/SLSsteam/"
     echo " [✓] Workspace sync complete!"
 }
 
@@ -210,7 +210,7 @@ cmd_deploy() {
     echo " Executing ./install.sh on Steam Deck..."
     echo "=========================================================="
     ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'bash -s' << 'EOF'
-cd ~/SLSsteam_n_ACCELA
+cd ~/SLSsteam
 chmod +x ./install.sh ./uninstall.sh SLSsteam/setup.sh 2>/dev/null || true
 ./install.sh
 EOF
@@ -437,9 +437,9 @@ cmd_test() {
     echo " Running Tests on Steam Deck (${TARGET_HOST})..."
     echo "=========================================================="
     if [ "$suite" = "flow" ] || [ "$suite" = "ui" ]; then
-        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '~/deck_venv/bin/python ~/SLSsteam_n_ACCELA/tests/test_steam_ui_flow.py'
+        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '~/deck_venv/bin/python ~/SLSsteam/tests/test_steam_ui_flow.py'
     else
-        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'cd ~/SLSsteam_n_ACCELA && ./tests/run_test_suite.sh'
+        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'cd ~/SLSsteam && ./tests/run_test_suite.sh'
     fi
 }
 
@@ -514,13 +514,6 @@ cmd_verify() {
             echo " [✓] StoreInject Server Active"
         else
             echo " [?] StoreInject not yet recorded in log"
-        fi
-
-        # ACCELA download / helper
-        if grep -q -i "accela" "$log" 2>/dev/null; then
-            echo " [✓] ACCELA Integration Active"
-        else
-            echo " [?] ACCELA integration not yet recorded in log"
         fi
 
         # Compat tool fallback or native

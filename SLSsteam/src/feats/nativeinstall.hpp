@@ -31,6 +31,9 @@ namespace NativeInstall
     };
 
     void init();
+    void cacheInstallRequest(IClientAppManager* pMgr, uint32_t appId, uint32_t library, uint8_t a4);
+    void discardCachedInstall(uint32_t appId);
+    bool takeCachedInstall(uint32_t appId, QueuedInstall& out);
     bool arm(uint32_t appId, const std::string& csvDepots); // Called from HTTP thread
     void disarm(uint32_t appId);                            // Disarm and remove persistence
     void runFrame(InstallAppFn original);                   // Main thread only (ProcessIPCFrame)

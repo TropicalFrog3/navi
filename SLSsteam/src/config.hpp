@@ -77,7 +77,6 @@ public:
 	MTVariable<uint32_t> logLevels;
 	MTVariable<bool> dumpInterfaceMaps;
 	MTVariable<bool> extendedLogging;
-	MTVariable<std::string> downloadMode;
 
 	// API Auth
 	MTVariable<std::string> ryuuKey;

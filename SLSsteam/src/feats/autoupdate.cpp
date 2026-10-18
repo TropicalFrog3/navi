@@ -21,7 +21,7 @@
 
 namespace AutoUpdate
 {
-    static const char* REMOTE_VERSION_URL = "https://raw.githubusercontent.com/TropicalFrog3/SLSsteam_n_ACCELA/refs/heads/main/SLSsteam/res/version";
+    static const char* REMOTE_VERSION_URL = "https://raw.githubusercontent.com/TropicalFrog3/SLSsteam/refs/heads/main/SLSsteam/res/version";
 
     static std::string getRemoteVersionUrl()
     {
@@ -586,7 +586,7 @@ namespace AutoUpdate
             // 2.5 Back up cache directories (luas and manifest directories are strictly preserved and untouched)
             script << "CACHE_BACKUP_DIR=\"$HOME/.local/share/SLSsteam/cache_backups/cache_$(date +%Y%m%d_%H%M%S)\"\n";
             script << "mkdir -p \"$CACHE_BACKUP_DIR\"\n";
-            script << "for cdir in \"$HOME/.local/share/ACCELA/depots\" \"$HOME/.local/share/SLSsteam/cache\"; do\n";
+            script << "for cdir in \"$HOME/.local/share/SLSsteam/cache\"; do\n";
             script << "    if [ -d \"$cdir\" ]; then\n";
             script << "        mkdir -p \"$CACHE_BACKUP_DIR/$(basename \"$cdir\")\"\n";
             script << "        cp -a \"$cdir/.\" \"$CACHE_BACKUP_DIR/$(basename \"$cdir\")/\" 2>/dev/null || true\n";
@@ -635,7 +635,7 @@ namespace AutoUpdate
             script << "    fi\n";
             script << "else\n";
             script << "    log \"Update succeeded! Cleaning up backup and staging...\"\n";
-            script << "    [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u normal \"SLSsteam\" \"SLSsteam & ACCELA updated successfully! Relaunching Steam...\"\n";
+            script << "    [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u normal \"SLSsteam\" \"SLSsteam updated successfully! Relaunching Steam...\"\n";
             script << "    rm -rf \"$BACKUP_DIR\"\n";
             script << "    rm -rf \"" << stagingDir << "\"\n";
             script << "fi\n\n";

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # prod-release/install.sh
-# Master installation script for SLSsteam and ACCELA
+# Master installation script for SLSsteam
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -107,50 +107,24 @@ install_bundled_slssteam() {
     log_info "Bundled SLSsteam payload installed successfully."
 }
 
-find_accela_dir() {
-    if [ -d "$SCRIPT_DIR/ACCELA" ]; then
-        printf '%s\n' "$SCRIPT_DIR/ACCELA"
-        return 0
-    fi
-
-    local candidate
-    for candidate in "$SCRIPT_DIR"/ACCELA-*; do
-        if [ -f "$candidate/ACCELAINSTALL" ]; then
-            printf '%s\n' "$candidate"
-            return 0
-        fi
-    done
-
-    return 1
-}
-
 log_info "Starting full installation..."
 
-# 1. Install ACCELA
-log_info "Installing ACCELA..."
-ACCELA_DIR="$(find_accela_dir || true)"
-if [ -n "$ACCELA_DIR" ]; then
-    cd "$ACCELA_DIR"
-    if [ -f "./ACCELAINSTALL" ]; then
-        chmod +x ./ACCELAINSTALL
-        ./ACCELAINSTALL
-        if [ $? -eq 0 ]; then
-            log_info "ACCELA installed successfully."
-        else
-            log_error "ACCELA installation failed."
-            exit 1
-        fi
-    else
-        log_error "ACCELA/ACCELAINSTALL not found."
-        exit 1
+# Source legacy migration helper if available to preserve manifests and clean legacy artifacts
+for cand in \
+    "$SCRIPT_DIR/scripts/legacy_migration.sh" \
+    "$SCRIPT_DIR/legacy_migration.sh"; do
+    if [ -f "$cand" ]; then
+        # shellcheck source=/dev/null
+        source "$cand"
+        break
     fi
-    cd "$SCRIPT_DIR"
-else
-    log_error "ACCELA directory not found in the release archive."
-    exit 1
+done
+
+if type migrate_legacy_manifests >/dev/null 2>&1; then
+    migrate_legacy_manifests
 fi
 
-# 2. Install Headcrab (SLSsteam and Steam client integration)
+# 1. Install Headcrab (SLSsteam and Steam client integration)
 log_info "Installing Headcrab and SLSsteam..."
 HEADCRAB_URL="${SLS_HEADCRAB_URL:-https://raw.githubusercontent.com/Deadboy666/h3adcr-b/main/headcrab.sh}"
 HEADCRAB_SCRIPT="$(mktemp "${TMPDIR:-/tmp}/headcrab.XXXXXX.sh")"
@@ -251,4 +225,4 @@ EOF
 fi
 
 log_info "Full installation complete!"
-echo -e "${GREEN}ACCELA, SLSsteam, and Headcrab have been installed to their respective locations in ~/.local/share/${NC}"
+echo -e "${GREEN}SLSsteam and Headcrab have been installed to their respective locations in ~/.local/share/${NC}"

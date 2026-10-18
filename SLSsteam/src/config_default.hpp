@@ -150,7 +150,4 @@ DumpClientInterfaces: no
 ExtendedLogging: no
 RyuuKey: ""
 DepotBoxKey: ""
-HubcapKey: ""
-
-# Download mode: "native" (Steam native content system) or "accela" (accela-helper CLI)
-DownloadMode: "native")";
+HubcapKey: "")";

@@ -579,18 +579,6 @@
                         if (!data || !data.success) {
                             throw new Error((data && data.message) ? data.message : 'Install failed');
                         }
-
-                        if (data.mode === 'accela') {
-                            try {
-                                var evt = new CustomEvent('sls-download-started', { detail: { appid: appid } });
-                                window.dispatchEvent(evt);
-                                window.postMessage({ type: 'sls-download-started', appid: appid }, '*');
-                                if (window.top && window.top !== window) {
-                                    window.top.dispatchEvent(new CustomEvent('sls-download-started', { detail: { appid: appid } }));
-                                    window.top.postMessage({ type: 'sls-download-started', appid: appid }, '*');
-                                }
-                            } catch(e) {}
-                        }
                         closeSuccess();
                     })
                     .catch(function(err) {

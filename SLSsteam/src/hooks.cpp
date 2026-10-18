@@ -18,7 +18,6 @@
 #include "feats/depotkeys.hpp"
 #include "feats/luagenerator.hpp"
 #include "libmem/libmem.h"
-#include "CppAccela/acceladownload.hpp"
 #include "feats/cdpinject.hpp"
 #include "feats/nativeinstall.hpp"
 #include "feats/manifestcode.hpp"
@@ -220,8 +219,6 @@ static uint32_t hkClientApps_GetAppDataSection(void* pClientApps, uint32_t appId
     
     return ret;
 }
-// Pending install queue and PendingInstallTask are now owned by
-// CppAccela::Download (acceladownload.hpp/.cpp).
 
 template<typename T>
 Hook<T>::Hook(const char* name)
@@ -657,12 +654,6 @@ static uint32_t hkSteamEngine_ProcessIPCFrame(CSteamEngine* pSteamEngine, HSteam
 
 		//LOG_DEBUG("Out\n%s\n", MemHlp::hexdump(pBufOut->mem.base, pBufOut->offset).c_str());
 
-		// Poll all pending ACCELA download children (WNOHANG).
-		// Delegates to CppAccela::Download::pollPendingInstalls().
-		CppAccela::Download::pollPendingInstalls(
-            Hooks::IClientAppManager_InstallApp.originalFn.fn
-        );
-
 		NativeInstall::runFrame(
 			Hooks::IClientAppManager_InstallApp.originalFn.fn
 		);
@@ -1041,12 +1032,12 @@ static bool hkClientAppManager_GetAppUpdateInfo(IClientAppManager* pClientAppMan
 		return success;
 	}
 
-	// ACCELA-installed apps must never report update info.
+	// Custom installed apps must never report update info.
 	// Steam has no depot keys or content sessions for them, so any update
 	// attempt fails with "content still encrypted".
 	if (Apps::isInstalled(appId))
 	{
-		LOG_ONCE("Disabled updates for ACCELA-installed app %u\n", appId);
+		LOG_ONCE("Disabled updates for custom installed app %u\n", appId);
 		return false;
 	}
 
@@ -1084,24 +1075,17 @@ static uint32_t hkClientAppManager_InstallApp(IClientAppManager* pClientAppManag
         return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
     }
 
-    // 4. Skip if already downloaded/installed via ACCELA or Steam
+    // 4. Skip if already downloaded/installed or game files exist
     if (Apps::isInstalled(appId) || Apps::gameFilesExist(appId))
     {
         LOG_INFO("hkClientAppManager_InstallApp: App %u already installed, skipping depot selection\n", appId);
         return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
     }
 
-    // 5. Skip if an ACCELA download is already active/pending for this app
-    if (CppAccela::Download::isPending(appId))
-    {
-        LOG_INFO("hkClientAppManager_InstallApp: App %u download already pending, skipping depot selection\n", appId);
-        return Hooks::IClientAppManager_InstallApp.originalFn.fn(pClientAppManager, appId, library, a4);
-    }
-
     LOG_DEBUG("App %u (locallyOwned=%d, isAddedAppId=%d). Triggering UI for depot selection.\n", appId, locallyOwned, g_config.isAddedAppId(appId));
 
     // Cache the install request so we can resume it after the user selects depots
-    CppAccela::Download::cacheInstallRequest(pClientAppManager, appId, library, a4);
+    NativeInstall::cacheInstallRequest(pClientAppManager, appId, library, a4);
 
     // Trigger the CDP injection to show the UI asynchronously so we don't freeze the UI
     std::thread([appId]() {
@@ -1115,23 +1099,6 @@ static uint32_t hkClientAppManager_InstallApp(IClientAppManager* pClientAppManag
 
 static void hkClientAppManager_ChangeAppDownloadQueuePlacement(IClientAppManager* pClientAppManager, uint32_t appId, uint32_t placement)
 {
-	// LOG_INFO("hkClientAppManager_ChangeAppDownloadQueuePlacement(%p, %u, %u)\n", (void*)pClientAppManager, appId, placement);
-
-	// bool locallyOwned = g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId);
-
-	// if(locallyOwned && !g_config.isAddedAppId(appId))
-	// {
-	// 	Hooks::IClientAppManager_ChangeAppDownloadQueuePlacement.originalFn.fn(pClientAppManager, appId, placement);
-	// 	return;
-	// }
-
-	// LOG_DEBUG("App %u (locallyOwned=%d, isAddedAppId=%d). Launching ACCELA download pipeline for update/placement.\n", appId, locallyOwned, g_config.isAddedAppId(appId));
-
-	// if (!CppAccela::Download::launchForApp(pClientAppManager, appId, 1, 0))
-	// {
-	// 	LOG_WARN("Failed to launch ACCELA download for app %u\n", appId);
-	// }
-
 	return Hooks::IClientAppManager_ChangeAppDownloadQueuePlacement.originalFn.fn(pClientAppManager, appId, placement);
 }
 
@@ -1151,13 +1118,10 @@ static uint32_t hkClientAppManager_UninstallApp(IClientAppManager* pClientAppMan
         return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
     }
 
-    // If there is an active ACCELA download for this app, cancel it
-    CppAccela::Download::cancelForApp(appId);
-
     // Remove from our installed tracking so GetAppInstallState stops forcing FULLY_INSTALLED
     Apps::removeInstalled(appId);
     
-    // Actually delete the files from disk, as Steam doesn't have proper depot info for ACCELA games
+    // Actually delete the files from disk, as Steam doesn't have proper depot info for custom installed games
     Apps::deleteGameFiles(appId);
 
     return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);

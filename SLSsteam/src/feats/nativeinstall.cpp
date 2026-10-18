@@ -5,9 +5,8 @@
 #include "../log.hpp"
 #include "../config.hpp"
 #include "../atomic_file.hpp"
-#include "../CppAccela/acceladownload.hpp"
-#include "../CppAccela/accelaluaparser.hpp"
-#include "../CppAccela/accelapath.hpp"
+#include "../model/lua_parser.hpp"
+#include "../model/paths.hpp"
 
 #include <yaml-cpp/yaml.h>
 #include <filesystem>
@@ -18,6 +17,7 @@ namespace NativeInstall
 {
     static std::unordered_map<uint32_t, std::shared_ptr<Selection>> s_selections;
     static std::vector<QueuedInstall> s_queuedInstalls;
+    static std::unordered_map<uint32_t, QueuedInstall> s_cachedRequests;
     static std::mutex s_mutex;
     static bool s_initialized = false;
 
@@ -149,14 +149,40 @@ namespace NativeInstall
         s_initialized = true;
     }
 
+    void cacheInstallRequest(IClientAppManager* pMgr, uint32_t appId, uint32_t library, uint8_t a4)
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        s_cachedRequests[appId] = { pMgr, appId, library, a4 };
+        LOG_INFO("NativeInstall: cached install request for appid=%u\n", appId);
+    }
+
+    void discardCachedInstall(uint32_t appId)
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        s_cachedRequests.erase(appId);
+    }
+
+    bool takeCachedInstall(uint32_t appId, QueuedInstall& out)
+    {
+        std::lock_guard<std::mutex> lock(s_mutex);
+        auto it = s_cachedRequests.find(appId);
+        if (it == s_cachedRequests.end())
+        {
+            return false;
+        }
+        out = it->second;
+        s_cachedRequests.erase(it);
+        return true;
+    }
+
     bool arm(uint32_t appId, const std::string& csvDepots)
     {
         try
         {
             init();
 
-            CppAccela::Download::CachedRequest cached;
-            if (!CppAccela::Download::takeCachedInstall(appId, cached))
+            QueuedInstall cached;
+            if (!takeCachedInstall(appId, cached))
             {
                 LOG_WARN("NativeInstall: arm failed, no cached install request for appId=%u\n", appId);
                 return false;
@@ -192,12 +218,12 @@ namespace NativeInstall
             }
 
             // Parse Lua plugin to collect manifest GIDs and sizes
-            std::string luaPath = CppAccela::Path::stplugDir() + "/" + std::to_string(appId) + ".lua";
+            std::string luaPath = Paths::stplugDir() + "/" + std::to_string(appId) + ".lua";
             if (std::filesystem::exists(luaPath))
             {
                 try
                 {
-                    auto res = CppAccela::LuaParser::parseFile(luaPath);
+                    auto res = LuaParser::parseFile(luaPath);
                     for (const auto& [depotStr, gidStr] : res.manifests)
                     {
                         if (depotStr.empty() || gidStr.empty()) continue;

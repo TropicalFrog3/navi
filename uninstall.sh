@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # uninstall.sh
-# Complete Uninstallation Script for SLSsteam, ACCELA, and Headcrab
+# Complete Uninstallation Script for SLSsteam and Headcrab
 #
 set -u
 
@@ -10,6 +10,30 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+for cand in \
+    "$SCRIPT_DIR/scripts/legacy_migration.sh" \
+    "$SCRIPT_DIR/legacy_migration.sh" \
+    "$HOME/.local/share/SLSsteam/scripts/legacy_migration.sh"; do
+    if [ -f "$cand" ]; then
+        # shellcheck source=/dev/null
+        source "$cand"
+        break
+    fi
+done
+
+type set_legacy_paths >/dev/null 2>&1 && set_legacy_paths "$HOME"
+
+# Safe defaults under set -u if migration helper wasn't loaded
+LEGACY_APP_DIR="${LEGACY_APP_DIR:-}"
+LEGACY_MANIFESTS_DIR="${LEGACY_MANIFESTS_DIR:-}"
+LEGACY_DEPOTS_DIR="${LEGACY_DEPOTS_DIR:-}"
+LEGACY_DESKTOP_NAME="${LEGACY_DESKTOP_NAME:-}"
+LEGACY_ICON_NAME="${LEGACY_ICON_NAME:-}"
+LEGACY_HELPER_BIN="${LEGACY_HELPER_BIN:-}"
+LEGACY_CACHE_DIR="${LEGACY_CACHE_DIR:-}"
+LEGACY_BIN_NAME="${LEGACY_BIN_NAME:-}"
 
 log_info() {
     echo -e "${GREEN}[INFO]${NC} $1"
@@ -36,16 +60,16 @@ confirm_uninstall() {
     fi
     if [ "$HAS_ZENITY" -eq 1 ]; then
         zenity --question \
-            --title="SLSsteam & ACCELA Uninstaller" \
-            --text="Are you sure you want to completely uninstall SLSsteam, ACCELA, and associated components?" \
+            --title="SLSsteam Uninstaller" \
+            --text="Are you sure you want to completely uninstall SLSsteam and associated components?" \
             --ok-label="Uninstall" --cancel-label="Cancel" \
             --width=450 2>/dev/null
         return $?
     else
         echo -e "${YELLOW}====================================================${NC}"
-        echo -e "${YELLOW}      SLSsteam & ACCELA Complete Uninstaller        ${NC}"
+        echo -e "${YELLOW}      SLSsteam Complete Uninstaller        ${NC}"
         echo -e "${YELLOW}====================================================${NC}"
-        read -r -p "Are you sure you want to completely uninstall SLSsteam and ACCELA? [y/N]: " response
+        read -r -p "Are you sure you want to completely uninstall SLSsteam? [y/N]: " response
         case "$response" in
             [yY][eE][sS]|[yY])
                 return 0
@@ -120,15 +144,14 @@ for dir in "${APP_DIRS[@]}"; do
     fi
 done
 
-# Clean ACCELA application files, but explicitly preserve the manifest directory
-ACCELA_DIR="$HOME/.local/share/ACCELA"
-if [ -d "$ACCELA_DIR" ]; then
-    if [ -d "$ACCELA_DIR/morrenus_manifests" ]; then
-        find "$ACCELA_DIR" -mindepth 1 -maxdepth 1 ! -name "morrenus_manifests" -exec rm -rf {} +
-        log_info "Cleaned ACCELA binaries while preserving manifest directory ($ACCELA_DIR/morrenus_manifests) intact."
+# Clean legacy application files, but explicitly preserve the manifest directory
+if [ -n "$LEGACY_APP_DIR" ] && [ -d "$LEGACY_APP_DIR" ]; then
+    if [ -n "$LEGACY_MANIFESTS_DIR" ] && [ -d "$LEGACY_MANIFESTS_DIR" ]; then
+        find "$LEGACY_APP_DIR" -mindepth 1 -maxdepth 1 ! -name "$(basename "$LEGACY_MANIFESTS_DIR")" -exec rm -rf {} +
+        log_info "Cleaned legacy binaries while preserving manifest directory intact."
     else
-        rm -rf "$ACCELA_DIR"
-        log_info "Removed directory: $ACCELA_DIR"
+        rm -rf "$LEGACY_APP_DIR"
+        log_info "Removed directory: $LEGACY_APP_DIR"
     fi
 fi
 
@@ -173,9 +196,9 @@ for steam_root in "$HOME/.local/share/Steam" "$HOME/.steam/steam"; do
 done
 
 # 3. Helper binaries and symlinks
-if [ -e "$HOME/.local/bin/accela-download" ]; then
-    rm -f "$HOME/.local/bin/accela-download"
-    log_info "Removed helper: $HOME/.local/bin/accela-download"
+if [ -n "$LEGACY_HELPER_BIN" ] && [ -e "$LEGACY_HELPER_BIN" ]; then
+    rm -f "$LEGACY_HELPER_BIN"
+    log_info "Removed legacy helper: $LEGACY_HELPER_BIN"
 fi
 
 # 4. Steam plugin and manifest directories (luas and depot manifests)
@@ -185,7 +208,7 @@ log_info "Preserving luas and manifest directories intact (e.g. stplug-in and co
 # 5. Desktop entries & Icons
 DESKTOP_DIR="$HOME/.local/share/applications"
 if [ -d "$DESKTOP_DIR" ]; then
-    for entry in "accela.desktop" "headcrab.desktop"; do
+    for entry in ${LEGACY_DESKTOP_NAME:+"$LEGACY_DESKTOP_NAME"} "headcrab.desktop"; do
         if [ -f "$DESKTOP_DIR/$entry" ]; then
             rm -f "$DESKTOP_DIR/$entry"
             log_info "Removed desktop entry: $DESKTOP_DIR/$entry"
@@ -203,9 +226,11 @@ if [ -d "$DESKTOP_DIR" ]; then
 fi
 
 # Remove icons
-rm -f "$HOME/.local/share/icons/hicolor/"*/apps/accela.png 2>/dev/null || true
+if [ -n "$LEGACY_ICON_NAME" ]; then
+    rm -f "$HOME/.local/share/icons/hicolor/"*/apps/"$LEGACY_ICON_NAME" 2>/dev/null || true
+    rm -f "$HOME/.local/share/pixmaps/$LEGACY_ICON_NAME" 2>/dev/null || true
+fi
 rm -f "$HOME/.local/share/icons/hicolor/"*/apps/headcrab.png 2>/dev/null || true
-rm -f "$HOME/.local/share/pixmaps/accela.png" 2>/dev/null || true
 
 # 6. Flatpak environment overrides
 if command -v flatpak >/dev/null 2>&1; then
@@ -254,8 +279,10 @@ if [ "$REMOVE_CONFIGS" -eq 1 ]; then
         "$HOME/.local/share/SLSsteam/cache"
         "$HOME/.local/share/SLSsteam/cache_backups"
         "$HOME/.cache/SLSsteam"
-        "$HOME/.cache/ACCELA"
     )
+    if [ -n "$LEGACY_CACHE_DIR" ]; then
+        CONFIG_DIRS+=("$LEGACY_CACHE_DIR")
+    fi
     for cdir in "${CONFIG_DIRS[@]}"; do
         if [ -d "$cdir" ]; then
             rm -rf "$cdir"
@@ -283,7 +310,7 @@ log_info "Uninstallation completed successfully!"
 
 if [ "$HAS_ZENITY" -eq 1 ] && [ "${SLS_UNINSTALL_AUTO_ACCEPT:-0}" != "1" ]; then
     zenity --info \
-        --title="SLSsteam & ACCELA Uninstaller" \
+        --title="SLSsteam Uninstaller" \
         --text="Uninstallation completed successfully!\n\nAll components have been cleanly removed." \
         --width=350 2>/dev/null
 fi

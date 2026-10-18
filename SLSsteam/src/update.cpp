@@ -19,8 +19,8 @@ std::map<std::string, std::unordered_set<std::string>> Updater::clientHashMap = 
 
 constexpr static const char* urls[] =
 {
-	"https://raw.githubusercontent.com/TropicalFrog3/SLSsteam_n_ACCELA/refs/heads/main/SLSsteam/res/updates.yaml",
-	"https://cdn.jsdelivr.net/gh/TropicalFrog3/SLSsteam_n_ACCELA/SLSsteam/res/updates.yaml",
+	"https://raw.githubusercontent.com/TropicalFrog3/SLSsteam/refs/heads/main/SLSsteam/res/updates.yaml",
+	"https://cdn.jsdelivr.net/gh/TropicalFrog3/SLSsteam/SLSsteam/res/updates.yaml",
 	"https://raw.githubusercontent.com/AceSLS/SLSsteam/refs/heads/main/res/updates.yaml",
 	"https://cdn.jsdelivr.net/gh/AceSLS/SLSsteam/res/updates.yaml"
 };

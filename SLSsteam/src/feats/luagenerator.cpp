@@ -5,7 +5,7 @@
 #include "../log.hpp"
 #include "../sdk/IClientApps.hpp"
 #include "../sdk/binarykv.hpp"
-#include "../CppAccela/accelapath.hpp"
+#include "../model/paths.hpp"
 
 #include <filesystem>
 #include <sstream>
@@ -29,7 +29,7 @@ bool LuaGenerator::generateForApp(uint32_t appId)
     std::string pluginDir = g_config.getPluginDir();
     if (pluginDir.empty())
     {
-        pluginDir = CppAccela::Path::stplugDir();
+        pluginDir = Paths::stplugDir();
     }
     if (pluginDir.empty())
     {

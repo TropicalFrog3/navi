@@ -184,58 +184,6 @@ if new_lines:
 EOF
 		fi
 	fi
-
-	# Bundle ACCELA deps (DepotDownloaderMod + .NET dependencies) if found
-	# in adjacent ACCELA directories or installed ACCELA location.
-	# These are required for accela-helper to download game files.
-	ACCELA_DEPS_SRC=""
-	for accela_dir in ../ACCELA-*/bin/src/deps ../ACCELA/bin/src/deps; do
-		if [ -f "$accela_dir/DepotDownloaderMod.dll" ]; then
-			ACCELA_DEPS_SRC="$accela_dir"
-			break
-		fi
-	done
-	# Fallback: check installed ACCELA location
-	if [ -z "$ACCELA_DEPS_SRC" ] && [ -f "$HOME/.local/share/ACCELA/src/deps/DepotDownloaderMod.dll" ]; then
-		ACCELA_DEPS_SRC="$HOME/.local/share/ACCELA/src/deps"
-	fi
-
-	if [ -n "$ACCELA_DEPS_SRC" ]; then
-		mkdir -p "$SLSDIR/deps"
-
-		# Core DepotDownloaderMod engine + .NET config
-		for f in DepotDownloaderMod.dll DepotDownloaderMod.deps.json DepotDownloaderMod.runtimeconfig.json; do
-			[ -f "$ACCELA_DEPS_SRC/$f" ] && cp -f "$ACCELA_DEPS_SRC/$f" "$SLSDIR/deps/"
-		done
-
-		# .NET dependency DLLs required by DepotDownloaderMod
-		for f in SteamKit2.dll protobuf-net.dll protobuf-net.Core.dll \
-		         System.IO.Hashing.dll ZstdSharp.dll QRCoder.dll; do
-			[ -f "$ACCELA_DEPS_SRC/$f" ] && cp -f "$ACCELA_DEPS_SRC/$f" "$SLSDIR/deps/"
-		done
-
-		# Steam config override
-		[ -f "$ACCELA_DEPS_SRC/steam.cfg" ] && cp -f "$ACCELA_DEPS_SRC/steam.cfg" "$SLSDIR/deps/"
-
-		# Goldberg emulator files (needed for offline play)
-		if [ -d "$ACCELA_DEPS_SRC/Goldberg" ]; then
-			cp -rpf "$ACCELA_DEPS_SRC/Goldberg" "$SLSDIR/deps/"
-		fi
-
-		# Steamless unpacker (needed to remove DRM)
-		if [ -d "$ACCELA_DEPS_SRC/Steamless" ]; then
-			cp -rpf "$ACCELA_DEPS_SRC/Steamless" "$SLSDIR/deps/"
-		fi
-
-		# SLScheevo achievement handler
-		if [ -d "$ACCELA_DEPS_SRC/SLScheevo" ]; then
-			cp -rpf "$ACCELA_DEPS_SRC/SLScheevo" "$SLSDIR/deps/"
-		fi
-
-		echo "Bundled ACCELA deps into $SLSDIR/deps"
-	else
-		echo "WARNING: ACCELA deps not found — accela-helper downloads will not work"
-	fi
 }
 
 install_flatpak()

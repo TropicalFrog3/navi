@@ -176,8 +176,8 @@ static void testDepotKeysYamlLoading()
     assert(DepotKeys::hasKeysForApp(4090260));
     assert(!DepotKeys::hasKeysForApp(999999));
 
-    assert(DepotKeys::isAccelaApp(3962420));
-    assert(DepotKeys::isAccelaApp(4090260));
+    assert(DepotKeys::isKeyManagedApp(3962420));
+    assert(DepotKeys::isKeyManagedApp(4090260));
 
     std::string key1 = DepotKeys::getDepotKey(3962421);
     assert(key1 == "af524ae28cb634f861e43a8dc0f9dbc6002bb303ec8e8167e02a8c92fa57d1e9");
@@ -261,14 +261,14 @@ static void testBailWhenNoDecryptionKey()
     bool genOk = LuaGenerator::generateForApp(999888);
     assert(!genOk);
 
-    // 3. Even if a dummy keyless Lua file exists on disk, isAccelaApp should return false
+    // 3. Even if a dummy keyless Lua file exists on disk, isKeyManagedApp should return false
     std::string keylessLuaPath = s_testDir + "/stplug-in/999888.lua";
     {
         std::ofstream out(keylessLuaPath);
         out << "addappid(999888)\nsetManifestid(999889, \"1234567890\")\n";
     }
     assert(std::filesystem::exists(keylessLuaPath));
-    assert(!DepotKeys::isAccelaApp(999888));
+    assert(!DepotKeys::isKeyManagedApp(999888));
     std::filesystem::remove(keylessLuaPath);
 
     // 4. Test keyless Lua with manifest ID but no depot key (like 3962420 when unowned with no key)
@@ -278,7 +278,7 @@ static void testBailWhenNoDecryptionKey()
         out << "addappid(999888)\nsetManifestid(999889, \"2530054926824748916\", 3248601047)\n";
     }
     assert(std::filesystem::exists(testKeylessLua));
-    assert(!DepotKeys::isAccelaApp(999888));
+    assert(!DepotKeys::isKeyManagedApp(999888));
     assert(DepotKeys::getDepotKey(999889).empty());
     std::filesystem::remove(testKeylessLua);
 

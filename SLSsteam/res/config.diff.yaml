@@ -12,3 +12,10 @@ Migrations:
       fallback_value: 3
     "$(RyuuCookies)$():":
       action: remove
+  2:
+    "$(DownloadMode)$():":
+      action: remove
+    "$(DepotDownloaderPath)$():":
+      action: remove
+    "$(UseNativeInstall)$():":
+      action: remove

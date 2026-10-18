@@ -4,10 +4,9 @@
 #include "../src/sdk/IClientAppManager.hpp"
 #include "../src/config.hpp"
 #include "../src/log.hpp"
-#include "../src/CppAccela/acceladownload.hpp"
-#include "../src/CppAccela/accelaluaparser.hpp"
-#include "../src/CppAccela/accelapath.hpp"
-#include "../src/CppAccela/accelazip.hpp"
+#include "../src/model/lua_parser.hpp"
+#include "../src/model/paths.hpp"
+#include "../src/core/zip.hpp"
 #include "../src/feats/depotkeys.hpp"
 #include <cassert>
 #include <filesystem>
@@ -55,7 +54,7 @@ bool CConfig::shouldExcludeAppId(const AppId_t appId, const bool)
 
 CSteamEngine* g_pSteamEngine = nullptr;
 
-namespace CppAccela::LuaParser {
+namespace LuaParser {
     ParseResult parseFile(const std::string&) { return {}; }
 }
 
@@ -68,25 +67,6 @@ namespace DepotKeys {
 
 namespace LuaGenerator {
     bool generateForApp(uint32_t) { return false; }
-}
-
-namespace CppAccela::Download {
-    static CachedRequest s_cached;
-    static bool s_hasCached = false;
-
-    void cacheInstallRequest(IClientAppManager* pMgr, uint32_t appId, uint32_t lib, uint8_t a4) {
-        s_cached.pClientAppManager = pMgr;
-        s_cached.library = lib;
-        s_cached.a4 = a4;
-        s_hasCached = true;
-    }
-
-    bool takeCachedInstall(uint32_t appId, CachedRequest& out) {
-        if (!s_hasCached) return false;
-        out = s_cached;
-        s_hasCached = false;
-        return true;
-    }
 }
 
 // Helpers for manual protobuf construction
@@ -183,7 +163,7 @@ static void testNativeInstallPersistenceAndArm()
     assert(!NativeInstall::isQueuedOrArmed(480) && "480 must not be queued initially");
 
     // Cache an install request first so arm can take it
-    CppAccela::Download::cacheInstallRequest(nullptr, 480, 1, 0);
+    NativeInstall::cacheInstallRequest(nullptr, 480, 1, 0);
 
     // Test arming via CSV depot list
     bool armed = NativeInstall::arm(480, "481, 482");
@@ -471,17 +451,17 @@ static void testZipAssemblyAndCacheExtraction()
         std::string zipPath = (tempDir / "480.zip").string();
 
         // Assemble with empty manifestPaths
-        bool assembled = CppAccela::Zip::assemble(zipPath, luaPath, {}, provPath);
+        bool assembled = Zip::assemble(zipPath, luaPath, {}, provPath);
         assert(assembled && "assemble must succeed with empty manifest list (Lua-only)");
 
-        assert(CppAccela::Zip::isValid(zipPath) && "Generated zip must be valid");
+        assert(Zip::isValid(zipPath) && "Generated zip must be valid");
 
         // Extract to a separate directory
         std::string extractDir = (tempDir / "480_extracted").string();
-        bool extracted = CppAccela::Zip::extract(zipPath, extractDir);
+        bool extracted = Zip::extract(zipPath, extractDir);
         assert(extracted && "extract must succeed on generated zip");
 
-        auto files = CppAccela::Zip::findFiles(extractDir, "480");
+        auto files = Zip::findFiles(extractDir, "480");
         assert(!files.luaFile.empty() && "findFiles must locate 480.lua");
         assert(!files.providerFile.empty() && "findFiles must locate 480.provider");
         assert(files.manifestFiles.empty() && "manifestFiles must be empty for Lua-only zip");
@@ -520,15 +500,15 @@ static void testZipAssemblyAndCacheExtraction()
 
         std::string zipPath = (tempDir / "1000.zip").string();
 
-        bool assembled = CppAccela::Zip::assemble(zipPath, luaPath, { m1, m2 }, provPath);
+        bool assembled = Zip::assemble(zipPath, luaPath, { m1, m2 }, provPath);
         assert(assembled && "assemble must succeed with manifest list");
-        assert(CppAccela::Zip::isValid(zipPath) && "Generated steamrun zip must be valid");
+        assert(Zip::isValid(zipPath) && "Generated steamrun zip must be valid");
 
         std::string extractDir = (tempDir / "1000_extracted").string();
-        bool extracted = CppAccela::Zip::extract(zipPath, extractDir);
+        bool extracted = Zip::extract(zipPath, extractDir);
         assert(extracted && "extract must succeed on steamrun zip");
 
-        auto files = CppAccela::Zip::findFiles(extractDir, "1000");
+        auto files = Zip::findFiles(extractDir, "1000");
         assert(!files.luaFile.empty() && "findFiles must locate 1000.lua");
         assert(!files.providerFile.empty() && "findFiles must locate 1000.provider");
         assert(files.manifestFiles.size() == 2 && "manifestFiles must contain both manifests");

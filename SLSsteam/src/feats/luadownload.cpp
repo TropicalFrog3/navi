@@ -4,9 +4,9 @@
 #include "../log.hpp"
 #include "../globals.hpp"
 #include "../atomic_file.hpp"
-#include "../CppAccela/accelapath.hpp"
-#include "../CppAccela/accelazip.hpp"
-#include "../CppAccela/accelaluaparser.hpp"
+#include "../model/paths.hpp"
+#include "../core/zip.hpp"
+#include "../model/lua_parser.hpp"
 #include "depotkeys.hpp"
 #include "licenses.hpp"
 
@@ -130,11 +130,10 @@ namespace LuaDownload
 
     // ── Steam path detection ───────────────────────────────────────────
 
-    // Delegates to CppAccela::Path — single source of truth for Steam root
-    // detection shared across the whole CppAccela module.
+    // Delegates to Paths — single source of truth for Steam root detection.
     std::string findSteamRoot()
     {
-        return CppAccela::Path::findSteamRoot();
+        return Paths::findSteamRoot();
     }
 
     // ── libcurl helpers ────────────────────────────────────────────────
@@ -233,35 +232,33 @@ namespace LuaDownload
 
     // ── ZIP validation ─────────────────────────────────────────────────
 
-    // Delegates to CppAccela::Zip — single implementation, no duplication.
+    // Delegates to Zip — single implementation, no duplication.
     static bool isValidZip(const std::string& path)
     {
-        return CppAccela::Zip::isValid(path);
+        return Zip::isValid(path);
     }
 
     // ── ZIP extraction ─────────────────────────────────────────────────
 
-    // Delegates to CppAccela::Zip::extract.
+    // Delegates to Zip::extract.
     static bool extractZip(const std::string& zipPath, const std::string& destDir)
     {
-        return CppAccela::Zip::extract(zipPath, destDir);
+        return Zip::extract(zipPath, destDir);
     }
 
     // ── File discovery in extracted zip ────────────────────────────────
 
-    // Re-use CppAccela::Zip::ExtractedFiles via a local alias so the rest
-    // of this file can keep using the old struct name unchanged.
-    using ExtractedFiles = CppAccela::Zip::ExtractedFiles;
+    using ExtractedFiles = Zip::ExtractedFiles;
 
     static ExtractedFiles findExtractedFiles(const std::string& extractDir,
                                              const std::string& appId)
     {
-        return CppAccela::Zip::findFiles(extractDir, appId);
+        return Zip::findFiles(extractDir, appId);
     }
 
     // ── Key validation helper ──────────────────────────────────────────
 
-    static bool hasUsableKeys(uint32_t appId, const CppAccela::LuaParser::ParseResult& luaData)
+    static bool hasUsableKeys(uint32_t appId, const LuaParser::ParseResult& luaData)
     {
         if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(appId))
         {
@@ -315,9 +312,9 @@ namespace LuaDownload
         }
         LOG_DEBUG("LuaDownload: Steam root: %s\n", steamRoot.c_str());
 
-        // Prepare paths — delegated to CppAccela::Path (creates dirs if absent)
-        std::string stplugDir    = CppAccela::Path::stplugDir();
-        std::string depotcacheDir = CppAccela::Path::depotcacheDir();
+        // Prepare paths — delegated to Paths (creates dirs if absent)
+        std::string stplugDir    = Paths::stplugDir();
+        std::string depotcacheDir = Paths::depotcacheDir();
 
         if (stplugDir.empty() || depotcacheDir.empty())
         {
@@ -330,7 +327,7 @@ namespace LuaDownload
         std::string existingLua = stplugDir + "/" + appId + ".lua";
         if (std::filesystem::exists(existingLua))
         {
-            auto existingData = CppAccela::LuaParser::parseFile(existingLua);
+            auto existingData = LuaParser::parseFile(existingLua);
             bool luaValid = existingData.valid && !existingData.manifests.empty() && hasUsableKeys(targetAppId, existingData);
 
             if (forceDownload)
@@ -465,7 +462,7 @@ namespace LuaDownload
                 if (!isValidZip(zipPath))
                 {
                     // 1. Check if it's already a valid Lua file with manifests (e.g. HubcapDB raw Lua)
-                    auto luaData = CppAccela::LuaParser::parseFile(zipPath);
+                    auto luaData = LuaParser::parseFile(zipPath);
                     if (luaData.valid && !luaData.manifests.empty())
                     {
                         if (!hasUsableKeys(targetAppId, luaData))
@@ -486,7 +483,7 @@ namespace LuaDownload
                         AtomicFile::write(provSidecar, api.name);
 
                         // Package into a valid zip archive at zipPath so it is cached
-                        if (CppAccela::Zip::assemble(zipPath, targetLuaPath, {}, provSidecar))
+                        if (Zip::assemble(zipPath, targetLuaPath, {}, provSidecar))
                         {
                             LOG_INFO("LuaDownload: Assembled cached zip for raw Lua appid=%s at %s\n",
                                      appId.c_str(), zipPath.c_str());
@@ -639,7 +636,7 @@ namespace LuaDownload
 
                             // Package into a valid zip archive at zipPath so it is cached
                             std::filesystem::remove(zipPath);
-                            if (CppAccela::Zip::assemble(zipPath, synthLuaPath, manifestPaths, provSidecar))
+                            if (Zip::assemble(zipPath, synthLuaPath, manifestPaths, provSidecar))
                             {
                                 LOG_INFO("LuaDownload: Assembled cached zip for steamrun appid=%s at %s (%zu manifests)\n",
                                          appId.c_str(), zipPath.c_str(), manifestPaths.size());
@@ -709,7 +706,7 @@ namespace LuaDownload
 
                             // Package into a valid zip archive at zipPath so it is cached
                             std::filesystem::remove(zipPath);
-                            if (CppAccela::Zip::assemble(zipPath, synthLuaPath, {}, provSidecar))
+                            if (Zip::assemble(zipPath, synthLuaPath, {}, provSidecar))
                             {
                                 LOG_INFO("LuaDownload: Assembled cached zip for %s appid=%s at %s\n",
                                          api.name, appId.c_str(), zipPath.c_str());
@@ -818,7 +815,7 @@ namespace LuaDownload
 
         // Validate the Lua file — must have at least one manifest, and for unowned apps, must have decryption key(s)
         {
-            auto luaData = CppAccela::LuaParser::parseFile(files.luaFile);
+            auto luaData = LuaParser::parseFile(files.luaFile);
             if (!luaData.valid || luaData.manifests.empty())
             {
                 LOG_INFO("LuaDownload: Lua file has no valid manifests (via %s) — unusable\n",
@@ -843,7 +840,7 @@ namespace LuaDownload
         pushStatus(appId, "Installing...");
 
         // Clean up any old manifests from previous provider in depotcache to prevent orphan bloat
-        std::string legacyDepotcache = CppAccela::Path::findSteamRoot() + "/config/depotcache";
+        std::string legacyDepotcache = Paths::findSteamRoot() + "/config/depotcache";
         for (const auto& d : { depotcacheDir, legacyDepotcache }) {
             if (d.empty() || !std::filesystem::exists(d)) continue;
             try {

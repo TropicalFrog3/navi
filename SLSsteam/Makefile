@@ -1,8 +1,7 @@
 #Thanks to https://stackoverflow.com/questions/52034997/how-to-make-makefile-recompile-when-a-header-file-is-changed for the -MMD & -MP flags
 #Without them headers wouldn't trigger recompilation
 
-#Bare `make` (used by docker/build.sh) must build SLSsteam.so + helpers,
-#not whichever rule happens to appear first (previously bin/accela-helper)
+#Bare `make` (used by docker/build.sh) must build SLSsteam.so
 .DEFAULT_GOAL := audit-libs
 
 #Force g++ cause clang crashes on some hooks
@@ -13,6 +12,7 @@ srcs := $(shell find src/ -type f -iname "*.cpp")
 
 CXXFLAGS := -O3 -flto=auto -fPIC -m32 -std=c++20 -Wall -Wextra -Wpedantic -Wno-error=format-security -D_GLIBCXX_USE_CXX11_ABI=0
 CXXFLAGS += -floop-block -fgraphite-identity -floop-parallelize-all -pipe -fopenmp -fomit-frame-pointer
+CXXFLAGS += -I./src/model -I./src/core
 
 LDFLAGS := -shared -Wl,--no-undefined
 LDFLAGS += $(shell pkg-config --libs "openssl")
@@ -56,30 +56,6 @@ SLSSTEAMSO := bin/SLSsteam-$(FLAGSSHA).so
 objs := $(srcs:src/%.cpp=obj/$(FLAGSSHA)/%.o)
 deps := $(objs:%.o=%.d)
 
-# accela-helper: standalone binary exec()'d after fork() to avoid
-# multithreading deadlocks. Must be built as a 32-bit executable to
-# match the SLSsteam.so library it links against.
-HELPER_SRCS := \
-	src/CppAccela/accela-helper.cpp \
-	src/CppAccela/accelapath.cpp \
-	src/CppAccela/accelamanifest.cpp \
-	src/CppAccela/accelaluaparser.cpp \
-	src/CppAccela/acceladepotdownloader.cpp \
-	src/CppAccela/accelapostprocess.cpp \
-	src/curl.cpp
-
-HELPER_OBJS := $(patsubst src/%.cpp,obj/$(FLAGSSHA)/%.o,$(HELPER_SRCS))
-HELPER_DEPS := $(HELPER_OBJS:%.o=%.d)
-HELPER_LDFLAGS := $(shell pkg-config --libs "openssl")
-HELPER_LDFLAGS += /usr/lib/i386-linux-gnu/libcurl.so.4
-
-bin/accela-helper: $(HELPER_OBJS)
-	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $@ $(HELPER_LDFLAGS)
-	chmod 755 $@
-
--include $(HELPER_DEPS)
-
 TEST_NATIVE_OBJS := \
 	obj/$(FLAGSSHA)/tests/test_native_install.o \
 	obj/$(FLAGSSHA)/feats/manifestcode.o \
@@ -88,8 +64,8 @@ TEST_NATIVE_OBJS := \
 	obj/$(FLAGSSHA)/sdk/CNetPacket.o \
 	obj/$(FLAGSSHA)/sdk/steam.o \
 	obj/$(FLAGSSHA)/sdk/protobufs/steammessages_base.pb.o \
-	obj/$(FLAGSSHA)/CppAccela/accelapath.o \
-	obj/$(FLAGSSHA)/CppAccela/accelazip.o
+	obj/$(FLAGSSHA)/model/paths.o \
+	obj/$(FLAGSSHA)/core/zip.o
 
 obj/$(FLAGSSHA)/tests/%.o: tests/%.cpp
 	@mkdir -p $(dir $@)
@@ -108,7 +84,17 @@ TEST_KEY_FIRST_OBJS := \
 	obj/$(FLAGSSHA)/sdk/protobufs/enums.pb.o \
 	obj/$(FLAGSSHA)/sdk/protobufs/enums_clientserver.pb.o \
 	obj/$(FLAGSSHA)/sdk/protobufs/encrypted_app_ticket.pb.o \
-	obj/$(FLAGSSHA)/CppAccela/accelapath.o
+	obj/$(FLAGSSHA)/model/paths.o
+
+TEST_MIGRATION_OBJS := \
+	obj/$(FLAGSSHA)/tests/test_migration.o \
+	obj/$(FLAGSSHA)/feats/config_migration.o \
+	obj/$(FLAGSSHA)/feats/cache_migration.o
+
+bin/test_migration: $(TEST_MIGRATION_OBJS)
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libyaml-cpp.a -o $@
+	chmod 755 $@
 
 bin/test_native_install: $(TEST_NATIVE_OBJS)
 	@mkdir -p bin
@@ -120,9 +106,10 @@ bin/test_key_first: $(TEST_KEY_FIRST_OBJS)
 	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
 	chmod 755 $@
 
-test: bin/test_native_install bin/test_key_first
+test: bin/test_native_install bin/test_key_first bin/test_migration
 	./bin/test_native_install
 	./bin/test_key_first
+	./bin/test_migration
 
 test-flow:
 	python3 ../tests/test_steam_ui_flow.py
@@ -130,7 +117,7 @@ test-flow:
 test-all: test test-flow
 
 audit-libs:
-	$(MAKE) -j $(JOBS) $(SLSSTEAMSO) bin/library-inject.so bin/accela-helper
+	$(MAKE) -j $(JOBS) $(SLSSTEAMSO) bin/library-inject.so
 	$(MAKE) link-bins
 
 tools:

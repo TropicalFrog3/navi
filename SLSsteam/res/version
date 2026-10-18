@@ -18,11 +18,11 @@ Changelog: |
   - Enhanced depot selection script with injection deduplication and custom
     provider URL support.
   - Added robust JSON string decoding and escape sequence handling in CEF hooks.
-  - Included accela-helper binary and injection scripts in production releases.
+  - Included injection scripts in production releases.
   - Hardened uninstaller (uninstall.sh) with category-based isolation,
     idempotency, and strict preservation of user manifests and luas.
   - Added comprehensive offline test suite covering migration, update verification,
     tamper detection, rollback, and uninstallation safety.
 
-DownloadUrl: https://github.com/TropicalFrog3/SLSsteam_n_ACCELA/releases/download/${version}/SLSsteam-n-ACCELA.zip
+DownloadUrl: https://github.com/TropicalFrog3/SLSsteam/releases/download/${version}/SLSsteam.zip
 

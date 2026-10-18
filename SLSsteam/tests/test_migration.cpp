@@ -45,6 +45,9 @@ void testConfigMigration()
         std::ofstream f(userConfig);
         f << "LogLevels: \"0xff\"\n";
         f << "RyuuCookies: \"legacy_secret\"\n";
+        f << "DownloadMode: \"accela\"\n";
+        f << "DepotDownloaderPath: \"/opt/depot\"\n";
+        f << "UseNativeInstall: false\n";
         f << "UserAppIds:\n  - 10\n  - 20\n";
     }
 
@@ -66,6 +69,13 @@ void testConfigMigration()
         f << "        \"0xff\": 5\n";
         f << "    \"$(RyuuCookies)$():\":\n";
         f << "      action: remove\n";
+        f << "  2:\n";
+        f << "    \"$(DownloadMode)$():\":\n";
+        f << "      action: remove\n";
+        f << "    \"$(DepotDownloaderPath)$():\":\n";
+        f << "      action: remove\n";
+        f << "    \"$(UseNativeInstall)$():\":\n";
+        f << "      action: remove\n";
     }
 
     std::cout << "[TEST] Calling ConfigMigration::migrate...\n" << std::flush;
@@ -83,9 +93,12 @@ void testConfigMigration()
     assert(migrated["LogLevelsBasic"].as<int>() == 5 && "LogLevelsBasic should be converted to 5");
     std::cout << "[TEST] Value check passed\n" << std::flush;
     assert(!migrated["RyuuCookies"] && "RyuuCookies should have been removed");
+    assert(!migrated["DownloadMode"] && "DownloadMode should have been removed");
+    assert(!migrated["DepotDownloaderPath"] && "DepotDownloaderPath should have been removed");
+    assert(!migrated["UseNativeInstall"] && "UseNativeInstall should have been removed");
     assert(migrated["UserAppIds"] && "UserAppIds should be preserved");
     assert(migrated["DefaultNewSetting"] && "DefaultNewSetting from template should be merged");
-    assert(migrated["ConfigVersion"].as<int>() == 1 && "ConfigVersion should be updated to 1");
+    assert(migrated["ConfigVersion"].as<int>() == 2 && "ConfigVersion should be updated to 2");
     std::cout << "[TEST] Config version check passed\n" << std::flush;
 
     // Verify backup exists

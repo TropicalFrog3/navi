@@ -207,13 +207,13 @@ static void reloadAppsJson()
 static std::vector<std::filesystem::path> getSteamLibraryPaths();
 
 // Patch ACF files that were previously written with StateFlags=6 (installed +
-// update_required) by CppAccela or the Python ACCELA path. The "update required"
+// update_required) by legacy download engines. The "update required"
 // bit (2) causes Steam to show the game as needing an update and failing with
 // "content still encrypted" when the user tries to update.
 //
 // We scan ALL appmanifest_*.acf files in every Steam library folder and patch any
-// that have both StateFlags="6" AND buildid="0" — the signature of an
-// ACCELA-generated ACF.  Apps patched this way are also auto-added to the
+// that have both StateFlags="6" AND buildid="0" — the signature of a
+// sideloaded ACF.  Apps patched this way are also auto-added to the
 // installedApps tracking list so the runtime hooks protect them going forward.
 static void patchExistingAcfStateFlags()
 {
@@ -262,7 +262,7 @@ static void patchExistingAcfStateFlags()
             std::string sfValue = content.substr(valOpen + 1, valClose - valOpen - 1);
             if (sfValue != "6") continue;
 
-            // Confirm this is an ACCELA ACF by checking buildid="0"
+            // Confirm this is a sideloaded ACF by checking buildid="0"
             // (Steam-owned installs always have a nonzero buildid)
             const std::string bidKey = "\"buildid\"";
             size_t bidPos = content.find(bidKey);
@@ -275,7 +275,7 @@ static void patchExistingAcfStateFlags()
                     if (bidValClose != std::string::npos)
                     {
                         std::string bidValue = content.substr(bidValOpen + 1, bidValClose - bidValOpen - 1);
-                        if (bidValue != "0" && bidValue != "999999999") continue; // Not an ACCELA ACF
+                        if (bidValue != "0" && bidValue != "999999999") continue; // Not a sideloaded ACF
                     }
                 }
             }
@@ -549,8 +549,7 @@ bool Apps::gameFilesExist(uint32_t appId)
 
         LOG_INFO("Found manifest: %s\n", manifestPath.string().c_str());
 
-        // Parse the ACF manifest for install state fields.
-        // ACCELA writes these fields after a successful download:
+        // Parse the ACF manifest for install state fields:
         //   StateFlags  – bitmask: bit 1=invalid, bit 2=installed, bit 32=missing
         //   installdir  – folder name under steamapps/common/
         //   SizeOnDisk  – total bytes written (0 means nothing was downloaded)
@@ -606,9 +605,7 @@ bool Apps::gameFilesExist(uint32_t appId)
         //   16 = Downloading
         //   32 = Staging
         //   64 = Committed
-        // ACCELA's CppAccela path writes StateFlags=4 (fully installed, no pending update).
-        // ACCELA's Python path writes StateFlags=4 (fully installed, no pending update).
-        // A plain Steam-owned install also shows StateFlags=4.
+        // Sideloaded ACFs and plain Steam installs write StateFlags=4 (fully installed, no pending update).
         // Reject only if the installed bit (4) is absent.
         if (!stateFlagsStr.empty())
         {
@@ -627,7 +624,7 @@ bool Apps::gameFilesExist(uint32_t appId)
         }
 
         // --- InstalledDepots check ---
-        // ACCELA populates InstalledDepots with one entry per downloaded depot.
+        // InstalledDepots contains one entry per downloaded depot.
         // An empty block means no depot completed successfully.
         if (!hasInstalledDepots)
         {
@@ -1173,7 +1170,7 @@ bool Apps::shouldDisableCloud(const AppId_t appId)
 	    isOnlineFixInstalled(appId) ||
 	    isAutoCrackInstalled(appId) ||
 	    NativeInstall::isNative(appId) ||
-	    DepotKeys::isAccelaApp(appId))
+	    DepotKeys::isKeyManagedApp(appId))
 	{
 		return true;
 	}

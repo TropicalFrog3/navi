@@ -246,7 +246,6 @@ bool CConfig::loadSettings(bool firstLoad)
 	disableUpdates = getSetting<bool>(node, "DisableUpdates", true);
 	dumpInterfaceMaps = getSetting<bool>(node, "DumpClientInterfaces", false);
 	extendedLogging = getSetting<bool>(node, "ExtendedLogging", false);
-	downloadMode = getSetting<std::string>(node, "DownloadMode", "native");
 	
 	ryuuKey = getSetting<std::string>(node, "RyuuKey", "");
 	depotBoxKey = getSetting<std::string>(node, "DepotBoxKey", "");

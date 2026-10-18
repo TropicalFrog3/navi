@@ -213,10 +213,6 @@
             '<!-- Administrative Tools Section -->' +
             '<div id="sls-content-admin" style="display:block; margin-bottom:24px;">' +
                 '<div style="display:flex; flex-direction:column; gap:8px;">' +
-                    '<!-- Verify Files -->' +
-                    '<button id="sls-btn-verify" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%;">' +
-                        'Verify Files' +
-                    '</button>' +
                     '<!-- Online Fix -->' +
                     '<button id="sls-btn-fix" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%;">Checking Fix status...</button>' +
                     '<!-- Auto Crack -->' +
@@ -249,13 +245,12 @@
             }
         });
 
-        var verifyBtn = document.getElementById('sls-btn-verify');
         var fixBtn = document.getElementById('sls-btn-fix');
         var crackBtn = document.getElementById('sls-btn-crack');
         var closeX = document.getElementById('sls-close-x');
         var cancelBtn = document.getElementById('sls-btn-cancel');
 
-        trapSteamGamepadModal(overlay, [closeX, verifyBtn, fixBtn, crackBtn, cancelBtn]);
+        trapSteamGamepadModal(overlay, [closeX, fixBtn, crackBtn, cancelBtn]);
 
         function close() {
             overlay.style.opacity = '0';
@@ -268,16 +263,6 @@
         }
         closeX.onclick = close;
         cancelBtn.onclick = close;
-
-        verifyBtn.onclick = function(e) {
-            e.preventDefault(); e.stopPropagation();
-            verifyBtn.innerText = 'Verifying...';
-            log('Verify Files clicked for AppID ' + appid);
-            fetch('http://127.0.0.1:9001/verify-files?id=' + appid, { mode: 'no-cors' })
-                .then(function() {
-                    setTimeout(function() { verifyBtn.innerText = 'Verify Files'; }, 3000);
-                });
-        };
 
         fetch('http://127.0.0.1:9001/check?id=' + appid)
             .then(function(r) { return r.json(); })

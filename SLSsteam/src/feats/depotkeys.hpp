@@ -28,8 +28,8 @@ namespace DepotKeys
 	// Get the cached depot key for a given depot_id (returns empty string if not found)
 	std::string getDepotKey(uint32_t depotId);
 
-	// Check if an app is managed by ACCELA / depot_keys (has keys or .lua plugin file)
-	bool isAccelaApp(uint32_t appId);
+	// Check if an app is managed by depot_keys (has keys or .lua plugin file)
+	bool isKeyManagedApp(uint32_t appId);
 
 	// Check if an app has registered keys in depot_keys.yaml
 	bool hasKeysForApp(uint32_t appId);
