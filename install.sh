@@ -1,237 +1,116 @@
-#!/bin/bash
+#!/usr/bin/env bash
+# install.sh - Navi unified management and installation dispatcher
+set -u
 
-# prod-release/install.sh
-# Master installation script for Navi
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+export REPO_ROOT="$SCRIPT_DIR"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+usage() {
+    cat << 'EOF'
+Usage: ./install.sh [SUBCOMMAND] [OPTIONS]
 
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"
-cd "$SCRIPT_DIR"
+Unified management tool for Navi.
 
-log_info() {
-    echo -e "${GREEN}[INFO]${NC} $1"
-}
+Subcommands:
+  install      Install Navi payload and configure Steam integration (default)
+  uninstall    Completely remove Navi and restore native Steam launchers
+  update       Update installed Navi payload and configuration
+  build        Build Navi binaries from source
+  release      Build and package production release bundle
+  test         Execute test suite (make test)
 
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-install_safe_steam_wrapper() {
-    local steam_root="$HOME/.local/share/Steam"
-    local steam_launcher="$steam_root/steam.sh"
-    local steam_backup="$steam_root/steam.sh.bak"
-    local wrapper_dir="$HOME/.local/bin"
-    local wrapper="$wrapper_dir/steam"
-    local native_steam=""
-
-    # Prefer known native Steam launchers and avoid resolving a wrapper that
-    # this installer is replacing. Steam can be installed outside /usr/bin.
-    local candidate
-    for candidate in \
-        /usr/bin/steam \
-        /usr/local/bin/steam \
-        "$HOME/.steam/steam/steam.sh" \
-        "$HOME/.local/share/Steam/steam.sh"; do
-        if [ -x "$candidate" ] && ! grep -qE 'navi/library-inject.so|INJECT_SLS|LD_AUDIT' "$candidate" 2>/dev/null; then
-            native_steam="$candidate"
-            break
-        fi
-    done
-
-    if [ -z "$native_steam" ]; then
-        native_steam="$(type -P steam || true)"
-        if [ -n "$native_steam" ] && grep -qE 'navi/library-inject.so|INJECT_SLS|LD_AUDIT' "$native_steam" 2>/dev/null; then
-            native_steam=""
-        fi
-    fi
-
-    if [ -z "$native_steam" ]; then
-        log_error "Native Steam launcher not found; cannot create the Navi wrapper."
-        return 1
-    fi
-
-    # Headcrab patches steam.sh with a shell-level LD_AUDIT wrapper. That
-    # wrapper can terminate Steam before its native client starts. Keep the
-    # Steam launcher native and apply the 32-bit audit libraries at the
-    # outer command boundary instead.
-    if [ -f "$steam_backup" ] && grep -qE 'INJECT_SLS|LD_AUDIT' "$steam_launcher"; then
-        if ! grep -qE 'INJECT_SLS|LD_AUDIT' "$steam_backup"; then
-            cp -f "$steam_launcher" "$steam_launcher.headcrab-wrapper.bak"
-            cp -f "$steam_backup" "$steam_launcher"
-            chmod 755 "$steam_launcher"
-            log_info "Restored the native Steam launcher."
-        fi
-    fi
-
-    mkdir -p "$wrapper_dir"
-    if [ -e "$wrapper" ] && ! grep -q 'navi/library-inject.so' "$wrapper" 2>/dev/null; then
-        mv -f "$wrapper" "$wrapper.pre-navi.bak"
-    fi
-
-    cat > "$wrapper" <<EOF
-#!/bin/sh
-exec env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" "$native_steam" "\$@"
+Options:
+  --yes, -y     Automatic yes to prompts; run non-interactively
+  --dry-run, -n Preview actions without making changes on disk
+  --help, -h    Display this help message and exit
 EOF
-    chmod 755 "$wrapper"
-
-    # Make the wrapper discoverable from fresh Bash login and interactive
-    # shells. Desktop entries still use the explicit LD_AUDIT command above.
-    local path_line='export PATH="$HOME/.local/bin:$PATH"'
-    for profile in "$HOME/.profile" "$HOME/.bashrc"; do
-        touch "$profile"
-        if ! grep -Fqx "$path_line" "$profile" 2>/dev/null; then
-            printf '\n%s\n' "$path_line" >> "$profile"
-        fi
-    done
-
-    log_info "Installed the safe Navi Steam wrapper at $wrapper."
 }
 
-install_bundled_navi() {
-    local sls_dir="$SCRIPT_DIR"
-    if [ -f "$SCRIPT_DIR/navi/setup.sh" ]; then
-        sls_dir="$SCRIPT_DIR/navi"
-    fi
+SUBCOMMAND=""
+ASSUME_YES=0
+DRY_RUN=0
 
-    if [ ! -f "$sls_dir/setup.sh" ]; then
-        log_error "setup.sh not found in the release directory."
-        exit 1
-    fi
-
-    log_info "Installing the bundled Navi payload..."
-    chmod +x "$sls_dir/setup.sh"
-    if ! (cd "$sls_dir" && ./setup.sh install); then
-        log_error "Bundled Navi installation failed."
-        exit 1
-    fi
-    log_info "Bundled Navi payload installed successfully."
-}
-
-log_info "Starting full installation..."
-
-# Source legacy migration helper if available to preserve manifests and clean legacy artifacts
-for cand in \
-    "$SCRIPT_DIR/scripts/legacy_migration.sh" \
-    "$SCRIPT_DIR/legacy_migration.sh"; do
-    if [ -f "$cand" ]; then
-        # shellcheck source=/dev/null
-        source "$cand"
-        break
-    fi
+# Parse command line options and subcommand
+while [ $# -gt 0 ]; do
+    case "$1" in
+        install|uninstall|update|build|release|test)
+            if [ -n "$SUBCOMMAND" ]; then
+                echo "Error: Multiple subcommands specified: $SUBCOMMAND and $1" >&2
+                usage >&2
+                exit 1
+            fi
+            SUBCOMMAND="$1"
+            ;;
+        --yes|-y)
+            ASSUME_YES=1
+            ;;
+        --dry-run|-n)
+            DRY_RUN=1
+            ;;
+        --help|-h)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "Error: Unknown argument: $1" >&2
+            usage >&2
+            exit 1
+            ;;
+    esac
+    shift
 done
 
-if type migrate_legacy_manifests >/dev/null 2>&1; then
-    migrate_legacy_manifests
+# Default subcommand is install
+SUBCOMMAND="${SUBCOMMAND:-install}"
+
+export ASSUME_YES
+export DRY_RUN
+
+# Source common helpers
+# shellcheck source=scripts/lib/common.sh
+source "$REPO_ROOT/scripts/lib/common.sh"
+
+# Source legacy migration helper
+if [ -f "$REPO_ROOT/scripts/lib/migration.sh" ]; then
+    # shellcheck source=scripts/lib/migration.sh
+    source "$REPO_ROOT/scripts/lib/migration.sh"
 fi
 
-# 1. Install Headcrab (Navi and Steam client integration)
-log_info "Installing Headcrab and Navi..."
-HEADCRAB_URL="${SLS_HEADCRAB_URL:-https://raw.githubusercontent.com/Deadboy666/h3adcr-b/main/headcrab.sh}"
-HEADCRAB_SCRIPT="$(mktemp "${TMPDIR:-/tmp}/headcrab.XXXXXX.sh")"
-trap 'rm -f "$HEADCRAB_SCRIPT"' EXIT
-
-if [[ "$HEADCRAB_URL" == file://* ]]; then
-    cp "${HEADCRAB_URL#file://}" "$HEADCRAB_SCRIPT"
-elif [ -f "$HEADCRAB_URL" ]; then
-    cp "$HEADCRAB_URL" "$HEADCRAB_SCRIPT"
-elif command -v curl >/dev/null 2>&1; then
-    curl -fsSL --retry 3 --retry-delay 2 "$HEADCRAB_URL" -o "$HEADCRAB_SCRIPT"
-elif command -v wget >/dev/null 2>&1; then
-    wget -q --tries=3 -O "$HEADCRAB_SCRIPT" "$HEADCRAB_URL"
-else
-    log_error "Neither curl nor wget is available to download Headcrab."
-    exit 1
-fi
-
-chmod +x "$HEADCRAB_SCRIPT"
-if bash "$HEADCRAB_SCRIPT"; then
-    log_info "Headcrab and Navi installed successfully."
-else
-    log_error "Headcrab/Navi installation failed."
-    exit 1
-fi
-
-# Headcrab may install its own Navi build. Reinstall the release payload so
-# every fresh device uses the tested Navi binary shipped in this archive.
-install_bundled_navi
-if ! install_safe_steam_wrapper; then
-    log_error "Steam wrapper installation failed."
-    exit 1
-fi
-
-# Detect Steam client version and steamclient.so hash
-CLIENT_VER=$(grep -oP '"version"\s+"\K[0-9]+' ~/.local/share/Steam/package/steam_client_*.manifest 2>/dev/null | head -1 || true)
-CLIENT_SHA=$(sha256sum ~/.local/share/Steam/ubuntu12_32/steamclient.so 2>/dev/null | cut -d' ' -f1 || true)
-if [ -n "$CLIENT_VER" ] || [ -n "$CLIENT_SHA" ]; then
-    log_info "Steam client ${CLIENT_VER:-unknown} (${CLIENT_SHA:-unknown})"
-fi
-
-# Headcrab on SteamOS forces 'SafeMode: yes' in config.yaml.
-# Preserve the user's config options while disabling SafeMode so hash differences don't abort startup.
-if [ -f "$HOME/.config/navi/config.yaml" ]; then
-    sed -i 's/^SafeMode: .*/SafeMode: no/' "$HOME/.config/navi/config.yaml"
-fi
-
-# Merge updates.yaml safely: union hashes, never overwrite, preserve backups and client hash
-SRC_UPDATES=""
-if [ -f "$SCRIPT_DIR/res/updates.yaml" ]; then
-    SRC_UPDATES="$SCRIPT_DIR/res/updates.yaml"
-elif [ -f "$SCRIPT_DIR/navi/res/updates.yaml" ]; then
-    SRC_UPDATES="$SCRIPT_DIR/navi/res/updates.yaml"
-fi
-
-if [ -n "$SRC_UPDATES" ]; then
-    mkdir -p "$HOME/.config/navi"
-    DEST_UPDATES="$HOME/.config/navi/updates.yaml"
-
-    if [ ! -f "$DEST_UPDATES" ]; then
-        cp -a "$SRC_UPDATES" "$DEST_UPDATES"
-        log_info "Installed initial updates.yaml."
-    else
-        TS="$(date +%Y%m%d-%H%M%S)"
-        cp -a "$DEST_UPDATES" "$DEST_UPDATES.bak-$TS"
-        python3 - <<'EOF' "$SRC_UPDATES" "$DEST_UPDATES" "$CLIENT_SHA" "$CLIENT_VER"
-import sys, os, re
-
-src_file = sys.argv[1]
-dest_file = sys.argv[2]
-client_sha = sys.argv[3] if len(sys.argv) > 3 else ""
-client_ver = sys.argv[4] if len(sys.argv) > 4 else ""
-
-with open(src_file, 'r', encoding='utf-8') as f:
-    src_text = f.read()
-with open(dest_file, 'r', encoding='utf-8') as f:
-    dest_text = f.read()
-
-dest_hashes = set(re.findall(r'-\s+([0-9a-f]{64})', dest_text))
-src_matches = re.findall(r'(\s+-\s+([0-9a-f]{64})(?:[^\n]*))', src_text)
-
-new_lines = []
-for line, h in src_matches:
-    if h not in dest_hashes:
-        new_lines.append(line.rstrip())
-        dest_hashes.add(h)
-
-if client_sha and re.match(r'^[0-9a-f]{64}$', client_sha) and client_sha not in dest_hashes:
-    new_lines.append(f"    - {client_sha} # local-{client_ver or 'client'}")
-    dest_hashes.add(client_sha)
-
-if new_lines:
-    beta_pos = dest_text.find("beta-v1.2.0:")
-    if beta_pos != -1:
-        eol = dest_text.find("\n", beta_pos)
-        updated_text = dest_text[:eol+1] + "\n".join(new_lines) + "\n" + dest_text[eol+1:]
-    else:
-        updated_text = dest_text.rstrip() + "\n" + "\n".join(new_lines) + "\n"
-    with open(dest_file, 'w', encoding='utf-8') as f:
-        f.write(updated_text)
-EOF
-        log_info "Safely merged updates.yaml; preserved existing hashes and client hash."
-    fi
-fi
-
-log_info "Full installation complete!"
-echo -e "${GREEN}Navi and Headcrab have been installed to their respective locations in ~/.local/share/${NC}"
+# Dispatch to appropriate module
+case "$SUBCOMMAND" in
+    install)
+        # shellcheck source=scripts/lib/install.sh
+        source "$REPO_ROOT/scripts/lib/install.sh"
+        do_install
+        ;;
+    uninstall)
+        # shellcheck source=scripts/lib/uninstall.sh
+        source "$REPO_ROOT/scripts/lib/uninstall.sh"
+        do_uninstall
+        ;;
+    update)
+        # shellcheck source=scripts/lib/update.sh
+        source "$REPO_ROOT/scripts/lib/update.sh"
+        do_update
+        ;;
+    build)
+        # shellcheck source=scripts/lib/build.sh
+        source "$REPO_ROOT/scripts/lib/build.sh"
+        do_build
+        ;;
+    release)
+        # shellcheck source=scripts/lib/release.sh
+        source "$REPO_ROOT/scripts/lib/release.sh"
+        do_release
+        ;;
+    test)
+        # shellcheck source=scripts/lib/test.sh
+        source "$REPO_ROOT/scripts/lib/test.sh"
+        do_test
+        ;;
+    *)
+        log_error "Unknown subcommand: $SUBCOMMAND"
+        usage >&2
+        exit 1
+        ;;
+esac

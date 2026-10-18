@@ -364,7 +364,7 @@ namespace AutoUpdate
             if (exitStatus == 127)
             {
                 LOG_INFO("AutoUpdate: zenity not found. Falling back to notification alert.\n");
-                sendNotification("Navi", "Update available! Newer version is ready. Run setup.sh to update.");
+                sendNotification("Navi", "Update available! Newer version is ready. Run install.sh update.");
                 return;
             }
 

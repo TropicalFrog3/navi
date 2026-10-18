@@ -211,8 +211,8 @@ cmd_deploy() {
     echo "=========================================================="
     ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'bash -s' << 'EOF'
 cd ~/navi
-chmod +x ./install.sh ./uninstall.sh navi/setup.sh 2>/dev/null || true
-./install.sh
+chmod +x ./install.sh ./uninstall.sh 2>/dev/null || true
+./install.sh install --yes
 EOF
     echo " [✓] Installation script executed on Steam Deck."
     echo ""
