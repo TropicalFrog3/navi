@@ -27,6 +27,13 @@ ENV/
 env/
 .env
 .Python
+.pytest_cache/
+
+# Test and Coverage
+*.gcda
+*.gcno
+*.gcov
+coverage*
 
 # C++
 .clangd
@@ -81,4 +88,4 @@ SLSsteam-n-ACCELA.zip
 .ag*/*
 .cla*/*
 steam-os/*
-tests/archive/
+.antigravityignore
