@@ -4,7 +4,7 @@
   pkgs,
 }:
 pkgs.pkgsi686Linux.stdenv.mkDerivation {
-  pname = "SLSsteam";
+  pname = "navi";
   version = "${rev}";
   src = ../.;
 
@@ -19,7 +19,7 @@ pkgs.pkgsi686Linux.stdenv.mkDerivation {
   ];
 
   postPatch = ''
-    substituteInPlace src/log.cpp \
+    substituteInPlace src/core/log.cpp \
       --replace-fail "notify-send" "${lib.getExe pkgs.libnotify}"
   '';
 
@@ -29,13 +29,13 @@ pkgs.pkgsi686Linux.stdenv.mkDerivation {
 
   installPhase = ''
     mkdir -p $out/
-    cp bin/SLSsteam.so $out/
+    cp bin/libnavi.so $out/
     cp bin/library-inject.so $out/
   '';
 
   meta = {
     description = "Steamclient Modification for Linux";
-    homepage = "https://github.com/AceSLS/SLSsteam";
+    homepage = "https://github.com/AceSLS/navi";
     license = lib.licenses.agpl3Only;
     platforms = lib.platforms.linux;
   };

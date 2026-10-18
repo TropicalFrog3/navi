@@ -1,0 +1,58 @@
+# Maintainer: Ace! _SL/S <acesls@protonmail.com>
+pkgname="navi-git"
+pkgver=20260819131545
+pkgrel=1
+pkgdesc="Steamclient Mod - Pre release"
+arch=("i686" "x86_64")
+url="https://github.com/AceSLS/navi"
+license=("AGPL-3.0-only")
+
+depends=("steam"
+		"lib32-openssl"
+		"lib32-glibc"
+		"lib32-gcc-libs")
+
+optdepends=("steam-native"
+			"ccache: Speeds up compilation"
+			"dotnet-runtime-9.0: navi-ticket-generator")
+
+provides=("navi")
+conflicts=("navi")
+
+source=("git+$url#branch=dev")
+makedepends=("git"
+			"gcc"
+			"dotnet-sdk-9.0")
+
+#Disable stripping to not mess up disturb ticket-grabber
+options=(!strip)
+
+sha256sums=('SKIP')
+validpgpkeys=("63AB8F4BF8A62EEEB8D8C7584410F8CF7129B2D6")
+
+pkgver() {
+	cd "$srcdir/navi"
+	git describe --long --tags --abbrev=7 | sed 's/\([^-]*-g\)/r\1/;s/-/./g'
+}
+
+build() {
+	cd "$srcdir/navi"
+	make build
+}
+
+package() {
+	cd "$pkgdir"
+
+	mkdir -p "$pkgdir/usr/share/doc/"
+	cp -rvL "$srcdir/navi/docs" "$pkgdir/usr/share/doc/navi"
+
+	#TODO: Create make install target
+	install -D "$srcdir/navi/bin/libnavi.so" "$pkgdir/usr/lib32/libnavi.so"
+	install -D "$srcdir/navi/bin/library-inject.so" "$pkgdir/usr/lib32/libnavi-library-inject.so"
+	install -D "$srcdir/navi/res/navi.desktop" "$pkgdir/usr/share/applications/navi.desktop"
+	install -D "$srcdir/navi/res/navi-native.desktop" "$pkgdir/usr/share/applications/navi-native.desktop"
+	install -D "$srcdir/navi/res/logo.png" "$pkgdir/usr/share/pixmaps/navi.png"
+
+	install -D "$srcdir/navi/tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" "$pkgdir/usr/bin/navi-ticket-grabber"
+	install -D "$srcdir/navi/tools/schema-grabber/bin/Release/net9.0/linux-x64/publish/schema-grabber" "$pkgdir/usr/bin/navi-schema-grabber"
+}

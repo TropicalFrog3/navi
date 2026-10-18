@@ -19,10 +19,8 @@ std::map<std::string, std::unordered_set<std::string>> Updater::clientHashMap = 
 
 constexpr static const char* urls[] =
 {
-	"https://raw.githubusercontent.com/TropicalFrog3/SLSsteam/refs/heads/main/SLSsteam/res/updates.yaml",
-	"https://cdn.jsdelivr.net/gh/TropicalFrog3/SLSsteam/SLSsteam/res/updates.yaml",
-	"https://raw.githubusercontent.com/AceSLS/SLSsteam/refs/heads/main/res/updates.yaml",
-	"https://cdn.jsdelivr.net/gh/AceSLS/SLSsteam/res/updates.yaml"
+	"https://raw.githubusercontent.com/AceSLS/navi/refs/heads/main/res/updates.yaml",
+	"https://cdn.jsdelivr.net/gh/AceSLS/navi/res/updates.yaml"
 };
 
 bool Updater::init()
@@ -78,7 +76,7 @@ bool Updater::init()
 		};
 		if (home)
 		{
-			bundledPaths.push_back(std::string(home) + "/.local/share/SLSsteam/res/updates.yaml");
+			bundledPaths.push_back(std::string(home) + "/.local/share/navi/res/updates.yaml");
 		}
 		for (const auto& bp : bundledPaths)
 		{
@@ -128,7 +126,7 @@ bool Updater::init()
 				const auto str = hash.as<std::string>();
 				clientHashMap[version].emplace(str);
 
-				LOG_DEBUG("Added %s to SLSsteam version %s\n", str.c_str(), version.c_str());
+				LOG_DEBUG("Added %s to Navi version %s\n", str.c_str(), version.c_str());
 			}
 		}
 	}

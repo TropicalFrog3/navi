@@ -48,7 +48,7 @@ void ConfigMigration::applyMigration(YAML::Node& userConfig, const YAML::Node& d
         currentVersion = userConfig["ConfigVersion"].as<uint32_t>();
     }
 
-    const YAML::Node& migrations = diffYaml["Migrations"];
+    YAML::Node migrations = diffYaml["Migrations"];
     uint32_t maxVersion = currentVersion;
 
     // YAML nodes map might not be sorted by key natively in iteration, but versions are integers.
@@ -73,7 +73,7 @@ void ConfigMigration::applyMigration(YAML::Node& userConfig, const YAML::Node& d
 
         for (auto opIt = ops.begin(); opIt != ops.end(); ++opIt) {
             std::string keyPattern = opIt->first.as<std::string>();
-            const YAML::Node& actionNode = opIt->second;
+            YAML::Node actionNode = opIt->second;
             std::string action = actionNode["action"].as<std::string>();
 
             std::smatch match;
@@ -92,7 +92,7 @@ void ConfigMigration::applyMigration(YAML::Node& userConfig, const YAML::Node& d
                         bool mapped = false;
 
                         if (actionNode["value_mapping"]) {
-                            const YAML::Node& mapping = actionNode["value_mapping"];
+                            YAML::Node mapping = actionNode["value_mapping"];
                             if (mapping[oldValStr]) {
                                 if (!newKey.empty() && !userConfig[newKey]) {
                                     userConfig[newKey] = mapping[oldValStr];
@@ -178,6 +178,7 @@ bool ConfigMigration::migrate(const std::string& userConfigPath, const std::stri
         if (userConfig["ConfigVersion"]) {
             newVersion = userConfig["ConfigVersion"].as<uint32_t>();
         }
+        LOG_INFO("ConfigMigration: Migrated config version from %u to %u\n", originalVersion, newVersion);
 
         // Atomically write updated config
         std::ostringstream ss;

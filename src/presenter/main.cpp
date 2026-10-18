@@ -18,6 +18,7 @@
 #include "autoupdate.hpp"
 #include "nativeinstall.hpp"
 #include "vftableinfo.hpp"
+#include "legacy_migration.hpp"
 
 #include "libmem/libmem.h"
 #include <curl/curl.h>
@@ -86,10 +87,10 @@ static void unload()
 	curl_global_cleanup();
 	//Hooks::remove();
 
-	//This is absolutely unnessecary for applications loading SLSsteam where it cancels from setup()
+	//This is absolutely unnessecary for applications loading Navi where it cancels from setup()
 	//Would be nice to run have for failed load() attempts though 
 	//lm_module_t mod;
-	//if (LM_FindModule("SLSsteam.so", &mod))
+	//if (LM_FindModule("libnavi.so", &mod))
 	//{
 	//	//TODO: Investigate crash ?
 	//	//Possibly: Might be because we're unmapping what ever thread we're running in
@@ -110,8 +111,8 @@ static void runPendingReleaseInstaller()
 	}
 
 	const std::string installDirs[] = {
-		std::string(home) + "/.local/share/SLSsteam",
-		std::string(home) + "/.var/app/com.valvesoftware.Steam/.local/share/SLSsteam"
+		std::string(home) + "/.local/share/navi",
+		std::string(home) + "/.var/app/com.valvesoftware.Steam/.local/share/navi"
 	};
 
 	for (const auto& installDir : installDirs)
@@ -153,17 +154,19 @@ static void setup()
 
 	runPendingReleaseInstaller();
 
-	LOG_DEBUG("SLSsteam loading in %s\n", proc.name);
+	LOG_DEBUG("Navi loading in %s\n", proc.name);
 
 	//Any release
-	cleanEnvVar("LD_AUDIT", "SLSsteam.so");
+	cleanEnvVar("LD_AUDIT", "libnavi.so");
 	cleanEnvVar("LD_AUDIT", "library-inject.so");
 
 	//Arch release
-	cleanEnvVar("LD_AUDIT", "libSLSsteam.so");
-	cleanEnvVar("LD_AUDIT", "libSLS-library-inject.so");
+	cleanEnvVar("LD_AUDIT", "libnavi.so");
+	cleanEnvVar("LD_AUDIT", "libnavi-library-inject.so");
 	//TODO: Investigate weird logging. Not like it's necessary anymore
 	//cleanEnvVar("LD_PRELOAD");
+
+	LegacyMigration::migrateIfNeeded();
 
 	if (!g_config.init())
 	{
@@ -260,7 +263,7 @@ static void load()
 		return;
 	}
 
-	SLSAPI::init();
+	NaviAPI::init();
 	NativeInstall::init();
 
 	// Install the tier0 hook to intercept steamwebhelper launch
@@ -292,7 +295,7 @@ static void load()
 		//Funsy easter egg :)
 		if (static_cast<unsigned int>(ymd.month()) == 2 && static_cast<unsigned int>(ymd.day()) == 22)
 		{
-			LOG_NOTIFY("Happy birthday SLSsteam!");
+			LOG_NOTIFY("Happy birthday Navi!");
 		}
 		else
 		{

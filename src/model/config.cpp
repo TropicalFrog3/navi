@@ -41,7 +41,7 @@ std::string CConfig::getDir() const
 		path << home << "/.config";
 	}
 
-	path << "/SLSsteam";
+	path << "/navi";
 
 	return path.str();
 }
@@ -126,13 +126,13 @@ bool CConfig::init()
 		if (home)
 		{
 			std::string userConfigPath = getPath();
-			std::string diffYamlPath = std::string(home) + "/.local/share/SLSsteam/res/config.diff.yaml";
-			std::string templatePath = std::string(home) + "/.local/share/SLSsteam/res/config.yaml";
+			std::string diffYamlPath = std::string(home) + "/.local/share/navi/res/config.diff.yaml";
+			std::string templatePath = std::string(home) + "/.local/share/navi/res/config.yaml";
 			
 			ConfigMigration::migrate(userConfigPath, diffYamlPath, templatePath);
 
-			std::string cacheDiffPath = std::string(home) + "/.local/share/SLSsteam/res/cache.diff.yaml";
-			std::string cacheVerPath = std::string(home) + "/.local/share/SLSsteam/cache_version";
+			std::string cacheDiffPath = std::string(home) + "/.local/share/navi/res/cache.diff.yaml";
+			std::string cacheVerPath = std::string(home) + "/.local/share/navi/cache_version";
 			CacheMigration::migrate(cacheDiffPath, cacheVerPath);
 		}
 

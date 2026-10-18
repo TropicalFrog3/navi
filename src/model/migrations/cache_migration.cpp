@@ -109,7 +109,7 @@ bool CacheMigration::migrate(const std::string& diffYamlPath, const std::string&
 
         // Automatic pre-migration backup of standard cache directories
         const char* home = std::getenv("HOME");
-        std::string backupBase = home ? (std::string(home) + "/.local/share/SLSsteam/cache_backups") : "/tmp";
+        std::string backupBase = home ? (std::string(home) + "/.local/share/navi/cache_backups") : "/tmp";
         std::vector<std::string> defaultCaches = {
             "~/.local/share/ACCELA/depots",
             "~/.local/share/SLSsteam/cache"

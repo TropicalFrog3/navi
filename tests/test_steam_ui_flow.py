@@ -2,13 +2,13 @@
 """
 tests/test_steam_ui_flow.py
 ===========================
-Comprehensive end-to-end integration and flow test for SLSsteam against live Steam:
+Comprehensive end-to-end integration and flow test for Navi against live Steam:
   1. CEF preflight & process vitality check
   2. SharedJSContext MobX store inspection
   3. React controlled search input automation
   4. Virtualized list element identification & click dispatch
   5. Detail view navigation & DOM verification
-  6. SLSsteam native hook telemetry verification (~/.SLSsteam.log)
+  6. Navi native hook telemetry verification (~/.navi.log)
   7. Change Provider modal & runtime provider switching (/change-provider)
   8. Remove Lua modal cancellation & execution (/remove) with backup/restore
   9. Steam store navigation, Download Lua modal (0% check), Auto Download, and LUAs collection flow
@@ -44,7 +44,7 @@ CONFIG = {
     "appname": os.environ.get("STEAM_TEST_APPNAME", "Rogue"),
     "depot_id": os.environ.get("STEAM_TEST_DEPOTID", "1443431"),
     "timeout": float(os.environ.get("STEAM_TEST_TIMEOUT", "12.0")),
-    "log_path": os.path.expanduser("~/.SLSsteam.log"),
+    "log_path": os.path.expanduser("~/.navi.log"),
     "dump_dir": "/tmp/dumps",
     "backup_dir": "/tmp/sls_rogue_test_backup",
     "skip_if_no_steam": False
@@ -1064,9 +1064,9 @@ class SteamUIFlowTest(unittest.TestCase):
             log_info(f"Verified AppID {appid} is confirmed present in LUAs collection after download.")
         log_pass("LUAs collection navigation, sorting, and date headers verified.")
 
-    def test_09_slssteam_native_hook_telemetry(self):
-        """Verify ~/.SLSsteam.log for AppID hook invocations and absence of memory corruptions."""
-        log_step(f"Test 9: Audit SLSsteam Native Hook Telemetry for AppID {CONFIG['appid']}")
+    def test_09_navi_native_hook_telemetry(self):
+        """Verify ~/.navi.log for AppID hook invocations and absence of memory corruptions."""
+        log_step(f"Test 9: Audit Navi Native Hook Telemetry for AppID {CONFIG['appid']}")
         if not os.path.isfile(CONFIG["log_path"]):
             log_info(f"Log file {CONFIG['log_path']} not found; skipping log audit.")
             return
@@ -1526,7 +1526,7 @@ class SteamUIFlowTest(unittest.TestCase):
 def main():
     parser = argparse.ArgumentParser(description="Automated Steam UI & Native Hook Flow Test")
     parser.add_argument("--port", type=int, default=CONFIG["port"], help="Steam CEF remote debugging port")
-    parser.add_argument("--callback-port", type=int, default=CONFIG["callback_port"], help="SLSsteam HTTP callback port")
+    parser.add_argument("--callback-port", type=int, default=CONFIG["callback_port"], help="Navi HTTP callback port")
     parser.add_argument("--appid", type=int, default=CONFIG["appid"], help="AppID to test")
     parser.add_argument("--appname", type=str, default=CONFIG["appname"], help="Game name for search bar")
     parser.add_argument("--depot-id", type=str, default=CONFIG["depot_id"], help="Depot ID for install arming")
@@ -1544,7 +1544,7 @@ def main():
     CONFIG["skip_if_no_steam"] = args.skip_if_no_steam
 
     print(f"\n{BOLD}================================================================{RESET}")
-    print(f"{BOLD}SLSsteam: Automated Full Lifecycle Steam UI Flow Test{RESET}")
+    print(f"{BOLD}Navi: Automated Full Lifecycle Steam UI Flow Test{RESET}")
     print(f"Target: AppID {CONFIG['appid']} ('{CONFIG['appname']}') on CEF port {CONFIG['port']}")
     print(f"{BOLD}================================================================{RESET}")
 

@@ -9,9 +9,9 @@
 #include <sstream>
 
 
-namespace SLSAPI
+namespace NaviAPI
 {
-	const char* path = "/tmp/SLSsteam.API";
+	const char* path = "/tmp/navi.API";
 
 	std::fstream fstream;
 	CFileWatcher* watcher;
@@ -23,12 +23,12 @@ namespace SLSAPI
 	std::vector<LibraryOp_t> libraryOps;
 }
 
-bool SLSAPI::isEnabled()
+bool NaviAPI::isEnabled()
 {
 	return g_config.api.get() && initialized;
 }
 
-void SLSAPI::onFileChange(const char* filename)
+void NaviAPI::onFileChange(const char* filename)
 {
 	//Hot reload support :)
 	if (!isEnabled())
@@ -149,7 +149,7 @@ done:
 	}
 }
 
-void SLSAPI::init()
+void NaviAPI::init()
 {
 	fstream = std::fstream(path, std::fstream::in | std::fstream::out | std::fstream::trunc); //Open for reading, writing and also delete contents
 
@@ -173,10 +173,10 @@ void SLSAPI::init()
 	initialized = true;
 
 	watcher->start();
-	LOG_DEBUG("SLSsteam API initialized!\n");
+	LOG_DEBUG("Navi API initialized!\n");
 }
 
-void SLSAPI::runCompatOps()
+void NaviAPI::runCompatOps()
 {
 	static IClientCompat s_dummyCompat;
 
@@ -255,7 +255,7 @@ void SLSAPI::runCompatOps()
 	}
 }
 
-void SLSAPI::runInstallOps()
+void NaviAPI::runInstallOps()
 {
 	const auto usr = g_pSteamEngine->getUser();
 	if (!usr)
@@ -317,7 +317,7 @@ void SLSAPI::runInstallOps()
 	}
 }
 
-void SLSAPI::runIPCFrame()
+void NaviAPI::runIPCFrame()
 {
 	const std::lock_guard guard(cmdMutex);
 

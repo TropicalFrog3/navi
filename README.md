@@ -1,5 +1,5 @@
-# **SLSsteam - Steamclient Modification for Linux**
-![](https://github.com/AceSLS/SLSsteam/blob/dev/res/banner.png?raw=true "SLSsteam")
+# **Navi - Steamclient Modification for Linux**
+![](res/banner.png "Navi")
 
 ## Index
 
@@ -11,22 +11,22 @@
 
 ## Getting started
 
-Check out the [Installation](https://github.com/AceSLS/SLSsteam/wiki/Installation) or the [Building from Source](https://github.com/AceSLS/SLSsteam/wiki/Building-from-Source) section in our Wiki!
+Check out the [Installation](https://github.com/AceSLS/navi/wiki/Installation) or the [Building from Source](https://github.com/AceSLS/navi/wiki/Building-from-Source) section in our Wiki!
 
 
 ## Hall of Fame aka Credits
 
 Contributors:
-- [Parasitic-Hollow](https://github.com/Parasitic-Hollow/): Fixing gamepad issues caused by FakeAppIds & maintaining SLSsteam in my absence
+- [Parasitic-Hollow](https://github.com/Parasitic-Hollow/): Fixing gamepad issues caused by FakeAppIds & maintaining Navi in my absence
 - [exefer](https://github.com/exefer): Fixing playtime getting deleted on Steamclient restart for refunded games
 - [dankrr](https://github.com/dankrr): Fixing non-steam game's rich presence
-- [amione](https://github.com/xamionex/): Creating the SLSsteam banner & logo the instant he found out I was looking around for one <3
+- [amione](https://github.com/xamionex/): Creating the Navi banner & logo the instant he found out I was looking around for one <3
 - [DeveloperMikey](https://github.com/DeveloperMikey): Added Nix support
 - [skrimix](https://github.com/skrimix): Added flatpak support
 - thismanq: Informing me that DisableFamilyShareLockForOthers is possible
 
 Others:
-- All the staff members of the Anti Denuvo Sanctuary for all their hard work they do. They also found a way to use SLSsteam I didn't even intend to, so shoutout to them
+- All the staff members of the Anti Denuvo Sanctuary for all their hard work they do. They also found a way to use Navi I didn't even intend to, so shoutout to them
 - Riku_Wayfinder: Being extremely supportive and lightening my workload by a lot. So show him some love my guys <3
 - Gnanf: Helping me test the Family Sharing bypass
 - rdbo: For his great libmem library, which saved me a lot of development and learning time
@@ -42,7 +42,7 @@ Others:
 Please do not seek out Projects listed here!
 If you decide to ignore the aforementioned warning you do so on your own risk!🚨
 
-OnetapBeta & Hammer Decky by Hammer Steam: Resells Steamless & SLSsteam for a bogus price, completely breaking licensing agreements and leeching off the communities hard work while putting in 0 effort themself.
+OnetapBeta & Hammer Decky by Hammer Steam: Resells Steamless & Navi for a bogus price, completely breaking licensing agreements and leeching off the communities hard work while putting in 0 effort themself.
 
 ## Support
 
@@ -51,7 +51,7 @@ Feel free to join our [Discord](https://discord.gg/j3ZzjeV4eQ) instead.
 
 ## Related Projects
 
-[h3adcr-b](https://github.com/Deadboy666/h3adcr-b) & [h3adcr-b-wiki](https://github.com/Deadboy666/h3adcr-b/wiki/): Universal SLSsteam installer & steamclient downgrader
+[h3adcr-b](https://github.com/Deadboy666/h3adcr-b) & [h3adcr-b-wiki](https://github.com/Deadboy666/h3adcr-b/wiki/): Universal Navi installer & steamclient downgrader
 
 [steamnetsock-patch](https://github.com/yesyes0649/steamnetsock-patch) & [eos-proxy](https://github.com/yesyes0649/eos-proxy): Makes FakeAppIds work in some games where it otherwise wouldn't
 

@@ -8,7 +8,7 @@ cd "$SCRIPT_DIR"
 TIMESTAMP="$(date "+%Y%m%d%H%M%S")"
 VERSION="$(cat res/version)"
 
-ARCH_PKG_DIR="pkg/slssteam"
+ARCH_PKG_DIR="pkg/navi"
 PKG_VER="$(grep "pkgver=.*" "$ARCH_PKG_DIR/PKGBUILD" | cut -d "=" -f 2)"
 PKG_REL="$(grep "pkgrel=.*" "$ARCH_PKG_DIR/PKGBUILD" | cut -d "=" -f 2)"
 
@@ -25,17 +25,17 @@ make_release()
 
 	sh docker/build.sh zips
 	mv zips/* $DIR
-	#zips are named SLSsteam VERSION
-	rename "SLSsteam $VERSION" "SLSsteam-Any-$NAME" $DIR/*
+	#zips are named navi VERSION
+	rename "navi $VERSION" "navi-Any-$NAME" $DIR/*
 
 	cd "$ARCH_PKG_DIR"
 	makepkg -Ccf
 
 	cd "$SCRIPT_DIR"
-	mv pkg/slssteam/*.pkg.tar.zst "$DIR"
-	#name for package is slssteam-pkgver-pkgrel-arch
+	mv pkg/navi/*.pkg.tar.zst "$DIR"
+	#name for package is navi-pkgver-pkgrel-arch
 	#We do not replace arch, for future proofing
-	rename "slssteam-$PKG_VER-$PKG_REL" "SLSsteam-Arch-$NAME" $DIR/*
+	rename "navi-$PKG_VER-$PKG_REL" "navi-Arch-$NAME" $DIR/*
 
 	mv $DIR/* "$RELEASE_DIR"
 	rm -r "$DIR"

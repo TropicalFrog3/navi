@@ -49,7 +49,7 @@ Connection & Shell:
   tunnel-stop                Terminate CEF port 8080 SSH tunnel
 
 File Synchronization & Deployment:
-  sync                       Rsync workspace repository to ~/SLSsteam on Deck
+  sync                       Rsync workspace repository to ~/navi on Deck
   deploy                     Sync repo, run ./install.sh on Deck, and restart Steam
   verify                     Verify Steam Deck installation, log health, and feature status
   test [all|flow]            Execute full test suite or UI flow test on the Steam Deck
@@ -64,7 +64,7 @@ Steam & UI Automation:
   cdp-eval "<target>" "<js>" Evaluate JavaScript expression on target via CDP WebSocket
 
 Monitoring & Diagnostics:
-  tail-sls                   Stream ~/.SLSsteam.log in real time
+  tail-sls                   Stream ~/.navi.log in real time
   tail-content               Stream Steam's content_log.txt in real time
   tail-gamescope             Stream Gaming Mode compositor journal logs
 
@@ -132,11 +132,11 @@ EOF
         # Check repository sync state on Deck
         local repo_status
         repo_status=$(ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" \
-          "[ -d ~/SLSsteam ] && echo 'EXISTS' || echo 'MISSING'")
+          "[ -d ~/navi ] && echo 'EXISTS' || echo 'MISSING'")
         if [ "$repo_status" = "EXISTS" ]; then
-            echo " [✓] Workspace Sync       : ~/SLSsteam exists on Deck"
+            echo " [✓] Workspace Sync       : ~/navi exists on Deck"
         else
-            echo " [!] Workspace Sync       : ~/SLSsteam not found (run: $(basename "$0") sync)"
+            echo " [!] Workspace Sync       : ~/navi not found (run: $(basename "$0") sync)"
         fi
     else
         echo " [✗] SSH Authentication   : FAILED ($TARGET_USER@$TARGET_HOST)"
@@ -183,7 +183,7 @@ cmd_sudo() {
 
 cmd_sync() {
     echo "=========================================================="
-    echo " Syncing workspace to Steam Deck: ~/SLSsteam"
+    echo " Syncing workspace to Steam Deck: ~/navi"
     echo "=========================================================="
     rsync -avz --delete-after \
       --exclude '.git' \
@@ -191,7 +191,7 @@ cmd_sync() {
       --exclude '.vscode' \
       --exclude '.claude' \
       --exclude 'steam-os/' \
-      --exclude 'SLSsteam.zip' \
+      --exclude 'navi.zip' \
       --exclude '.venv' \
       --exclude 'venv' \
       --exclude '__pycache__' \
@@ -199,7 +199,7 @@ cmd_sync() {
       --exclude '*.ppm' \
       --exclude '*.log' \
       -e "ssh ${SSH_OPTS[*]}" \
-      "$REPO_DIR/" "$TARGET_USER@$TARGET_HOST:~/SLSsteam/"
+      "$REPO_DIR/" "$TARGET_USER@$TARGET_HOST:~/navi/"
     echo " [✓] Workspace sync complete!"
 }
 
@@ -210,13 +210,13 @@ cmd_deploy() {
     echo " Executing ./install.sh on Steam Deck..."
     echo "=========================================================="
     ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'bash -s' << 'EOF'
-cd ~/SLSsteam
-chmod +x ./install.sh ./uninstall.sh SLSsteam/setup.sh 2>/dev/null || true
+cd ~/navi
+chmod +x ./install.sh ./uninstall.sh navi/setup.sh 2>/dev/null || true
 ./install.sh
 EOF
     echo " [✓] Installation script executed on Steam Deck."
     echo ""
-    read -p "Restart Steam now to load updated SLSsteam hooks? [y/N] " -n 1 -r
+    read -p "Restart Steam now to load updated Navi hooks? [y/N] " -n 1 -r
     echo ""
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         cmd_restart_steam
@@ -303,7 +303,7 @@ else
     else
         nohup /home/deck/.local/bin/steam -cef-enable-debugging > /home/deck/steam-debug.log 2>&1 &
     fi
-    echo "Steam launched in Desktop Mode with SLSsteam wrapper."
+    echo "Steam launched in Desktop Mode with Navi wrapper."
 fi
 EOF
 }
@@ -418,7 +418,7 @@ EOF
 }
 
 cmd_tail_sls() {
-    ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" "tail -n 50 -f ~/.SLSsteam.log"
+    ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" "tail -n 50 -f ~/.navi.log"
 }
 
 cmd_tail_content() {
@@ -437,15 +437,15 @@ cmd_test() {
     echo " Running Tests on Steam Deck (${TARGET_HOST})..."
     echo "=========================================================="
     if [ "$suite" = "flow" ] || [ "$suite" = "ui" ]; then
-        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '~/deck_venv/bin/python ~/SLSsteam/tests/test_steam_ui_flow.py'
+        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '~/deck_venv/bin/python ~/navi/tests/test_steam_ui_flow.py'
     else
-        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'cd ~/SLSsteam && ./tests/run_test_suite.sh'
+        ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" 'cd ~/navi && ./tests/run_test_suite.sh'
     fi
 }
 
 cmd_verify() {
     echo "=========================================================="
-    echo " Verifying Steam Deck SLSsteam Installation & Health      "
+    echo " Verifying Steam Deck Navi Installation & Health          "
     echo "=========================================================="
 
     # 1. Reachability
@@ -465,34 +465,34 @@ cmd_verify() {
     ')
     echo "$ver_info"
 
-    # 3. Check ~/.SLSsteam.log for Errors, Aborting, not found!
+    # 3. Check ~/.navi.log for Errors, Aborting, not found!
     echo ""
-    echo " [2/3] Checking ~/.SLSsteam.log for Fatal Errors / Aborts..."
+    echo " [2/3] Checking ~/.navi.log for Fatal Errors / Aborts..."
     local error_lines
     error_lines=$(ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '
-        if [ ! -f ~/.SLSsteam.log ]; then
+        if [ ! -f ~/.navi.log ]; then
             echo "MISSING_LOG"
             exit 0
         fi
-        grep -E "\[Error |\[Notify.*Error|Aborting|not found\!" ~/.SLSsteam.log 2>/dev/null || true
+        grep -E "\[Error |\[Notify.*Error|Aborting|not found\!" ~/.navi.log 2>/dev/null || true
     ')
 
     if [ "$error_lines" = "MISSING_LOG" ]; then
-        echo " [✗] Error: ~/.SLSsteam.log does not exist on target!"
+        echo " [✗] Error: ~/.navi.log does not exist on target!"
         exit 1
     elif [ -n "$error_lines" ]; then
-        echo " [✗] Found errors in ~/.SLSsteam.log:"
+        echo " [✗] Found errors in ~/.navi.log:"
         echo "$error_lines"
         exit 1
     else
-        echo " [✓] Zero Error/Aborting/not found! lines in ~/.SLSsteam.log"
+        echo " [✓] Zero Error/Aborting/not found! lines in ~/.navi.log"
     fi
 
     # 4. Feature confirmations
     echo ""
     echo " [3/3] Confirming Active Features in Log..."
     ssh "${SSH_OPTS[@]}" "$TARGET_USER@$TARGET_HOST" '
-        log=~/.SLSsteam.log
+        log=~/.navi.log
         if [ ! -f "$log" ]; then exit 1; fi
 
         # Hooks installed

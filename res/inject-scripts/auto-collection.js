@@ -1,5 +1,5 @@
 /**
- * Auto-Collection Script for SLSsteam
+ * Auto-Collection Script for Navi
  * Injected into SteamUI to automatically add all spoofed games to a collection named "LUAs".
  */
 (function() {

@@ -15,10 +15,10 @@ namespace DepotKeys
 	// app_id -> set of depot_ids
 	using AppDepotsMap = std::unordered_map<uint32_t, std::unordered_set<uint32_t>>;
 
-	// Path to ~/.config/SLSsteam/depot_keys.yaml
+	// Path to ~/.config/navi/depot_keys.yaml
 	std::string getDepotKeysYamlPath();
 
-	// Load ~/.config/SLSsteam/depot_keys.yaml into memory
+	// Load ~/.config/navi/depot_keys.yaml into memory
 	void loadDepotKeysYaml();
 
 	// Parse all *.lua files in stplug-in/ and extract depot keys

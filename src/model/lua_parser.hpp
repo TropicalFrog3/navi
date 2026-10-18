@@ -7,7 +7,7 @@
 /**
  * LuaParser
  *
- * Full native parser for SLSsteam Lua plugin files
+ * Full native parser for Navi Lua plugin files
  * (e.g. $STEAM_ROOT/config/stplug-in/<appid>.lua).
  *
  * Lua plugin format (typical example):

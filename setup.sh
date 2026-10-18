@@ -1,13 +1,13 @@
 #!/bin/bash
 
-SLSDIR="$HOME/.local/share/SLSsteam"
+SLSDIR="$HOME/.local/share/navi"
 SLSPATH="$SLSDIR/path"
-SLSLIB="$SLSDIR/SLSsteam.so"
-SLSAUDIT="LD_AUDIT=\"$SLSDIR/library-inject.so:$SLSDIR/SLSsteam.so\""
+SLSLIB="$SLSDIR/libnavi.so"
+SLSAUDIT="LD_AUDIT=\"$SLSDIR/library-inject.so:$SLSDIR/libnavi.so\""
 
 FLATPAK_APP_ID="com.valvesoftware.Steam"
-FLATPAK_SLSDIR="$HOME/.var/app/$FLATPAK_APP_ID/.local/share/SLSsteam"
-FLATPAK_LD_AUDIT="/app/links/\$LIB/libshared-library-guard.so:$FLATPAK_SLSDIR/library-inject.so:$FLATPAK_SLSDIR/SLSsteam.so"
+FLATPAK_SLSDIR="$HOME/.var/app/$FLATPAK_APP_ID/.local/share/navi"
+FLATPAK_LD_AUDIT="/app/links/\$LIB/libshared-library-guard.so:$FLATPAK_SLSDIR/library-inject.so:$FLATPAK_SLSDIR/libnavi.so"
 
 smart_copy() {
 	local src_dir="$1"
@@ -32,7 +32,7 @@ smart_copy() {
 uninstall()
 {
 	test -f "$SLSDIR/steam-jupiter.bak" && sudo cp -v "$SLSDIR/steam-jupiter.bak" "$(realpath "$(type -P steam-jupiter)")" #Left over from Steam Deck patcher
-	rm -v "$HOME/.config/fish/SLSsteam.fish" 2> /dev/null
+	rm -v "$HOME/.config/fish/navi.fish" 2> /dev/null
 	rm -v "$HOME/.local/share/applications/steam.desktop" 2> /dev/null
 	rm -v "$HOME/.local/share/applications/steam-native.desktop" 2> /dev/null
 	rm -rvf "$SLSDIR"
@@ -111,11 +111,11 @@ install_path()
 	CMD="$(echo "export PATH=\"$SLSPATH:\$PATH\"")"
 
 	if [ "$SHELLPATH" = "/usr/bin/fish" ]; then
-		SLSSTEAM_FISH="$HOME/.config/fish/conf.d/SLSsteam.fish"
-		if [ ! -f "$SLSSTEAM_FISH" ]; then
-			mkdir -p "$(dirname "$SLSSTEAM_FISH")"
-			echo "$CMD" > "$SLSSTEAM_FISH"
-			echo "Wrote $CMD to $SLSSTEAM_FISH"
+		NAVI_FISH="$HOME/.config/fish/conf.d/navi.fish"
+		if [ ! -f "$NAVI_FISH" ]; then
+			mkdir -p "$(dirname "$NAVI_FISH")"
+			echo "$CMD" > "$NAVI_FISH"
+			echo "Wrote $CMD to $NAVI_FISH"
 
 			echo "Relog for changes to take effect!"
 		fi
@@ -127,11 +127,11 @@ install_path()
 	return 0
 }
 
-install_slssteam()
+install_navi()
 {
-	LIB="./bin/SLSsteam.so"
+	LIB="./bin/libnavi.so"
 	if [ ! -f "$LIB" ]; then
-		echo "bin/SLSsteam.so not found! Did you run the install.sh in the correct directory?"
+		echo "bin/libnavi.so not found! Did you run the install.sh in the correct directory?"
 		exit 1
 	fi
 
@@ -158,8 +158,8 @@ install_slssteam()
 	mkdir -p "$SLSDIR/res"
 	smart_copy ./res "$SLSDIR/res" || return 1
 	if [ -f "./res/updates.yaml" ]; then
-		mkdir -p "$HOME/.config/SLSsteam"
-		DEST_UPDATES="$HOME/.config/SLSsteam/updates.yaml"
+		mkdir -p "$HOME/.config/navi"
+		DEST_UPDATES="$HOME/.config/navi/updates.yaml"
 		if [ ! -f "$DEST_UPDATES" ]; then
 			cp -a "./res/updates.yaml" "$DEST_UPDATES"
 		else
@@ -188,8 +188,8 @@ EOF
 
 install_flatpak()
 {
-	if [ ! -f "./bin/SLSsteam.so" ]; then
-		echo "bin/SLSsteam.so not found! Did you run the install.sh in the correct directory?"
+	if [ ! -f "./bin/libnavi.so" ]; then
+		echo "bin/libnavi.so not found! Did you run the install.sh in the correct directory?"
 		return 1
 	fi
 
@@ -222,8 +222,8 @@ install_flatpak()
 
 install_all()
 {
-	if ! install_slssteam; then
-		echo "SLSsteam payload installation failed!"
+	if ! install_navi; then
+		echo "Navi payload installation failed!"
 		exit 1
 	fi
 

@@ -10,7 +10,7 @@ let
   };
 in
 pkgs.stdenv.mkDerivation {
-  pname = "SLSsteam-wrapper";
+  pname = "navi-wrapper";
   version = rev;
 
   src = sls-steam;
@@ -19,13 +19,13 @@ pkgs.stdenv.mkDerivation {
 
   installPhase = ''
     mkdir -p $out/bin
-    makeWrapper ${pkgs.steam}/bin/steam $out/bin/SLSsteam \
-      --set LD_AUDIT "${sls-steam}/library-inject.so:${sls-steam}/SLSsteam.so"
+    makeWrapper ${pkgs.steam}/bin/steam $out/bin/navi \
+      --set LD_AUDIT "${sls-steam}/library-inject.so:${sls-steam}/libnavi.so"
   '';
 
   meta = {
     description = "Steamclient Modification for Linux";
     platforms = lib.platforms.linux;
-    mainProgram = "SLSsteam";
+    mainProgram = "navi";
   };
 }

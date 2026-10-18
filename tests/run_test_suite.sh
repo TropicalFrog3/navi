@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # tests/run_test_suite.sh
-# Comprehensive offline verification test suite for SLSsteam
+# Comprehensive offline verification test suite for Navi
 # Tests config migration, cache migration, cache backups, atomic updates,
 # payload integrity checks, rollbacks, faked URLs, and category uninstallation.
 #
@@ -47,10 +47,11 @@ if [ ! -x "$REPO_ROOT/bin/test_migration" ]; then
     make -C "$REPO_ROOT" audit-libs -j"$(nproc)" >/dev/null 2>&1 || "$REPO_ROOT/docker/build.sh" >/dev/null
 
     g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/include" \
-        -I"$REPO_ROOT/src" -I"$REPO_ROOT/src/core" -I"$REPO_ROOT/src/model" -I"$REPO_ROOT/src/presenter" -I"$REPO_ROOT/src/view" -I"$REPO_ROOT/src/model/sdk" \
+        -I"$REPO_ROOT/src" -I"$REPO_ROOT/src/core" -I"$REPO_ROOT/src/model" -I"$REPO_ROOT/src/model/migrations" -I"$REPO_ROOT/src/presenter" -I"$REPO_ROOT/src/view" -I"$REPO_ROOT/src/model/sdk" \
         "$REPO_ROOT/tests/test_migration.cpp" \
-        "$REPO_ROOT/src/model/config_migration.cpp" \
-        "$REPO_ROOT/src/model/cache_migration.cpp" \
+        "$REPO_ROOT/src/model/migrations/config_migration.cpp" \
+        "$REPO_ROOT/src/model/migrations/cache_migration.cpp" \
+        "$REPO_ROOT/src/model/migrations/legacy_migration.cpp" \
         "$REPO_ROOT/lib/libyaml-cpp.a" \
         -o "$REPO_ROOT/bin/test_migration"
 fi
@@ -72,7 +73,7 @@ pass "Native Install and Manifest Code unit tests passed successfully."
 
 step "Test Case 3: Auto-Updater Up-to-Date Scenario (Faked Local URL)"
 SANDBOX_HOME="$TEST_TMP/fake_home"
-mkdir -p "$SANDBOX_HOME/.local/share/SLSsteam" "$SANDBOX_HOME/.config/SLSsteam"
+mkdir -p "$SANDBOX_HOME/.local/share/navi" "$SANDBOX_HOME/.config/navi"
 
 # Compile test_autoupdate harness (host or docker) if not already present
 if [ ! -x "$REPO_ROOT/bin/test_autoupdate" ]; then
@@ -112,13 +113,13 @@ fi
 
 step "Test Case 4: Successful Atomic Update with Manifest Integrity Check & Cache Backup"
 # 1. Setup initial live install in sandbox
-mkdir -p "$SANDBOX_HOME/.local/share/SLSsteam"
-echo "LIVE_SLSSTEAM_V1" > "$SANDBOX_HOME/.local/share/SLSsteam/SLSsteam.so"
-echo "LIVE_LIBRARY_INJECT_V1" > "$SANDBOX_HOME/.local/share/SLSsteam/library-inject.so"
+mkdir -p "$SANDBOX_HOME/.local/share/navi"
+echo "LIVE_NAVI_V1" > "$SANDBOX_HOME/.local/share/navi/libnavi.so"
+echo "LIVE_LIBRARY_INJECT_V1" > "$SANDBOX_HOME/.local/share/navi/library-inject.so"
 
 # Setup initial user config
-mkdir -p "$SANDBOX_HOME/.config/SLSsteam"
-echo "LogLevels: '0x0'" > "$SANDBOX_HOME/.config/SLSsteam/config.yaml"
+mkdir -p "$SANDBOX_HOME/.config/navi"
+echo "LogLevels: '0x0'" > "$SANDBOX_HOME/.config/navi/config.yaml"
 
 # Setup initial cache dirs and untouchable manifest dir
 set_legacy_paths "$SANDBOX_HOME"
@@ -129,18 +130,18 @@ echo "untouchable_manifest_content" > "$LEGACY_MANIFESTS_DIR/100.manifest"
 
 # 2. Build mock release archive
 RELEASE_SRC="$TEST_TMP/mock_release_src"
-mkdir -p "$RELEASE_SRC/SLSsteam"
-echo "NEW_SLSSTEAM_V99" > "$RELEASE_SRC/SLSsteam/SLSsteam.so"
-echo "NEW_LIBRARY_INJECT_V99" > "$RELEASE_SRC/SLSsteam/library-inject.so"
+mkdir -p "$RELEASE_SRC/navi"
+echo "NEW_NAVI_V99" > "$RELEASE_SRC/navi/libnavi.so"
+echo "NEW_LIBRARY_INJECT_V99" > "$RELEASE_SRC/navi/library-inject.so"
 cp "$REPO_ROOT/uninstall.sh" "$RELEASE_SRC/uninstall.sh"
 
 cat << 'EOF' > "$RELEASE_SRC/install.sh"
 #!/bin/bash
 set -e
-TARGET="$HOME/.local/share/SLSsteam"
+TARGET="$HOME/.local/share/navi"
 mkdir -p "$TARGET"
-cp -f SLSsteam/SLSsteam.so "$TARGET/SLSsteam.so"
-cp -f SLSsteam/library-inject.so "$TARGET/library-inject.so"
+cp -f navi/libnavi.so "$TARGET/libnavi.so"
+cp -f navi/library-inject.so "$TARGET/library-inject.so"
 cp -f uninstall.sh "$TARGET/uninstall.sh"
 echo "Mock installation complete."
 EOF
@@ -153,12 +154,12 @@ version: "99.0.0"
 files:
   "install.sh": "$(sha256sum install.sh | awk '{print $1}')"
   "uninstall.sh": "$(sha256sum uninstall.sh | awk '{print $1}')"
-  "SLSsteam/SLSsteam.so": "$(sha256sum SLSsteam/SLSsteam.so | awk '{print $1}')"
-  "SLSsteam/library-inject.so": "$(sha256sum SLSsteam/library-inject.so | awk '{print $1}')"
+  "navi/libnavi.so": "$(sha256sum navi/libnavi.so | awk '{print $1}')"
+  "navi/library-inject.so": "$(sha256sum navi/library-inject.so | awk '{print $1}')"
 EOF
 
 MOCK_ZIP="$TEST_TMP/mock_release_99.zip"
-zip -q -r "$MOCK_ZIP" install.sh uninstall.sh update-manifest.yaml SLSsteam
+zip -q -r "$MOCK_ZIP" install.sh uninstall.sh update-manifest.yaml navi
 cd "$REPO_ROOT"
 
 # Mock version manifest pointing to mock zip
@@ -179,18 +180,18 @@ if ! echo "$UPGRADE_OUTPUT" | grep -q "Payload integrity verified successfully";
 fi
 
 # Verify live files were updated
-LIVE_SO_CONTENT=$(cat "$SANDBOX_HOME/.local/share/SLSsteam/SLSsteam.so")
-if [ "$LIVE_SO_CONTENT" != "NEW_SLSSTEAM_V99" ]; then
-    fail "Live SLSsteam.so was not updated! Got: $LIVE_SO_CONTENT"
+LIVE_SO_CONTENT=$(cat "$SANDBOX_HOME/.local/share/navi/libnavi.so")
+if [ "$LIVE_SO_CONTENT" != "NEW_NAVI_V99" ]; then
+    fail "Live libnavi.so was not updated! Got: $LIVE_SO_CONTENT"
 fi
 
 # Verify user config backup was created
-if ! ls "$SANDBOX_HOME/.config/SLSsteam/backups/"*.bak >/dev/null 2>&1; then
+if ! ls "$SANDBOX_HOME/.config/navi/backups/"*.bak >/dev/null 2>&1; then
     fail "User config backup was not created during update!"
 fi
 
 # Verify cache backup was created for depots
-if ! ls "$SANDBOX_HOME/.local/share/SLSsteam/cache_backups/" >/dev/null 2>&1; then
+if ! ls "$SANDBOX_HOME/.local/share/navi/cache_backups/" >/dev/null 2>&1; then
     fail "Cache backup was not created during update!"
 fi
 
@@ -198,12 +199,12 @@ fi
 if [ ! -f "$LEGACY_MANIFESTS_DIR/100.manifest" ]; then
     fail "Manifest file was modified or deleted during update!"
 fi
-if find "$SANDBOX_HOME/.local/share/SLSsteam/cache_backups/" -name "morrenus_manifests" | grep -q .; then
+if find "$SANDBOX_HOME/.local/share/navi/cache_backups/" -name "morrenus_manifests" | grep -q .; then
     fail "Manifest directory was copied into cache backup (manifests must be completely untouched)!"
 fi
 
 # Verify staging directory was cleaned up
-if ls -d "$SANDBOX_HOME/.local/share/SLSsteam/updates/staging_"* >/dev/null 2>&1; then
+if ls -d "$SANDBOX_HOME/.local/share/navi/updates/staging_"* >/dev/null 2>&1; then
     fail "Staging directory was not cleaned up after successful update!"
 fi
 
@@ -212,9 +213,9 @@ pass "Atomic update with integrity verification and cache backup completed succe
 step "Test Case 5: Tampered Payload Detection & Staging Cleanup"
 # Create a release where a file does not match the manifest
 TAMPERED_SRC="$TEST_TMP/mock_tampered_src"
-mkdir -p "$TAMPERED_SRC/SLSsteam"
-echo "ORIGINAL_CONTENT" > "$TAMPERED_SRC/SLSsteam/SLSsteam.so"
-echo "ORIGINAL_INJECT" > "$TAMPERED_SRC/SLSsteam/library-inject.so"
+mkdir -p "$TAMPERED_SRC/navi"
+echo "ORIGINAL_CONTENT" > "$TAMPERED_SRC/navi/libnavi.so"
+echo "ORIGINAL_INJECT" > "$TAMPERED_SRC/navi/library-inject.so"
 cp "$RELEASE_SRC/install.sh" "$TAMPERED_SRC/install.sh"
 
 cd "$TAMPERED_SRC"
@@ -222,12 +223,12 @@ cat << EOF > update-manifest.yaml
 version: "99.1.0"
 files:
   "install.sh": "$(sha256sum install.sh | awk '{print $1}')"
-  "SLSsteam/SLSsteam.so": "0000000000000000000000000000000000000000000000000000000000000000"
-  "SLSsteam/library-inject.so": "$(sha256sum SLSsteam/library-inject.so | awk '{print $1}')"
+  "navi/libnavi.so": "0000000000000000000000000000000000000000000000000000000000000000"
+  "navi/library-inject.so": "$(sha256sum navi/library-inject.so | awk '{print $1}')"
 EOF
 
 TAMPERED_ZIP="$TEST_TMP/mock_tampered.zip"
-zip -q -r "$TAMPERED_ZIP" install.sh update-manifest.yaml SLSsteam
+zip -q -r "$TAMPERED_ZIP" install.sh update-manifest.yaml navi
 cd "$REPO_ROOT"
 
 MOCK_VER_TAMPERED="$TEST_TMP/version_tampered.yaml"
@@ -247,22 +248,22 @@ else
 fi
 
 # Live files must NOT have changed
-LIVE_SO_CONTENT=$(cat "$SANDBOX_HOME/.local/share/SLSsteam/SLSsteam.so")
-if [ "$LIVE_SO_CONTENT" != "NEW_SLSSTEAM_V99" ]; then
+LIVE_SO_CONTENT=$(cat "$SANDBOX_HOME/.local/share/navi/libnavi.so")
+if [ "$LIVE_SO_CONTENT" != "NEW_NAVI_V99" ]; then
     fail "Live file was corrupted by tampered payload! Content: $LIVE_SO_CONTENT"
 fi
 
 # Staging must be removed
-if ls -d "$SANDBOX_HOME/.local/share/SLSsteam/updates/staging_"* >/dev/null 2>&1; then
+if ls -d "$SANDBOX_HOME/.local/share/navi/updates/staging_"* >/dev/null 2>&1; then
     fail "Staging directory was not cleaned up after tampered payload abort!"
 fi
 pass "Tampered payload rejected, live files untouched, and staging purged."
 
 step "Test Case 6: Auto-Updater Failure & Staged Rollback"
 FAIL_SRC="$TEST_TMP/mock_fail_src"
-mkdir -p "$FAIL_SRC/SLSsteam"
-echo "CORRUPTED_SO" > "$FAIL_SRC/SLSsteam/SLSsteam.so"
-echo "CORRUPTED_INJECT" > "$FAIL_SRC/SLSsteam/library-inject.so"
+mkdir -p "$FAIL_SRC/navi"
+echo "CORRUPTED_SO" > "$FAIL_SRC/navi/libnavi.so"
+echo "CORRUPTED_INJECT" > "$FAIL_SRC/navi/library-inject.so"
 
 cat << 'EOF' > "$FAIL_SRC/install.sh"
 #!/bin/bash
@@ -276,12 +277,12 @@ cat << EOF > update-manifest.yaml
 version: "99.2.0"
 files:
   "install.sh": "$(sha256sum install.sh | awk '{print $1}')"
-  "SLSsteam/SLSsteam.so": "$(sha256sum SLSsteam/SLSsteam.so | awk '{print $1}')"
-  "SLSsteam/library-inject.so": "$(sha256sum SLSsteam/library-inject.so | awk '{print $1}')"
+  "navi/libnavi.so": "$(sha256sum navi/libnavi.so | awk '{print $1}')"
+  "navi/library-inject.so": "$(sha256sum navi/library-inject.so | awk '{print $1}')"
 EOF
 
 FAIL_ZIP="$TEST_TMP/mock_fail.zip"
-zip -q -r "$FAIL_ZIP" install.sh update-manifest.yaml SLSsteam
+zip -q -r "$FAIL_ZIP" install.sh update-manifest.yaml navi
 cd "$REPO_ROOT"
 
 MOCK_VER_FAIL="$TEST_TMP/version_fail.yaml"
@@ -302,16 +303,16 @@ else
 fi
 
 # Verify live file was restored to previous state
-LIVE_SO_CONTENT=$(cat "$SANDBOX_HOME/.local/share/SLSsteam/SLSsteam.so")
-if [ "$LIVE_SO_CONTENT" != "NEW_SLSSTEAM_V99" ]; then
-    fail "Rollback failed! Live content is: $LIVE_SO_CONTENT, expected: NEW_SLSSTEAM_V99"
+LIVE_SO_CONTENT=$(cat "$SANDBOX_HOME/.local/share/navi/libnavi.so")
+if [ "$LIVE_SO_CONTENT" != "NEW_NAVI_V99" ]; then
+    fail "Rollback failed! Live content is: $LIVE_SO_CONTENT, expected: NEW_NAVI_V99"
 fi
 pass "Rollback verified: previous live installation was successfully restored."
 
 step "Test Case 7: Uninstaller Category Isolation & Idempotency"
 UNINSTALL_HOME="$TEST_TMP/uninstall_home"
 set_legacy_paths "$UNINSTALL_HOME"
-mkdir -p "$UNINSTALL_HOME/.local/share/SLSsteam" \
+mkdir -p "$UNINSTALL_HOME/.local/share/navi" \
          "$LEGACY_MANIFESTS_DIR" \
          "$UNINSTALL_HOME/.steam/steam/config/stplug-in" \
          "$UNINSTALL_HOME/.local/share/Steam/config/stplug-in" \
@@ -322,12 +323,12 @@ mkdir -p "$UNINSTALL_HOME/.local/share/SLSsteam" \
          "$UNINSTALL_HOME/.headcrab" \
          "$UNINSTALL_HOME/.local/bin" \
          "$UNINSTALL_HOME/.local/share/applications" \
-         "$UNINSTALL_HOME/.config/SLSsteam" \
+         "$UNINSTALL_HOME/.config/navi" \
          "$UNINSTALL_HOME/.config/Tachibana Labs" \
-         "$UNINSTALL_HOME/.local/share/SLSsteam/cache_backups"
+         "$UNINSTALL_HOME/.local/share/navi/cache_backups"
 
 # Category 1 files
-echo "binary" > "$UNINSTALL_HOME/.local/share/SLSsteam/SLSsteam.so"
+echo "binary" > "$UNINSTALL_HOME/.local/share/navi/libnavi.so"
 echo "binary" > "$LEGACY_APP_BIN"
 echo "binary" > "$UNINSTALL_HOME/.headcrab/headcrab"
 
@@ -341,13 +342,13 @@ echo "untouchable_steam_depotcache_manifest2" > "$UNINSTALL_HOME/.steam/steam/co
 echo "untouchable_steam_depotcache_manifest3" > "$UNINSTALL_HOME/.local/share/Steam/depotcache/789_103.manifest"
 
 # Category 2 files: Steam wrapper and backup
-echo "ORIGINAL_NATIVE_STEAM" > "$UNINSTALL_HOME/.local/bin/steam.pre-slssteam.bak"
-echo "MODIFIED_SLS_WRAPPER with SLSsteam LD_AUDIT" > "$UNINSTALL_HOME/.local/bin/steam"
+echo "ORIGINAL_NATIVE_STEAM" > "$UNINSTALL_HOME/.local/bin/steam.pre-navi.bak"
+echo "MODIFIED_NAVI_WRAPPER with navi LD_AUDIT" > "$UNINSTALL_HOME/.local/bin/steam"
 echo "Desktop Entry" > "$UNINSTALL_HOME/.local/share/applications/$LEGACY_DESKTOP_NAME"
-echo "tracking" > "$UNINSTALL_HOME/.SLSsteam.installed"
+echo "tracking" > "$UNINSTALL_HOME/.navi.installed"
 
 # Category 3 files: User configs
-echo "important_user_settings: true" > "$UNINSTALL_HOME/.config/SLSsteam/config.yaml"
+echo "important_user_settings: true" > "$UNINSTALL_HOME/.config/navi/config.yaml"
 echo "cloud_settings: true" > "$UNINSTALL_HOME/.config/Tachibana Labs/settings.yaml"
 
 # 7A: Run uninstaller keeping configs
@@ -355,7 +356,7 @@ echo "Running uninstall.sh preserving user configs..."
 HOME="$UNINSTALL_HOME" SLS_UNINSTALL_KEEP_CONFIGS=1 "$REPO_ROOT/uninstall.sh"
 
 # Verify Category 1 removed (except preserved morrenus_manifests)
-if [ -d "$UNINSTALL_HOME/.local/share/SLSsteam" ] || [ -d "$UNINSTALL_HOME/.headcrab" ]; then
+if [ -d "$UNINSTALL_HOME/.local/share/navi" ] || [ -d "$UNINSTALL_HOME/.headcrab" ]; then
     fail "Category 1 directories were not removed!"
 fi
 if [ -f "$LEGACY_APP_BIN" ]; then
@@ -392,12 +393,12 @@ fi
 if [ -f "$UNINSTALL_HOME/.local/share/applications/$LEGACY_DESKTOP_NAME" ]; then
     fail "Legacy desktop entry was not removed!"
 fi
-if [ -f "$UNINSTALL_HOME/.SLSsteam.installed" ]; then
+if [ -f "$UNINSTALL_HOME/.navi.installed" ]; then
     fail "Tracking file was not removed!"
 fi
 
 # Verify Category 3 PRESERVED
-if [ ! -f "$UNINSTALL_HOME/.config/SLSsteam/config.yaml" ]; then
+if [ ! -f "$UNINSTALL_HOME/.config/navi/config.yaml" ]; then
     fail "Category 3 user config was deleted when it should have been preserved!"
 fi
 if [ ! -f "$UNINSTALL_HOME/.config/Tachibana Labs/settings.yaml" ]; then
@@ -409,7 +410,7 @@ pass "Uninstaller correctly removed Category 1 & 2 while strictly preserving Cat
 echo "Running uninstall.sh removing user configs..."
 HOME="$UNINSTALL_HOME" SLS_UNINSTALL_REMOVE_CONFIGS=1 "$REPO_ROOT/uninstall.sh"
 
-if [ -f "$UNINSTALL_HOME/.config/SLSsteam/config.yaml" ] || [ -f "$UNINSTALL_HOME/.config/Tachibana Labs/settings.yaml" ]; then
+if [ -f "$UNINSTALL_HOME/.config/navi/config.yaml" ] || [ -f "$UNINSTALL_HOME/.config/Tachibana Labs/settings.yaml" ]; then
     fail "User configs were not removed when requested!"
 fi
 

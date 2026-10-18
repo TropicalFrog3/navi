@@ -659,7 +659,7 @@ static uint32_t hkSteamEngine_ProcessIPCFrame(CSteamEngine* pSteamEngine, HSteam
 		);
 
 		Apps::runIPCFrame();
-		SLSAPI::runIPCFrame();
+		NaviAPI::runIPCFrame();
 
 		if (Licenses::hasPendingRefresh())
 		{

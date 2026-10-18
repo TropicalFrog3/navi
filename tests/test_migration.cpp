@@ -1,5 +1,6 @@
 #include "config_migration.hpp"
 #include "cache_migration.hpp"
+#include "legacy_migration.hpp"
 #include "log.hpp"
 #include <cassert>
 #include <filesystem>
@@ -7,13 +8,15 @@
 #include <iostream>
 #include <cstdarg>
 
+static int g_warnCount = 0;
+
 // Provide minimal CLog stub so test_migration does not depend on log.cpp or g_config
 void CLog::trace(const char*, const char*, const int, const char*, ...) {}
 void CLog::traceOnce(const char*, const char*, const int, const char*, ...) {}
 void CLog::once(const char*, const char*, const int, const char*, ...) {}
 void CLog::debug(const char*, const char*, const int, const char*, ...) {}
 void CLog::debugOnce(const char*, const char*, const int, const char*, ...) {}
-void CLog::warn(const char*, const char*, const int, const char*, ...) {}
+void CLog::warn(const char*, const char*, const int, const char*, ...) { g_warnCount++; }
 void CLog::error(const char*, const char*, const int, const char*, ...) {}
 void CLog::info(const char*, const char*, const int, const char*, ...) {}
 void CLog::notify(const char*, const char*, const int, const char*, ...) {}
@@ -243,12 +246,279 @@ void testMissingFiles()
     std::cout << "[TEST] Missing files safely handled!\n";
 }
 
+void testLegacyMigrationFresh()
+{
+    std::cout << "[TEST] Running LegacyMigration Fresh Migration test...\n";
+    std::string testHome = "/tmp/test_legacy_fresh";
+    std::filesystem::remove_all(testHome);
+
+    auto paths = LegacyMigration::buildPaths(testHome);
+
+    // Setup legacy config
+    std::filesystem::create_directories(paths.legacyConfigDir);
+    {
+        std::ofstream f(paths.legacyConfigDir + "/config.yaml");
+        f << "LogLevelsBasic: 1\nUserAppIds:\n  - 480\n";
+    }
+    {
+        std::ofstream f(paths.legacyConfigDir + "/depot_keys.yaml");
+        f << "1000: dummy_key\n";
+    }
+
+    // Setup legacy cache
+    std::filesystem::create_directories(paths.legacyCacheDir);
+    {
+        std::ofstream f(paths.legacyCacheDir + "/app_480.cache");
+        f << "cache_data_480\n";
+    }
+
+    // Setup legacy manifests
+    std::filesystem::create_directories(paths.legacyManifestsDir);
+    {
+        std::ofstream f(paths.legacyManifestsDir + "/12345.manifest");
+        f << "manifest_binary_data\n";
+    }
+
+    // Pre-condition: targets and markers do not exist
+    assert(!std::filesystem::exists(paths.targetConfigDir));
+    assert(!std::filesystem::exists(paths.targetCacheDir));
+    assert(!std::filesystem::exists(paths.targetManifestsDir));
+
+    bool ok = LegacyMigration::migrate(paths);
+    assert(ok && "LegacyMigration::migrate should return true for fresh migration");
+
+    // 1. Config migrated
+    assert(std::filesystem::exists(paths.targetConfigDir + "/config.yaml"));
+    assert(std::filesystem::exists(paths.targetConfigDir + "/depot_keys.yaml"));
+    assert(std::filesystem::exists(paths.targetConfigDir + "/.migrated_from_slssteam"));
+
+    // 2. Cache migrated
+    assert(std::filesystem::exists(paths.targetCacheDir + "/app_480.cache"));
+
+    // 3. Manifests migrated to both primary and alt locations
+    assert(std::filesystem::exists(paths.targetManifestsDir + "/12345.manifest"));
+    assert(std::filesystem::exists(paths.targetManifestsAltDir + "/12345.manifest"));
+    assert(std::filesystem::exists(paths.targetShareDir + "/.migrated_from_slssteam"));
+
+    // 4. Downgrade safety: legacy files NEVER deleted
+    assert(std::filesystem::exists(paths.legacyConfigDir + "/config.yaml"));
+    assert(std::filesystem::exists(paths.legacyConfigDir + "/depot_keys.yaml"));
+    assert(std::filesystem::exists(paths.legacyCacheDir + "/app_480.cache"));
+    assert(std::filesystem::exists(paths.legacyManifestsDir + "/12345.manifest"));
+
+    std::filesystem::remove_all(testHome);
+    std::cout << "[TEST] Fresh LegacyMigration test passed!\n";
+}
+
+void testLegacyMigrationOldAndNewConflict()
+{
+    std::cout << "[TEST] Running LegacyMigration Old + New Conflict test...\n";
+    std::string testHome = "/tmp/test_legacy_conflict";
+    std::filesystem::remove_all(testHome);
+
+    auto paths = LegacyMigration::buildPaths(testHome);
+
+    // Old config
+    std::filesystem::create_directories(paths.legacyConfigDir);
+    {
+        std::ofstream f(paths.legacyConfigDir + "/config.yaml");
+        f << "Version: old_config\nLogLevelsBasic: 1\n";
+    }
+
+    // New config already exists in target
+    std::filesystem::create_directories(paths.targetConfigDir);
+    {
+        std::ofstream f(paths.targetConfigDir + "/config.yaml");
+        f << "Version: new_config\nLogLevelsBasic: 5\n";
+    }
+
+    g_warnCount = 0;
+    bool ok = LegacyMigration::migrate(paths);
+    assert(ok && "LegacyMigration::migrate should succeed when both configs exist");
+
+    // New config wins! (Not overwritten)
+    std::ifstream in(paths.targetConfigDir + "/config.yaml");
+    std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    assert(content.find("Version: new_config") != std::string::npos && "New config MUST win over legacy config");
+    assert(g_warnCount > 0 && "Warning MUST be logged when both old and new configs exist");
+
+    // Marker written
+    assert(std::filesystem::exists(paths.targetConfigDir + "/.migrated_from_slssteam"));
+
+    // Legacy config untouched
+    std::ifstream legacyIn(paths.legacyConfigDir + "/config.yaml");
+    std::string legacyContent((std::istreambuf_iterator<char>(legacyIn)), std::istreambuf_iterator<char>());
+    assert(legacyContent.find("Version: old_config") != std::string::npos && "Legacy config MUST be preserved");
+
+    std::filesystem::remove_all(testHome);
+    std::cout << "[TEST] Old + New Conflict test passed!\n";
+}
+
+void testLegacyMigrationReadOnly()
+{
+    std::cout << "[TEST] Running LegacyMigration Read-Only test...\n";
+    std::string testHome = "/tmp/test_legacy_readonly";
+    std::filesystem::remove_all(testHome);
+
+    auto paths = LegacyMigration::buildPaths(testHome);
+
+    // Subtest 1: Read-only source file
+    std::filesystem::create_directories(paths.legacyConfigDir);
+    const std::string oldFile = paths.legacyConfigDir + "/config.yaml";
+    {
+        std::ofstream f(oldFile);
+        f << "ReadOnly: true\n";
+    }
+    // Set source file to read-only
+    std::filesystem::permissions(oldFile,
+        std::filesystem::perms::owner_read | std::filesystem::perms::group_read | std::filesystem::perms::others_read);
+
+    bool ok = LegacyMigration::migrate(paths);
+    assert(ok && "Migration of read-only source config should succeed");
+
+    const std::string newFile = paths.targetConfigDir + "/config.yaml";
+    assert(std::filesystem::exists(newFile));
+    auto perms = std::filesystem::status(newFile).permissions();
+    assert((perms & std::filesystem::perms::owner_write) == std::filesystem::perms::none &&
+           "Read-only file permissions should be preserved on target");
+
+    // Restore permissions for cleanup
+    std::filesystem::permissions(oldFile, std::filesystem::perms::owner_all);
+    std::filesystem::permissions(newFile, std::filesystem::perms::owner_all);
+    std::filesystem::remove_all(testHome);
+
+    // Subtest 2: Unwritable target directory
+    std::string testHome2 = "/tmp/test_legacy_unwritable";
+    std::filesystem::remove_all(testHome2);
+    auto paths2 = LegacyMigration::buildPaths(testHome2);
+
+    std::filesystem::create_directories(paths2.legacyConfigDir);
+    {
+        std::ofstream f(paths2.legacyConfigDir + "/config.yaml");
+        f << "Test: true\n";
+    }
+
+    // Create target dir as unwritable (read-only directory)
+    std::filesystem::create_directories(paths2.targetConfigDir);
+    std::filesystem::permissions(paths2.targetConfigDir,
+        std::filesystem::perms::owner_read | std::filesystem::perms::owner_exec);
+
+    // Must handle gracefully without crashing or throwing unhandled exception
+    g_warnCount = 0;
+    bool unwritableRes = LegacyMigration::migrate(paths2);
+    assert(!unwritableRes && "Migration into unwritable directory should return false gracefully");
+    assert(g_warnCount > 0 && "Warning must be logged when destination is unwritable");
+
+    // Restore permissions for cleanup
+    std::filesystem::permissions(paths2.targetConfigDir, std::filesystem::perms::owner_all);
+    std::filesystem::remove_all(testHome2);
+
+    std::cout << "[TEST] Read-Only test passed!\n";
+}
+
+void testLegacyMigrationPartialRecovery()
+{
+    std::cout << "[TEST] Running LegacyMigration Partial Recovery test...\n";
+    std::string testHome = "/tmp/test_legacy_partial";
+    std::filesystem::remove_all(testHome);
+
+    auto paths = LegacyMigration::buildPaths(testHome);
+
+    // Setup legacy config
+    std::filesystem::create_directories(paths.legacyConfigDir);
+    {
+        std::ofstream f(paths.legacyConfigDir + "/config.yaml");
+        f << "Recovered: true\n";
+    }
+    {
+        std::ofstream f(paths.legacyConfigDir + "/extra.yaml");
+        f << "Extra: data\n";
+    }
+
+    // Simulate leftover stale staging directory from an earlier crash/interruption
+    std::string staleStaging = paths.targetConfigDir + ".staging";
+    std::filesystem::create_directories(staleStaging);
+    {
+        std::ofstream f(staleStaging + "/broken_partial.tmp");
+        f << "corrupted_incomplete_data\n";
+    }
+
+    // Ensure marker does NOT exist
+    assert(!std::filesystem::exists(paths.targetConfigDir + "/.migrated_from_slssteam"));
+
+    bool ok = LegacyMigration::migrate(paths);
+    assert(ok && "Migration with leftover staging should succeed");
+
+    // Stale staging directory cleaned up
+    assert(!std::filesystem::exists(staleStaging) && "Leftover staging directory should be cleaned up");
+
+    // Complete migration succeeded atomically
+    assert(std::filesystem::exists(paths.targetConfigDir + "/config.yaml"));
+    assert(std::filesystem::exists(paths.targetConfigDir + "/extra.yaml"));
+    assert(std::filesystem::exists(paths.targetConfigDir + "/.migrated_from_slssteam"));
+
+    std::filesystem::remove_all(testHome);
+    std::cout << "[TEST] Partial Recovery test passed!\n";
+}
+
+void testLegacyMigrationIdempotency()
+{
+    std::cout << "[TEST] Running LegacyMigration Idempotency test...\n";
+    std::string testHome = "/tmp/test_legacy_idempotent";
+    std::filesystem::remove_all(testHome);
+
+    auto paths = LegacyMigration::buildPaths(testHome);
+
+    // Initial setup
+    std::filesystem::create_directories(paths.legacyConfigDir);
+    {
+        std::ofstream f(paths.legacyConfigDir + "/config.yaml");
+        f << "Initial: v1\n";
+    }
+
+    bool firstRun = LegacyMigration::migrate(paths);
+    assert(firstRun && "First migration run should succeed");
+    assert(std::filesystem::exists(paths.targetConfigDir + "/.migrated_from_slssteam"));
+
+    // User modifies target config
+    {
+        std::ofstream f(paths.targetConfigDir + "/config.yaml");
+        f << "UpdatedByNaviUser: v2\n";
+    }
+
+    g_warnCount = 0;
+    // Re-run migration (idempotent call)
+    bool secondRun = LegacyMigration::migrate(paths);
+    assert(secondRun && "Re-run of migration MUST succeed (idempotent)");
+
+    // Target config MUST NOT be overwritten by legacy config
+    std::ifstream in(paths.targetConfigDir + "/config.yaml");
+    std::string content((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    assert(content.find("UpdatedByNaviUser: v2") != std::string::npos &&
+           "Target config must remain unchanged on re-run");
+
+    // Old config remains untouched
+    assert(std::filesystem::exists(paths.legacyConfigDir + "/config.yaml"));
+    std::ifstream legacyIn(paths.legacyConfigDir + "/config.yaml");
+    std::string legacyContent((std::istreambuf_iterator<char>(legacyIn)), std::istreambuf_iterator<char>());
+    assert(legacyContent.find("Initial: v1") != std::string::npos &&
+           "Legacy config must remain completely untouched");
+
+    std::filesystem::remove_all(testHome);
+    std::cout << "[TEST] Idempotency test passed!\n";
+}
+
 int main()
 {
     testConfigMigration();
     testCacheMigration();
     testMalformedConfigMigration();
     testMissingFiles();
+    testLegacyMigrationFresh();
+    testLegacyMigrationOldAndNewConflict();
+    testLegacyMigrationReadOnly();
+    testLegacyMigrationPartialRecovery();
+    testLegacyMigrationIdempotency();
     std::cout << "[ALL UNIT TESTS PASSED]\n";
     return 0;
 }

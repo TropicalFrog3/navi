@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # uninstall.sh
-# Complete Uninstallation Script for SLSsteam and Headcrab
+# Complete Uninstallation Script for Navi and Headcrab
 #
 set -u
 
@@ -15,7 +15,7 @@ SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 for cand in \
     "$SCRIPT_DIR/scripts/legacy_migration.sh" \
     "$SCRIPT_DIR/legacy_migration.sh" \
-    "$HOME/.local/share/SLSsteam/scripts/legacy_migration.sh"; do
+    "$HOME/.local/share/navi/scripts/legacy_migration.sh"; do
     if [ -f "$cand" ]; then
         # shellcheck source=/dev/null
         source "$cand"
@@ -60,16 +60,16 @@ confirm_uninstall() {
     fi
     if [ "$HAS_ZENITY" -eq 1 ]; then
         zenity --question \
-            --title="SLSsteam Uninstaller" \
-            --text="Are you sure you want to completely uninstall SLSsteam and associated components?" \
+            --title="Navi Uninstaller" \
+            --text="Are you sure you want to completely uninstall Navi and associated components?" \
             --ok-label="Uninstall" --cancel-label="Cancel" \
             --width=450 2>/dev/null
         return $?
     else
         echo -e "${YELLOW}====================================================${NC}"
-        echo -e "${YELLOW}      SLSsteam Complete Uninstaller        ${NC}"
+        echo -e "${YELLOW}      Navi Complete Uninstaller        ${NC}"
         echo -e "${YELLOW}====================================================${NC}"
-        read -r -p "Are you sure you want to completely uninstall SLSsteam? [y/N]: " response
+        read -r -p "Are you sure you want to completely uninstall Navi? [y/N]: " response
         case "$response" in
             [yY][eE][sS]|[yY])
                 return 0
@@ -92,7 +92,7 @@ ask_remove_configs() {
     if [ "$HAS_ZENITY" -eq 1 ]; then
         if zenity --question \
             --title="Remove User Configurations?" \
-            --text="Do you also want to remove your user configuration and saved data?\n\n- ~/.config/SLSsteam\n- ~/.config/Tachibana Labs\n\n(Click 'No' to preserve your settings and game AppID configurations)" \
+            --text="Do you also want to remove your user configuration and saved data?\n\n- ~/.config/navi\n- ~/.config/Tachibana Labs\n\n(Click 'No' to preserve your settings and game AppID configurations)" \
             --ok-label="Keep Configs" --cancel-label="Delete Configs" \
             --width=500 2>/dev/null; then
             return 1 # Keep configs
@@ -101,7 +101,7 @@ ask_remove_configs() {
         fi
     else
         echo ""
-        read -r -p "Do you want to delete your user configurations (~/.config/SLSsteam, ~/.config/Tachibana Labs)? [y/N]: " response
+        read -r -p "Do you want to delete your user configurations (~/.config/navi, ~/.config/Tachibana Labs)? [y/N]: " response
         case "$response" in
             [yY][eE][sS]|[yY])
                 return 0
@@ -131,10 +131,10 @@ log_info "Starting uninstallation process..."
 log_info "Removing application directories..."
 
 APP_DIRS=(
-    "$HOME/.local/share/SLSsteam"
+    "$HOME/.local/share/navi"
     "$HOME/.local/share/CloudRedirect"
     "$HOME/.headcrab"
-    "$HOME/.var/app/com.valvesoftware.Steam/.local/share/SLSsteam"
+    "$HOME/.var/app/com.valvesoftware.Steam/.local/share/navi"
 )
 
 for dir in "${APP_DIRS[@]}"; do
@@ -143,6 +143,7 @@ for dir in "${APP_DIRS[@]}"; do
         log_info "Removed directory: $dir"
     fi
 done
+type clean_legacy_sls_binaries >/dev/null 2>&1 && clean_legacy_sls_binaries
 
 # Clean legacy application files, but explicitly preserve the manifest directory
 if [ -n "$LEGACY_APP_DIR" ] && [ -d "$LEGACY_APP_DIR" ]; then
@@ -162,17 +163,21 @@ log_info "Restoring Steam launchers and wrappers..."
 
 # 1. ~/.local/bin/steam
 STEAM_WRAPPER="$HOME/.local/bin/steam"
-STEAM_WRAPPER_BAK="$HOME/.local/bin/steam.pre-slssteam.bak"
+STEAM_WRAPPER_BAK="$HOME/.local/bin/steam.pre-navi.bak"
 
 if [ -f "$STEAM_WRAPPER_BAK" ]; then
     mv -f "$STEAM_WRAPPER_BAK" "$STEAM_WRAPPER"
     chmod 755 "$STEAM_WRAPPER"
     log_info "Restored original Steam wrapper from $STEAM_WRAPPER_BAK"
+elif [ -n "${LEGACY_SLS_STEAM_WRAPPER_BAK:-}" ] && [ -f "$LEGACY_SLS_STEAM_WRAPPER_BAK" ]; then
+    mv -f "$LEGACY_SLS_STEAM_WRAPPER_BAK" "$STEAM_WRAPPER"
+    chmod 755 "$STEAM_WRAPPER"
+    log_info "Restored original Steam wrapper from $LEGACY_SLS_STEAM_WRAPPER_BAK"
 elif [ -f "$STEAM_WRAPPER" ]; then
-    # Only remove if it contains SLSsteam references
-    if grep -qE 'SLSsteam|library-inject|LD_AUDIT' "$STEAM_WRAPPER" 2>/dev/null; then
+    # Only remove if it contains Navi or legacy audit references
+    if grep -qE "${LEGACY_SLS_WRAPPER_PATTERN:-navi}|navi|library-inject|LD_AUDIT" "$STEAM_WRAPPER" 2>/dev/null; then
         rm -f "$STEAM_WRAPPER"
-        log_info "Removed SLSsteam Steam wrapper: $STEAM_WRAPPER"
+        log_info "Removed Navi Steam wrapper: $STEAM_WRAPPER"
     fi
 fi
 
@@ -218,7 +223,7 @@ if [ -d "$DESKTOP_DIR" ]; then
     # Check steam.desktop & steam-native.desktop in local share
     for steam_desk in "steam.desktop" "steam-native.desktop"; do
         target="$DESKTOP_DIR/$steam_desk"
-        if [ -f "$target" ] && grep -qE 'SLSsteam|library-inject|LD_AUDIT' "$target" 2>/dev/null; then
+        if [ -f "$target" ] && grep -qE "${LEGACY_SLS_WRAPPER_PATTERN:-navi}|navi|library-inject|LD_AUDIT" "$target" 2>/dev/null; then
             rm -f "$target"
             log_info "Removed modified desktop entry: $target"
         fi
@@ -241,13 +246,13 @@ fi
 
 # 7. Root tracking & log files
 TRACKING_FILES=(
-    "$HOME/.SLSsteam.log"
-    "$HOME/.SLSsteam.json"
-    "$HOME/.SLSsteam.installed"
-    "$HOME/.SLSsteam.onlinefix"
-    "$HOME/.SLSsteam.autocrack"
-    "$HOME/.config/fish/SLSsteam.fish"
-    "/tmp/SLSsteam.API"
+    "$HOME/.navi.log"
+    "$HOME/.navi.json"
+    "$HOME/.navi.installed"
+    "$HOME/.navi.onlinefix"
+    "$HOME/.navi.autocrack"
+    "$HOME/.config/fish/navi.fish"
+    "/tmp/navi.API"
 )
 
 for track in "${TRACKING_FILES[@]}"; do
@@ -256,6 +261,7 @@ for track in "${TRACKING_FILES[@]}"; do
         log_info "Removed tracking/log file: $track"
     fi
 done
+type clean_legacy_sls_tracking >/dev/null 2>&1 && clean_legacy_sls_tracking
 
 # ==============================================================================
 # Category 3: User Configurations (Conditional)
@@ -263,22 +269,22 @@ done
 if [ "$REMOVE_CONFIGS" -eq 1 ]; then
     log_info "Removing user configuration and cache files..."
     # Preserve updates.yaml backups so client version history is never lost
-    if [ -d "$HOME/.config/SLSsteam" ]; then
-        for b in "$HOME/.config/SLSsteam"/updates.yaml.bak-*; do
+    if [ -d "$HOME/.config/navi" ]; then
+        for b in "$HOME/.config/navi"/updates.yaml.bak-*; do
             if [ -f "$b" ]; then
-                mkdir -p "$HOME/.config/SLSsteam_backups"
-                cp -a "$b" "$HOME/.config/SLSsteam_backups/"
-                log_info "Preserved updates.yaml backup: $(basename "$b") in ~/.config/SLSsteam_backups/"
+                mkdir -p "$HOME/.config/navi_backups"
+                cp -a "$b" "$HOME/.config/navi_backups/"
+                log_info "Preserved updates.yaml backup: $(basename "$b") in ~/.config/navi_backups/"
             fi
         done
     fi
 
     CONFIG_DIRS=(
-        "$HOME/.config/SLSsteam"
+        "$HOME/.config/navi"
         "$HOME/.config/Tachibana Labs"
-        "$HOME/.local/share/SLSsteam/cache"
-        "$HOME/.local/share/SLSsteam/cache_backups"
-        "$HOME/.cache/SLSsteam"
+        "$HOME/.local/share/navi/cache"
+        "$HOME/.local/share/navi/cache_backups"
+        "$HOME/.cache/navi"
     )
     if [ -n "$LEGACY_CACHE_DIR" ]; then
         CONFIG_DIRS+=("$LEGACY_CACHE_DIR")
@@ -289,8 +295,9 @@ if [ "$REMOVE_CONFIGS" -eq 1 ]; then
             log_info "Removed configuration/cache directory: $cdir"
         fi
     done
+    type clean_legacy_sls_configs >/dev/null 2>&1 && clean_legacy_sls_configs
 else
-    log_info "Preserving user configurations at ~/.config/SLSsteam and ~/.config/Tachibana Labs."
+    log_info "Preserving user configurations at ~/.config/navi and ~/.config/Tachibana Labs."
 fi
 
 # ==============================================================================
@@ -310,7 +317,7 @@ log_info "Uninstallation completed successfully!"
 
 if [ "$HAS_ZENITY" -eq 1 ] && [ "${SLS_UNINSTALL_AUTO_ACCEPT:-0}" != "1" ]; then
     zenity --info \
-        --title="SLSsteam Uninstaller" \
+        --title="Navi Uninstaller" \
         --text="Uninstallation completed successfully!\n\nAll components have been cleanly removed." \
         --width=350 2>/dev/null
 fi

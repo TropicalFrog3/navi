@@ -16,7 +16,7 @@ namespace RemoveLua
     {
         std::vector<std::string> paths;
 
-        // 1. Try to resolve relative to SLSsteam.so location using dladdr
+        // 1. Try to resolve relative to libnavi.so location using dladdr
         Dl_info info;
         if (dladdr((void*)loadResourceFile, &info) && info.dli_fname)
         {
@@ -36,12 +36,12 @@ namespace RemoveLua
         paths.push_back("./res/inject-scripts/" + filename);
         paths.push_back("../res/inject-scripts/" + filename);
 
-        // 3. Add home folder ~/.local/share/SLSsteam candidates
+        // 3. Add home folder ~/.local/share/navi candidates
         const char* home = getenv("HOME");
         if (home)
         {
-            paths.push_back(std::string(home) + "/.local/share/SLSsteam/" + filename);
-            paths.push_back(std::string(home) + "/.local/share/SLSsteam/res/inject-scripts/" + filename);
+            paths.push_back(std::string(home) + "/.local/share/navi/" + filename);
+            paths.push_back(std::string(home) + "/.local/share/navi/res/inject-scripts/" + filename);
         }
 
         for (const auto& path : paths) {

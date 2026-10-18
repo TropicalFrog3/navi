@@ -21,7 +21,7 @@
 
 namespace AutoUpdate
 {
-    static const char* REMOTE_VERSION_URL = "https://raw.githubusercontent.com/TropicalFrog3/SLSsteam/refs/heads/main/SLSsteam/res/version";
+    static const char* REMOTE_VERSION_URL = "https://raw.githubusercontent.com/AceSLS/navi/refs/heads/main/res/version";
 
     static std::string getRemoteVersionUrl()
     {
@@ -342,7 +342,7 @@ namespace AutoUpdate
             if (pid == 0)
             {
                 // Child process: launch zenity
-                execlp("zenity", "zenity", "--question", "--title=SLSsteam Update", 
+                execlp("zenity", "zenity", "--question", "--title=Navi Update", 
                        "--text", text.c_str(), "--ok-label=Install", "--cancel-label=Close", 
                        "--width=550", "--height=350", nullptr);
                 _exit(127); // If zenity is missing
@@ -364,7 +364,7 @@ namespace AutoUpdate
             if (exitStatus == 127)
             {
                 LOG_INFO("AutoUpdate: zenity not found. Falling back to notification alert.\n");
-                sendNotification("SLSsteam", "Update available! Newer version is ready. Run setup.sh to update.");
+                sendNotification("Navi", "Update available! Newer version is ready. Run setup.sh to update.");
                 return;
             }
 
@@ -382,22 +382,22 @@ namespace AutoUpdate
 
         // User clicked "Install"
         LOG_INFO("AutoUpdate: User accepted update. Starting download...\n");
-        sendNotification("SLSsteam", "Downloading update...");
+        sendNotification("Navi", "Downloading update...");
 
         // Determine destination folder
         const char* home = getenv("HOME");
         if (!home)
         {
             LOG_WARN("AutoUpdate: HOME environment variable not set, aborting update.\n");
-            sendNotification("SLSsteam", "Update failed: HOME environment variable not found.", "critical");
+            sendNotification("Navi", "Update failed: HOME environment variable not found.", "critical");
             return;
         }
 
         bool isFlatpak = false;
-        std::string installDir = std::string(home) + "/.local/share/SLSsteam";
-        if (std::filesystem::exists(std::string(home) + "/.var/app/com.valvesoftware.Steam/.local/share/SLSsteam/SLSsteam.so"))
+        std::string installDir = std::string(home) + "/.local/share/navi";
+        if (std::filesystem::exists(std::string(home) + "/.var/app/com.valvesoftware.Steam/.local/share/navi/libnavi.so"))
         {
-            installDir = std::string(home) + "/.var/app/com.valvesoftware.Steam/.local/share/SLSsteam";
+            installDir = std::string(home) + "/.var/app/com.valvesoftware.Steam/.local/share/navi";
             isFlatpak = true;
         }
 
@@ -412,7 +412,7 @@ namespace AutoUpdate
         if (ec)
         {
             LOG_WARN("AutoUpdate: Failed to create staging directory %s: %s\n", stagingDir.c_str(), ec.message().c_str());
-            sendNotification("SLSsteam", "Update failed: Could not create staging directory.", "critical");
+            sendNotification("Navi", "Update failed: Could not create staging directory.", "critical");
             return;
         }
         std::filesystem::permissions(stagingDir, std::filesystem::perms::owner_all, std::filesystem::perm_options::replace, ec);
@@ -429,7 +429,7 @@ namespace AutoUpdate
         if (!downloadToFile(downloadUrl, archivePath))
         {
             LOG_WARN("AutoUpdate: Failed to download update from %s\n", downloadUrl.c_str());
-            sendNotification("SLSsteam", "Update failed: Download failed.", "critical");
+            sendNotification("Navi", "Update failed: Download failed.", "critical");
             std::filesystem::remove_all(stagingDir, ec);
             return;
         }
@@ -488,7 +488,7 @@ namespace AutoUpdate
         if (!extracted)
         {
             LOG_WARN("AutoUpdate: Extraction failed for %s\n", archivePath.c_str());
-            sendNotification("SLSsteam", "Update failed: Extraction tools not found or failed.", "critical");
+            sendNotification("Navi", "Update failed: Extraction tools not found or failed.", "critical");
             std::filesystem::remove_all(stagingDir, ec);
             return;
         }
@@ -511,7 +511,7 @@ namespace AutoUpdate
         if (!std::filesystem::exists(releaseRoot + "/install.sh"))
         {
             LOG_WARN("AutoUpdate: install.sh missing in extracted archive at %s\n", releaseRoot.c_str());
-            sendNotification("SLSsteam", "Update failed: Corrupted archive, install.sh missing.", "critical");
+            sendNotification("Navi", "Update failed: Corrupted archive, install.sh missing.", "critical");
             std::filesystem::remove_all(stagingDir, ec);
             return;
         }
@@ -520,13 +520,13 @@ namespace AutoUpdate
         if (!validateManifest(releaseRoot))
         {
             LOG_WARN("AutoUpdate: Integrity verification failed for %s\n", releaseRoot.c_str());
-            sendNotification("SLSsteam", "Update failed: Payload integrity check failed.", "critical");
+            sendNotification("Navi", "Update failed: Payload integrity check failed.", "critical");
             std::filesystem::remove_all(stagingDir, ec);
             return;
         }
 
         LOG_INFO("AutoUpdate: Preparing transactional update script...\n");
-        sendNotification("SLSsteam", "Update verified! Applying update, please wait...");
+        sendNotification("Navi", "Update verified! Applying update, please wait...");
 
         std::string scriptPath = stagingDir + "/updater.sh";
         std::ostringstream script;
@@ -577,16 +577,16 @@ namespace AutoUpdate
             script << "fi\n\n";
 
             // 2. Back up user config
-            script << "CONFIG_DIR=\"$HOME/.config/SLSsteam\"\n";
+            script << "CONFIG_DIR=\"$HOME/.config/navi\"\n";
             script << "if [ -f \"$CONFIG_DIR/config.yaml\" ]; then\n";
             script << "    mkdir -p \"$CONFIG_DIR/backups\"\n";
             script << "    cp -a \"$CONFIG_DIR/config.yaml\" \"$CONFIG_DIR/backups/config_$(date +%Y%m%d_%H%M%S).yaml.bak\" 2>/dev/null || true\n";
             script << "fi\n\n";
 
             // 2.5 Back up cache directories (luas and manifest directories are strictly preserved and untouched)
-            script << "CACHE_BACKUP_DIR=\"$HOME/.local/share/SLSsteam/cache_backups/cache_$(date +%Y%m%d_%H%M%S)\"\n";
+            script << "CACHE_BACKUP_DIR=\"$HOME/.local/share/navi/cache_backups/cache_$(date +%Y%m%d_%H%M%S)\"\n";
             script << "mkdir -p \"$CACHE_BACKUP_DIR\"\n";
-            script << "for cdir in \"$HOME/.local/share/SLSsteam/cache\"; do\n";
+            script << "for cdir in \"$HOME/.local/share/navi/cache\"; do\n";
             script << "    if [ -d \"$cdir\" ]; then\n";
             script << "        mkdir -p \"$CACHE_BACKUP_DIR/$(basename \"$cdir\")\"\n";
             script << "        cp -a \"$cdir/.\" \"$CACHE_BACKUP_DIR/$(basename \"$cdir\")/\" 2>/dev/null || true\n";
@@ -603,7 +603,7 @@ namespace AutoUpdate
             script << "    log \"Creating backup of existing installation at $BACKUP_DIR...\"\n";
             script << "    cp -a \"$INSTALL_DIR\" \"$BACKUP_DIR\" || {\n";
             script << "        log \"Backup failed! Aborting update.\"\n";
-            script << "        [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u critical \"SLSsteam\" \"Update failed: Could not create backup.\"\n";
+            script << "        [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u critical \"Navi\" \"Update failed: Could not create backup.\"\n";
             script << "        exit 1\n";
             script << "    }\n";
             script << "fi\n\n";
@@ -619,7 +619,7 @@ namespace AutoUpdate
 
             // 5. Post-install verification
             script << "if [ $ROLLBACK_NEEDED -eq 0 ]; then\n";
-            script << "    if [ ! -s \"$INSTALL_DIR/SLSsteam.so\" ] || [ ! -s \"$INSTALL_DIR/library-inject.so\" ]; then\n";
+            script << "    if [ ! -s \"$INSTALL_DIR/libnavi.so\" ] || [ ! -s \"$INSTALL_DIR/library-inject.so\" ]; then\n";
             script << "        log \"Post-install verification failed: required libraries missing or empty!\"\n";
             script << "        ROLLBACK_NEEDED=1\n";
             script << "    fi\n";
@@ -628,14 +628,14 @@ namespace AutoUpdate
             // 6. Rollback or finalize
             script << "if [ $ROLLBACK_NEEDED -ne 0 ]; then\n";
             script << "    log \"Update failed! Rolling back to backup...\"\n";
-            script << "    [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u critical \"SLSsteam\" \"Update failed! Rolling back...\"\n";
+            script << "    [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u critical \"Navi\" \"Update failed! Rolling back...\"\n";
             script << "    if [ -d \"$BACKUP_DIR\" ]; then\n";
             script << "        rm -rf \"$INSTALL_DIR\"\n";
             script << "        mv \"$BACKUP_DIR\" \"$INSTALL_DIR\"\n";
             script << "    fi\n";
             script << "else\n";
             script << "    log \"Update succeeded! Cleaning up backup and staging...\"\n";
-            script << "    [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u normal \"SLSsteam\" \"SLSsteam updated successfully! Relaunching Steam...\"\n";
+            script << "    [ \"${SLS_TEST_ENV:-0}\" != \"1\" ] && notify-send -u normal \"Navi\" \"Navi updated successfully! Relaunching Steam...\"\n";
             script << "    rm -rf \"$BACKUP_DIR\"\n";
             script << "    rm -rf \"" << stagingDir << "\"\n";
             script << "fi\n\n";
@@ -660,7 +660,7 @@ namespace AutoUpdate
             if (!AtomicFile::write(scriptPath, script.str()))
             {
                 LOG_WARN("AutoUpdate: Failed to atomically write updater script at %s\n", scriptPath.c_str());
-                sendNotification("SLSsteam", "Update failed: Could not create updater script.", "critical");
+                sendNotification("Navi", "Update failed: Could not create updater script.", "critical");
                 std::filesystem::remove_all(stagingDir, ec);
                 return;
             }

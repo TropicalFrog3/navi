@@ -41,7 +41,7 @@ namespace LuaDownload
     static const ApiProvider g_apis[] = {
         {
             "Ryuu (API Key)",
-            "https://generator.ryuu.lol/secure_download?appid=<appid>&source=SLSsteam-<steamid>&auth_code=",
+            "https://generator.ryuu.lol/secure_download?appid=<appid>&source=Navi-<steamid>&auth_code=",
             200, 404, 60, false
         },
         {
@@ -351,7 +351,7 @@ namespace LuaDownload
 
         // Temp directory for this download
         const char* home = getenv("HOME");
-        std::string tempDir = std::string(home ? home : "/tmp") + "/.cache/SLSsteam/downloads";
+        std::string tempDir = std::string(home ? home : "/tmp") + "/.cache/navi/downloads";
         std::filesystem::create_directories(tempDir);
         std::string zipPath = tempDir + "/" + appId + ".zip";
         std::string extractDir = tempDir + "/" + appId + "_extracted";

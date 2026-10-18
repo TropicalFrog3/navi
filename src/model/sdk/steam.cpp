@@ -17,7 +17,7 @@ namespace Steam
 // ─── steamclient.so allocator resolution ────────────────────────────────────
 //
 // Problem: The Steam process loads TWO independent copies of libtier0_s.so —
-//   Mapping A in the main linker namespace (used by SLSsteam.so)
+//   Mapping A in the main linker namespace (used by libnavi.so)
 //   Mapping B in steamclient.so's dlmopen namespace
 // Each copy has its own g_pMemAllocSteam instance with a separate small-block
 // pool.  Before this fix, Steam::init() called dlopen("libtier0_s.so") which

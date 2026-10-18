@@ -1,7 +1,7 @@
 #Thanks to https://stackoverflow.com/questions/52034997/how-to-make-makefile-recompile-when-a-header-file-is-changed for the -MMD & -MP flags
 #Without them headers wouldn't trigger recompilation
 
-#Bare `make` (used by docker/build.sh) must build SLSsteam.so
+#Bare `make` (used by docker/build.sh) must build libnavi.so
 .DEFAULT_GOAL := audit-libs
 
 #Force g++ cause clang crashes on some hooks
@@ -11,7 +11,7 @@ libs := $(wildcard lib/*.a)
 srcs := $(shell find src/ -type f -iname "*.cpp")
 
 CXXFLAGS := -O3 -flto=auto -fPIC -m32 -std=c++20 -Wall -Wextra -Wpedantic -Wno-error=format-security -D_GLIBCXX_USE_CXX11_ABI=0
-CXXFLAGS += -I./src -I./src/core -I./src/model -I./src/presenter -I./src/view -I./src/model/sdk
+CXXFLAGS += -I./src -I./src/core -I./src/model -I./src/model/migrations -I./src/presenter -I./src/view -I./src/model/sdk
 
 LDFLAGS := -shared -Wl,--no-undefined
 LDFLAGS += $(shell pkg-config --libs "openssl")
@@ -51,7 +51,7 @@ endif
 
 COMPILER_VERSION := $(shell $(CXX) -dumpfullversion -dumpversion)
 FLAGSSHA := $(shell echo "$(CXX) $(COMPILER_VERSION) & $(CXXFLAGS) & $(LDFLAGS)" | sha256sum | cut -d " " -f 1)
-SLSSTEAMSO := bin/SLSsteam-$(FLAGSSHA).so
+NAVISO := bin/libnavi-$(FLAGSSHA).so
 objs := $(srcs:src/%.cpp=obj/$(FLAGSSHA)/%.o)
 deps := $(objs:%.o=%.d)
 
@@ -87,8 +87,9 @@ TEST_KEY_FIRST_OBJS := \
 
 TEST_MIGRATION_OBJS := \
 	obj/$(FLAGSSHA)/tests/test_migration.o \
-	obj/$(FLAGSSHA)/model/config_migration.o \
-	obj/$(FLAGSSHA)/model/cache_migration.o
+	obj/$(FLAGSSHA)/model/migrations/config_migration.o \
+	obj/$(FLAGSSHA)/model/migrations/cache_migration.o \
+	obj/$(FLAGSSHA)/model/migrations/legacy_migration.o
 
 bin/test_migration: $(TEST_MIGRATION_OBJS)
 	@mkdir -p bin
@@ -116,19 +117,19 @@ test-flow:
 test-all: test test-flow
 
 audit-libs:
-	$(MAKE) -j $(JOBS) $(SLSSTEAMSO) bin/library-inject.so
+	$(MAKE) -j $(JOBS) $(NAVISO) bin/library-inject.so
 	$(MAKE) link-bins
 
 tools:
 	$(MAKE) -j 2 schema-grabber ticket-grabber
 
 link-bins:
-	-test -f "$(SLSSTEAMSO)" && ln -f "$(SLSSTEAMSO)" "bin/SLSsteam.so"
+	-test -f "$(NAVISO)" && ln -f "$(NAVISO)" "bin/libnavi.so"
 	-test -f "tools/library-inject/library-inject.so" && ln -f "tools/library-inject/library-inject.so" "bin/library-inject.so"
 
-$(SLSSTEAMSO): $(objs) $(libs)
+$(NAVISO): $(objs) $(libs)
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $(SLSSTEAMSO) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $^ -o $(NAVISO) $(LDFLAGS)
 	$(MAKE) link-bins
 
 bin/library-inject.so:
@@ -180,8 +181,8 @@ uninstall:
 zips: build
 	@mkdir -p zips
 	7z a -mx9 -m9=lzma2 \
-		"zips/SLSsteam $(DATE).7z" \
-		"bin/SLSsteam.so" \
+		"zips/navi $(DATE).7z" \
+		"bin/libnavi.so" \
 		"bin/library-inject.so" \
 		"setup.sh" \
 		"docs/LICENSE" \
@@ -191,8 +192,8 @@ zips: build
 
 	#Compatibility for Github issues
 	7z a -mx9 -m9=lzma \
-		"zips/SLSsteam $(DATE).zip" \
-		"bin/SLSsteam.so" \
+		"zips/navi $(DATE).zip" \
+		"bin/libnavi.so" \
 		"bin/library-inject.so" \
 		"setup.sh" \
 		"docs/LICENSE" \
@@ -201,9 +202,9 @@ zips: build
 		"tools/schema-grabber/bin/Release/net9.0/linux-x64/publish/schema-grabber"
 
 zips-config:
-	7z a -mx9 -m9=lzma "zips/SLSsteam - SLSConfig $(DATE).zip" "$(HOME)/.config/SLSsteam/config.yaml"
+	7z a -mx9 -m9=lzma "zips/navi - NaviConfig $(DATE).zip" "$(HOME)/.config/navi/config.yaml"
 	#Compatibility for Github issues
-	7z a -mx9 -m9=lzma2 "zips/SLSsteam - SLSConfig $(DATE).7z" "$(HOME)/.config/SLSsteam/config.yaml"
+	7z a -mx9 -m9=lzma2 "zips/navi - NaviConfig $(DATE).7z" "$(HOME)/.config/navi/config.yaml"
 
 
 clean: clean-libs clean-tools

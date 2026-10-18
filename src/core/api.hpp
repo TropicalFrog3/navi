@@ -10,7 +10,7 @@
 
 class CFileWatcher;
 
-namespace SLSAPI
+namespace NaviAPI
 {
 	struct CompatOp_t
 	{

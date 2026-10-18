@@ -277,7 +277,7 @@ namespace ManifestCode
         curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "SLSsteam-ManifestClient/1.0");
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Navi-ManifestClient/1.0");
 
         CURLcode res = curl_easy_perform(curl);
         long httpCode = 0;

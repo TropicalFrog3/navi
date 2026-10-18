@@ -12,7 +12,7 @@
 namespace Tier0Hook
 {
     // ── Hook state ──
-    // We use libmem's LM_HookCode for the detour, same pattern as the rest of SLSsteam
+    // We use libmem's LM_HookCode for the detour, same pattern as the rest of Navi
     static lm_address_t g_createSimpleProcessAddr = LM_ADDRESS_BAD;
     static lm_address_t g_trampoline = LM_ADDRESS_BAD;
     static lm_size_t g_hookSize = 0;

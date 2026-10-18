@@ -1,9 +1,9 @@
 #!/bin/bash
 set -euo pipefail
 
-REPO="TropicalFrog3/SLSsteam"
-MANIFEST_URL="https://raw.githubusercontent.com/$REPO/main/SLSsteam/res/version"
-TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/slssteam-full-update.XXXXXX")"
+REPO="TropicalFrog3/navi"
+MANIFEST_URL="https://raw.githubusercontent.com/$REPO/main/navi/res/version"
+TMP_DIR="$(mktemp -d "${TMPDIR:-/tmp}/navi-full-update.XXXXXX")"
 trap 'rm -rf "$TMP_DIR"' EXIT
 
 if command -v curl >/dev/null 2>&1; then
@@ -17,8 +17,8 @@ if [ -z "$version" ]; then
     exit 1
 fi
 
-archive="$TMP_DIR/SLSsteam.zip"
-url="https://github.com/$REPO/releases/download/$version/SLSsteam.zip"
+archive="$TMP_DIR/navi.zip"
+url="https://github.com/$REPO/releases/download/$version/navi.zip"
 if command -v curl >/dev/null 2>&1; then
     curl -fL --retry 3 --retry-delay 2 "$url" -o "$archive"
 else

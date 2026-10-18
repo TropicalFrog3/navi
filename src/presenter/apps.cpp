@@ -38,7 +38,7 @@ static std::filesystem::path getAppsJsonPath()
 {
     const char* home = getenv("HOME");
     if (!home) return "";
-    return std::filesystem::path(home) / ".SLSsteam.json";
+    return std::filesystem::path(home) / ".navi.json";
 }
 
 static void saveAppsJson()
@@ -113,21 +113,21 @@ static std::filesystem::path getInstalledAppsPath()
 {
     const char* home = getenv("HOME");
     if (!home) return "";
-    return std::filesystem::path(home) / ".SLSsteam.installed";
+    return std::filesystem::path(home) / ".navi.installed";
 }
 
 static std::filesystem::path getOnlineFixAppsPath()
 {
     const char* home = getenv("HOME");
     if (!home) return "";
-    return std::filesystem::path(home) / ".SLSsteam.onlinefix";
+    return std::filesystem::path(home) / ".navi.onlinefix";
 }
 
 static std::filesystem::path getAutoCrackAppsPath()
 {
     const char* home = getenv("HOME");
     if (!home) return "";
-    return std::filesystem::path(home) / ".SLSsteam.autocrack";
+    return std::filesystem::path(home) / ".navi.autocrack";
 }
 
 static void reloadInstalledApps()

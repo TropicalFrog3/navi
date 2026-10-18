@@ -1,5 +1,5 @@
 # config.diff.yaml
-# Declarative migration rules for SLSsteam configuration schema updates.
+# Declarative migration rules for Navi configuration schema updates.
 # Supports $(OldKey)$(NewKey): bridge syntax with actions: rename, rename_and_convert, remove, convert.
 
 Migrations:

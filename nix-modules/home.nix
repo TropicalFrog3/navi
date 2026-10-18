@@ -138,8 +138,8 @@ in
         SafeMode = mkOption {
           type = types.bool;
           default = false;
-          description = "Automatically disable SLSsteam when steamclient.so does not match a predefined file hash that is known to work
-. Enable when using SLSsteam with Steam Deck gamemode";
+          description = "Automatically disable Navi when steamclient.so does not match a predefined file hash that is known to work
+. Enable when using Navi with Steam Deck gamemode";
         };
 
         Notifications = mkOption {
@@ -157,13 +157,13 @@ in
         NotifyInit = mkOption {
           type = types.bool;
           default = true;
-          description = "Notify when SLSsteam is done initializing";
+          description = "Notify when Navi is done initializing";
         };
 
         API = mkOption {
           type = types.bool;
           default = false;
-          description = "Enable sending commands to SLSsteam via /tmp/SLSsteam.API";
+          description = "Enable sending commands to Navi via /tmp/navi.API";
         };
 
         DisableCloud = mkOption {
@@ -209,11 +209,11 @@ in
       };
     };
     default = { };
-    description = "Configuration for SLSsteam, written to ~/.config/SLSsteam/config.yaml";
+    description = "Configuration for Navi, written to ~/.config/navi/config.yaml";
   };
 
   config = {
-    xdg.configFile."SLSsteam/config.yaml".source =
+    xdg.configFile."navi/config.yaml".source =
       (pkgs.formats.yaml { }).generate "config.yaml"
         config.services.sls-steam.config;
   };

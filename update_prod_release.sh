@@ -5,16 +5,16 @@ set -e
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SLS_DIR="$REPO_ROOT"
-PROD_SLS_DIR="$REPO_ROOT/prod-release/SLSsteam"
+PROD_SLS_DIR="$REPO_ROOT/prod-release/navi"
 
-echo "Building SLSsteam..."
+echo "Building Navi..."
 cd "$SLS_DIR"
 make || "$SLS_DIR/docker/build.sh"
 
-echo "Updating prod-release for SLSsteam..."
+echo "Updating prod-release for Navi..."
 mkdir -p "$PROD_SLS_DIR/bin"
 mkdir -p "$PROD_SLS_DIR/res"
-cp "$SLS_DIR/bin/SLSsteam.so" "$PROD_SLS_DIR/bin/"
+cp "$SLS_DIR/bin/libnavi.so" "$PROD_SLS_DIR/bin/"
 cp "$SLS_DIR/bin/library-inject.so" "$PROD_SLS_DIR/bin/"
 # Verify that updates.yaml did not lose any hashes
 prev_hashes=0
@@ -48,21 +48,21 @@ if [ -f "$REPO_ROOT/scripts/legacy_migration.sh" ]; then
     mkdir -p "$REPO_ROOT/prod-release/scripts"
     cp "$REPO_ROOT/scripts/legacy_migration.sh" "$REPO_ROOT/prod-release/scripts/"
 fi
-if [ -d "$REPO_ROOT/release/SLSsteam" ]; then
-    cp "$REPO_ROOT/uninstall.sh" "$REPO_ROOT/release/SLSsteam/"
+if [ -d "$REPO_ROOT/release/navi" ]; then
+    cp "$REPO_ROOT/uninstall.sh" "$REPO_ROOT/release/navi/"
 fi
 
 echo "Generating update-manifest.yaml..."
 cd "$REPO_ROOT/prod-release"
-VER_STR=$(grep '^Version:' SLSsteam/res/version 2>/dev/null | cut -d' ' -f2 | xargs || echo '1.0.0')
+VER_STR=$(grep '^Version:' navi/res/version 2>/dev/null | cut -d' ' -f2 | xargs || echo '1.0.0')
 printf "version: \"%s\"\nfiles:\n" "$VER_STR" > update-manifest.yaml
-find SLSsteam install.sh uninstall.sh $( [ -d scripts ] && echo scripts ) -type f | sort | while read -r f; do
+find navi install.sh uninstall.sh $( [ -d scripts ] && echo scripts ) -type f | sort | while read -r f; do
     hash=$(sha256sum "$f" | awk '{print $1}')
     printf "  \"%s\": \"%s\"\n" "$f" "$hash" >> update-manifest.yaml
 done
 
-echo "Packaging SLSsteam.zip..."
-rm -f "$REPO_ROOT/SLSsteam.zip"
-zip -q -r "$REPO_ROOT/SLSsteam.zip" install.sh uninstall.sh update-manifest.yaml SLSsteam $( [ -d scripts ] && echo scripts )
+echo "Packaging navi.zip..."
+rm -f "$REPO_ROOT/navi.zip"
+zip -q -r "$REPO_ROOT/navi.zip" install.sh uninstall.sh update-manifest.yaml navi $( [ -d scripts ] && echo scripts )
 
-echo "Prod-release and SLSsteam.zip updated successfully!"
+echo "Prod-release and navi.zip updated successfully!"

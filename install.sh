@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # prod-release/install.sh
-# Master installation script for SLSsteam
+# Master installation script for Navi
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -35,7 +35,7 @@ install_safe_steam_wrapper() {
         /usr/local/bin/steam \
         "$HOME/.steam/steam/steam.sh" \
         "$HOME/.local/share/Steam/steam.sh"; do
-        if [ -x "$candidate" ] && ! grep -qE 'SLSsteam/library-inject.so|INJECT_SLS|LD_AUDIT' "$candidate" 2>/dev/null; then
+        if [ -x "$candidate" ] && ! grep -qE 'navi/library-inject.so|INJECT_SLS|LD_AUDIT' "$candidate" 2>/dev/null; then
             native_steam="$candidate"
             break
         fi
@@ -43,13 +43,13 @@ install_safe_steam_wrapper() {
 
     if [ -z "$native_steam" ]; then
         native_steam="$(type -P steam || true)"
-        if [ -n "$native_steam" ] && grep -qE 'SLSsteam/library-inject.so|INJECT_SLS|LD_AUDIT' "$native_steam" 2>/dev/null; then
+        if [ -n "$native_steam" ] && grep -qE 'navi/library-inject.so|INJECT_SLS|LD_AUDIT' "$native_steam" 2>/dev/null; then
             native_steam=""
         fi
     fi
 
     if [ -z "$native_steam" ]; then
-        log_error "Native Steam launcher not found; cannot create the SLSsteam wrapper."
+        log_error "Native Steam launcher not found; cannot create the Navi wrapper."
         return 1
     fi
 
@@ -67,13 +67,13 @@ install_safe_steam_wrapper() {
     fi
 
     mkdir -p "$wrapper_dir"
-    if [ -e "$wrapper" ] && ! grep -q 'SLSsteam/library-inject.so' "$wrapper" 2>/dev/null; then
-        mv -f "$wrapper" "$wrapper.pre-slssteam.bak"
+    if [ -e "$wrapper" ] && ! grep -q 'navi/library-inject.so' "$wrapper" 2>/dev/null; then
+        mv -f "$wrapper" "$wrapper.pre-navi.bak"
     fi
 
     cat > "$wrapper" <<EOF
 #!/bin/sh
-exec env LD_AUDIT="$HOME/.local/share/SLSsteam/library-inject.so:$HOME/.local/share/SLSsteam/SLSsteam.so" "$native_steam" "\$@"
+exec env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" "$native_steam" "\$@"
 EOF
     chmod 755 "$wrapper"
 
@@ -87,13 +87,13 @@ EOF
         fi
     done
 
-    log_info "Installed the safe SLSsteam Steam wrapper at $wrapper."
+    log_info "Installed the safe Navi Steam wrapper at $wrapper."
 }
 
-install_bundled_slssteam() {
+install_bundled_navi() {
     local sls_dir="$SCRIPT_DIR"
-    if [ -f "$SCRIPT_DIR/SLSsteam/setup.sh" ]; then
-        sls_dir="$SCRIPT_DIR/SLSsteam"
+    if [ -f "$SCRIPT_DIR/navi/setup.sh" ]; then
+        sls_dir="$SCRIPT_DIR/navi"
     fi
 
     if [ ! -f "$sls_dir/setup.sh" ]; then
@@ -101,13 +101,13 @@ install_bundled_slssteam() {
         exit 1
     fi
 
-    log_info "Installing the bundled SLSsteam payload..."
+    log_info "Installing the bundled Navi payload..."
     chmod +x "$sls_dir/setup.sh"
     if ! (cd "$sls_dir" && ./setup.sh install); then
-        log_error "Bundled SLSsteam installation failed."
+        log_error "Bundled Navi installation failed."
         exit 1
     fi
-    log_info "Bundled SLSsteam payload installed successfully."
+    log_info "Bundled Navi payload installed successfully."
 }
 
 log_info "Starting full installation..."
@@ -127,8 +127,8 @@ if type migrate_legacy_manifests >/dev/null 2>&1; then
     migrate_legacy_manifests
 fi
 
-# 1. Install Headcrab (SLSsteam and Steam client integration)
-log_info "Installing Headcrab and SLSsteam..."
+# 1. Install Headcrab (Navi and Steam client integration)
+log_info "Installing Headcrab and Navi..."
 HEADCRAB_URL="${SLS_HEADCRAB_URL:-https://raw.githubusercontent.com/Deadboy666/h3adcr-b/main/headcrab.sh}"
 HEADCRAB_SCRIPT="$(mktemp "${TMPDIR:-/tmp}/headcrab.XXXXXX.sh")"
 trap 'rm -f "$HEADCRAB_SCRIPT"' EXIT
@@ -148,15 +148,15 @@ fi
 
 chmod +x "$HEADCRAB_SCRIPT"
 if bash "$HEADCRAB_SCRIPT"; then
-    log_info "Headcrab and SLSsteam installed successfully."
+    log_info "Headcrab and Navi installed successfully."
 else
-    log_error "Headcrab/SLSsteam installation failed."
+    log_error "Headcrab/Navi installation failed."
     exit 1
 fi
 
-# Headcrab may install its own SLSsteam build. Reinstall the release payload so
-# every fresh device uses the tested SLSsteam binary shipped in this archive.
-install_bundled_slssteam
+# Headcrab may install its own Navi build. Reinstall the release payload so
+# every fresh device uses the tested Navi binary shipped in this archive.
+install_bundled_navi
 if ! install_safe_steam_wrapper; then
     log_error "Steam wrapper installation failed."
     exit 1
@@ -171,21 +171,21 @@ fi
 
 # Headcrab on SteamOS forces 'SafeMode: yes' in config.yaml.
 # Preserve the user's config options while disabling SafeMode so hash differences don't abort startup.
-if [ -f "$HOME/.config/SLSsteam/config.yaml" ]; then
-    sed -i 's/^SafeMode: .*/SafeMode: no/' "$HOME/.config/SLSsteam/config.yaml"
+if [ -f "$HOME/.config/navi/config.yaml" ]; then
+    sed -i 's/^SafeMode: .*/SafeMode: no/' "$HOME/.config/navi/config.yaml"
 fi
 
 # Merge updates.yaml safely: union hashes, never overwrite, preserve backups and client hash
 SRC_UPDATES=""
 if [ -f "$SCRIPT_DIR/res/updates.yaml" ]; then
     SRC_UPDATES="$SCRIPT_DIR/res/updates.yaml"
-elif [ -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" ]; then
-    SRC_UPDATES="$SCRIPT_DIR/SLSsteam/res/updates.yaml"
+elif [ -f "$SCRIPT_DIR/navi/res/updates.yaml" ]; then
+    SRC_UPDATES="$SCRIPT_DIR/navi/res/updates.yaml"
 fi
 
 if [ -n "$SRC_UPDATES" ]; then
-    mkdir -p "$HOME/.config/SLSsteam"
-    DEST_UPDATES="$HOME/.config/SLSsteam/updates.yaml"
+    mkdir -p "$HOME/.config/navi"
+    DEST_UPDATES="$HOME/.config/navi/updates.yaml"
 
     if [ ! -f "$DEST_UPDATES" ]; then
         cp -a "$SRC_UPDATES" "$DEST_UPDATES"
@@ -234,4 +234,4 @@ EOF
 fi
 
 log_info "Full installation complete!"
-echo -e "${GREEN}SLSsteam and Headcrab have been installed to their respective locations in ~/.local/share/${NC}"
+echo -e "${GREEN}Navi and Headcrab have been installed to their respective locations in ~/.local/share/${NC}"

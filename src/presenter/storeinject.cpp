@@ -1234,7 +1234,7 @@ namespace StoreInject
                                     // Also remove cached zip so a fresh download is forced
                                     {
                                         const char* home = getenv("HOME");
-                                        std::string cachePath = std::string(home ? home : "/tmp") + "/.cache/SLSsteam/downloads/" + idStr + ".zip";
+                                        std::string cachePath = std::string(home ? home : "/tmp") + "/.cache/navi/downloads/" + idStr + ".zip";
                                         std::filesystem::remove(cachePath);
                                     }
 
@@ -1397,8 +1397,8 @@ namespace StoreInject
                             } else {
                                 const char* home = getenv("HOME");
                                 if (home) {
-                                    ldAuditStr = std::string(home) + "/.local/share/SLSsteam/library-inject.so:"
-                                               + std::string(home) + "/.local/share/SLSsteam/SLSsteam.so";
+                                    ldAuditStr = std::string(home) + "/.local/share/navi/library-inject.so:"
+                                               + std::string(home) + "/.local/share/navi/libnavi.so";
                                 }
                             }
                             

@@ -5,8 +5,8 @@
 	window.__slsVersionTopBarInjected = true;
 
 	var NAV_CONTAINER_CLASS = '_1Ky59qmywxOUtNcI1cgmkX';
-	var VERSION_ATTRIBUTE = 'data-slssteam-version';
-	var VERSION_TEXT = 'SLSsteam %VERSION%';
+	var VERSION_ATTRIBUTE = 'data-navi-version';
+	var VERSION_TEXT = 'Navi %VERSION%';
 
 	function addVersionLabel() {
 		var nav = document.querySelector('.' + NAV_CONTAINER_CLASS);

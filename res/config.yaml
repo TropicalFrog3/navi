@@ -46,7 +46,7 @@ DlcData:
 AppTokens:
 
 #Legacy CD keys required by some games
-#Unless explicitly specified SLSsteam will generate a random 4 * 4 key using A-Z + 0-9 seeded by your accountId + appId
+#Unless explicitly specified Navi will generate a random 4 * 4 key using A-Z + 0-9 seeded by your accountId + appId
 #If you want to delete injected CD keys delete cdk_[number] from your localconfig.vdf
 CDKeys:
 
@@ -94,18 +94,18 @@ SteamIdOverride:
 #the offline cache (appcache/stats) when a GetUserStats request fails
 MaxSchemaTries: 10
 
-#Automatically disable SLSsteam when steamclient.so does not match a predefined file hash that is known to work
-#You should enable this if you're planing to use SLSsteam with Steam Deck's gamemode
+#Automatically disable Navi when steamclient.so does not match a predefined file hash that is known to work
+#You should enable this if you're planing to use Navi with Steam Deck's gamemode
 SafeMode: no
 
 #Warn user via notification when steamclient.so hash differs from known safe hash
 #Mostly useful for development so I don't accidentally miss an update
 WarnHashMissmatch: no
 
-#Notify when SLSsteam is done initializing
+#Notify when Navi is done initializing
 NotifyInit: yes
 
-#Enable sending commands to SLSsteam via /tmp/SLSsteam.API
+#Enable sending commands to Navi via /tmp/navi.API
 API: no
 
 #Disable cloud saves for unlocked games. Set to "no" if using CloudRedirect or similar.

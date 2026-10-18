@@ -10,7 +10,7 @@ namespace CefSizeFix
      * to replace lDiskSpaceRequiredBytes=0 with real sizes fetched from
      * the steamcmd.net API for SLS-unlocked games.
      *
-     * Called once during SLSsteam initialization (from main.cpp load()).
+     * Called once during Navi initialization (from main.cpp load()).
      * The injection is idempotent — re-calling it will not double-inject.
      *
      * @return true if injection succeeded or was already present.

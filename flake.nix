@@ -1,5 +1,5 @@
 {
-  description = "SLSsteam";
+  description = "Navi";
 
   inputs.nixpkgs.url = "github:nixos/nixpkgs?ref=nixos-unstable";
 

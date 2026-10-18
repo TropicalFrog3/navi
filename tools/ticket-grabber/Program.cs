@@ -1,4 +1,4 @@
-﻿using ProtoBuf;
+using ProtoBuf;
 using SteamKit2;
 using SteamKit2.Internal;
 using SteamKit2.Authentication;
@@ -326,7 +326,7 @@ namespace TicketGrabber
 					Environment.Exit(1);
 				}
 				Console.WriteLine("AppOwnershipTicket received!");
-				//Current ticket sizes in SLSsteam
+				//Current ticket sizes in Navi
 				storeTicket("ticket", ticket.Ticket);
 
 

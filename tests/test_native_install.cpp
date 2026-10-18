@@ -44,7 +44,7 @@ CConfig::~CConfig() {}
 std::string CConfig::getDir() const
 {
     const char* h = getenv("HOME");
-    return std::string(h ? h : "/tmp") + "/.config/SLSsteam";
+    return std::string(h ? h : "/tmp") + "/.config/navi";
 }
 
 bool CConfig::shouldExcludeAppId(const AppId_t appId, const bool)
@@ -154,7 +154,7 @@ static void testNativeInstallPersistenceAndArm()
 
     std::string testDir = "/tmp/sls_test_native_persist";
     std::filesystem::remove_all(testDir);
-    std::filesystem::create_directories(testDir + "/.config/SLSsteam");
+    std::filesystem::create_directories(testDir + "/.config/navi");
     setenv("HOME", testDir.c_str(), 1);
 
     NativeInstall::init();
@@ -178,7 +178,7 @@ static void testNativeInstallPersistenceAndArm()
     assert(sel->depots.count(482) == 1 && "Depot 482 missing");
 
     // Verify persistence file exists and contains 480
-    std::string yamlPath = testDir + "/.config/SLSsteam/native_installs.yaml";
+    std::string yamlPath = testDir + "/.config/navi/native_installs.yaml";
     assert(std::filesystem::exists(yamlPath) && "native_installs.yaml must exist after arm");
 
     // Re-initialize to test load from disk

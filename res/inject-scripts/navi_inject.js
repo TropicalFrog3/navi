@@ -1,8 +1,8 @@
 /**
- * SLSsteam CEF Injection Script
+ * Navi CEF Injection Script
  * 
  * This script monkey-patches SteamClient.Apps.RegisterForAppDetails
- * to inject correct disk space information for SLS-unlocked games
+ * to inject correct disk space information for Navi-unlocked games
  * that would otherwise show "0 B" in the install dialog.
  *
  * The C++ backend returns lDiskSpaceRequiredBytes=0 for unlocked games
@@ -82,19 +82,19 @@
     }
 
     /**
-     * Read the SLS config to get the list of unlocked app IDs.
+     * Read the Navi config to get the list of unlocked app IDs.
      * Falls back to detecting apps with lDiskSpaceRequiredBytes==0 at runtime.
      */
     function getUnlockedAppIds() {
-        // The SLS config is at ~/.local/share/SLSsteam/path/config.json
+        // The Navi config is at ~/.local/share/navi/path/config.json
         // But we can't read files from JS in CEF. Instead, we rely on
         // runtime detection: if an app is "subscribed" but has 0 disk space
-        // and 0 build ID, it's likely SLS-unlocked.
+        // and 0 build ID, it's likely Navi-unlocked.
         return null; // Will use runtime detection
     }
 
     /**
-     * Check if an app details object looks like an SLS-unlocked game
+     * Check if an app details object looks like a Navi-unlocked game
      * that needs size injection.
      */
     function needsSizeInjection(details) {

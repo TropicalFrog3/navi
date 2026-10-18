@@ -1,6 +1,6 @@
-SLSsteam has a toggleable API. If it's enabled you can write commands into /tmp/SLSsteam.API
+Navi has a toggleable API. If it's enabled you can write commands into /tmp/navi.API
 
-API commands are split by using | as a seperator. So for example to install spacewar to library 0 you can write install|480|0 into SLSsteam.API
+API commands are split by using | as a seperator. So for example to install spacewar to library 0 you can write install|480|0 into navi.API
 
 Arguments written in square brackets \[\] are optional
 

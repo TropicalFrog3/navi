@@ -106,15 +106,15 @@ std::string CLog::buildNotification(const unsigned int flags, const char* msg)
 
 	if (error)
 	{
-		notifySS << "\"critical\" \"SLSsteam\" \"Error:\n";
+		notifySS << "\"critical\" \"Navi\" \"Error:\n";
 	}
 	else if (warn)
 	{
-		notifySS << "\"normal\" \"SLSsteam\" \"Warning:\n";
+		notifySS << "\"normal\" \"Navi\" \"Warning:\n";
 	}
 	else
 	{
-		notifySS << "\"normal\" \"SLSsteam\" \"";
+		notifySS << "\"normal\" \"Navi\" \"";
 	}
 
 	//Leading quote is added by error/warn/none if statement above
@@ -378,7 +378,7 @@ CLog* CLog::createDefaultLog()
 	if (home)
 	{
 		std::ostringstream ss;
-		ss << home << "/.SLSsteam.log";
+		ss << home << "/.navi.log";
 
 		return new CLog(ss.str().c_str());
 	}

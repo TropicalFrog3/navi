@@ -15,6 +15,48 @@ set_legacy_paths() {
     LEGACY_VENV_PYTHON="$base/.local/share/ACCELA/.venv/bin/python"
     LEGACY_BIN_NAME="accela"
     LEGACY_APP_BIN="$LEGACY_ACCELA_DIR/accela"
+
+    # Legacy SLSsteam paths
+    LEGACY_SLS_APP_DIR="$base/.local/share/SLSsteam"
+    LEGACY_SLS_FLATPAK_DIR="$base/.var/app/com.valvesoftware.Steam/.local/share/SLSsteam"
+    LEGACY_SLS_CONFIG_DIR="$base/.config/SLSsteam"
+    LEGACY_SLS_CONFIG_BACKUPS="$base/.config/SLSsteam_backups"
+    LEGACY_SLS_CACHE_DIR="$base/.cache/SLSsteam"
+    LEGACY_SLS_STEAM_WRAPPER_BAK="$base/.local/bin/steam.pre-slssteam.bak"
+    LEGACY_SLS_WRAPPER_PATTERN="SLSsteam"
+    LEGACY_SLS_TRACKING_FILES=(
+        "$base/.SLSsteam.log"
+        "$base/.SLSsteam.json"
+        "$base/.SLSsteam.installed"
+        "$base/.SLSsteam.onlinefix"
+        "$base/.SLSsteam.autocrack"
+        "$base/.config/fish/SLSsteam.fish"
+        "/tmp/SLSsteam.API"
+    )
+}
+
+clean_legacy_sls_binaries() {
+    [ -n "${LEGACY_SLS_APP_DIR:-}" ] && [ -d "$LEGACY_SLS_APP_DIR" ] && rm -rf "$LEGACY_SLS_APP_DIR"
+    [ -n "${LEGACY_SLS_FLATPAK_DIR:-}" ] && [ -d "$LEGACY_SLS_FLATPAK_DIR" ] && rm -rf "$LEGACY_SLS_FLATPAK_DIR"
+}
+
+clean_legacy_sls_tracking() {
+    for f in "${LEGACY_SLS_TRACKING_FILES[@]:-}"; do
+        [ -e "$f" ] && rm -f "$f"
+    done
+}
+
+clean_legacy_sls_configs() {
+    if [ -n "${LEGACY_SLS_CONFIG_DIR:-}" ] && [ -d "$LEGACY_SLS_CONFIG_DIR" ]; then
+        for b in "$LEGACY_SLS_CONFIG_DIR"/updates.yaml.bak-*; do
+            if [ -f "$b" ]; then
+                mkdir -p "${LEGACY_SLS_CONFIG_BACKUPS:-$HOME/.config/SLSsteam_backups}"
+                cp -a "$b" "${LEGACY_SLS_CONFIG_BACKUPS:-$HOME/.config/SLSsteam_backups}/"
+            fi
+        done
+        rm -rf "$LEGACY_SLS_CONFIG_DIR"
+    fi
+    [ -n "${LEGACY_SLS_CACHE_DIR:-}" ] && [ -d "$LEGACY_SLS_CACHE_DIR" ] && rm -rf "$LEGACY_SLS_CACHE_DIR"
 }
 
 # Initialize variables for current $HOME

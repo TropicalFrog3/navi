@@ -1765,7 +1765,7 @@
     }
 
     function initLuaLibraryHiding() {
-        // Fetch Lua AppIDs from local SLSsteam server
+        // Fetch Lua AppIDs from local Navi server
         fetch('http://127.0.0.1:9001/lua_apps')
             .then(function(r) { return r.json(); })
             .then(function(data) {
