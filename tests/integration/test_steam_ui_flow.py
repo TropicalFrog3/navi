@@ -29,6 +29,7 @@ import argparse
 import unittest
 import urllib.request
 import urllib.error
+import pytest
 
 try:
     import websocket
@@ -137,6 +138,8 @@ class SteamCDPClient:
 
 
 class SteamUIFlowTest(unittest.TestCase):
+    __test__ = False
+
     @classmethod
     def is_steam_running(cls):
         """Check if steam or steamwebhelper processes are actively running."""
@@ -1521,6 +1524,17 @@ class SteamUIFlowTest(unittest.TestCase):
                 break
             time.sleep(0.5)
         log_pass("Search state reset and clean UI restored.")
+
+
+@pytest.mark.live
+def test_steam_ui_flow():
+    """Live end-to-end integration flow test for Navi against running Steam client."""
+    suite = unittest.TestLoader().loadTestsFromTestCase(SteamUIFlowTest)
+    runner = unittest.TextTestRunner(verbosity=2)
+    result = runner.run(suite)
+    assert result.wasSuccessful(), (
+        f"Steam UI flow tests failed with {len(result.errors)} errors and {len(result.failures)} failures"
+    )
 
 
 def main():

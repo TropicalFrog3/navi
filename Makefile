@@ -39,6 +39,8 @@ ifeq ($(NATIVE),1)
 	CXXFLAGS += -march=native
 endif
 
+export PATH := $(HOME)/.local/bin:$(PATH)
+
 #Speed up compilation if additional dependencies are found
 ifeq ($(shell type ccache &> /dev/null && echo "found"),found)
 	export PATH := /usr/lib/ccache/bin:$(PATH)
@@ -53,66 +55,91 @@ COMPILER_VERSION := $(shell $(CXX) -dumpfullversion -dumpversion)
 FLAGSSHA := $(shell echo "$(CXX) $(COMPILER_VERSION) & $(CXXFLAGS) & $(LDFLAGS)" | sha256sum | cut -d " " -f 1)
 NAVISO := bin/libnavi-$(FLAGSSHA).so
 objs := $(srcs:src/%.cpp=obj/$(FLAGSSHA)/%.o)
-deps := $(objs:%.o=%.d)
+deps = $(objs:%.o=%.d) $(GTEST_OBJS:%.o=%.d) $(UNIT_TEST_OBJS:%.o=%.d) $(COV_PROD_OBJS:%.o=%.d)
 
-TEST_NATIVE_OBJS := \
-	obj/$(FLAGSSHA)/tests/test_native_install.o \
-	obj/$(FLAGSSHA)/model/manifestcode.o \
-	obj/$(FLAGSSHA)/presenter/nativeinstall.o \
-	obj/$(FLAGSSHA)/presenter/apps.o \
-	obj/$(FLAGSSHA)/model/sdk/CNetPacket.o \
-	obj/$(FLAGSSHA)/model/sdk/steam.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/steammessages_base.pb.o \
-	obj/$(FLAGSSHA)/model/paths.o \
-	obj/$(FLAGSSHA)/core/zip.o
+GTEST_DIR := third_party/googletest/googletest
+UNIT_TEST_SRCS := $(wildcard tests/unit/*.cpp)
+UNIT_TEST_OBJS := $(UNIT_TEST_SRCS:tests/unit/%.cpp=obj/$(FLAGSSHA)/tests/unit/%.o)
+GTEST_OBJS := obj/$(FLAGSSHA)/gtest/gtest-all.o obj/$(FLAGSSHA)/gtest/gtest_main.o
 
-obj/$(FLAGSSHA)/tests/%.o: tests/%.cpp
+UNIT_TEST_PROD_SRCS := \
+	src/core/curl.cpp \
+	src/core/decompiler.cpp \
+	src/core/filewatcher.cpp \
+	src/core/memhlp.cpp \
+	src/core/patterns.cpp \
+	src/core/utils.cpp \
+	src/core/vftableinfo.cpp \
+	src/core/zip.cpp \
+	src/model/config.cpp \
+	src/model/depotkeys.cpp \
+	src/model/lua_parser.cpp \
+	src/model/manifestcode.cpp \
+	src/model/paths.cpp \
+	src/model/vdf.cpp \
+	src/model/migrations/cache_migration.cpp \
+	src/model/migrations/config_migration.cpp \
+	src/model/migrations/legacy_migration.cpp \
+	src/model/sdk/binarykv.cpp \
+	src/model/sdk/CNetPacket.cpp \
+	src/model/sdk/steam.cpp \
+	src/model/sdk/protobufs/encrypted_app_ticket.pb.cpp \
+	src/model/sdk/protobufs/enums.pb.cpp \
+	src/model/sdk/protobufs/enums_clientserver.pb.cpp \
+	src/model/sdk/protobufs/steammessages_base.pb.cpp \
+	src/model/sdk/protobufs/steammessages_clientserver.pb.cpp \
+	src/model/sdk/protobufs/steammessages_clientserver_2.pb.cpp \
+	src/presenter/apps.cpp \
+	src/presenter/autoupdate.cpp \
+	src/presenter/luagenerator.cpp \
+	src/presenter/nativeinstall.cpp
+
+UNIT_TEST_PROD_OBJS := $(UNIT_TEST_PROD_SRCS:src/%.cpp=obj/$(FLAGSSHA)/%.o)
+UNIT_TEST_SDK_SRCS := $(filter src/model/sdk/%,$(UNIT_TEST_PROD_SRCS))
+UNIT_TEST_SDK_OBJS := $(UNIT_TEST_SDK_SRCS:src/%.cpp=obj/$(FLAGSSHA)/%.o)
+
+COV_PROD_SRCS := $(filter-out src/model/sdk/%,$(UNIT_TEST_PROD_SRCS))
+COV_PROD_OBJS := $(COV_PROD_SRCS:src/%.cpp=obj/cov/%.o)
+COV_CXXFLAGS := $(filter-out -O3 -flto=auto,$(CXXFLAGS)) -O0 -g --coverage
+
+obj/$(FLAGSSHA)/gtest/%.o: $(GTEST_DIR)/src/%.cc
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -isystem $(GTEST_DIR)/include -I$(GTEST_DIR) -pthread -MMD -MP -c $< -o $@
 
-TEST_KEY_FIRST_OBJS := \
-	obj/$(FLAGSSHA)/tests/test_key_first.o \
-	obj/$(FLAGSSHA)/model/depotkeys.o \
-	obj/$(FLAGSSHA)/presenter/luagenerator.o \
-	obj/$(FLAGSSHA)/model/sdk/binarykv.o \
-	obj/$(FLAGSSHA)/model/sdk/CNetPacket.o \
-	obj/$(FLAGSSHA)/model/sdk/steam.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/steammessages_base.pb.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/steammessages_clientserver_2.pb.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/steammessages_clientserver.pb.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/enums.pb.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/enums_clientserver.pb.o \
-	obj/$(FLAGSSHA)/model/sdk/protobufs/encrypted_app_ticket.pb.o \
-	obj/$(FLAGSSHA)/model/paths.o
+obj/$(FLAGSSHA)/tests/unit/%.o: tests/unit/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -isystem $(GTEST_DIR)/include -isysteminclude -MMD -MP -c $< -o $@
 
-TEST_MIGRATION_OBJS := \
-	obj/$(FLAGSSHA)/tests/test_migration.o \
-	obj/$(FLAGSSHA)/model/migrations/config_migration.o \
-	obj/$(FLAGSSHA)/model/migrations/cache_migration.o \
-	obj/$(FLAGSSHA)/model/migrations/legacy_migration.o
+obj/cov/model/config.o: src/model/config.cpp res/config.yaml
+	$(shell ./embed-config.sh)
+	@mkdir -p $(dir $@)
+	$(CXX) $(COV_CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
 
-bin/test_migration: $(TEST_MIGRATION_OBJS)
+obj/cov/%.o: src/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(COV_CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+
+bin/unit_tests: $(UNIT_TEST_OBJS) $(UNIT_TEST_PROD_OBJS) $(GTEST_OBJS)
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libyaml-cpp.a -o $@
+	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -lpthread -ldl -o $@
 	chmod 755 $@
 
-bin/test_native_install: $(TEST_NATIVE_OBJS)
+bin/unit_tests_cov: $(COV_PROD_OBJS) $(UNIT_TEST_SDK_OBJS) $(UNIT_TEST_OBJS) $(GTEST_OBJS)
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
+	$(CXX) $(COV_CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -lpthread -ldl -o $@
 	chmod 755 $@
 
-bin/test_key_first: $(TEST_KEY_FIRST_OBJS)
-	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -o $@
-	chmod 755 $@
+test: bin/unit_tests
+	./bin/unit_tests
+	if [ -d tests/integration ]; then pytest -q tests/integration; fi
+	$(MAKE) coverage
 
-test: bin/test_native_install bin/test_key_first bin/test_migration
-	./bin/test_native_install
-	./bin/test_key_first
-	./bin/test_migration
+coverage: bin/unit_tests_cov
+	./bin/unit_tests_cov
+	PATH="$(HOME)/.local/bin:$(PATH)" gcovr -r src obj/cov
 
 test-flow:
-	python3 tests/test_steam_ui_flow.py
+	pytest -q --live tests/integration/test_steam_ui_flow.py
 
 test-all: test test-flow
 
@@ -173,10 +200,10 @@ clean-tools:
 	-$(MAKE) -C tools/ticket-grabber clean
 
 install:
-	sh setup.sh install
+	./install.sh install
 
 uninstall:
-	sh setup.sh uninstall
+	./install.sh uninstall
 
 zips: build
 	@mkdir -p zips
@@ -184,7 +211,8 @@ zips: build
 		"zips/navi $(DATE).7z" \
 		"bin/libnavi.so" \
 		"bin/library-inject.so" \
-		"setup.sh" \
+		"install.sh" \
+		"scripts/lib" \
 		"docs/LICENSE" \
 		"res/config.yaml" \
 		"tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" \
@@ -195,7 +223,8 @@ zips: build
 		"zips/navi $(DATE).zip" \
 		"bin/libnavi.so" \
 		"bin/library-inject.so" \
-		"setup.sh" \
+		"install.sh" \
+		"scripts/lib" \
 		"docs/LICENSE" \
 		"res/config.yaml" \
 		"tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" \
@@ -230,4 +259,5 @@ release: rebuild zips
 	release \
 	test \
 	test-flow \
-	test-all
+	test-all \
+	coverage
