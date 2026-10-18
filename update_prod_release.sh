@@ -4,7 +4,7 @@
 set -e
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SLS_DIR="$REPO_ROOT/SLSsteam"
+SLS_DIR="$REPO_ROOT"
 PROD_SLS_DIR="$REPO_ROOT/prod-release/SLSsteam"
 
 echo "Building SLSsteam..."

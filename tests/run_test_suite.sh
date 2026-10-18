@@ -43,27 +43,28 @@ export SLS_UNINSTALL_AUTO_ACCEPT=1
 
 step "Test Case 1 & 2: Config Migration and Cache Migration Unit Tests"
 echo "Building and running unit tests with test_migration..."
-if [ ! -x "$REPO_ROOT/SLSsteam/bin/test_migration" ]; then
-    make -C "$REPO_ROOT/SLSsteam" audit-libs -j"$(nproc)" >/dev/null 2>&1 || "$REPO_ROOT/SLSsteam/docker/build.sh" >/dev/null
+if [ ! -x "$REPO_ROOT/bin/test_migration" ]; then
+    make -C "$REPO_ROOT" audit-libs -j"$(nproc)" >/dev/null 2>&1 || "$REPO_ROOT/docker/build.sh" >/dev/null
 
-    g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/SLSsteam/include" \
-        "$REPO_ROOT/SLSsteam/tests/test_migration.cpp" \
-        "$REPO_ROOT/SLSsteam/src/feats/config_migration.cpp" \
-        "$REPO_ROOT/SLSsteam/src/feats/cache_migration.cpp" \
-        "$REPO_ROOT/SLSsteam/lib/libyaml-cpp.a" \
-        -o "$REPO_ROOT/SLSsteam/bin/test_migration"
+    g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/include" \
+        -I"$REPO_ROOT/src" -I"$REPO_ROOT/src/core" -I"$REPO_ROOT/src/model" -I"$REPO_ROOT/src/presenter" -I"$REPO_ROOT/src/view" -I"$REPO_ROOT/src/model/sdk" \
+        "$REPO_ROOT/tests/test_migration.cpp" \
+        "$REPO_ROOT/src/model/config_migration.cpp" \
+        "$REPO_ROOT/src/model/cache_migration.cpp" \
+        "$REPO_ROOT/lib/libyaml-cpp.a" \
+        -o "$REPO_ROOT/bin/test_migration"
 fi
 
-"$REPO_ROOT/SLSsteam/bin/test_migration"
+"$REPO_ROOT/bin/test_migration"
 pass "Config and Cache Migration unit tests passed successfully."
 
 step "Test Case 1b: Native Install & Manifest Code Wire-Format Unit Tests"
 echo "Compiling and running test_native_install..."
 if command -v docker >/dev/null 2>&1; then
-    docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest sh -c \
+    docker run --rm --mount=type=bind,source="$REPO_ROOT",target=/src --workdir=/src sls-host:latest sh -c \
         "make bin/test_native_install && ./bin/test_native_install"
-elif [ -x "$REPO_ROOT/SLSsteam/bin/test_native_install" ]; then
-    "$REPO_ROOT/SLSsteam/bin/test_native_install"
+elif [ -x "$REPO_ROOT/bin/test_native_install" ]; then
+    "$REPO_ROOT/bin/test_native_install"
 else
     fail "Neither docker nor precompiled bin/test_native_install found."
 fi
@@ -74,18 +75,20 @@ SANDBOX_HOME="$TEST_TMP/fake_home"
 mkdir -p "$SANDBOX_HOME/.local/share/SLSsteam" "$SANDBOX_HOME/.config/SLSsteam"
 
 # Compile test_autoupdate harness (host or docker) if not already present
-if [ ! -x "$REPO_ROOT/SLSsteam/bin/test_autoupdate" ]; then
-    if ! g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/SLSsteam/include" \
-        "$REPO_ROOT/SLSsteam/tests/test_autoupdate.cpp" \
-        "$REPO_ROOT/SLSsteam/src/feats/autoupdate.cpp" \
-        "$REPO_ROOT/SLSsteam/src/curl.cpp" \
-        "$REPO_ROOT/SLSsteam/lib/libyaml-cpp.a" \
+if [ ! -x "$REPO_ROOT/bin/test_autoupdate" ]; then
+    if ! g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isystem"$REPO_ROOT/include" \
+        -I"$REPO_ROOT/src" -I"$REPO_ROOT/src/core" -I"$REPO_ROOT/src/model" -I"$REPO_ROOT/src/presenter" -I"$REPO_ROOT/src/view" -I"$REPO_ROOT/src/model/sdk" \
+        "$REPO_ROOT/tests/test_autoupdate.cpp" \
+        "$REPO_ROOT/src/presenter/autoupdate.cpp" \
+        "$REPO_ROOT/src/core/curl.cpp" \
+        "$REPO_ROOT/lib/libyaml-cpp.a" \
         -lssl -lcrypto -lcurl \
-        -o "$REPO_ROOT/SLSsteam/bin/test_autoupdate" 2>/dev/null; then
+        -o "$REPO_ROOT/bin/test_autoupdate" 2>/dev/null; then
         if command -v docker >/dev/null 2>&1; then
-            docker run --rm --mount=type=bind,source="$REPO_ROOT/SLSsteam",target=/src --workdir=/src sls-host:latest \
+            docker run --rm --mount=type=bind,source="$REPO_ROOT",target=/src --workdir=/src sls-host:latest \
                 g++ -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -fuse-ld=gold -isysteminclude \
-                tests/test_autoupdate.cpp src/feats/autoupdate.cpp src/curl.cpp lib/libyaml-cpp.a \
+                -Isrc -Isrc/core -Isrc/model -Isrc/presenter -Isrc/view -Isrc/model/sdk \
+                tests/test_autoupdate.cpp src/presenter/autoupdate.cpp src/core/curl.cpp lib/libyaml-cpp.a \
                 -lssl -lcrypto -lcurl -o bin/test_autoupdate
         fi
     fi
@@ -98,7 +101,7 @@ Changelog: "Older mock version"
 DownloadUrl: "file:///dev/null"
 EOF
 
-OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_FILE" "$REPO_ROOT/SLSsteam/bin/test_autoupdate")
+OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_FILE" "$REPO_ROOT/bin/test_autoupdate")
 echo "$OUTPUT"
 
 if echo "$OUTPUT" | grep -q "Already up to date"; then
@@ -167,7 +170,7 @@ DownloadUrl: "file://$MOCK_ZIP"
 EOF
 
 # Run autoupdate
-UPGRADE_OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_UPGRADE" "$REPO_ROOT/SLSsteam/bin/test_autoupdate")
+UPGRADE_OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_UPGRADE" "$REPO_ROOT/bin/test_autoupdate")
 echo "$UPGRADE_OUTPUT"
 
 # Verify payload integrity check passed
@@ -234,7 +237,7 @@ Changelog: "Tampered test update"
 DownloadUrl: "file://$TAMPERED_ZIP"
 EOF
 
-TAMPER_OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_TAMPERED" "$REPO_ROOT/SLSsteam/bin/test_autoupdate" 2>&1 || true)
+TAMPER_OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_TAMPERED" "$REPO_ROOT/bin/test_autoupdate" 2>&1 || true)
 echo "$TAMPER_OUTPUT"
 
 if echo "$TAMPER_OUTPUT" | grep -q "Manifest checksum mismatch"; then
@@ -288,7 +291,7 @@ Changelog: "Fail test update"
 DownloadUrl: "file://$FAIL_ZIP"
 EOF
 
-FAIL_OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_FAIL" "$REPO_ROOT/SLSsteam/bin/test_autoupdate" 2>&1 || true)
+FAIL_OUTPUT=$(HOME="$SANDBOX_HOME" SLS_UPDATE_VERSION_URL="file://$MOCK_VER_FAIL" "$REPO_ROOT/bin/test_autoupdate" 2>&1 || true)
 echo "$FAIL_OUTPUT"
 
 # Verify rollback message in output
@@ -431,10 +434,10 @@ pass "Uninstaller is completely idempotent."
 
 step "Test Case 8: Atomic Staging, Directory Merging, and Cancellation Recovery"
 echo "Compiling and running test_atomic_staging unit tests..."
-if [ ! -x "$REPO_ROOT/SLSsteam/bin/test_atomic_staging" ] && command -v g++ >/dev/null 2>&1; then
-    g++ -std=c++20 "$REPO_ROOT/SLSsteam/tests/test_atomic_staging.cpp" -o "$REPO_ROOT/SLSsteam/bin/test_atomic_staging"
+if [ ! -x "$REPO_ROOT/bin/test_atomic_staging" ] && command -v g++ >/dev/null 2>&1; then
+    g++ -std=c++20 -I"$REPO_ROOT/src/core" "$REPO_ROOT/tests/test_atomic_staging.cpp" -o "$REPO_ROOT/bin/test_atomic_staging"
 fi
-"$REPO_ROOT/SLSsteam/bin/test_atomic_staging"
+"$REPO_ROOT/bin/test_atomic_staging"
 pass "Atomic staging, merge, and cancellation safety unit tests passed successfully."
 
 step "Test Case 9: Live Steam UI Flow & Native Hook Integration Test"

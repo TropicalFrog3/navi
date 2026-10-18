@@ -1,6 +1,5 @@
 # Build artifacts and object files
 /bin/
-SLSsteam/bin/
 obj/
 build/
 dist/
@@ -38,7 +37,7 @@ CMakeFiles/
 CMakeCache.txt
 cmake_install.cmake
 *.cmake
-Makefile
+*.d
 
 # IDE/Editor
 .vscode/
@@ -69,7 +68,6 @@ Thumbs.db
 *.out
 zip/
 /core
-SLSsteam/core
 core.[0-9]*
 *.dmp
 

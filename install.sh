@@ -91,10 +91,13 @@ EOF
 }
 
 install_bundled_slssteam() {
-    local sls_dir="$SCRIPT_DIR/SLSsteam"
+    local sls_dir="$SCRIPT_DIR"
+    if [ -f "$SCRIPT_DIR/SLSsteam/setup.sh" ]; then
+        sls_dir="$SCRIPT_DIR/SLSsteam"
+    fi
 
     if [ ! -f "$sls_dir/setup.sh" ]; then
-        log_error "SLSsteam/setup.sh not found in the release directory."
+        log_error "setup.sh not found in the release directory."
         exit 1
     fi
 
@@ -173,10 +176,16 @@ if [ -f "$HOME/.config/SLSsteam/config.yaml" ]; then
 fi
 
 # Merge updates.yaml safely: union hashes, never overwrite, preserve backups and client hash
-if [ -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" ]; then
+SRC_UPDATES=""
+if [ -f "$SCRIPT_DIR/res/updates.yaml" ]; then
+    SRC_UPDATES="$SCRIPT_DIR/res/updates.yaml"
+elif [ -f "$SCRIPT_DIR/SLSsteam/res/updates.yaml" ]; then
+    SRC_UPDATES="$SCRIPT_DIR/SLSsteam/res/updates.yaml"
+fi
+
+if [ -n "$SRC_UPDATES" ]; then
     mkdir -p "$HOME/.config/SLSsteam"
     DEST_UPDATES="$HOME/.config/SLSsteam/updates.yaml"
-    SRC_UPDATES="$SCRIPT_DIR/SLSsteam/res/updates.yaml"
 
     if [ ! -f "$DEST_UPDATES" ]; then
         cp -a "$SRC_UPDATES" "$DEST_UPDATES"
