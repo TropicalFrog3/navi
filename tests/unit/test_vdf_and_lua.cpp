@@ -191,3 +191,130 @@ TEST(PathsTest, DetectSteamRootAndSubdirs)
     }
     fs::remove_all(tempHome);
 }
+
+TEST(PathsTest, ClearAppCache)
+{
+    const std::string tempHome = "/tmp/unit_test_paths_appcache_" + std::to_string(getpid());
+    fs::remove_all(tempHome);
+
+    const char* origHome = getenv("HOME");
+    std::string origHomeStr = origHome ? origHome : "";
+    const char* origXdg = getenv("XDG_CONFIG_HOME");
+    std::string origXdgStr = origXdg ? origXdg : "";
+
+    setenv("HOME", tempHome.c_str(), 1);
+    setenv("XDG_CONFIG_HOME", (tempHome + "/.config").c_str(), 1);
+
+    // Create directories and files for AppID 480
+    fs::create_directories(tempHome + "/.cache/navi/downloads/480_extracted");
+    fs::create_directories(tempHome + "/.config/navi/cache");
+    fs::create_directories(tempHome + "/.local/share/navi/cache/manifests");
+    fs::create_directories(tempHome + "/.local/share/Steam/config/stplug-in");
+    fs::create_directories("/tmp/sls_manual_dir_480");
+
+    {
+        std::ofstream(tempHome + "/.cache/navi/downloads/480.zip") << "dummy zip";
+        std::ofstream(tempHome + "/.cache/navi/downloads/480_extracted/file.txt") << "extracted";
+        std::ofstream(tempHome + "/.config/navi/cache/ticket_480.yaml") << "ticket";
+        std::ofstream(tempHome + "/.config/navi/cache/encryptedTicket_480.yaml") << "encrypted ticket";
+        std::ofstream(tempHome + "/.local/share/navi/cache/480.zip") << "local zip";
+        std::ofstream(tempHome + "/.local/share/navi/cache/ticket_480.yaml") << "local ticket";
+        std::ofstream(tempHome + "/.local/share/navi/cache/encryptedTicket_480.yaml") << "local enc ticket";
+        std::ofstream("/tmp/sls_lua_480") << "tmp lua";
+        std::ofstream("/tmp/sls_manual_dir_480/dummy.txt") << "dummy";
+
+        // Files that MUST be preserved
+        std::ofstream(tempHome + "/.cache/navi/downloads/730.zip") << "app 730 zip";
+        std::ofstream(tempHome + "/.config/navi/cache/ticket_730.yaml") << "app 730 ticket";
+        std::ofstream(tempHome + "/.local/share/Steam/config/stplug-in/480.lua") << "installed lua";
+        std::ofstream(tempHome + "/.local/share/navi/cache/manifests/480_123.manifest") << "manifest data";
+        std::ofstream("/tmp/sls_lua_730") << "tmp lua 730";
+    }
+
+    bool res = Paths::clearAppCache(480);
+    EXPECT_TRUE(res);
+
+    // Verify 480 cache files removed
+    EXPECT_FALSE(fs::exists(tempHome + "/.cache/navi/downloads/480.zip"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.cache/navi/downloads/480_extracted"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.config/navi/cache/ticket_480.yaml"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.config/navi/cache/encryptedTicket_480.yaml"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.local/share/navi/cache/480.zip"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.local/share/navi/cache/ticket_480.yaml"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.local/share/navi/cache/encryptedTicket_480.yaml"));
+    EXPECT_FALSE(fs::exists("/tmp/sls_lua_480"));
+    EXPECT_FALSE(fs::exists("/tmp/sls_manual_dir_480"));
+
+    // Verify other app files, .lua plugins, and manifests are preserved
+    EXPECT_TRUE(fs::exists(tempHome + "/.cache/navi/downloads/730.zip"));
+    EXPECT_TRUE(fs::exists(tempHome + "/.config/navi/cache/ticket_730.yaml"));
+    EXPECT_TRUE(fs::exists(tempHome + "/.local/share/Steam/config/stplug-in/480.lua"));
+    EXPECT_TRUE(fs::exists(tempHome + "/.local/share/navi/cache/manifests/480_123.manifest"));
+    EXPECT_TRUE(fs::exists("/tmp/sls_lua_730"));
+
+    // Cleanup
+    fs::remove("/tmp/sls_lua_730");
+    if (!origHomeStr.empty()) setenv("HOME", origHomeStr.c_str(), 1);
+    else unsetenv("HOME");
+    if (!origXdgStr.empty()) setenv("XDG_CONFIG_HOME", origXdgStr.c_str(), 1);
+    else unsetenv("XDG_CONFIG_HOME");
+    fs::remove_all(tempHome);
+}
+
+TEST(PathsTest, ClearAllCache)
+{
+    const std::string tempHome = "/tmp/unit_test_paths_allcache_" + std::to_string(getpid());
+    fs::remove_all(tempHome);
+
+    const char* origHome = getenv("HOME");
+    std::string origHomeStr = origHome ? origHome : "";
+    const char* origXdg = getenv("XDG_CONFIG_HOME");
+    std::string origXdgStr = origXdg ? origXdg : "";
+
+    setenv("HOME", tempHome.c_str(), 1);
+    setenv("XDG_CONFIG_HOME", (tempHome + "/.config").c_str(), 1);
+
+    fs::create_directories(tempHome + "/.cache/navi/downloads");
+    fs::create_directories(tempHome + "/.config/navi/cache");
+    fs::create_directories(tempHome + "/.local/share/navi/cache/manifests");
+    fs::create_directories(tempHome + "/.local/share/Steam/config/stplug-in");
+    fs::create_directories("/tmp/sls_manual_dir_999");
+
+    {
+        std::ofstream(tempHome + "/.cache/navi/downloads/480.zip") << "zip 480";
+        std::ofstream(tempHome + "/.cache/navi/downloads/730.zip") << "zip 730";
+        std::ofstream(tempHome + "/.config/navi/cache/ticket_480.yaml") << "t 480";
+        std::ofstream(tempHome + "/.config/navi/cache/ticket_730.yaml") << "t 730";
+        std::ofstream(tempHome + "/.local/share/navi/cache/random_cache.bin") << "bin";
+        std::ofstream("/tmp/sls_lua_999") << "tmp lua";
+        std::ofstream("/tmp/sls_manual_dir_999/dummy.txt") << "manual";
+
+        // Protected files: .lua plugin and manifests/
+        std::ofstream(tempHome + "/.local/share/Steam/config/stplug-in/480.lua") << "installed lua";
+        std::ofstream(tempHome + "/.local/share/navi/cache/manifests/depot_manifest.bin") << "manifest bin";
+    }
+
+    bool res = Paths::clearAllCache();
+    EXPECT_TRUE(res);
+
+    // Verify all caches removed
+    EXPECT_FALSE(fs::exists(tempHome + "/.cache/navi/downloads/480.zip"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.cache/navi/downloads/730.zip"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.config/navi/cache/ticket_480.yaml"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.config/navi/cache/ticket_730.yaml"));
+    EXPECT_FALSE(fs::exists(tempHome + "/.local/share/navi/cache/random_cache.bin"));
+    EXPECT_FALSE(fs::exists("/tmp/sls_lua_999"));
+    EXPECT_FALSE(fs::exists("/tmp/sls_manual_dir_999"));
+
+    // Verify protected files preserved
+    EXPECT_TRUE(fs::exists(tempHome + "/.local/share/Steam/config/stplug-in/480.lua"));
+    EXPECT_TRUE(fs::exists(tempHome + "/.local/share/navi/cache/manifests/depot_manifest.bin"));
+
+    // Cleanup
+    if (!origHomeStr.empty()) setenv("HOME", origHomeStr.c_str(), 1);
+    else unsetenv("HOME");
+    if (!origXdgStr.empty()) setenv("XDG_CONFIG_HOME", origXdgStr.c_str(), 1);
+    else unsetenv("XDG_CONFIG_HOME");
+    fs::remove_all(tempHome);
+}
+

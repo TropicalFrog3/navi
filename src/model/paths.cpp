@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 #include <filesystem>
+#include <vector>
+#include <system_error>
 
 namespace fs = std::filesystem;
 
@@ -13,6 +15,25 @@ namespace Paths
     {
         const char* home = getenv("HOME");
         return home ? home : "/tmp";
+    }
+
+    static void clearDirectoryEntries(const fs::path& dir, const std::string& excludeSubdir = "")
+    {
+        std::error_code ec;
+        if (!fs::exists(dir, ec) || !fs::is_directory(dir, ec))
+            return;
+
+        fs::directory_iterator it(dir, ec);
+        fs::directory_iterator end;
+        while (!ec && it != end)
+        {
+            if (excludeSubdir.empty() || it->path().filename().string() != excludeSubdir)
+            {
+                std::error_code rmEc;
+                fs::remove_all(it->path(), rmEc);
+            }
+            it.increment(ec);
+        }
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -56,5 +77,78 @@ namespace Paths
         fs::create_directories(dir);
         fs::create_directories(legacyDir);
         return dir.string();
+    }
+
+    bool clearAppCache(uint32_t appId)
+    {
+        const char* home = homeDir();
+        const std::string idStr = std::to_string(appId);
+        const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+
+        std::vector<fs::path> pathsToRemove = {
+            fs::path(home) / ".cache" / "navi" / "downloads" / (idStr + ".zip"),
+            fs::path(home) / ".cache" / "navi" / "downloads" / (idStr + "_extracted"),
+            fs::path(home) / ".config" / "navi" / "cache" / ("ticket_" + idStr + ".yaml"),
+            fs::path(home) / ".config" / "navi" / "cache" / ("encryptedTicket_" + idStr + ".yaml"),
+            fs::path(home) / ".local" / "share" / "navi" / "cache" / (idStr + ".zip"),
+            fs::path(home) / ".local" / "share" / "navi" / "cache" / ("ticket_" + idStr + ".yaml"),
+            fs::path(home) / ".local" / "share" / "navi" / "cache" / ("encryptedTicket_" + idStr + ".yaml"),
+            fs::path("/tmp") / ("sls_lua_" + idStr),
+            fs::path("/tmp") / ("sls_manual_dir_" + idStr)
+        };
+
+        if (xdgConfig && *xdgConfig)
+        {
+            pathsToRemove.push_back(fs::path(xdgConfig) / "navi" / "cache" / ("ticket_" + idStr + ".yaml"));
+            pathsToRemove.push_back(fs::path(xdgConfig) / "navi" / "cache" / ("encryptedTicket_" + idStr + ".yaml"));
+        }
+
+        std::error_code ec;
+        for (const auto& p : pathsToRemove)
+        {
+            fs::remove_all(p, ec);
+        }
+
+        return true;
+    }
+
+    bool clearAllCache()
+    {
+        const char* home = homeDir();
+        const char* xdgConfig = getenv("XDG_CONFIG_HOME");
+
+        // 1. All entries inside $HOME/.cache/navi/downloads/
+        clearDirectoryEntries(fs::path(home) / ".cache" / "navi" / "downloads");
+
+        // 2. All entries inside $HOME/.config/navi/cache/ (and $XDG_CONFIG_HOME/navi/cache/ if set)
+        clearDirectoryEntries(fs::path(home) / ".config" / "navi" / "cache");
+        if (xdgConfig && *xdgConfig)
+        {
+            fs::path xdgDir = fs::path(xdgConfig) / "navi" / "cache";
+            if (xdgDir != fs::path(home) / ".config" / "navi" / "cache")
+            {
+                clearDirectoryEntries(xdgDir);
+            }
+        }
+
+        // 3. All entries inside $HOME/.local/share/navi/cache/ EXCEPT manifests
+        clearDirectoryEntries(fs::path(home) / ".local" / "share" / "navi" / "cache", "manifests");
+
+        // 4. Any /tmp/sls_lua_* and /tmp/sls_manual_dir_* entries in /tmp
+        std::error_code ec;
+        fs::directory_iterator it("/tmp", ec);
+        fs::directory_iterator end;
+        while (!ec && it != end)
+        {
+            const std::string name = it->path().filename().string();
+            if (name.rfind("sls_lua_", 0) == 0 || name.rfind("sls_manual_dir_", 0) == 0)
+            {
+                std::error_code rmEc;
+                fs::remove_all(it->path(), rmEc);
+            }
+            it.increment(ec);
+        }
+
+        return true;
     }
 } // namespace Paths

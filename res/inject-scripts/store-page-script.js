@@ -606,6 +606,86 @@
         syncModalUI(appid);
     }
 
+    function clearAppCache(appid, btnEl) {
+        try {
+            localStorage.removeItem('sls-session-' + appid);
+        } catch (e) {}
+
+        if (globalDownloadSessions[appid]) {
+            var session = globalDownloadSessions[appid];
+            if (session.crawlId) clearInterval(session.crawlId);
+            if (session.pollId) clearInterval(session.pollId);
+            session.requestedProviders = {};
+            session.providerStates = {};
+            session.allowedIndices = [];
+            session.currentActiveIdx = -1;
+            session.targetPct = 0;
+            session.finished = false;
+        }
+
+        var modal = document.getElementById('sls-overlay-modal');
+        if (modal) {
+            modal.querySelectorAll('.sls-bar-fill').forEach(function(el) {
+                el.remove();
+            });
+        }
+
+        delete appUnlockStatus[appid];
+
+        fetch('http://127.0.0.1:9001/clear-cache?id=' + appid).catch(function() {});
+
+        if (btnEl) {
+            var origText = btnEl.innerText;
+            btnEl.innerText = 'App Cache Cleared!';
+            setTimeout(function() {
+                btnEl.innerText = origText;
+            }, 1500);
+        }
+    }
+
+    function clearAllCache(appid, btnEl) {
+        try {
+            var keysToRemove = [];
+            for (var i = 0; i < localStorage.length; i++) {
+                var k = localStorage.key(i);
+                if (k && k.indexOf('sls-session-') === 0) {
+                    keysToRemove.push(k);
+                }
+            }
+            keysToRemove.forEach(function(k) {
+                localStorage.removeItem(k);
+            });
+        } catch (e) {}
+
+        Object.keys(globalDownloadSessions).forEach(function(id) {
+            var session = globalDownloadSessions[id];
+            if (session) {
+                if (session.crawlId) clearInterval(session.crawlId);
+                if (session.pollId) clearInterval(session.pollId);
+            }
+        });
+        globalDownloadSessions = {};
+
+        var modal = document.getElementById('sls-overlay-modal');
+        if (modal) {
+            modal.querySelectorAll('.sls-bar-fill').forEach(function(el) {
+                el.remove();
+            });
+        }
+
+        appUnlockStatus = {};
+
+        fetch('http://127.0.0.1:9001/clear-all-cache').catch(function() {});
+
+        if (btnEl) {
+            var origText = btnEl.innerText;
+            btnEl.innerText = 'All Cache Cleared!';
+            setTimeout(function() {
+                btnEl.innerText = origText;
+            }, 1500);
+        }
+    }
+
     function openLuaProviderConfig(appid) {
         if (document.getElementById('sls-overlay-modal')) return;
         var overlay = document.createElement('div');
@@ -642,7 +722,10 @@
             '<div><h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Lua download provider</h2><p style="margin:4px 0 0;font-size:14px;color:#969696;">AppID: ' + appid + '</p></div>' +
             '<button id="sls-provider-close" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button></div>' +
             '<div id="sls-provider-rows">' + rows + '</div>' +
-            '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;"><button id="sls-auto-search" class="sls-btn-action Focusable" tabindex="-1" role="button" style="min-width:100%;">Auto Download</button></div>' +
+            '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">' +
+            '<button id="sls-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;">Clear App Cache</button>' +
+            '<button id="sls-clear-all-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;">Clear All Cache</button>' +
+            '<button id="sls-auto-search" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;">Auto Download</button></div>' +
             '<style>' +
             ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
             ' .sls-btn-action:not(:disabled):hover { background: rgba(172, 178, 201, 0.25); }' +
@@ -665,8 +748,26 @@
             row.querySelectorAll('[data-sls-api-key], [data-sls-getkey], [data-sls-up], [data-sls-down], [data-sls-provider-download]').forEach(function(b) { rowItems.push(b); });
             if (rowItems.length > 0) modalButtons.push(rowItems);
         });
-        modalButtons.push([document.getElementById('sls-auto-search')]);
+        var clearAppBtn = document.getElementById('sls-clear-app-cache');
+        var clearAllBtn = document.getElementById('sls-clear-all-cache');
+        var autoSearchBtn = document.getElementById('sls-auto-search');
+        var actionRow = [];
+        if (clearAppBtn) actionRow.push(clearAppBtn);
+        if (clearAllBtn) actionRow.push(clearAllBtn);
+        if (autoSearchBtn) actionRow.push(autoSearchBtn);
+        if (actionRow.length > 0) modalButtons.push(actionRow);
         trapSteamGamepadModal(overlay, modalButtons);
+
+        if (clearAppBtn) {
+            clearAppBtn.onclick = function() {
+                clearAppCache(appid, clearAppBtn);
+            };
+        }
+        if (clearAllBtn) {
+            clearAllBtn.onclick = function() {
+                clearAllCache(appid, clearAllBtn);
+            };
+        }
 
         function close() { overlay.remove(); }
         document.getElementById('sls-provider-close').onclick = close;
@@ -811,9 +912,15 @@
             overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
                 '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
                 '<p style="margin:0 0 24px;font-size:16px;color:#969696;">Remove Lua and Game files for AppID <b>' + productID + '</b>?</p>' +
-                '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-                    '<button id="sls-rm-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
-                    '<button id="sls-rm-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;">Remove</button>' +
+                '<div style="display:flex;flex-direction:column;gap:10px;">' +
+                    '<div style="display:flex;gap:10px;">' +
+                        '<button id="sls-rm-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;padding:0 12px;height:36px;font-size:13px;">Clear App Cache</button>' +
+                        '<button id="sls-rm-clear-all-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;padding:0 12px;height:36px;font-size:13px;">Clear All Cache</button>' +
+                    '</div>' +
+                    '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
+                        '<button id="sls-rm-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
+                        '<button id="sls-rm-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;">Remove</button>' +
+                    '</div>' +
                 '</div>' +
                 '<style>' +
                 ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
@@ -824,9 +931,25 @@
             '</div>';
             document.body.appendChild(overlay);
 
+            var rmClearAppBtn = document.getElementById('sls-rm-clear-app-cache');
+            var rmClearAllBtn = document.getElementById('sls-rm-clear-all-cache');
             var rmCancelBtn = document.getElementById('sls-rm-cancel');
             var rmConfirmBtn = document.getElementById('sls-rm-confirm');
-            trapSteamGamepadModal(overlay, [rmCancelBtn, rmConfirmBtn]);
+            trapSteamGamepadModal(overlay, [
+                [rmClearAppBtn, rmClearAllBtn],
+                [rmCancelBtn, rmConfirmBtn]
+            ]);
+
+            if (rmClearAppBtn) {
+                rmClearAppBtn.onclick = function() {
+                    clearAppCache(productID, rmClearAppBtn);
+                };
+            }
+            if (rmClearAllBtn) {
+                rmClearAllBtn.onclick = function() {
+                    clearAllCache(productID, rmClearAllBtn);
+                };
+            }
 
             rmCancelBtn.onclick = function() { overlay.remove(); };
             rmConfirmBtn.onclick = function() {

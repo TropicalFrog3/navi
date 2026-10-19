@@ -14,6 +14,8 @@
 #include "config.hpp"
 #include "utils.hpp"
 #include "atomic_file.hpp"
+#include "ticket.hpp"
+#include "paths.hpp"
 
 #include <thread>
 #include <atomic>
@@ -1268,6 +1270,55 @@ namespace StoreInject
                                 send(new_socket, response, strlen(response), 0);
                                 close(new_socket);
                                 handled = true;
+                            }
+                        }
+                        else if (request.find("/clear-cache?id=") != std::string::npos)
+                        {
+                            size_t idPos = request.find("id=");
+                            size_t endPos = request.find_first_of(" &", idPos);
+                            if (endPos != std::string::npos)
+                            {
+                                std::string idStr = request.substr(idPos + 3, endPos - (idPos + 3));
+                                try
+                                {
+                                    uint32_t appId = std::stoul(idStr);
+                                    Paths::clearAppCache(appId);
+                                    Ticket::ticketMap.erase(appId);
+                                    Ticket::encryptedTicketMap.erase(appId);
+                                    g_pendingRestartApps.erase(appId);
+                                    LOG_INFO("StoreInject: Cleared cache for AppID %u\n", appId);
+                                    std::string respBody = StoreInjectView::renderSuccessJson("Cleared cache for AppID " + idStr);
+                                    std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                    send(new_socket, response.c_str(), response.size(), 0);
+                                    close(new_socket);
+                                    handled = true;
+                                }
+                                catch (...)
+                                {
+                                    close(new_socket);
+                                    handled = false;
+                                }
+                            }
+                        }
+                        else if (request.find("/clear-all-cache") != std::string::npos)
+                        {
+                            try
+                            {
+                                Paths::clearAllCache();
+                                Ticket::ticketMap.clear();
+                                Ticket::encryptedTicketMap.clear();
+                                g_pendingRestartApps.clear();
+                                LOG_INFO("StoreInject: Cleared all cache\n");
+                                std::string respBody = StoreInjectView::renderSuccessJson("Cleared all cache");
+                                std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            }
+                            catch (...)
+                            {
+                                close(new_socket);
+                                handled = false;
                             }
                         }
                         else if (request.find("/remove?id=") != std::string::npos)
