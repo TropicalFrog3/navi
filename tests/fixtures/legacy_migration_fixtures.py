@@ -105,3 +105,47 @@ def populate_legacy_steam_sh_audit(home: Path):
         f'#!/bin/sh\nexport LD_AUDIT="{home}/.local/share/SLSsteam/SLSsteam.so"\nexec {launcher_bak} "$@"\n'
     )
     launcher.chmod(0o755)
+
+
+def populate_legacy_headcrab_client_sh(home: Path):
+    """
+    Sets up a legacy Headcrab/SLSsteam wrapper steam.sh that exports INJECT_SLS
+    and sources client.sh (the original Valve launcher), with NO steam.sh.bak.
+    """
+    steam_dir = home / ".local" / "share" / "Steam"
+    steam_dir.mkdir(parents=True, exist_ok=True)
+    client_sh = steam_dir / "client.sh"
+    launcher = steam_dir / "steam.sh"
+
+    client_sh.write_text(
+        "#!/usr/bin/env bash\n# Native original launcher from Valve\necho 'Native Valve steam.sh'\nexec /usr/bin/true \"$@\"\n"
+    )
+    client_sh.chmod(0o755)
+
+    launcher.write_text(
+        f"#!/usr/bin/env bash\n"
+        f'STEAM_CLIENT="{client_sh}"\n'
+        f'INJECT_SLS="LD_AUDIT={home}/.local/share/SLSsteam/library-inject.so:{home}/.local/share/SLSsteam/SLSsteam.so"\n'
+        f"export $INJECT_SLS\n"
+        f'. "$STEAM_CLIENT" "$@"\n'
+    )
+    launcher.chmod(0o555)
+
+
+def populate_legacy_steam_sh_inline_audit(home: Path):
+    """
+    Sets up a steam.sh containing an inline SLSsteam LD_AUDIT line without any client.sh or .bak file.
+    """
+    steam_dir = home / ".local" / "share" / "Steam"
+    steam_dir.mkdir(parents=True, exist_ok=True)
+    launcher = steam_dir / "steam.sh"
+
+    launcher.write_text(
+        f"#!/usr/bin/env bash\n"
+        f"# Native steam launcher with inline legacy injection\n"
+        f'export LD_AUDIT="{home}/.local/share/SLSsteam/SLSsteam.so"\n'
+        f'echo "Starting steam natively"\n'
+        f'exec /usr/bin/true "$@"\n'
+    )
+    launcher.chmod(0o755)
+

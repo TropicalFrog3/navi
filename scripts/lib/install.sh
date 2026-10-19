@@ -48,9 +48,9 @@ install_safe_wrapper() {
         local bak="$steam_root/steam.sh.bak"
         if [ -f "$bak" ] && [ -f "$launcher" ] && grep -qE 'LD_AUDIT' "$launcher" 2>/dev/null; then
             if ! grep -qE 'LD_AUDIT' "$bak" 2>/dev/null; then
-                cp -f "$launcher" "$launcher.headcrab-wrapper.bak"
                 cp -f "$bak" "$launcher"
                 chmod 755 "$launcher"
+                rm -f "$bak"
                 log_info "Restored native steam.sh launcher from backup."
             fi
         fi

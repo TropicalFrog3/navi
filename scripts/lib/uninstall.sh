@@ -153,11 +153,15 @@ do_uninstall() {
         local headcrab_bak="$steam_root/steam.sh.headcrab-wrapper.bak"
 
         if [ -f "$headcrab_bak" ]; then
-            mv -f "$headcrab_bak" "$launcher"
-            chmod 755 "$launcher"
-            log_info "Restored native steam.sh from $headcrab_bak"
+            if ! grep -qE 'LD_AUDIT' "$headcrab_bak" 2>/dev/null; then
+                mv -f "$headcrab_bak" "$launcher"
+                chmod 755 "$launcher"
+                log_info "Restored native steam.sh from $headcrab_bak"
+            else
+                rm -f "$headcrab_bak"
+            fi
         elif [ -f "$bak" ] && [ -f "$launcher" ]; then
-            if grep -qE 'LD_AUDIT' "$launcher" 2>/dev/null; then
+            if grep -qE 'LD_AUDIT' "$launcher" 2>/dev/null && ! grep -qE 'LD_AUDIT' "$bak" 2>/dev/null; then
                 mv -f "$bak" "$launcher"
                 chmod 755 "$launcher"
                 log_info "Restored native steam.sh from $bak"

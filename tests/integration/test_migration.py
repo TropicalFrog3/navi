@@ -7,7 +7,10 @@ from tests.fixtures.legacy_migration_fixtures import (
     populate_legacy_accela,
     populate_legacy_slssteam,
     populate_legacy_steam_sh_audit,
+    populate_legacy_headcrab_client_sh,
+    populate_legacy_steam_sh_inline_audit,
 )
+
 
 
 def test_accela_manifest_migration_and_cleanup(fake_home, run_installer):
@@ -170,3 +173,65 @@ def test_legacy_slssteam_audit_lines_replaced(fake_home, run_installer):
     # Wrapper backup should have been migrated to .pre-navi.bak
     assert (fake_home / ".local" / "bin" / "steam.pre-navi.bak").is_file()
     assert not (fake_home / ".local" / "bin" / "steam.pre-slssteam.bak").exists()
+
+
+def test_headcrab_steam_sh_and_client_sh_restoration(fake_home, run_installer):
+    """
+    Test legacy Headcrab steam.sh wrapper restoration from client.sh:
+    - Headcrab renamed steam.sh to client.sh and installed a wrapper steam.sh
+      defining INJECT_SLS with SLSsteam.so and sourcing client.sh.
+    - Migration must restore client.sh over steam.sh, remove client.sh,
+      ensure steam.sh is executable and free of SLSsteam / INJECT_SLS references,
+      and not leave dual-load artifacts across install, update, and uninstall.
+    """
+    populate_legacy_headcrab_client_sh(fake_home)
+    populate_legacy_slssteam(fake_home)
+
+    res_inst = run_installer("install", "--yes")
+    assert res_inst.returncode == 0, f"install failed: {res_inst.stderr}"
+
+    launcher = fake_home / ".local" / "share" / "Steam" / "steam.sh"
+    client_sh = fake_home / ".local" / "share" / "Steam" / "client.sh"
+
+    assert launcher.is_file(), "steam.sh should exist"
+    assert not client_sh.exists(), "client.sh should be removed after being restored over steam.sh"
+
+    launcher_text = launcher.read_text()
+    assert "Native Valve steam.sh" in launcher_text, "Original Valve content from client.sh should be restored"
+    assert "SLSsteam" not in launcher_text, "steam.sh should not contain SLSsteam references"
+    assert "INJECT_SLS" not in launcher_text, "steam.sh should not contain INJECT_SLS references"
+    assert (launcher.stat().st_mode & 0o111) != 0, "steam.sh must be executable"
+
+    # Verify update maintains clean steam.sh
+    res_upd = run_installer("update", "--yes")
+    assert res_upd.returncode == 0, f"update failed: {res_upd.stderr}"
+    launcher_text_upd = launcher.read_text()
+    assert "Native Valve steam.sh" in launcher_text_upd
+    assert "SLSsteam" not in launcher_text_upd
+
+    # Verify uninstall maintains clean steam.sh and doesn't re-introduce wrappers
+    res_uninst = run_installer("uninstall", "--yes")
+    assert res_uninst.returncode == 0, f"uninstall failed: {res_uninst.stderr}"
+    launcher_text_uninst = launcher.read_text()
+    assert "Native Valve steam.sh" in launcher_text_uninst
+    assert "SLSsteam" not in launcher_text_uninst
+
+
+def test_legacy_steam_sh_inline_audit_stripped(fake_home, run_installer):
+    """
+    Test legacy steam.sh inline audit stripping:
+    - If steam.sh has inline SLSsteam references but no client.sh or .bak exists,
+      the SLSsteam / INJECT_SLS lines should be stripped in-place and steam.sh preserved.
+    """
+    populate_legacy_steam_sh_inline_audit(fake_home)
+
+    res_inst = run_installer("install", "--yes")
+    assert res_inst.returncode == 0, f"install failed: {res_inst.stderr}"
+
+    launcher = fake_home / ".local" / "share" / "Steam" / "steam.sh"
+    assert launcher.is_file()
+    launcher_text = launcher.read_text()
+    assert "SLSsteam" not in launcher_text, "In-place stripping failed to remove SLSsteam lines"
+    assert "Starting steam natively" in launcher_text, "Surrounding native code must be preserved"
+    assert (launcher.stat().st_mode & 0o111) != 0, "steam.sh must remain executable"
+

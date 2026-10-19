@@ -85,6 +85,82 @@ clean_legacy_sls_integration() {
             fi
         done
     fi
+
+    # Native Steam launcher (steam.sh) restoration and cleanup
+    local steam_roots=(
+        "$base/.local/share/Steam"
+        "$base/.steam/steam"
+        "$base/.steam/root"
+        "$base/.var/app/com.valvesoftware.Steam/.local/share/Steam"
+    )
+    local visited_roots=""
+
+    for sdir in "${steam_roots[@]}"; do
+        [ -d "$sdir" ] || continue
+        local canonical_dir
+        canonical_dir="$(readlink -f "$sdir" 2>/dev/null || echo "$sdir")"
+        case ":$visited_roots:" in
+            *:"$canonical_dir":*) continue ;;
+        esac
+        visited_roots="$visited_roots:$canonical_dir"
+
+        local launcher="$canonical_dir/steam.sh"
+        [ -f "$launcher" ] || continue
+
+        if grep -qiE 'SLSsteam|INJECT_SLS|headcrab' "$launcher" 2>/dev/null; then
+            local client_sh="$canonical_dir/client.sh"
+            local bak_cand=""
+
+            if [ -f "$canonical_dir/steam.sh.bak" ] && ! grep -qiE 'SLSsteam|INJECT_SLS' "$canonical_dir/steam.sh.bak" 2>/dev/null; then
+                bak_cand="$canonical_dir/steam.sh.bak"
+            elif [ -f "$canonical_dir/steam.sh.headcrab-wrapper.bak" ] && ! grep -qiE 'SLSsteam|INJECT_SLS' "$canonical_dir/steam.sh.headcrab-wrapper.bak" 2>/dev/null; then
+                bak_cand="$canonical_dir/steam.sh.headcrab-wrapper.bak"
+            fi
+
+            if [ -f "$client_sh" ] && ! grep -qiE 'SLSsteam|INJECT_SLS' "$client_sh" 2>/dev/null; then
+                if [ "${DRY_RUN:-0}" -eq 1 ]; then
+                    type log_dry >/dev/null 2>&1 && log_dry "Restore $launcher from $client_sh and remove $client_sh"
+                else
+                    chmod u+w "$launcher" 2>/dev/null || true
+                    rm -f "$launcher" 2>/dev/null || true
+                    mv -f "$client_sh" "$launcher"
+                    chmod 755 "$launcher" 2>/dev/null || chmod +x "$launcher" 2>/dev/null || true
+                    type log_info >/dev/null 2>&1 && log_info "Restored native steam.sh from $client_sh"
+                fi
+            elif [ -n "$bak_cand" ]; then
+                if [ "${DRY_RUN:-0}" -eq 1 ]; then
+                    type log_dry >/dev/null 2>&1 && log_dry "Restore $launcher from $bak_cand and remove $bak_cand"
+                else
+                    chmod u+w "$launcher" 2>/dev/null || true
+                    rm -f "$launcher" 2>/dev/null || true
+                    mv -f "$bak_cand" "$launcher"
+                    chmod 755 "$launcher" 2>/dev/null || chmod +x "$launcher" 2>/dev/null || true
+                    type log_info >/dev/null 2>&1 && log_info "Restored native steam.sh from $bak_cand"
+                fi
+            else
+                if [ "${DRY_RUN:-0}" -eq 1 ]; then
+                    type log_dry >/dev/null 2>&1 && log_dry "Strip legacy SLSsteam and INJECT_SLS references from $launcher in-place"
+                else
+                    chmod u+w "$launcher" 2>/dev/null || true
+                    sed -i -E '/[Ss][Ll][Ss][Ss][Tt][Ee][Aa][Mm]|[Ii][Nn][Jj][Ee][Cc][Tt]_[Ss][Ll][Ss]/d' "$launcher" 2>/dev/null || true
+                    chmod 755 "$launcher" 2>/dev/null || chmod +x "$launcher" 2>/dev/null || true
+                    type log_info >/dev/null 2>&1 && log_info "Stripped legacy SLS references from $launcher"
+                fi
+            fi
+        fi
+
+        # Clean up any lingering contaminated backup files in the steam root
+        for bak_file in "$canonical_dir"/steam.sh.bak "$canonical_dir"/steam.sh.headcrab-wrapper.bak "$canonical_dir"/steam.sh.headcrab-*; do
+            [ -f "$bak_file" ] || continue
+            if grep -qiE 'SLSsteam|INJECT_SLS|headcrab' "$bak_file" 2>/dev/null; then
+                if [ "${DRY_RUN:-0}" -eq 1 ]; then
+                    type log_dry >/dev/null 2>&1 && log_dry "Remove contaminated backup: $bak_file"
+                else
+                    rm -f "$bak_file" 2>/dev/null || true
+                fi
+            fi
+        done
+    done
 }
 
 migrate_legacy_manifests() {
