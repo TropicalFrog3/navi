@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "config.hpp"
 #include "atomic_file.hpp"
+#include "storeinject_view.hpp"
 
 #include <filesystem>
 #include <fstream>
@@ -168,3 +169,43 @@ TEST_F(ConfigUnitTest, ScanLuaPluginsAndUpdateConfig)
     scanLuaPluginsAndUpdateConfig();
     EXPECT_FALSE(g_config.isAddedAppId(12345));
 }
+
+TEST_F(ConfigUnitTest, ApiKeysOverlayDirectConfigSync)
+{
+    ASSERT_TRUE(g_config.createFile());
+    ASSERT_TRUE(g_config.loadSettings(true));
+
+    // 1. Test updateApiAuth and loadSettings round-trip with non-empty keys
+    EXPECT_TRUE(g_config.updateApiAuth("ryuu_secret_1", "dpbx_secret_2", "hubcap_secret_3"));
+    EXPECT_TRUE(g_config.loadSettings(true));
+    EXPECT_EQ(g_config.ryuuKey.get(), "ryuu_secret_1");
+    EXPECT_EQ(g_config.depotBoxKey.get(), "dpbx_secret_2");
+    EXPECT_EQ(g_config.hubcapKey.get(), "hubcap_secret_3");
+
+    // 2. Test round-trip clearing non-empty keys back to empty string
+    EXPECT_TRUE(g_config.updateApiAuth("", "", ""));
+    EXPECT_TRUE(g_config.loadSettings(true));
+    EXPECT_EQ(g_config.ryuuKey.get(), "");
+    EXPECT_EQ(g_config.depotBoxKey.get(), "");
+    EXPECT_EQ(g_config.hubcapKey.get(), "");
+
+    // 3. Test StoreInjectView::renderApiKeysJson format and escaping
+    std::string json = StoreInjectView::renderApiKeysJson("k_ryuu", "k_dpbx", "k_hubcap");
+    EXPECT_EQ(json, "{\"success\":true,\"ryuu\":\"k_ryuu\",\"dpbx\":\"k_dpbx\",\"hubcap\":\"k_hubcap\"}");
+
+    // Test escaping in renderApiKeysJson
+    std::string jsonEsc = StoreInjectView::renderApiKeysJson("key\"with\"quotes", "key\\with\\backslash", "");
+    EXPECT_EQ(jsonEsc, "{\"success\":true,\"ryuu\":\"key\\\"with\\\"quotes\",\"dpbx\":\"key\\\\with\\\\backslash\",\"hubcap\":\"\"}");
+
+    // 4. Test store-page-script.js does not read provider.key from localStorage and fetches /api-keys
+    std::filesystem::path scriptPath = "res/inject-scripts/store-page-script.js";
+    ASSERT_TRUE(std::filesystem::exists(scriptPath));
+    std::ifstream sf(scriptPath);
+    ASSERT_TRUE(sf.is_open());
+    std::string scriptContent((std::istreambuf_iterator<char>(sf)), std::istreambuf_iterator<char>());
+    sf.close();
+
+    EXPECT_EQ(scriptContent.find("localStorage.getItem(provider.key)"), std::string::npos);
+    EXPECT_NE(scriptContent.find("/api-keys"), std::string::npos);
+}
+

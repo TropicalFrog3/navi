@@ -92,7 +92,8 @@ UNIT_TEST_PROD_SRCS := \
 	src/presenter/apps.cpp \
 	src/presenter/autoupdate.cpp \
 	src/presenter/luagenerator.cpp \
-	src/presenter/nativeinstall.cpp
+	src/presenter/nativeinstall.cpp \
+	src/view/storeinject_view.cpp
 
 UNIT_TEST_PROD_OBJS := $(UNIT_TEST_PROD_SRCS:src/%.cpp=obj/$(FLAGSSHA)/%.o)
 UNIT_TEST_SDK_SRCS := $(filter src/model/sdk/%,$(UNIT_TEST_PROD_SRCS))

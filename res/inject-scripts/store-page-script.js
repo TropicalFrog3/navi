@@ -201,10 +201,48 @@
         });
     }
 
+    function sanitizeSeedKey(val) {
+        if (!val || val.indexOf('%') === 0) return '';
+        return val;
+    }
+
+    var configApiKeys = {
+        'sls-ryuu-key': sanitizeSeedKey('%RYUU_KEY%'),
+        'sls-dpbx-key': sanitizeSeedKey('%DPBX_KEY%'),
+        'sls-hubcap-key': sanitizeSeedKey('%HUBCAP_KEY%')
+    };
+
+    try {
+        localStorage.removeItem('sls-ryuu-key');
+        localStorage.removeItem('sls-dpbx-key');
+        localStorage.removeItem('sls-hubcap-key');
+    } catch (_) {}
+
+    function fetchConfigApiKeys(onLoaded) {
+        fetch('http://127.0.0.1:9001/api-keys')
+            .then(function(res) {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(function(data) {
+                if (data && typeof data === 'object') {
+                    if (typeof data.ryuu === 'string') configApiKeys['sls-ryuu-key'] = data.ryuu;
+                    if (typeof data.dpbx === 'string') configApiKeys['sls-dpbx-key'] = data.dpbx;
+                    if (typeof data.hubcap === 'string') configApiKeys['sls-hubcap-key'] = data.hubcap;
+                }
+                if (typeof onLoaded === 'function') onLoaded(configApiKeys);
+            })
+            .catch(function() {
+                if (typeof onLoaded === 'function') onLoaded(configApiKeys);
+            });
+    }
+
     function sendApiKeys() {
-        var ryuu = localStorage.getItem('sls-ryuu-key') || '%RYUU_KEY%';
-        var dpbx = localStorage.getItem('sls-dpbx-key') || '%DPBX_KEY%';
-        var hubcap = localStorage.getItem('sls-hubcap-key') || '%HUBCAP_KEY%';
+        var ryuu = configApiKeys['sls-ryuu-key'] || '';
+        var dpbx = configApiKeys['sls-dpbx-key'] || '';
+        var hubcap = configApiKeys['sls-hubcap-key'] || '';
+
+        fetch('http://127.0.0.1:9001/set-api-keys?ryuu=' + encodeURIComponent(ryuu) + '&dpbx=' + encodeURIComponent(dpbx) + '&hubcap=' + encodeURIComponent(hubcap)).catch(function() {});
         window.location.hash = 'sls-auth-RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
     }
 
@@ -699,7 +737,7 @@
         var rows = '';
         order.forEach(function(providerIndex, position) {
             var provider = luaProviders[providerIndex];
-            var apiKey = localStorage.getItem(provider.key) || '';
+            var apiKey = configApiKeys[provider.key] || '';
             var getKeyBtn = (provider.url && provider.url !== '#') ?
                 '<button data-sls-getkey="' + providerIndex + '" class="Focusable" tabindex="-1" role="button" title="Get API Key" style="color:#dcdedf;font-size:12px;margin-left:4px;padding:2px 8px;border:1px solid #3d4450;border-radius:2px;background:rgba(172,178,201,0.14);cursor:pointer;">Get Key</button>' : '';
                 
@@ -738,6 +776,17 @@
             '</div>';
         document.body.appendChild(overlay);
         syncModalUI(appid);
+
+        fetchConfigApiKeys(function(keys) {
+            overlay.querySelectorAll('[data-sls-api-key]').forEach(function(input) {
+                if (document.activeElement === input) return;
+                var pIdx = parseInt(input.getAttribute('data-sls-api-key'), 10);
+                var prov = luaProviders[pIdx];
+                if (prov && keys[prov.key] !== undefined) {
+                    input.value = keys[prov.key] || '';
+                }
+            });
+        });
 
         // Controller support: collect interactive elements into a 2D grid
         var modalButtons = [
@@ -799,8 +848,10 @@
         overlay.querySelectorAll('[data-sls-api-key]').forEach(function(input) {
             function saveApiKey() {
                 var provider = luaProviders[parseInt(input.getAttribute('data-sls-api-key'), 10)];
-                localStorage.setItem(provider.key, input.value);
-                sendApiKeys();
+                if (provider) {
+                    configApiKeys[provider.key] = input.value;
+                    sendApiKeys();
+                }
             }
             input.addEventListener('blur', saveApiKey);
             input.addEventListener('keydown', function(event) {
@@ -977,9 +1028,9 @@
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
-        var currentRyuu = localStorage.getItem('sls-ryuu-key') || '%RYUU_KEY%';
-        var currentDpbx = localStorage.getItem('sls-dpbx-key') || '%DPBX_KEY%';
-        var currentHubcap = localStorage.getItem('sls-hubcap-key') || '%HUBCAP_KEY%';
+        var currentRyuu = configApiKeys['sls-ryuu-key'] || '';
+        var currentDpbx = configApiKeys['sls-dpbx-key'] || '';
+        var currentHubcap = configApiKeys['sls-hubcap-key'] || '';
 
         var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">' +
             '<!-- Title bar -->' +
@@ -1034,6 +1085,15 @@
         overlay.appendChild(style);
         document.body.appendChild(overlay);
 
+        fetchConfigApiKeys(function(keys) {
+            var elH = document.getElementById('sls-hubcap');
+            var elR = document.getElementById('sls-ryuu');
+            var elD = document.getElementById('sls-dpbx');
+            if (elH && document.activeElement !== elH) elH.value = keys['sls-hubcap-key'] || '';
+            if (elR && document.activeElement !== elR) elR.value = keys['sls-ryuu-key'] || '';
+            if (elD && document.activeElement !== elD) elD.value = keys['sls-dpbx-key'] || '';
+        });
+
         requestAnimationFrame(function() {
             overlay.style.opacity = '1';
             var card = document.getElementById('sls-modal-card');
@@ -1065,10 +1125,10 @@
             var hubcap = document.getElementById('sls-hubcap').value;
             var ryuu = document.getElementById('sls-ryuu').value;
             var dpbx = document.getElementById('sls-dpbx').value;
-            localStorage.setItem('sls-hubcap-key', hubcap);
-            localStorage.setItem('sls-ryuu-key', ryuu);
-            localStorage.setItem('sls-dpbx-key', dpbx);
-            window.location.hash = 'sls-auth-RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
+            configApiKeys['sls-hubcap-key'] = hubcap;
+            configApiKeys['sls-ryuu-key'] = ryuu;
+            configApiKeys['sls-dpbx-key'] = dpbx;
+            sendApiKeys();
             close();
 
             var toast = document.createElement('div');

@@ -49,6 +49,11 @@ namespace StoreInjectView
      */
     std::string renderLuaAppsJson(const std::set<uint32_t>& appIds);
 
+    /**
+     * Render JSON response for /api-keys endpoint.
+     */
+    std::string renderApiKeysJson(const std::string& ryuuKey, const std::string& depotBoxKey, const std::string& hubcapKey);
+
     struct CheckViewModel {
         bool exists{false};
         bool hasLua{false};
@@ -100,6 +105,7 @@ namespace StoreInject
     using StoreInjectView::renderSuccessJson;
     using StoreInjectView::renderErrorJson;
     using StoreInjectView::renderLuaAppsJson;
+    using StoreInjectView::renderApiKeysJson;
     using StoreInjectView::renderCheckJson;
     using StoreInjectView::renderDepotsJson;
 }

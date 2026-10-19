@@ -101,6 +101,24 @@ namespace StoreInjectView
         return json;
     }
 
+    std::string renderApiKeysJson(const std::string& ryuuKey, const std::string& depotBoxKey, const std::string& hubcapKey)
+    {
+        auto escapeJson = [](const std::string& str) {
+            std::string escaped;
+            escaped.reserve(str.size());
+            for (char c : str)
+            {
+                if (c == '"' || c == '\\') escaped += '\\';
+                escaped += c;
+            }
+            return escaped;
+        };
+
+        return "{\"success\":true,\"ryuu\":\"" + escapeJson(ryuuKey) +
+               "\",\"dpbx\":\"" + escapeJson(depotBoxKey) +
+               "\",\"hubcap\":\"" + escapeJson(hubcapKey) + "\"}";
+    }
+
     std::string renderCheckJson(const CheckViewModel& info)
     {
         std::string escapedProvider;

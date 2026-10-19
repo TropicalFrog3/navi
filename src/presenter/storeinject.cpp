@@ -769,10 +769,10 @@ namespace StoreInject
                                     hubcap = morr;
                                 }
 
-                                if (!ryuu.empty()) g_config.ryuuKey = ryuu;
-                                if (!dpbx.empty()) g_config.depotBoxKey = dpbx;
-                                if (!hubcap.empty()) g_config.hubcapKey = hubcap;
-                                g_config.updateApiAuth(g_config.ryuuKey.get(), g_config.depotBoxKey.get(), g_config.hubcapKey.get());
+                                g_config.ryuuKey = ryuu;
+                                g_config.depotBoxKey = dpbx;
+                                g_config.hubcapKey = hubcap;
+                                g_config.updateApiAuth(ryuu, dpbx, hubcap);
                             }
                         }
                         searchPos = cEnd == std::string::npos ? authStart : cEnd;
@@ -843,6 +843,72 @@ namespace StoreInject
                             send(new_socket, StoreInjectView::CORS_PREFLIGHT_RESPONSE, strlen(StoreInjectView::CORS_PREFLIGHT_RESPONSE), 0);
                             close(new_socket);
                             handled = true;
+                        }
+                        else if (request.find("/set-api-keys") != std::string::npos)
+                        {
+                            try {
+                                size_t qPos = request.find("/set-api-keys");
+                                size_t lineEnd = request.find("\r\n", qPos);
+                                std::string reqLine = request.substr(qPos, lineEnd == std::string::npos ? std::string::npos : lineEnd - qPos);
+                                size_t qmark = reqLine.find('?');
+                                std::string queryString = (qmark != std::string::npos) ? reqLine.substr(qmark + 1) : "";
+                                size_t spacePos = queryString.find(' ');
+                                if (spacePos != std::string::npos) queryString = queryString.substr(0, spacePos);
+
+                                auto extractQueryParam = [&](const std::string& paramName) -> std::string {
+                                    size_t p = 0;
+                                    while ((p = queryString.find(paramName + "=", p)) != std::string::npos) {
+                                        if (p == 0 || queryString[p - 1] == '&' || queryString[p - 1] == '?') {
+                                            size_t vStart = p + paramName.length() + 1;
+                                            size_t vEnd = queryString.find('&', vStart);
+                                            if (vEnd == std::string::npos) vEnd = queryString.length();
+                                            return urlDecode(queryString.substr(vStart, vEnd - vStart));
+                                        }
+                                        p += paramName.length() + 1;
+                                    }
+                                    return "";
+                                };
+
+                                std::string ryuu = extractQueryParam("ryuu");
+                                std::string dpbx = extractQueryParam("dpbx");
+                                std::string hubcap = extractQueryParam("hubcap");
+                                std::string morr = extractQueryParam("morr");
+                                if (hubcap.empty() && !morr.empty()) hubcap = morr;
+
+                                g_config.ryuuKey = ryuu;
+                                g_config.depotBoxKey = dpbx;
+                                g_config.hubcapKey = hubcap;
+                                g_config.updateApiAuth(ryuu, dpbx, hubcap);
+
+                                std::string respBody = StoreInjectView::renderSuccessJson("API keys saved");
+                                std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            } catch (...) {
+                                std::string respBody = StoreInjectView::renderErrorJson("Failed to save API keys");
+                                std::string response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            }
+                        }
+                        else if (request.find("/api-keys") != std::string::npos)
+                        {
+                            try {
+                                g_config.loadSettings();
+                                std::string respBody = StoreInjectView::renderApiKeysJson(g_config.ryuuKey.get(), g_config.depotBoxKey.get(), g_config.hubcapKey.get());
+                                std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            } catch (...) {
+                                std::string respBody = StoreInjectView::renderErrorJson("Failed to load API keys");
+                                std::string response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            }
                         }
                         else if (request.find("/manual-install") != std::string::npos)
                         {

@@ -841,11 +841,11 @@ namespace CDPInject
         std::string hubcapKey = g_config.hubcapKey.get();
 
         size_t pos;
-        if ((pos = storePageScript.find("%RYUU_KEY%")) != std::string::npos)
+        while ((pos = storePageScript.find("%RYUU_KEY%")) != std::string::npos)
             storePageScript.replace(pos, 10, ryuuKey);
-        if ((pos = storePageScript.find("%DPBX_KEY%")) != std::string::npos)
+        while ((pos = storePageScript.find("%DPBX_KEY%")) != std::string::npos)
             storePageScript.replace(pos, 10, dpbxKey);
-        if ((pos = storePageScript.find("%HUBCAP_KEY%")) != std::string::npos)
+        while ((pos = storePageScript.find("%HUBCAP_KEY%")) != std::string::npos)
             storePageScript.replace(pos, 12, hubcapKey);
 
         for (const auto& wsUrl : pagesToInject)
