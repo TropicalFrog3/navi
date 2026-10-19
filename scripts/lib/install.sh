@@ -242,10 +242,10 @@ do_install() {
     mkdir -p "$navi_share/path"
 
     if [ -f "$bin_dir/libnavi.so" ]; then
-        cp -f "$bin_dir/libnavi.so" "$navi_share/libnavi.so"
+        cp -f --remove-destination "$bin_dir/libnavi.so" "$navi_share/libnavi.so"
     fi
     if [ -f "$bin_dir/library-inject.so" ]; then
-        cp -f "$bin_dir/library-inject.so" "$navi_share/library-inject.so"
+        cp -f --remove-destination "$bin_dir/library-inject.so" "$navi_share/library-inject.so"
     fi
 
     if [ -n "$res_dir" ] && [ -d "$res_dir" ]; then
@@ -258,8 +258,8 @@ do_install() {
     if [ -d "$flatpak_steam_dir" ] || (command -v flatpak >/dev/null 2>&1 && flatpak info com.valvesoftware.Steam >/dev/null 2>&1); then
         local flatpak_navi="$flatpak_steam_dir/.local/share/navi"
         mkdir -p "$flatpak_navi"
-        [ -f "$bin_dir/libnavi.so" ] && cp -f "$bin_dir/libnavi.so" "$flatpak_navi/"
-        [ -f "$bin_dir/library-inject.so" ] && cp -f "$bin_dir/library-inject.so" "$flatpak_navi/"
+        [ -f "$bin_dir/libnavi.so" ] && cp -f --remove-destination "$bin_dir/libnavi.so" "$flatpak_navi/"
+        [ -f "$bin_dir/library-inject.so" ] && cp -f --remove-destination "$bin_dir/library-inject.so" "$flatpak_navi/"
         if [ -n "$res_dir" ] && [ -d "$res_dir" ]; then
             mkdir -p "$flatpak_navi/res"
             smart_copy "$res_dir" "$flatpak_navi/res"

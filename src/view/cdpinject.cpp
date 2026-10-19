@@ -417,6 +417,7 @@ namespace CDPInject
             page.url = jsonGetString(obj, "url");
             page.title = jsonGetString(obj, "title");
             page.webSocketDebuggerUrl = jsonGetString(obj, "webSocketDebuggerUrl");
+            page.type = jsonGetString(obj, "type");
             pages.push_back(std::move(page));
         }
 

@@ -82,6 +82,8 @@ namespace StoreInject
     static std::thread g_autoThread;
     static std::set<uint32_t> g_pendingRestartApps;
     static std::atomic<bool> g_shouldStop(false);
+    static std::atomic<int> g_serverFd{-1};
+    static std::atomic<bool> g_shutdownCalled{false};
 
     struct ManualFile {
         std::string name;
@@ -477,7 +479,7 @@ namespace StoreInject
         LOG_INFO("StoreInject: Automation worker started\n");
         
         std::string lastProcessedTimestamp = "";
-        int checkCounter = 0;
+        int checkCounter = 100;
 
         while (!g_shouldStop)
         {
@@ -779,9 +781,11 @@ namespace StoreInject
                     }
 
                     // Trigger the C++ CDP injector every 5 seconds to inject new pages
-                    if (checkCounter++ >= 1)
+                    if (checkCounter++ >= 100)
                     {
+                        if (g_shouldStop) break;
                         CDPInject::injectStorePages();
+                        if (g_shouldStop) break;
                         RemoveLua::injectRemoveLuaScript();
                         checkCounter = 0;
                     }
@@ -800,7 +804,8 @@ namespace StoreInject
         int opt = 1;
         int addrlen = sizeof(address);
 
-        if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) return;
+        if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) return;
+        g_serverFd = server_fd;
         setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
 
         address.sin_family = AF_INET;
@@ -809,12 +814,14 @@ namespace StoreInject
 
         if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
         {
-            close(server_fd);
+            int fd = g_serverFd.exchange(-1);
+            if (fd >= 0) close(fd);
             return;
         }
         if (listen(server_fd, 5) < 0)
         {
-            close(server_fd);
+            int fd = g_serverFd.exchange(-1);
+            if (fd >= 0) close(fd);
             return;
         }
 
@@ -1643,12 +1650,14 @@ namespace StoreInject
                 }
             }
         }
-        close(server_fd);
+        int fd = g_serverFd.exchange(-1);
+        if (fd >= 0) close(fd);
     }
     // patchIndexHtml removed.
 
     void init()
     {
+        g_shutdownCalled = false;
         g_shouldStop = false;
         
         // Start the callback server immediately as it's just a passive listener
@@ -1666,8 +1675,14 @@ namespace StoreInject
 
     void shutdown()
     {
+        if (g_shutdownCalled.exchange(true)) return;
         g_shouldStop = true;
-        StoreInjectView::removeStoreInjectScript();
+        int fd = g_serverFd.exchange(-1);
+        if (fd >= 0)
+        {
+            ::shutdown(fd, SHUT_RDWR);
+            ::close(fd);
+        }
         if (g_workerThread.joinable())
         {
             g_workerThread.join();

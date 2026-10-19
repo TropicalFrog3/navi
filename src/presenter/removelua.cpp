@@ -71,6 +71,7 @@ namespace RemoveLua
         for (auto& page : pages)
         {
             if (page.webSocketDebuggerUrl.empty()) continue;
+            if ((!page.type.empty() && page.type != "page") || page.url.empty() || page.url == "about:blank") continue;
 
             if (page.title == "SharedJSContext") {
                 if (!CDPInject::isScriptInjected(page.webSocketDebuggerUrl, "!!window.__slsAutoCollectionInjected"))

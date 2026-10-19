@@ -309,7 +309,10 @@ unsigned int la_version(unsigned int)
 	return LAV_CURRENT;
 }
 
-unsigned int la_objopen(struct link_map *map, __attribute__((unused)) Lmid_t lmid, __attribute__((unused)) uintptr_t *cookie)
+static uintptr_t *g_steamclientCookie = nullptr;
+static uintptr_t *g_steamuiCookie = nullptr;
+
+unsigned int la_objopen(struct link_map *map, __attribute__((unused)) Lmid_t lmid, uintptr_t *cookie)
 {
 	// The loader may provide an unnamed link map during early startup.
 	if (!map || !map->l_name)
@@ -321,6 +324,7 @@ unsigned int la_objopen(struct link_map *map, __attribute__((unused)) Lmid_t lmi
 
 	if (name.ends_with("/steamclient.so"))
 	{
+		g_steamclientCookie = cookie;
 		//Analyse modules before any relocations get applied
 		LM_FindModule("steamclient.so", &g_modSteamClient);
 		Decompiler::parseModule(g_modSteamClient);
@@ -336,6 +340,7 @@ unsigned int la_objopen(struct link_map *map, __attribute__((unused)) Lmid_t lmi
 	}
 	if (name.ends_with("/steamui.so"))
 	{
+		g_steamuiCookie = cookie;
 		//Analyse modules before any relocations get applied
 		LM_FindModule("steamui.so", &g_modSteamUI);
 		Decompiler::parseModule(g_modSteamUI);
@@ -365,6 +370,20 @@ unsigned int la_objopen(struct link_map *map, __attribute__((unused)) Lmid_t lmi
 	}
 
 	return 0;
+}
+
+extern "C" unsigned int la_objclose(uintptr_t *cookie)
+{
+	if (cookie != nullptr && (cookie == g_steamclientCookie || cookie == g_steamuiCookie))
+	{
+		StoreInject::shutdown();
+	}
+	return 0;
+}
+
+__attribute__((destructor)) static void onLibraryUnload()
+{
+	StoreInject::shutdown();
 }
 
 void la_preinit(__attribute__((unused)) uintptr_t *cookie)

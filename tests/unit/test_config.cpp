@@ -209,3 +209,32 @@ TEST_F(ConfigUnitTest, ApiKeysOverlayDirectConfigSync)
     EXPECT_NE(scriptContent.find("/api-keys"), std::string::npos);
 }
 
+TEST(ShutdownTest, CleanShutdownAndCdpTargetFiltering)
+{
+    auto readSrc = [](const std::filesystem::path& path) -> std::string {
+        std::ifstream f(path);
+        if (!f.is_open()) return "";
+        return std::string((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    };
+
+    std::string mainSrc = readSrc("src/presenter/main.cpp");
+    ASSERT_FALSE(mainSrc.empty());
+    EXPECT_NE(mainSrc.find("la_objclose"), std::string::npos);
+    EXPECT_NE(mainSrc.find("__attribute__((destructor))"), std::string::npos);
+    EXPECT_NE(mainSrc.find("StoreInject::shutdown()"), std::string::npos);
+
+    std::string storeInjectSrc = readSrc("src/presenter/storeinject.cpp");
+    ASSERT_FALSE(storeInjectSrc.empty());
+    EXPECT_NE(storeInjectSrc.find("g_serverFd"), std::string::npos);
+    EXPECT_NE(storeInjectSrc.find("shutdown("), std::string::npos);
+    EXPECT_NE(storeInjectSrc.find("checkCounter++ >= 100"), std::string::npos);
+
+    std::string cdpInjectSrc = readSrc("src/view/cdpinject.cpp");
+    ASSERT_FALSE(cdpInjectSrc.empty());
+    EXPECT_NE(cdpInjectSrc.find("page.type = jsonGetString(obj, \"type\");"), std::string::npos);
+
+    std::string removeLuaSrc = readSrc("src/presenter/removelua.cpp");
+    ASSERT_FALSE(removeLuaSrc.empty());
+    EXPECT_NE(removeLuaSrc.find("page.type != \"page\""), std::string::npos);
+    EXPECT_NE(removeLuaSrc.find("about:blank"), std::string::npos);
+}

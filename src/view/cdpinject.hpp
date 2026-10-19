@@ -14,6 +14,7 @@ namespace CDPInject
         std::string url;
         std::string title;
         std::string webSocketDebuggerUrl;
+        std::string type;
     };
 
     /**
