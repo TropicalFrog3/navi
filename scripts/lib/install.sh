@@ -98,9 +98,12 @@ EOF
 install_desktop_entries() {
     local sys_apps="/usr/share/applications"
     local user_apps="$HOME/.local/share/applications"
+    local autostart_dir="$HOME/.config/autostart"
+    local desktop_dir="$HOME/Desktop"
 
     if [ "${DRY_RUN:-0}" -eq 1 ]; then
         log_dry "Install desktop integration files into $user_apps"
+        log_dry "Configure desktop autostart and desktop launcher entries"
         return 0
     fi
 
@@ -111,6 +114,92 @@ install_desktop_entries() {
             sed -i "/^Exec=/ { s|^Exec=/|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" /| }" "$user_apps/$name.desktop"
         fi
     done
+
+    # Autostart integration (overrides /etc/xdg/autostart/steam.desktop when Desktop Mode starts)
+    if [ -f "/etc/xdg/autostart/steam.desktop" ] || [ "${NAVI_FORCE_STEAMOS:-0}" = "1" ] || [ -f "$autostart_dir/steam.desktop" ]; then
+        mkdir -p "$autostart_dir"
+        if [ -f "/etc/xdg/autostart/steam.desktop" ]; then
+            cp -f "/etc/xdg/autostart/steam.desktop" "$autostart_dir/steam.desktop"
+            sed -i "/^Exec=/ { s|^Exec=/|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" /| }" "$autostart_dir/steam.desktop"
+        else
+            cat > "$autostart_dir/steam.desktop" <<EOF
+[Desktop Entry]
+Name=Steam
+Exec=env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" /usr/bin/steam -silent %U
+Icon=steam
+Terminal=false
+Type=Application
+Categories=Network;FileTransfer;Game;
+OnlyShowIn=KDE
+EOF
+        fi
+        log_info "Configured desktop autostart launcher at $autostart_dir/steam.desktop"
+    fi
+
+    # User Desktop shortcut integration (~/Desktop/steam.desktop)
+    if [ -e "$desktop_dir/steam.desktop" ] || [ -L "$desktop_dir/steam.desktop" ]; then
+        if [ -L "$desktop_dir/steam.desktop" ]; then
+            local current_link
+            current_link="$(readlink "$desktop_dir/steam.desktop")"
+            if [ "$current_link" != "$user_apps/steam.desktop" ]; then
+                ln -sf "$user_apps/steam.desktop" "$desktop_dir/steam.desktop"
+                log_info "Updated $desktop_dir/steam.desktop symlink to point to Navi wrapper."
+            fi
+        elif [ -f "$desktop_dir/steam.desktop" ]; then
+            sed -i "/^Exec=/ { s|^Exec=/|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" /| }" "$desktop_dir/steam.desktop"
+            log_info "Patched $desktop_dir/steam.desktop with Navi LD_AUDIT wrapper."
+        fi
+    fi
+}
+
+install_steamos_systemd_integration() {
+    local is_steamos=0
+    if [ "${NAVI_FORCE_STEAMOS:-0}" = "1" ] || \
+       [ -f /usr/lib/systemd/user/steam-launcher.service ] || \
+       ( [ -f /etc/os-release ] && grep -qi "steamos" /etc/os-release 2>/dev/null ) || \
+       command -v steamosctl >/dev/null 2>&1; then
+        is_steamos=1
+    fi
+
+    local dropin_dir="$HOME/.config/systemd/user/steam-launcher.service.d"
+    local dropin_file="$dropin_dir/navi.conf"
+    local env_dir="$HOME/.config/environment.d"
+    local env_file="$env_dir/10-navi-path.conf"
+
+    if [ "${DRY_RUN:-0}" -eq 1 ]; then
+        if [ "$is_steamos" -eq 1 ]; then
+            log_dry "Install SteamOS Gaming Mode systemd drop-in at $dropin_file"
+        fi
+        if [ "$is_steamos" -eq 1 ] || [ -d "/usr/lib/environment.d" ] || [ -d "/etc/environment.d" ]; then
+            log_dry "Configure systemd user environment PATH at $env_file"
+        fi
+        return 0
+    fi
+
+    if [ "$is_steamos" -eq 1 ]; then
+        mkdir -p "$dropin_dir"
+        cat > "$dropin_file" <<EOF
+[Service]
+Environment="LD_AUDIT=%h/.local/share/navi/library-inject.so:%h/.local/share/navi/libnavi.so"
+Environment="PATH=%h/.local/bin:%h/.local/share/navi/path:/usr/local/bin:/usr/bin"
+EOF
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl --user daemon-reload 2>/dev/null || true
+        fi
+        log_info "Installed SteamOS Gaming Mode drop-in at $dropin_file"
+    fi
+
+    # systemd environment.d path export (ensures systemd user services find ~/.local/bin)
+    if [ "$is_steamos" -eq 1 ] || [ -d "/usr/lib/environment.d" ] || [ -d "/etc/environment.d" ]; then
+        mkdir -p "$env_dir"
+        cat > "$env_file" <<'EOF'
+PATH=${HOME}/.local/bin:${HOME}/.local/share/navi/path:${PATH}
+EOF
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl --user import-environment PATH 2>/dev/null || true
+        fi
+        log_info "Configured systemd user environment at $env_file"
+    fi
 }
 
 merge_updates_configuration() {
@@ -207,6 +296,7 @@ do_install() {
         fi
         install_safe_wrapper
         install_desktop_entries
+        install_steamos_systemd_integration
         merge_updates_configuration "$REPO_ROOT/res"
         refresh_system_caches
         log_dry "Navi installation preview complete (0 files modified)"
@@ -276,12 +366,15 @@ do_install() {
     # 8. Desktop integration
     install_desktop_entries
 
-    # 9. Configuration & updates.yaml
+    # 9. SteamOS Gaming Mode & systemd integration
+    install_steamos_systemd_integration
+
+    # 10. Configuration & updates.yaml
     if [ -n "$res_dir" ]; then
         merge_updates_configuration "$res_dir"
     fi
 
-    # 10. Refresh caches
+    # 11. Refresh caches
     refresh_system_caches
 
     log_info "Navi installation completed successfully!"

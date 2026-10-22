@@ -59,11 +59,14 @@
         }
         setTimeout(updateFocus, 100);
         
+        function cleanup() {
+            window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
+            window.removeEventListener('vgp_onok', okCatcher, true);
+            window.removeEventListener('vgp_oncancel', cancelCatcher, true);
+        }
         function gamepadCatcher(e) {
             if (!document.body.contains(overlay)) {
-                window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
-                window.removeEventListener('vgp_onok', okCatcher, true);
-                window.removeEventListener('vgp_oncancel', cancelCatcher, true);
+                cleanup();
                 return;
             }
             e.stopPropagation(); if(e.cancelable) e.preventDefault();
@@ -77,14 +80,14 @@
             updateFocus();
         }
         function okCatcher(e) {
-            if (!document.body.contains(overlay)) return;
+            if (!document.body.contains(overlay)) { cleanup(); return; }
             e.stopPropagation(); if(e.cancelable) e.preventDefault();
             if (buttons[activeIdx] && !buttons[activeIdx].disabled) buttons[activeIdx].click();
         }
         function cancelCatcher(e) {
-            if (!document.body.contains(overlay)) return;
+            if (!document.body.contains(overlay)) { cleanup(); return; }
             e.stopPropagation(); if(e.cancelable) e.preventDefault();
-            var cancelBtn = overlay.querySelector('#sls-btn-cancel, #sls-prov-cancel, #sls-close-x, #sls-prov-close');
+            var cancelBtn = overlay.querySelector('#sls-btn-cancel, #sls-prov-cancel, #sls-close-x, #sls-prov-close, #sls-remove-cancel, #sls-navi-cancel, #sls-navi-close');
             if (cancelBtn) cancelBtn.click(); else overlay.remove();
         }
         window.addEventListener('vgp_ondirection', gamepadCatcher, true);
@@ -433,6 +436,10 @@
                                         statusEl.style.color = '#34d399';
                                         var pl = document.querySelector('.sls-provider-label');
                                         if (pl) pl.innerHTML = 'Lua Provider: <span style="color:#a5b4fc;font-weight:600;">' + luaProviders[idx].name + '</span>';
+                                        var nb = document.querySelector('.sls-navi-btn[data-sls-appid="' + appid + '"]');
+                                        if (nb) nb.dataset.slsProvider = luaProviders[idx].name;
+                                        var np = document.getElementById('sls-navi-modal-provider');
+                                        if (np) np.innerText = luaProviders[idx].name;
                                         provBtns.forEach(function(b) { b.disabled = false; b.style.opacity = '1'; b.style.cursor = 'pointer'; });
                                     }
                                     else if (/not available|failed|error|invalid/i.test(currentStatus)) {
@@ -460,18 +467,176 @@
         });
     }
 
+    function openRemoveConfirmModal(appid, onConfirmed) {
+        log('Remove clicked for ' + appid);
+        
+        var modalOverlay = document.createElement('div');
+        modalOverlay.id = 'sls-remove-modal';
+        modalOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
+        modalOverlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
+            '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
+            '<p style="margin:0 0 24px;font-size:16px;color:#969696;">Remove Lua and Game files for AppID <b>' + appid + '</b>?</p>' +
+            '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
+                '<button id="sls-remove-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
+                '<button id="sls-remove-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;">Remove</button>' +
+            '</div>' +
+            '<style>' +
+            ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
+            ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
+            ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
+            ' #sls-remove-confirm:hover { background: rgba(220, 38, 38, 1) !important; }' +
+            '</style>' +
+        '</div>';
+        
+        document.body.appendChild(modalOverlay);
+        
+        var cancelBtn = document.getElementById('sls-remove-cancel');
+        var confirmBtn = document.getElementById('sls-remove-confirm');
+        trapSteamGamepadModal(modalOverlay, [cancelBtn, confirmBtn]);
+
+        cancelBtn.onclick = function() { modalOverlay.remove(); };
+        confirmBtn.onclick = function() {
+            confirmBtn.innerText = 'Processing...';
+            confirmBtn.style.opacity = '0.5';
+            confirmBtn.style.pointerEvents = 'none';
+            
+            try {
+                if (window.SteamClient && window.SteamClient.Apps && window.SteamClient.Apps.SetAppHidden) {
+                    window.SteamClient.Apps.SetAppHidden(appid, true);
+                }
+            } catch(e) {}
+
+            fetch('http://127.0.0.1:9001/remove?id=' + appid + '&game=true', { mode: 'no-cors' })
+                .then(function() {
+                    if (typeof onConfirmed === 'function') onConfirmed();
+                    modalOverlay.remove();
+                })
+                .catch(function() {
+                    if (typeof onConfirmed === 'function') onConfirmed();
+                    modalOverlay.remove();
+                });
+        };
+    }
+
+    function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart) {
+        if (document.getElementById('sls-navi-modal')) return;
+        var overlay = document.createElement('div');
+        overlay.id = 'sls-navi-modal';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
+
+        var provText = provider || 'None';
+        var removeLabel = isPending ? 'Restart Steam...' : 'Remove Lua';
+        var removeBtnStyle = isPending
+            ? 'background:rgba(234,179,8,0.2);color:#fde047;'
+            : 'color:#f87171;';
+
+        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-navi-card">' +
+            '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;">' +
+                '<div>' +
+                    '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Navi Menu</h2>' +
+                    '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
+                '</div>' +
+                '<button id="sls-navi-close" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button>' +
+            '</div>' +
+            '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;">' +
+                '<span style="font-size:14px; color:rgb(139, 147, 164);">Current Provider</span>' +
+                '<span id="sls-navi-modal-provider" style="font-size:15px; font-weight:500; color:#fff;">' + provText + '</span>' +
+            '</div>' +
+            '<div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">' +
+                '<button id="sls-navi-btn-provider" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
+                    '<span>Change Provider</span>' +
+                '</button>' +
+                '<button id="sls-navi-btn-config" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
+                    '<span>Config (Fix / Auto Crack)</span>' +
+                '</button>' +
+                '<button id="sls-navi-btn-remove" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; ' + removeBtnStyle + '">' +
+                    '<span>' + removeLabel + '</span>' +
+                '</button>' +
+            '</div>' +
+            '<div style="display:flex; justify-content:flex-end;">' +
+                '<button id="sls-navi-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>' +
+            '</div>' +
+        '</div>';
+
+        overlay.innerHTML = cardHtml;
+        var style = document.createElement('style');
+        style.textContent = ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
+            ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
+            ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
+            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
+            ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }';
+        overlay.appendChild(style);
+        document.body.appendChild(overlay);
+
+        requestAnimationFrame(function() {
+            overlay.style.opacity = '1';
+            var card = document.getElementById('sls-navi-card');
+            if (card) { card.style.transform = 'scale(1)'; card.style.opacity = '1'; }
+        });
+
+        function closeModal(cb) {
+            overlay.style.opacity = '0';
+            var card = document.getElementById('sls-navi-card');
+            if (card) { card.style.transform = 'scale(0.95)'; card.style.opacity = '0'; }
+            setTimeout(function() {
+                overlay.remove();
+                if (typeof cb === 'function') cb();
+            }, 300);
+        }
+
+        var closeX = document.getElementById('sls-navi-close');
+        var cancelBtn = document.getElementById('sls-navi-cancel');
+        var provBtn = document.getElementById('sls-navi-btn-provider');
+        var confBtn = document.getElementById('sls-navi-btn-config');
+        var remBtn = document.getElementById('sls-navi-btn-remove');
+
+        closeX.onclick = function() { closeModal(); };
+        cancelBtn.onclick = function() { closeModal(); };
+
+        provBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            closeModal(function() {
+                openChangeProviderModal(appid, provider || '');
+            });
+        };
+
+        confBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            closeModal(function() {
+                openSlsConfig(appid);
+            });
+        };
+
+        remBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            if (isPending) {
+                log('Restart requested from Navi menu');
+                fetch('http://127.0.0.1:9001/restart', { mode: 'no-cors' }).catch(function(){});
+                closeModal();
+            } else {
+                closeModal(function() {
+                    openRemoveConfirmModal(appid, function() {
+                        if (typeof onRestart === 'function') onRestart();
+                    });
+                });
+            }
+        };
+
+        trapSteamGamepadModal(overlay, [provBtn, confBtn, remBtn, cancelBtn, closeX]);
+    }
+
     function createRemoveButton(manageContainer, appid, isPending, onlineFixInstalled, autoCrackInstalled, provider) {
         var parentNode = manageContainer.parentNode;
 
         // Remove any existing SLS buttons from this container before re-inserting
         parentNode.querySelectorAll(
-            '.sls-remove-lua-btn, .sls-config-btn, .sls-provider-label, .sls-change-provider-btn'
+            '.sls-remove-lua-btn, .sls-config-btn, .sls-provider-label, .sls-change-provider-btn, .sls-navi-btn'
         ).forEach(function(el) { el.remove(); });
 
         // Detect Steam Deck / Big Picture Mode (GamepadUI) vs Desktop Mode
         var isDesktop = !!((document.body && document.body.classList.contains('DesktopUI')) || document.querySelector('.DesktopUI'));
         var isDeckOrBigPicture = !isDesktop;
-        var buttonMargin = isDeckOrBigPicture ? 'margin-left: 10px;' : 'margin-right: 10px;';
+        var buttonMargin = 'margin-right: 10px;';
         var buttonHeight = isDeckOrBigPicture ? '48px' : '32px';
         var buttonPadding = isDeckOrBigPicture ? '8px 16px' : '0 16px';
 
@@ -522,7 +687,51 @@
             return btn;
         }
 
-        // 1. Remove Lua Button
+        // On Big Picture / Steam Deck, use a single compact "Navi" menu button
+        // to prevent overflowing the action row and covering other elements.
+        if (isDeckOrBigPicture) {
+            var naviBtn = makeSteamButton('sls-navi-btn sls-lua-btn', isPending ? 'Navi (Restart)' : 'Navi');
+            naviBtn.dataset.slsProvider = provider || '';
+            if (isPending) {
+                naviBtn.dataset.slsPending = 'true';
+                naviBtn.style.color = '#fde047';
+            }
+            naviBtn.style.marginRight = '10px';
+            naviBtn.style.marginLeft = '0px';
+
+            function setDeckRestartState() {
+                isPending = true;
+                naviBtn.dataset.slsPending = 'true';
+                var span = naviBtn.querySelector('span');
+                if (span) span.innerText = 'Navi (Restart)';
+                naviBtn.style.color = '#fde047';
+            }
+
+            naviBtn.addEventListener('vgp_onok', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                naviBtn.click();
+            });
+
+            naviBtn.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var currentProv = naviBtn.dataset.slsProvider || provider;
+                var currentPending = naviBtn.dataset.slsPending === 'true' || isPending;
+                openNaviModal(appid, currentPending, onlineFixInstalled, autoCrackInstalled, currentProv, function() {
+                    setDeckRestartState();
+                });
+            };
+
+            parentNode.dataset.slsInjected = appid;
+            parentNode.insertBefore(naviBtn, parentNode.firstChild);
+
+            setTimeout(function() {
+                registerSteamFocusNode(naviBtn);
+            }, 10);
+            return;
+        }
+
+        // 1. Remove Lua Button (Desktop Mode)
         var removeBtn = makeSteamButton('sls-remove-lua-btn sls-lua-btn', 'Remove Lua');
         var removeBtnLabel = removeBtn.querySelector('span');
 
@@ -531,7 +740,7 @@
             removeBtn.click();
         });
 
-        // 2. Config Button
+        // 2. Config Button (Desktop Mode)
         var configBtn = makeSteamButton('sls-config-btn', 'Config');
 
         configBtn.addEventListener('vgp_onok', function(e) {
@@ -561,53 +770,12 @@
         removeBtn.onclick = function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
-            log('Remove clicked for ' + appid);
-            
-            var modalOverlay = document.createElement('div');
-            modalOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
-            modalOverlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
-                '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
-                '<p style="margin:0 0 24px;font-size:16px;color:#969696;">Remove Lua and Game files for AppID <b>' + appid + '</b>?</p>' +
-                '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-                    '<button id="sls-remove-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
-                    '<button id="sls-remove-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;">Remove</button>' +
-                '</div>' +
-                '<style>' +
-                ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-                ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
-                ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
-                ' #sls-remove-confirm:hover { background: rgba(220, 38, 38, 1) !important; }' +
-                '</style>' +
-            '</div>';
-            
-            document.body.appendChild(modalOverlay);
-            
-            var cancelBtn = document.getElementById('sls-remove-cancel');
-            var confirmBtn = document.getElementById('sls-remove-confirm');
-            trapSteamGamepadModal(modalOverlay, [cancelBtn, confirmBtn]);
-
-            cancelBtn.onclick = function() { modalOverlay.remove(); };
-            confirmBtn.onclick = function() {
-                confirmBtn.innerText = 'Processing...';
-                confirmBtn.style.opacity = '0.5';
-                confirmBtn.style.pointerEvents = 'none';
-                
-                try {
-                    if (window.SteamClient && window.SteamClient.Apps && window.SteamClient.Apps.SetAppHidden) {
-                        window.SteamClient.Apps.SetAppHidden(appid, true);
-                    }
-                } catch(e) {}
-
-                fetch('http://127.0.0.1:9001/remove?id=' + appid + '&game=true', { mode: 'no-cors' })
-                    .then(function() {
-                        setRestartState();
-                        modalOverlay.remove();
-                    });
-            };
+            openRemoveConfirmModal(appid, function() {
+                setRestartState();
+            });
         };
 
-        // 3. Change Provider Button
+        // 3. Change Provider Button (Desktop Mode)
         var changeProvBtn = makeSteamButton('sls-change-provider-btn', 'Change Provider');
 
         changeProvBtn.addEventListener('vgp_onok', function(e) {
@@ -621,12 +789,12 @@
             openChangeProviderModal(appid, provider || '');
         };
 
-        // 4. Provider label (styled as a passive Steam-style element)
+        // 4. Provider label (Desktop Mode)
         var providerLabel = document.createElement('div');
         providerLabel.className = 'sls-provider-label';
         providerLabel.style.cssText = 'display: flex; align-items: center; justify-content: center; ' +
             'background: transparent; color: rgb(139, 147, 164); ' +
-            'border: none; border-radius: 2px; padding: ' + (isDeckOrBigPicture ? '8px 12px' : '0 12px') + '; ' + buttonMargin + ' ' +
+            'border: none; border-radius: 2px; padding: 0 12px; ' + buttonMargin + ' ' +
             'font-size: 14px; font-weight: 400; font-family: "Motiva Sans", sans-serif; ' +
             'height: ' + buttonHeight + '; box-sizing: border-box; white-space: nowrap;';
         if (provider) {

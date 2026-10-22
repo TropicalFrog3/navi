@@ -24,8 +24,36 @@
                     if (r === activeR && c === activeC) {
                         btn.style.outline = '3px solid #fff';
                         btn.style.outlineOffset = '2px';
-                        if (btn.scrollIntoViewIfNeeded) btn.scrollIntoViewIfNeeded();
-                        else btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+
+                        // If navigating away from an active text input, blur it cleanly so changes commit and OSK closes
+                        if (document.activeElement && document.activeElement !== btn && document.activeElement.tagName && document.activeElement.tagName.toLowerCase() === 'input') {
+                            document.activeElement.blur();
+                        }
+
+                        // If at the header row (row 0), scroll list container to top
+                        if (activeR === 0) {
+                            var topContainer = overlay.querySelector('#sls-provider-rows');
+                            if (topContainer && topContainer.scrollTop > 0) {
+                                topContainer.scrollTop = 0;
+                            }
+                        }
+
+                        // Ensure parent row block inside scrollable list is scrolled into view
+                        var rowParent = btn.closest ? (btn.closest('[data-sls-provider]') || btn.closest('.sls-modal-row')) : null;
+                        if (rowParent) {
+                            if (rowParent.scrollIntoViewIfNeeded) {
+                                rowParent.scrollIntoViewIfNeeded(false);
+                            } else if (rowParent.scrollIntoView) {
+                                rowParent.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                            }
+                        }
+
+                        // Also ensure the exact button/input element itself is scrolled into view
+                        if (btn.scrollIntoViewIfNeeded) {
+                            btn.scrollIntoViewIfNeeded(false);
+                        } else if (btn.scrollIntoView) {
+                            btn.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                        }
                     } else {
                         btn.style.outline = 'none';
                     }
@@ -33,12 +61,51 @@
             }
         }
         setTimeout(updateFocus, 100);
+
+        function onOverlayFocusIn(e) {
+            var target = e.target;
+            for (var r = 0; r < grid.length; r++) {
+                var c = grid[r].indexOf(target);
+                if (c !== -1) {
+                    activeR = r;
+                    activeC = c;
+                    updateFocus();
+                    break;
+                }
+            }
+        }
+        overlay.addEventListener('focusin', onOverlayFocusIn);
+
+        function cleanup() {
+            window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
+            window.removeEventListener('vgp_onok', okCatcher, true);
+            window.removeEventListener('vgp_oncancel', cancelCatcher, true);
+            overlay.removeEventListener('focusin', onOverlayFocusIn);
+        }
+
+        overlay.__slsUpdateGamepadGrid = function(newButtons, targetElement) {
+            grid = Array.isArray(newButtons[0]) ? newButtons : newButtons.map(function(b) { return [b]; });
+            if (targetElement) {
+                for (var r = 0; r < grid.length; r++) {
+                    var c = grid[r].indexOf(targetElement);
+                    if (c !== -1) {
+                        activeR = r;
+                        activeC = c;
+                        break;
+                    }
+                }
+            } else {
+                if (activeR >= grid.length) activeR = Math.max(0, grid.length - 1);
+                if (grid[activeR] && activeC >= grid[activeR].length) activeC = Math.max(0, grid[activeR].length - 1);
+            }
+            updateFocus();
+        };
+
+        overlay.__slsCleanup = cleanup;
         
         function gamepadCatcher(e) {
             if (!document.body.contains(overlay)) {
-                window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
-                window.removeEventListener('vgp_onok', okCatcher, true);
-                window.removeEventListener('vgp_oncancel', cancelCatcher, true);
+                cleanup();
                 return;
             }
             e.stopPropagation(); if(e.cancelable) e.preventDefault();
@@ -739,37 +806,41 @@
             var provider = luaProviders[providerIndex];
             var apiKey = configApiKeys[provider.key] || '';
             var getKeyBtn = (provider.url && provider.url !== '#') ?
-                '<button data-sls-getkey="' + providerIndex + '" class="Focusable" tabindex="-1" role="button" title="Get API Key" style="color:#dcdedf;font-size:12px;margin-left:4px;padding:2px 8px;border:1px solid #3d4450;border-radius:2px;background:rgba(172,178,201,0.14);cursor:pointer;">Get Key</button>' : '';
+                '<button data-sls-getkey="' + providerIndex + '" class="Focusable" tabindex="-1" role="button" title="Get API Key" style="color:#dcdedf;font-size:12px;margin-left:4px;padding:2px 8px;border:1px solid #3d4450;border-radius:2px;background:rgba(172,178,201,0.14);cursor:pointer;white-space:nowrap;flex-shrink:0;">Get Key</button>' : '';
                 
-            rows += '<div data-sls-provider="' + providerIndex + '" style="position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;padding:12px 14px;margin-bottom:6px;background:rgba(0,0,0,0.2);border:1px solid rgba(172,178,201,0.1);border-radius:2px;">' +
-                '<strong style="padding-left:10px;position:relative;z-index:1;flex:1;color:#dcdedf;font-size:16px;font-family:\'Motiva Sans\', sans-serif;font-weight:400;">' + provider.name + '</strong>' +
-                '<div style="position:relative;z-index:1;display:flex;align-items:center;gap:6px;min-width:230px;border:1px solid #3d4450;border-radius:2px;padding:4px 8px;background:rgba(0,0,0,0.4);">' +
-                '<span title="API key" aria-hidden="true" style="color:#969696;font-size:15px;">&#128273;</span>' +
-                '<input data-sls-api-key="' + providerIndex + '" aria-label="API key for ' + escapeHtml(provider.name) + '" value="' + escapeHtml(apiKey) + '" placeholder="API key" type="text" style="min-width:0;flex:1;background:transparent;border:0;outline:0;color:#dcdedf;padding:5px 2px;font-size:14px;font-family:\'Motiva Sans\', sans-serif;" />' +
+            rows += '<div data-sls-provider="' + providerIndex + '" style="position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(172,178,201,0.1);border-radius:4px;flex-shrink:0;box-sizing:border-box;">' +
+                '<strong style="padding-left:4px;position:relative;z-index:1;flex:1;min-width:70px;color:#dcdedf;font-size:15px;font-family:\'Motiva Sans\', sans-serif;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + provider.name + '</strong>' +
+                '<div style="position:relative;z-index:1;display:flex;align-items:center;gap:6px;min-width:180px;max-width:240px;flex:1.2;border:1px solid #3d4450;border-radius:2px;padding:3px 8px;background:rgba(0,0,0,0.4);box-sizing:border-box;">' +
+                '<span title="API key" aria-hidden="true" style="color:#969696;font-size:14px;flex-shrink:0;">&#128273;</span>' +
+                '<input data-sls-api-key="' + providerIndex + '" aria-label="API key for ' + escapeHtml(provider.name) + '" value="' + escapeHtml(apiKey) + '" placeholder="API key" type="text" style="min-width:0;flex:1;background:transparent;border:0;outline:0;color:#dcdedf;padding:4px 2px;font-size:13px;font-family:\'Motiva Sans\', sans-serif;" />' +
                 getKeyBtn +
                 '</div>' +
-                '<div style="display:flex;gap:4px;position:relative;z-index:1;">' +
+                '<div style="display:flex;gap:4px;position:relative;z-index:1;flex-shrink:0;">' +
                 '<button data-sls-up="' + providerIndex + '" class="sls-btn-action Focusable" tabindex="-1" role="button" title="Move provider up" style="height:32px;padding:0 8px;font-size:12px;"' + (position === 0 ? ' disabled' : '') + '>Up</button>' +
                 '<button data-sls-down="' + providerIndex + '" class="sls-btn-action Focusable" tabindex="-1" role="button" title="Move provider down" style="height:32px;padding:0 8px;font-size:12px;"' + (position === order.length - 1 ? ' disabled' : '') + '>Down</button>' +
                 '</div>' +
-                '<button data-sls-provider-download="' + providerIndex + '" class="sls-btn-action Focusable" tabindex="-1" role="button" style="position:relative;z-index:1;height:32px;padding:0 16px;background:#06bfff;color:#fff;">Download</button>' +
+                '<button data-sls-provider-download="' + providerIndex + '" class="sls-btn-action Focusable" tabindex="-1" role="button" style="position:relative;z-index:1;height:32px;padding:0 14px;font-size:13px;background:#06bfff;color:#fff;flex-shrink:0;">Download</button>' +
                 '</div>';
         });
-        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 680px; max-width:calc(100% - 32px); box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
-            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">' +
-            '<div><h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Lua download provider</h2><p style="margin:4px 0 0;font-size:14px;color:#969696;">AppID: ' + appid + '</p></div>' +
+        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 6px; padding: 18px 22px; width: 680px; max-width:calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; box-sizing: border-box;" id="sls-modal-card">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-shrink:0;">' +
+            '<div><h2 style="margin:0; font-size:20px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Lua download provider</h2><p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appid + '</p></div>' +
             '<button id="sls-provider-close" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button></div>' +
-            '<div id="sls-provider-rows">' + rows + '</div>' +
-            '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px;">' +
-            '<button id="sls-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;">Clear App Cache</button>' +
-            '<button id="sls-clear-all-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;">Clear All Cache</button>' +
-            '<button id="sls-auto-search" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;">Auto Download</button></div>' +
+            '<div id="sls-provider-rows" style="flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 6px; padding-left: 2px; padding-top: 2px; padding-bottom: 2px; display: flex; flex-direction: column; gap: 6px; overscroll-behavior: contain;">' + rows + '</div>' +
+            '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-shrink:0;">' +
+            '<button id="sls-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;">Clear App Cache</button>' +
+            '<button id="sls-clear-all-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;">Clear All Cache</button>' +
+            '<button id="sls-auto-search" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;background:#06bfff;color:#fff;">Auto Download</button></div>' +
             '<style>' +
-            ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
+            ' #sls-provider-rows::-webkit-scrollbar { width: 6px; }' +
+            ' #sls-provider-rows::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }' +
+            ' #sls-provider-rows::-webkit-scrollbar-thumb { background: rgba(172, 178, 201, 0.3); border-radius: 3px; }' +
+            ' #sls-provider-rows::-webkit-scrollbar-thumb:hover { background: rgba(172, 178, 201, 0.5); }' +
+            ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 6px 14px; font-size: 15px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 42px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
             ' .sls-btn-action:not(:disabled):hover { background: rgba(172, 178, 201, 0.25); }' +
             ' .sls-btn-action:not(:disabled):active { background: rgba(172, 178, 201, 0.30); }' +
             ' button[data-sls-provider-download]:hover { background: #2d73ff !important; }' +
-            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
+            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; flex-shrink: 0; }' +
             ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }' +
             ' button:disabled { opacity: 0.5; cursor: default; }' +
             '</style>' +
@@ -788,24 +859,29 @@
             });
         });
 
-        // Controller support: collect interactive elements into a 2D grid
-        var modalButtons = [
-            [document.getElementById('sls-provider-close')]
-        ];
-        overlay.querySelectorAll('[data-sls-provider]').forEach(function(row) {
-            var rowItems = [];
-            row.querySelectorAll('[data-sls-api-key], [data-sls-getkey], [data-sls-up], [data-sls-down], [data-sls-provider-download]').forEach(function(b) { rowItems.push(b); });
-            if (rowItems.length > 0) modalButtons.push(rowItems);
-        });
         var clearAppBtn = document.getElementById('sls-clear-app-cache');
         var clearAllBtn = document.getElementById('sls-clear-all-cache');
         var autoSearchBtn = document.getElementById('sls-auto-search');
-        var actionRow = [];
-        if (clearAppBtn) actionRow.push(clearAppBtn);
-        if (clearAllBtn) actionRow.push(clearAllBtn);
-        if (autoSearchBtn) actionRow.push(autoSearchBtn);
-        if (actionRow.length > 0) modalButtons.push(actionRow);
-        trapSteamGamepadModal(overlay, modalButtons);
+
+        // Controller support: collect interactive elements into a 2D grid
+        function buildModalButtons() {
+            var closeBtnEl = document.getElementById('sls-provider-close');
+            var modalButtons = [
+                closeBtnEl ? [closeBtnEl] : []
+            ];
+            overlay.querySelectorAll('[data-sls-provider]').forEach(function(row) {
+                var rowItems = [];
+                row.querySelectorAll('[data-sls-api-key], [data-sls-getkey], [data-sls-up], [data-sls-down], [data-sls-provider-download]').forEach(function(b) { rowItems.push(b); });
+                if (rowItems.length > 0) modalButtons.push(rowItems);
+            });
+            var actionRow = [];
+            if (clearAppBtn) actionRow.push(clearAppBtn);
+            if (clearAllBtn) actionRow.push(clearAllBtn);
+            if (autoSearchBtn) actionRow.push(autoSearchBtn);
+            if (actionRow.length > 0) modalButtons.push(actionRow);
+            return modalButtons;
+        }
+        trapSteamGamepadModal(overlay, buildModalButtons());
 
         if (clearAppBtn) {
             clearAppBtn.onclick = function() {
@@ -818,10 +894,20 @@
             };
         }
 
-        function close() { overlay.remove(); }
-        document.getElementById('sls-provider-close').onclick = close;
+        function close() {
+            if (overlay.__slsCleanup) overlay.__slsCleanup();
+            overlay.remove();
+        }
+        var closeBtn = document.getElementById('sls-provider-close');
+        if (closeBtn) {
+            closeBtn.onclick = close;
+            closeBtn.addEventListener('click', close);
+        }
         var cancelButton = document.getElementById('sls-provider-cancel');
-        if (cancelButton) cancelButton.onclick = close;
+        if (cancelButton) {
+            cancelButton.onclick = close;
+            cancelButton.addEventListener('click', close);
+        }
 
         function disableProviderBtn(pIdx) {
             var btn = overlay.querySelector('[data-sls-provider-download="' + pIdx + '"]');
@@ -890,6 +976,10 @@
                     if (upBtn) upBtn.disabled = (idx === 0);
                     if (downBtn) downBtn.disabled = (idx === allRows.length - 1);
                 });
+
+                if (overlay.__slsUpdateGamepadGrid) {
+                    overlay.__slsUpdateGamepadGrid(buildModalButtons(), button);
+                }
             };
         });
         // Single provider download — block only the requested provider, modal stays open
@@ -960,7 +1050,7 @@
             var overlay = document.createElement('div');
             overlay.id = 'sls-remove-overlay';
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
-            overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
+            overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
                 '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
                 '<p style="margin:0 0 24px;font-size:16px;color:#969696;">Remove Lua and Game files for AppID <b>' + productID + '</b>?</p>' +
                 '<div style="display:flex;flex-direction:column;gap:10px;">' +
@@ -1032,7 +1122,7 @@
         var currentDpbx = configApiKeys['sls-dpbx-key'] || '';
         var currentHubcap = configApiKeys['sls-hubcap-key'] || '';
 
-        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">' +
+        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">' +
             '<!-- Title bar -->' +
             '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">' +
                 '<div>' +

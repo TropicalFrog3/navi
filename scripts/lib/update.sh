@@ -75,6 +75,7 @@ do_update() {
     # Update wrappers & desktop files
     install_safe_wrapper
     install_desktop_entries
+    install_steamos_systemd_integration
 
     # Merge configuration & updates.yaml
     if [ -n "$res_dir" ]; then

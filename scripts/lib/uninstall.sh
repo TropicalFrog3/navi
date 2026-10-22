@@ -188,6 +188,46 @@ do_uninstall() {
         done
     fi
 
+    # Autostart integration cleanup
+    local autostart_steam="$HOME/.config/autostart/steam.desktop"
+    if [ -f "$autostart_steam" ] && grep -qE 'navi/library-inject|LD_AUDIT' "$autostart_steam" 2>/dev/null; then
+        rm -f "$autostart_steam"
+        log_info "Removed autostart launcher: $autostart_steam"
+    fi
+
+    # User Desktop shortcut cleanup
+    local user_desktop="$HOME/Desktop/steam.desktop"
+    if [ -L "$user_desktop" ]; then
+        local target_link
+        target_link="$(readlink "$user_desktop")"
+        if [[ "$target_link" == *"navi"* ]] || [[ "$target_link" == *".local/share/applications/steam.desktop"* ]]; then
+            if [ -f "/usr/share/applications/steam.desktop" ]; then
+                ln -sf "/usr/share/applications/steam.desktop" "$user_desktop"
+                log_info "Restored native Desktop steam.desktop symlink."
+            fi
+        fi
+    elif [ -f "$user_desktop" ] && grep -qE 'navi/library-inject|LD_AUDIT' "$user_desktop" 2>/dev/null; then
+        sed -i 's|^Exec=env LD_AUDIT="[^"]*" |Exec=|' "$user_desktop" 2>/dev/null || true
+    fi
+
+    # SteamOS systemd drop-in cleanup
+    local dropin_file="$HOME/.config/systemd/user/steam-launcher.service.d/navi.conf"
+    if [ -f "$dropin_file" ]; then
+        rm -f "$dropin_file"
+        rmdir "$HOME/.config/systemd/user/steam-launcher.service.d" 2>/dev/null || true
+        if command -v systemctl >/dev/null 2>&1; then
+            systemctl --user daemon-reload 2>/dev/null || true
+        fi
+        log_info "Removed SteamOS Gaming Mode drop-in: $dropin_file"
+    fi
+
+    # Systemd environment.d cleanup
+    local env_file="$HOME/.config/environment.d/10-navi-path.conf"
+    if [ -f "$env_file" ]; then
+        rm -f "$env_file"
+        log_info "Removed systemd environment file: $env_file"
+    fi
+
     rm -f "$HOME/.local/share/icons/hicolor/"*/apps/headcrab.png 2>/dev/null || true
     rm -f "$HOME/.local/share/icons/hicolor/"*/apps/navi.png 2>/dev/null || true
 

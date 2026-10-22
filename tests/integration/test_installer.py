@@ -163,3 +163,65 @@ def test_flatpak_steam_detection(fake_home, run_installer):
     res_uninst = run_installer("uninstall", "--yes")
     assert res_uninst.returncode == 0, f"uninstall with Flatpak failed: {res_uninst.stderr}"
     assert not fp_navi.exists(), "Flatpak navi share should be removed on uninstall"
+
+
+def test_steamdeck_and_autostart_integration(fake_home, run_installer):
+    """
+    Test SteamOS Gaming Mode (steam-launcher.service.d drop-in),
+    Desktop Autostart (~/.config/autostart/steam.desktop),
+    Desktop shortcut (~/Desktop/steam.desktop),
+    and systemd environment (~/.config/environment.d/10-navi-path.conf).
+    """
+    # Set up simulated Desktop shortcut
+    desktop_dir = fake_home / "Desktop"
+    desktop_dir.mkdir(parents=True, exist_ok=True)
+    desktop_steam = desktop_dir / "steam.desktop"
+    desktop_steam.symlink_to("/usr/share/applications/steam.desktop")
+
+    # 1. Install under simulated SteamOS
+    res_inst = run_installer("install", "--yes", env={"NAVI_FORCE_STEAMOS": "1"})
+    assert res_inst.returncode == 0, f"install on SteamOS failed: {res_inst.stderr}"
+
+    # Verify systemd drop-in for Gaming Mode
+    systemd_dropin = fake_home / ".config" / "systemd" / "user" / "steam-launcher.service.d" / "navi.conf"
+    assert systemd_dropin.is_file(), "steam-launcher.service.d/navi.conf should be created on SteamOS"
+    dropin_text = systemd_dropin.read_text()
+    assert "LD_AUDIT=" in dropin_text
+    assert "library-inject.so" in dropin_text
+    assert "libnavi.so" in dropin_text
+
+    # Verify Desktop Autostart override
+    autostart_steam = fake_home / ".config" / "autostart" / "steam.desktop"
+    assert autostart_steam.is_file(), "~/.config/autostart/steam.desktop should be created"
+    autostart_text = autostart_steam.read_text()
+    assert "LD_AUDIT=" in autostart_text
+
+    # Verify Desktop shortcut updated
+    assert desktop_steam.is_symlink() or desktop_steam.is_file()
+    if desktop_steam.is_symlink():
+        target = str(desktop_steam.resolve())
+        assert ".local/share/applications/steam.desktop" in target or "steam" in target
+    else:
+        assert "LD_AUDIT=" in desktop_steam.read_text()
+
+    # Verify systemd environment.d path
+    env_conf = fake_home / ".config" / "environment.d" / "10-navi-path.conf"
+    assert env_conf.is_file(), "~/.config/environment.d/10-navi-path.conf should be created"
+    assert ".local/bin" in env_conf.read_text()
+
+    # 2. Update preserves configuration
+    res_upd = run_installer("update", "--yes", env={"NAVI_FORCE_STEAMOS": "1"})
+    assert res_upd.returncode == 0, f"update on SteamOS failed: {res_upd.stderr}"
+    assert systemd_dropin.is_file()
+    assert autostart_steam.is_file()
+    assert env_conf.is_file()
+
+    # 3. Uninstall cleans up cleanly
+    res_uninst = run_installer("uninstall", "--yes", env={"NAVI_FORCE_STEAMOS": "1"})
+    assert res_uninst.returncode == 0, f"uninstall on SteamOS failed: {res_uninst.stderr}"
+    assert not systemd_dropin.exists(), "steam-launcher.service.d/navi.conf should be removed on uninstall"
+    assert not autostart_steam.exists(), "~/.config/autostart/steam.desktop should be removed on uninstall"
+    assert not env_conf.exists(), "~/.config/environment.d/10-navi-path.conf should be removed on uninstall"
+    if desktop_steam.is_symlink():
+        assert str(desktop_steam.readlink()) == "/usr/share/applications/steam.desktop"
+
