@@ -38,6 +38,13 @@ namespace CDPInject
     bool isScriptInjected(const std::string& wsUrl, const std::string& checkExpression);
 
     /**
+     * Evaluate an expression in a page and return its string result ("" on failure
+     * or empty result). The result must only contain [A-Za-z0-9%._~!*'()-] (e.g. the
+     * output of encodeURIComponent) because it is extracted without JSON unescaping.
+     */
+    std::string evalString(const std::string& wsUrl, const std::string& expression);
+
+    /**
      * Run the full injection pass: fetch pages, filter for Steam store
      * pages, and inject the "Download Lua" button script into each.
      *

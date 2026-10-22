@@ -472,18 +472,124 @@ namespace StoreInject
 
     // generateInjectionJS and patchIndexHtml removed.
     // Cross-context Javascript execution is no longer allowed in modern Steam UI.
-    // We rely exclusively on inject_cef.py (CDP) and URL hash polling.
+    // Store pages cannot fetch() http://127.0.0.1:9001 (their CSP only allows https:), so
+    // store-page-script.js pushes "<id> <path>" strings into window.__naviQueue and the
+    // automation worker drains it over CDP (see pollPageBridge).
+
+    static std::string urlEncode(const std::string& str)
+    {
+        static const char* hex = "0123456789ABCDEF";
+        std::string out;
+        out.reserve(str.size() * 3);
+        for (unsigned char c : str)
+        {
+            if (std::isalnum(c) || c == '-' || c == '_' || c == '.' || c == '~')
+                out += static_cast<char>(c);
+            else
+            {
+                out += '%';
+                out += hex[c >> 4];
+                out += hex[c & 0xF];
+            }
+        }
+        return out;
+    }
+
+    // Replays a page request against the local callback server so every existing
+    // endpoint handler is reused unchanged. Returns the HTTP status (0 on failure).
+    static int loopbackRequest(const std::string& path, std::string& bodyOut)
+    {
+        bodyOut.clear();
+        int sock = socket(AF_INET, SOCK_STREAM, 0);
+        if (sock < 0) return 0;
+
+        struct sockaddr_in addr{};
+        addr.sin_family = AF_INET;
+        addr.sin_port = htons(9001);
+        inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+
+        struct timeval tv;
+        tv.tv_sec = 10;
+        tv.tv_usec = 0;
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+
+        if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) != 0)
+        {
+            close(sock);
+            return 0;
+        }
+
+        std::string req = "GET " + path + " HTTP/1.1\r\nHost: 127.0.0.1:9001\r\nConnection: close\r\n\r\n";
+        send(sock, req.c_str(), req.size(), 0);
+
+        std::string response;
+        char buf[4096];
+        ssize_t n;
+        while ((n = read(sock, buf, sizeof(buf))) > 0)
+            response.append(buf, static_cast<size_t>(n));
+        close(sock);
+
+        int status = 0;
+        if (response.rfind("HTTP/", 0) == 0 && response.size() > 12)
+        {
+            try { status = std::stoi(response.substr(9, 3)); } catch (...) {}
+        }
+        size_t headerEnd = response.find("\r\n\r\n");
+        if (headerEnd != std::string::npos)
+            bodyOut = response.substr(headerEnd + 4);
+        return status;
+    }
+
+    // Drains window.__naviQueue in every open store page and answers each request.
+    static void pollPageBridge()
+    {
+        static const char* kDrainExpr =
+            R"JS((function(){var q=window.__naviQueue;if(!q||!q.length)return '';return encodeURIComponent(q.splice(0).join('\n'));})())JS";
+
+        auto pages = CDPInject::fetchPages();
+        for (const auto& page : pages)
+        {
+            if (page.webSocketDebuggerUrl.empty() ||
+                page.url.find("store.steampowered.com") == std::string::npos)
+                continue;
+
+            std::string encoded = CDPInject::evalString(page.webSocketDebuggerUrl, kDrainExpr);
+            if (encoded.empty()) continue;
+
+            std::stringstream lines(urlDecode(encoded));
+            std::string line;
+            while (std::getline(lines, line))
+            {
+                size_t sp = line.find(' ');
+                if (sp == std::string::npos || sp == 0 || sp + 1 >= line.size()) continue;
+                std::string id = line.substr(0, sp);
+                std::string path = line.substr(sp + 1);
+
+                // Only ever forward plain endpoint paths to the callback server
+                if (path[0] != '/' || path.find_first_of(" \r\n") != std::string::npos) continue;
+                if (id.find_first_not_of("0123456789-") != std::string::npos) continue;
+
+                std::string body;
+                int status = loopbackRequest(path, body);
+
+                std::string js = "window.__naviResolve && window.__naviResolve(\"" + id + "\"," +
+                                 std::to_string(status) + ",decodeURIComponent(\"" + urlEncode(body) + "\"));";
+                CDPInject::injectJS(page.webSocketDebuggerUrl, js);
+            }
+        }
+    }
 
     static void automationWorker()
     {
         LOG_INFO("StoreInject: Automation worker started\n");
         
-        std::string lastProcessedTimestamp = "";
         int checkCounter = 100;
+        int bridgeCounter = 0;
 
         while (!g_shouldStop)
         {
-            // Try to read CDP /json endpoint for page URLs
+            // Try to connect to CDP 8080 endpoint
             int sock = socket(AF_INET, SOCK_STREAM, 0);
             if (sock >= 0)
             {
@@ -500,292 +606,27 @@ namespace StoreInject
 
                 if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == 0)
                 {
-                    // Send HTTP GET /json
-                    const char* httpReq = "GET /json HTTP/1.1\r\nHost: 127.0.0.1:8080\r\nConnection: close\r\n\r\n";
-                    send(sock, httpReq, strlen(httpReq), 0);
-
-                    std::string response;
-                    char buf[4096];
-                    int n;
-                    size_t headerEnd = std::string::npos;
-                    size_t contentLength = 0;
-                    while ((n = read(sock, buf, sizeof(buf) - 1)) > 0) {
-                        buf[n] = '\0';
-                        response += buf;
-                        if (headerEnd == std::string::npos) {
-                            headerEnd = response.find("\r\n\r\n");
-                            if (headerEnd != std::string::npos) {
-                                size_t cl = response.find("Content-Length:");
-                                if (cl == std::string::npos) cl = response.find("content-length:");
-                                if (cl != std::string::npos && cl < headerEnd) {
-                                    size_t vs = response.find_first_not_of(" \t", cl + 15);
-                                    size_t ve = response.find_first_of("\r\n", vs);
-                                    if (vs != std::string::npos && ve != std::string::npos) {
-                                        try { contentLength = std::stoul(response.substr(vs, ve - vs)); } catch (...) {}
-                                    }
-                                }
-                            }
-                        }
-                        if (headerEnd != std::string::npos) {
-                            if (contentLength > 0 && response.size() >= headerEnd + 4 + contentLength) break;
-                            if (contentLength == 0 && response.rfind(']') != std::string::npos) break;
-                        }
-                    }
-
-                    // Check for #sls-click-removelua- in any URL
-                    size_t removeSearchPos = 0;
-                    while ((removeSearchPos = response.find("#sls-click-removelua-", removeSearchPos)) != std::string::npos)
+                    // Serve store-page requests roughly every 300ms
+                    if (bridgeCounter++ >= 6)
                     {
-                        size_t idStart = removeSearchPos + 21; // after "#sls-click-removelua-"
-                        size_t idEnd = response.find_first_of("-\"", idStart);
-                        if (idEnd != std::string::npos && idEnd > idStart && response[idEnd] == '-')
-                        {
-                            size_t tsEnd = response.find_first_of("\"", idEnd + 1);
-                            if (tsEnd != std::string::npos)
-                            {
-                                std::string productId = response.substr(idStart, idEnd - idStart);
-                                std::string timestamp = response.substr(idEnd + 1, tsEnd - (idEnd + 1));
-                                
-                                if (timestamp != lastProcessedTimestamp)
-                                {
-                                    lastProcessedTimestamp = timestamp;
-                                    LOG_INFO("Remove Lua clicked for Product ID: %s\n", productId.c_str());
-
-                                    // Trigger removal in background thread
-                                    std::string pid = productId;
-                                    std::thread([pid]() {
-                                        try {
-                                            uint32_t appId = std::stoul(pid);
-                                            
-                                            // 1. Delete game files
-                                            Apps::deleteGameFiles(appId);
-                                            
-                                            // 2. Remove Lua and Manifest files
-                                            std::string pluginDir = g_config.getPluginDir();
-                                            if (!pluginDir.empty()) {
-                                                // Remove lua
-                                                auto luaPath = std::filesystem::path(pluginDir) / (pid + ".lua");
-                                                if (std::filesystem::exists(luaPath)) {
-                                                    std::filesystem::remove(luaPath);
-                                                    LOG_INFO("RemoveLua: Deleted lua file %s\n", luaPath.c_str());
-                                                }
-                                                // Remove provider sidecar
-                                                auto providerPath = std::filesystem::path(pluginDir) / (pid + ".provider");
-                                                if (std::filesystem::exists(providerPath)) {
-                                                    std::filesystem::remove(providerPath);
-                                                    LOG_INFO("RemoveLua: Deleted provider file %s\n", providerPath.c_str());
-                                                }
-                                                
-                                                // Remove manifests from pluginDir
-                                                for (const auto& entry : std::filesystem::directory_iterator(pluginDir)) {
-                                                    if (entry.is_regular_file()) {
-                                                        auto path = entry.path();
-                                                        if (path.extension() == ".manifest") {
-                                                            std::string stem = path.stem().string();
-                                                            size_t underscorePos = stem.find('_');
-                                                            std::string appIdStr = (underscorePos != std::string::npos) ? stem.substr(0, underscorePos) : stem;
-                                                            if (appIdStr == pid) {
-                                                                std::filesystem::remove(path);
-                                                                LOG_INFO("RemoveLua: Deleted manifest %s from pluginDir\n", path.c_str());
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                
-                                                // Remove manifests from depotcache and config/depotcache
-                                                std::filesystem::path configPath = std::filesystem::path(pluginDir).parent_path();
-                                                for (const auto& dPath : { configPath.parent_path() / "depotcache", configPath / "depotcache" }) {
-                                                    if (std::filesystem::exists(dPath)) {
-                                                        for (const auto& entry : std::filesystem::directory_iterator(dPath)) {
-                                                            if (entry.is_regular_file()) {
-                                                                auto path = entry.path();
-                                                                if (path.extension() == ".manifest") {
-                                                                    std::string stem = path.stem().string();
-                                                                    size_t underscorePos = stem.find('_');
-                                                                    std::string appIdStr = (underscorePos != std::string::npos) ? stem.substr(0, underscorePos) : stem;
-                                                                    if (appIdStr == pid) {
-                                                                        std::filesystem::remove(path);
-                                                                        LOG_INFO("RemoveLua: Deleted manifest %s from depotcache\n", path.c_str());
-                                                                    }
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            
-                                            // 3. Update Config
-                                            g_config.removeAdditionalAppId(appId);
-                                            
-                                            LOG_INFO("RemoveLua: Completed for appid=%s\n", pid.c_str());
-                                        } catch (const std::exception& e) {
-                                            LOG_WARN("RemoveLua: Error processing appid %s: %s\n", pid.c_str(), e.what());
-                                        }
-                                    }).detach();
-                                }
-                            }
-                        }
-                        removeSearchPos = idStart;
-                    }
-
-                    // Check for an explicit provider selection in any URL
-                    size_t providerSearchPos = 0;
-                    while ((providerSearchPos = response.find("#sls-click-provider-", providerSearchPos)) != std::string::npos)
-                    {
-                        size_t providerStart = providerSearchPos + 20;
-                        size_t providerEnd = response.find('-', providerStart);
-                        size_t idEnd = providerEnd == std::string::npos ? std::string::npos : response.find('-', providerEnd + 1);
-                        size_t tsEnd = idEnd == std::string::npos ? std::string::npos : response.find_first_of("\"", idEnd + 1);
-                        if (providerEnd != std::string::npos && idEnd != std::string::npos && tsEnd != std::string::npos)
-                        {
-                            try
-                            {
-                                int providerIndex = std::stoi(response.substr(providerStart, providerEnd - providerStart));
-                                std::string productId = response.substr(providerEnd + 1, idEnd - providerEnd - 1);
-                                std::string timestamp = response.substr(idEnd + 1, tsEnd - idEnd - 1);
-                                if (timestamp != lastProcessedTimestamp)
-                                {
-                                    lastProcessedTimestamp = timestamp;
-                                    LOG_INFO("Download Lua provider %d clicked for Product ID: %s\n", providerIndex, productId.c_str());
-                                    std::string pid = productId;
-                                    std::thread([pid, providerIndex]() {
-                                        LuaDownload::downloadAndInstall(pid, providerIndex, {}, true);
-                                    }).detach();
-                                }
-                            }
-                            catch (...) {}
-                        }
-                        providerSearchPos = tsEnd == std::string::npos ? providerSearchPos + 20 : tsEnd;
-                    }
-
-                    // Check for auto-search requests in any URL
-                    size_t autoSearchPos = 0;
-                    while ((autoSearchPos = response.find("#sls-click-auto-", autoSearchPos)) != std::string::npos)
-                    {
-                        size_t idStart = autoSearchPos + 16;
-                        size_t idEnd = response.find('-', idStart);
-                        size_t orderEnd = idEnd == std::string::npos ? std::string::npos : response.find('-', idEnd + 1);
-                        size_t tsEnd = orderEnd == std::string::npos ? std::string::npos : response.find_first_of("\"", orderEnd + 1);
-                        if (idEnd != std::string::npos && orderEnd != std::string::npos && tsEnd != std::string::npos)
-                        {
-                            std::string pid = response.substr(idStart, idEnd - idStart);
-                            auto order = parseProviderOrder(response.substr(idEnd + 1, orderEnd - idEnd - 1));
-                            std::string timestamp = response.substr(orderEnd + 1, tsEnd - orderEnd - 1);
-                            if (timestamp != lastProcessedTimestamp)
-                            {
-                                lastProcessedTimestamp = timestamp;
-                                LOG_INFO("Auto-search Lua download clicked for Product ID: %s\n", pid.c_str());
-                                std::thread([pid, order]() {
-                                    LuaDownload::downloadAndInstall(pid, -1, order, true);
-                                }).detach();
-                            }
-                        }
-                        autoSearchPos = tsEnd == std::string::npos ? autoSearchPos + 16 : tsEnd;
-                    }
-
-                    // Check for #sls-click- in any URL
-                    size_t searchPos = 0;
-                    while ((searchPos = response.find("#sls-click-", searchPos)) != std::string::npos)
-                    {
-                        if (response.compare(searchPos, 20, "#sls-click-provider-") == 0 ||
-                            response.compare(searchPos, 16, "#sls-click-auto-") == 0)
-                        {
-                            searchPos += 11;
-                            continue;
-                        }
-                        size_t idStart = searchPos + 11; // after "#sls-click-"
-                        size_t idEnd = response.find_first_of("-\"", idStart);
-                        if (idEnd != std::string::npos && idEnd > idStart && response[idEnd] == '-')
-                        {
-                            size_t tsEnd = response.find_first_of("\"", idEnd + 1);
-                            if (tsEnd != std::string::npos)
-                            {
-                                std::string productId = response.substr(idStart, idEnd - idStart);
-                                std::string timestamp = response.substr(idEnd + 1, tsEnd - (idEnd + 1));
-                                
-                                if (timestamp != lastProcessedTimestamp)
-                                {
-                                    lastProcessedTimestamp = timestamp;
-                                    LOG_INFO("Download Lua clicked for Product ID: %s\n", productId.c_str());
-
-                                    // Trigger download in background thread
-                                    std::string pid = productId; // copy for lambda capture
-                                    std::thread([pid]() {
-                                        bool ok = LuaDownload::downloadAndInstall(pid);
-                                        if (ok)
-                                        {
-                                            LOG_INFO("LuaDownload: Completed for appid=%s\n", pid.c_str());
-
-                                            // Ensure the game shows in library even if the user
-                                            // navigated away from the store page (which would
-                                            // prevent the CDP steam://install/ from firing).
-                                            try {
-                                                uint32_t appId = std::stoul(pid);
-                                                g_config.addAdditionalAppId(appId);
-                                                Licenses::queueRefresh();
-                                            } catch (...) {
-                                                LOG_WARN("LuaDownload: Failed to register appid=%s in library\n", pid.c_str());
-                                            }
-                                        }
-                                        else
-                                            LOG_INFO("LuaDownload: Failed for appid=%s\n", pid.c_str());
-                                    }).detach();
-                                }
-                            }
-                        }
-                        searchPos = idStart;
-                    }
-
-                    // Check for #sls-auth-
-                    searchPos = 0;
-                    while ((searchPos = response.find("#sls-auth-", searchPos)) != std::string::npos)
-                    {
-                        size_t authStart = searchPos + 10;
-                        size_t cEnd = response.find("-TS=", authStart);
-                        if (cEnd != std::string::npos)
-                        {
-                            std::string authParams = response.substr(authStart, cEnd - authStart);
-                            std::string timestamp = response.substr(cEnd + 4, response.find_first_of("\"", cEnd + 4) - (cEnd + 4));
-
-                            if (timestamp != lastProcessedTimestamp)
-                            {
-                                lastProcessedTimestamp = timestamp;
-                                LOG_INFO("API Settings received via CDP UI! Updating config...\n");
-
-                                auto extractParam = [&](const std::string& paramName) -> std::string {
-                                    size_t p = authParams.find(paramName + "=");
-                                    if (p == std::string::npos) return "";
-                                    size_t vStart = p + paramName.length() + 1;
-                                    size_t vEnd = authParams.find('&', vStart);
-                                    if (vEnd == std::string::npos) vEnd = authParams.length();
-                                    return urlDecode(authParams.substr(vStart, vEnd - vStart));
-                                };
-
-                                std::string ryuu = extractParam("RYUU");
-                                std::string dpbx = extractParam("DPBX");
-                                std::string hubcap = extractParam("HUBCAP");
-                                std::string morr = extractParam("MORR");
-
-                                if (hubcap.empty() && !morr.empty())
-                                {
-                                    hubcap = morr;
-                                }
-
-                                g_config.ryuuKey = ryuu;
-                                g_config.depotBoxKey = dpbx;
-                                g_config.hubcapKey = hubcap;
-                                g_config.updateApiAuth(ryuu, dpbx, hubcap);
-                            }
-                        }
-                        searchPos = cEnd == std::string::npos ? authStart : cEnd;
+                        bridgeCounter = 0;
+                        pollPageBridge();
                     }
 
                     // Trigger the C++ CDP injector every 5 seconds to inject new pages
                     if (checkCounter++ >= 100)
                     {
-                        if (g_shouldStop) break;
+                        if (g_shouldStop)
+                        {
+                            close(sock);
+                            break;
+                        }
                         CDPInject::injectStorePages();
-                        if (g_shouldStop) break;
+                        if (g_shouldStop)
+                        {
+                            close(sock);
+                            break;
+                        }
                         RemoveLua::injectRemoveLuaScript();
                         checkCounter = 0;
                     }
@@ -1193,6 +1034,75 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) { handled = false; close(new_socket); }
+                        }
+                        else if (request.find("/download?") != std::string::npos || request.find("/download ") != std::string::npos)
+                        {
+                            try {
+                                size_t qPos = request.find("/download");
+                                size_t lineEnd = request.find("\r\n", qPos);
+                                std::string reqLine = request.substr(qPos, lineEnd == std::string::npos ? std::string::npos : lineEnd - qPos);
+                                size_t qmark = reqLine.find('?');
+                                std::string queryString = (qmark != std::string::npos) ? reqLine.substr(qmark + 1) : "";
+                                size_t spacePos = queryString.find(' ');
+                                if (spacePos != std::string::npos) queryString = queryString.substr(0, spacePos);
+
+                                auto extractQueryParam = [&](const std::string& paramName) -> std::string {
+                                    size_t p = 0;
+                                    while ((p = queryString.find(paramName + "=", p)) != std::string::npos) {
+                                        if (p == 0 || queryString[p - 1] == '&' || queryString[p - 1] == '?') {
+                                            size_t vStart = p + paramName.length() + 1;
+                                            size_t vEnd = queryString.find('&', vStart);
+                                            if (vEnd == std::string::npos) vEnd = queryString.length();
+                                            return urlDecode(queryString.substr(vStart, vEnd - vStart));
+                                        }
+                                        p += paramName.length() + 1;
+                                    }
+                                    return "";
+                                };
+
+                                std::string pid = extractQueryParam("id");
+                                std::string provStr = extractQueryParam("provider");
+                                std::string orderStr = extractQueryParam("order");
+
+                                int providerIndex = -1;
+                                if (!provStr.empty()) {
+                                    try { providerIndex = std::stoi(provStr); } catch (...) {}
+                                }
+                                std::vector<int> order = parseProviderOrder(orderStr);
+
+                                if (!pid.empty()) {
+                                    LOG_INFO("StoreInject: Received /download for AppID %s (provider=%d, order=%s)\n",
+                                             pid.c_str(), providerIndex, orderStr.c_str());
+
+                                    std::thread([pid, providerIndex, order]() {
+                                        bool ok = LuaDownload::downloadAndInstall(pid, providerIndex, order, true);
+                                        if (ok)
+                                        {
+                                            LOG_INFO("LuaDownload: Completed for appid=%s\n", pid.c_str());
+                                            try {
+                                                uint32_t appId = std::stoul(pid);
+                                                g_config.addAdditionalAppId(appId);
+                                                Licenses::queueRefresh();
+                                            } catch (...) {
+                                                LOG_WARN("LuaDownload: Failed to register appid=%s in library\n", pid.c_str());
+                                            }
+                                        }
+                                        else
+                                        {
+                                            LOG_INFO("LuaDownload: Failed for appid=%s\n", pid.c_str());
+                                        }
+                                    }).detach();
+                                }
+
+                                std::string respBody = "{\"success\":true}";
+                                std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                send(new_socket, response.c_str(), response.size(), 0);
+                                close(new_socket);
+                                handled = true;
+                            } catch (...) {
+                                handled = false;
+                                close(new_socket);
+                            }
                         }
                         else if (request.find("/install-fix?id=") != std::string::npos)
                         {

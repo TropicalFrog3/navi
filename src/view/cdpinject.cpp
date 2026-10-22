@@ -812,6 +812,59 @@ namespace CDPInject
         return false;
     }
 
+    std::string evalString(const std::string& wsUrl, const std::string& expression)
+    {
+        std::string host;
+        int port = 0;
+        std::string path;
+        if (!parseWsUrl(wsUrl, host, port, path)) return {};
+
+        int sock = tcpConnect(host.c_str(), port);
+        if (sock < 0) return {};
+
+        struct timeval tv;
+        tv.tv_sec = 4;
+        tv.tv_usec = 0;
+        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof(tv));
+        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof(tv));
+
+        std::string wsKey = generateWsKey();
+        if (!wsHandshake(sock, host, port, path, wsKey))
+        {
+            close(sock);
+            return {};
+        }
+
+        std::string escaped;
+        escaped.reserve(expression.size() + 16);
+        for (char c : expression)
+        {
+            switch (c)
+            {
+                case '"':  escaped += "\\\""; break;
+                case '\\': escaped += "\\\\"; break;
+                case '\n': escaped += "\\n"; break;
+                case '\r': escaped += "\\r"; break;
+                case '\t': escaped += "\\t"; break;
+                default:   escaped += c; break;
+            }
+        }
+
+        std::string payload = R"({"id":778,"method":"Runtime.evaluate","params":{"expression":")" + escaped + R"(","returnByValue":true}})";
+        std::string response = cdpSendAndRecv(sock, 778, payload, 10);
+        close(sock);
+
+        // Callers only return strings made of [A-Za-z0-9%._~!*'()-], so the
+        // value never contains JSON escapes and can be sliced out directly.
+        const std::string marker = "\"value\":\"";
+        size_t start = response.find(marker);
+        if (start == std::string::npos) return {};
+        start += marker.size();
+        size_t end = response.find('"', start);
+        if (end == std::string::npos) return {};
+        return response.substr(start, end - start);
+    }
+
     void injectStorePages()
     {
         auto pages = fetchPages();

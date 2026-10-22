@@ -8,6 +8,56 @@
     ping('Script active on: ' + window.location.href);
 
     var observer = null;
+
+    // ── Backend bridge ────────────────────────────────────────────────────
+    // store.steampowered.com's CSP (default-src https:) blocks fetch() to
+    // http://127.0.0.1:9001, and changing location.hash breaks Steam navigation.
+    // Requests are queued as "<id> <path>" strings; the Navi backend drains
+    // window.__naviQueue over CDP, replays them against its local server and
+    // answers through window.__naviResolve(id, status, body).
+    window.__naviQueue = window.__naviQueue || [];
+    var naviPending = {};
+    var naviSeq = 0;
+    window.__naviResolve = function(id, status, body) {
+        var p = naviPending[id];
+        if (!p) return;
+        delete naviPending[id];
+        p(status, body);
+    };
+    function naviFetch(url, opts) {
+        return new Promise(function(resolve, reject) {
+            var path = String(url).replace(/^http:\/\/127\.0\.0\.1:9001/, '');
+            var signal = opts && opts.signal;
+            if (signal && signal.aborted) { reject(new DOMException('Aborted', 'AbortError')); return; }
+            var id = (++naviSeq) + '-' + Date.now();
+            var timer = setTimeout(function() {
+                delete naviPending[id];
+                reject(new Error('Navi bridge timeout'));
+            }, 20000);
+            if (signal) {
+                signal.addEventListener('abort', function() {
+                    if (!naviPending[id]) return;
+                    delete naviPending[id];
+                    clearTimeout(timer);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                });
+            }
+            naviPending[id] = function(status, body) {
+                clearTimeout(timer);
+                if (!status) { reject(new Error('Navi backend unreachable')); return; }
+                resolve({
+                    ok: status >= 200 && status < 300,
+                    status: status,
+                    text: function() { return Promise.resolve(body); },
+                    json: function() {
+                        try { return Promise.resolve(JSON.parse(body)); }
+                        catch (e) { return Promise.reject(e); }
+                    }
+                });
+            };
+            window.__naviQueue.push(id + ' ' + path);
+        });
+    }
     var debounceTimer = null;
 
     function trapSteamGamepadModal(overlay, buttons) {
@@ -286,7 +336,7 @@
     } catch (_) {}
 
     function fetchConfigApiKeys(onLoaded) {
-        fetch('http://127.0.0.1:9001/api-keys')
+        naviFetch('http://127.0.0.1:9001/api-keys')
             .then(function(res) {
                 if (!res.ok) throw new Error('HTTP ' + res.status);
                 return res.json();
@@ -304,23 +354,27 @@
             });
     }
 
+    function naviRequest(path, params) {
+        var qs = Object.keys(params || {}).map(function (k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+        return naviFetch('http://127.0.0.1:9001' + path + (qs ? '?' + qs : ''))
+            .then(function (r) { return r.ok ? r.json().catch(function () { return {}; }) : Promise.reject(r.status); });
+    }
+
     function sendApiKeys() {
         var ryuu = configApiKeys['sls-ryuu-key'] || '';
         var dpbx = configApiKeys['sls-dpbx-key'] || '';
         var hubcap = configApiKeys['sls-hubcap-key'] || '';
 
-        fetch('http://127.0.0.1:9001/set-api-keys?ryuu=' + encodeURIComponent(ryuu) + '&dpbx=' + encodeURIComponent(dpbx) + '&hubcap=' + encodeURIComponent(hubcap)).catch(function() {});
-        window.location.hash = 'sls-auth-RYUU=' + encodeURIComponent(ryuu) + '&DPBX=' + encodeURIComponent(dpbx) + '&HUBCAP=' + encodeURIComponent(hubcap) + '-TS=' + Date.now();
+        naviFetch('http://127.0.0.1:9001/set-api-keys?ryuu=' + encodeURIComponent(ryuu) + '&dpbx=' + encodeURIComponent(dpbx) + '&hubcap=' + encodeURIComponent(hubcap)).catch(function() {});
     }
 
     function sendLuaRequest(appid, providerIndex, customOrder) {
-        var stamp = Date.now();
-        if (providerIndex === null) {
-            var order = customOrder || getProviderOrder();
-            window.location.hash = 'sls-click-auto-' + appid + '-' + order.join(',') + '-' + stamp;
-        } else {
-            window.location.hash = 'sls-click-provider-' + providerIndex + '-' + appid + '-' + stamp;
-        }
+        var params = { id: appid };
+        if (providerIndex === null) params.order = (customOrder || getProviderOrder()).join(',');
+        else params.provider = providerIndex;
+        return naviRequest('/download', params);
     }
 
     // ── Row loading bar ───────────────────────────────────────────────────
@@ -737,7 +791,7 @@
 
         delete appUnlockStatus[appid];
 
-        fetch('http://127.0.0.1:9001/clear-cache?id=' + appid).catch(function() {});
+        naviFetch('http://127.0.0.1:9001/clear-cache?id=' + appid).catch(function() {});
 
         if (btnEl) {
             var origText = btnEl.innerText;
@@ -780,7 +834,7 @@
 
         appUnlockStatus = {};
 
-        fetch('http://127.0.0.1:9001/clear-all-cache').catch(function() {});
+        naviFetch('http://127.0.0.1:9001/clear-all-cache').catch(function() {});
 
         if (btnEl) {
             var origText = btnEl.innerText;
@@ -1099,7 +1153,7 @@
                 // confirmBtn.style.pointerEvents = 'none';
 
                 ping('Remove Lua: ' + productID);
-                window.location.hash = 'sls-click-removelua-' + productID + '-' + Date.now();
+                naviRequest('/remove', { id: productID, game: 'true' }).catch(function() {});
 
                 // Update cached status
                 appUnlockStatus[productID] = { exists: false, pending: false, onlineFixInstalled: false, autoCrackInstalled: false };
@@ -1283,8 +1337,8 @@
                 } else {
                     (function(ll, lb, pid) {
                         var controller = new AbortController();
-                        var timeoutId = setTimeout(function() { controller.abort(); }, 1000);
-                        fetch('http://127.0.0.1:9001/check?id=' + pid, { signal: controller.signal })
+                        var timeoutId = setTimeout(function() { controller.abort(); }, 5000);
+                        naviFetch('http://127.0.0.1:9001/check?id=' + pid, { signal: controller.signal })
                             .then(function(r) { clearTimeout(timeoutId); return r.json(); })
                             .then(function(data) {
                                 appUnlockStatus[pid] = data;
@@ -1391,8 +1445,8 @@
                     // Query the server with a short timeout
                     (function(ll, lb, pid, cb) {
                         var controller = new AbortController();
-                        var timeoutId = setTimeout(function() { controller.abort(); }, 1000);
-                        fetch('http://127.0.0.1:9001/check?id=' + pid, { signal: controller.signal })
+                        var timeoutId = setTimeout(function() { controller.abort(); }, 5000);
+                        naviFetch('http://127.0.0.1:9001/check?id=' + pid, { signal: controller.signal })
                             .then(function(r) { clearTimeout(timeoutId); return r.json(); })
                             .then(function(data) {
                                 appUnlockStatus[pid] = data;
@@ -2039,7 +2093,7 @@
 
     function initLuaLibraryHiding() {
         // Fetch Lua AppIDs from local Navi server
-        fetch('http://127.0.0.1:9001/lua_apps')
+        naviFetch('http://127.0.0.1:9001/lua_apps')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 if (data && Array.isArray(data.appids)) {
