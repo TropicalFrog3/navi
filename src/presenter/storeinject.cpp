@@ -589,47 +589,33 @@ namespace StoreInject
 
         while (!g_shouldStop)
         {
-            // Try to connect to CDP 8080 endpoint
-            int sock = socket(AF_INET, SOCK_STREAM, 0);
+            // Try to connect to CDP 8080 endpoint (dual-stack IPv4/IPv6 with fallback)
+            int sock = CDPInject::tcpConnect("127.0.0.1", 8080, 1);
             if (sock >= 0)
             {
-                struct sockaddr_in serv_addr;
-                serv_addr.sin_family = AF_INET;
-                serv_addr.sin_port = htons(8080);
-                inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr);
-
-                struct timeval tv;
-                tv.tv_sec = 1;
-                tv.tv_usec = 0;
-                setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-                setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
-
-                if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) == 0)
+                // Serve store-page requests roughly every 300ms
+                if (bridgeCounter++ >= 6)
                 {
-                    // Serve store-page requests roughly every 300ms
-                    if (bridgeCounter++ >= 6)
-                    {
-                        bridgeCounter = 0;
-                        pollPageBridge();
-                    }
+                    bridgeCounter = 0;
+                    pollPageBridge();
+                }
 
-                    // Trigger the C++ CDP injector every 5 seconds to inject new pages
-                    if (checkCounter++ >= 100)
+                // Trigger the C++ CDP injector every 5 seconds to inject new pages
+                if (checkCounter++ >= 100)
+                {
+                    if (g_shouldStop)
                     {
-                        if (g_shouldStop)
-                        {
-                            close(sock);
-                            break;
-                        }
-                        CDPInject::injectStorePages();
-                        if (g_shouldStop)
-                        {
-                            close(sock);
-                            break;
-                        }
-                        RemoveLua::injectRemoveLuaScript();
-                        checkCounter = 0;
+                        close(sock);
+                        break;
                     }
+                    CDPInject::injectStorePages();
+                    if (g_shouldStop)
+                    {
+                        close(sock);
+                        break;
+                    }
+                    RemoveLua::injectRemoveLuaScript();
+                    checkCounter = 0;
                 }
                 close(sock);
             }

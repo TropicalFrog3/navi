@@ -24,6 +24,12 @@ namespace CDPInject
     std::vector<CDPPage> fetchPages(const char* host = "127.0.0.1", int port = 8080);
 
     /**
+     * Connect to host:port with a timeout. Supports both IPv4 and IPv6.
+     * Returns socket fd or -1.
+     */
+    int tcpConnect(const char* host, int port, int timeoutSec = 2);
+
+    /**
      * Inject JavaScript into a page via its CDP WebSocket debugger URL.
      * Uses Runtime.evaluate over a minimal WebSocket client (RFC 6455).
      *

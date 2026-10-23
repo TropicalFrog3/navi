@@ -1520,299 +1520,131 @@
     }
 
     // =========================================================================
-    // HIDE LUA-ADDED ITEMS IN LIBRARY WHEN BROWSING THROUGH THE STORE
+    // SYNCHRONIZE LUA-ADDED ITEMS AS OWNED ("IN LIBRARY" LABEL) IN STORE
     // =========================================================================
 
-    var slsLuaAppIds = new Set();
-    var slsLuaAppIdsLoaded = false;
-    var slsHideLibraryStyleEl = null;
+    // Test mode flag: when true, every item/capsule on the page receives the "IN LIBRARY" label.
+    // Can also be toggled at runtime via window.__slsIsTesting.
+    var isTesting = false;
 
-    function isHideLibraryEnabled() {
-        // 1. Check application_config data-search_preferences (Content Hubs, Category, Tags, Sales, AdultOnly)
-        var appConfig = document.getElementById('application_config');
-        if (appConfig) {
-            var searchPrefsAttr = appConfig.getAttribute('data-search_preferences');
-            if (searchPrefsAttr) {
-                try {
-                    var sp = JSON.parse(searchPrefsAttr);
-                    if (sp && sp.hide_owned !== undefined) {
-                        var isEnabled = Boolean(sp.hide_owned);
-                        try { sessionStorage.setItem('sls_steam_hide_owned', isEnabled ? '1' : '0'); } catch(e) {}
-                        return isEnabled;
-                    }
-                } catch(e) {}
-            }
+    function getIsTesting() {
+        if (typeof window !== 'undefined' && typeof window.__slsIsTesting === 'boolean') {
+            return window.__slsIsTesting;
         }
+        return (typeof isTesting !== 'undefined') ? isTesting : false;
+    }
 
-        // 2. Search page inline preference object
-        if (typeof CsearchPreferences !== 'undefined' && CsearchPreferences.hide_owned !== undefined) {
-            var searchVal = Boolean(CsearchPreferences.hide_owned);
-            try { sessionStorage.setItem('sls_steam_hide_owned', searchVal ? '1' : '0'); } catch(e) {}
-            return searchVal;
-        }
+    var slsLuaAppIds = (typeof slsLuaAppIds !== 'undefined') ? slsLuaAppIds : new Set();
+    var slsLuaAppIdsLoaded = (typeof slsLuaAppIdsLoaded !== 'undefined') ? slsLuaAppIdsLoaded : false;
 
-        // 3. Search results container class
-        var searchResults = document.getElementById('search_results');
-        if (searchResults && searchResults.classList.contains('hide_owned')) {
-            try { sessionStorage.setItem('sls_steam_hide_owned', '1'); } catch(e) {}
-            return true;
-        }
-
-        // 4. Active filter sidebar checkbox in /search/
-        var filterControl = document.querySelector('span[data-param="hide"][data-value="hide_owned"]');
-        if (filterControl) {
-            var isFilterChecked = filterControl.classList.contains('checked');
-            try { sessionStorage.setItem('sls_steam_hide_owned', isFilterChecked ? '1' : '0'); } catch(e) {}
-            return isFilterChecked;
-        }
-
-        // 5. Category / Top-grossing preference in localStorage
+    function cleanupLegacyHiding() {
         try {
-            var topPrefs = JSON.parse(localStorage.getItem('topgrossing_prefs') || '{}');
-            if (topPrefs.bFilterLibraryItems !== undefined) {
-                var topVal = Boolean(topPrefs.bFilterLibraryItems);
-                try { sessionStorage.setItem('sls_steam_hide_owned', topVal ? '1' : '0'); } catch(e) {}
-                return topVal;
-            }
+            sessionStorage.removeItem('sls_steam_hide_owned');
         } catch(e) {}
 
-        // 6. Account preferences checkbox if present on page (/account/preferences)
-        var prefCheckbox = document.getElementById('hide_owned');
-        if (prefCheckbox && prefCheckbox.type === 'checkbox') {
-            try { sessionStorage.setItem('sls_steam_hide_owned', prefCheckbox.checked ? '1' : '0'); } catch(e) {}
-            return prefCheckbox.checked;
+        var legacyStyle = document.getElementById('sls-hide-lua-library');
+        if (legacyStyle && legacyStyle.parentNode) {
+            legacyStyle.parentNode.removeChild(legacyStyle);
         }
 
-        // 7. GDynamicStore preferences
-        if (window.GDynamicStore && GDynamicStore.s_preferences && GDynamicStore.s_preferences.hide_owned !== undefined) {
-            var dynVal = Boolean(GDynamicStore.s_preferences.hide_owned);
-            try { sessionStorage.setItem('sls_steam_hide_owned', dynVal ? '1' : '0'); } catch(e) {}
-            return dynVal;
-        }
-
-        // 8. Session fallback: preserves preference across SPA navigation and redirects
-        try {
-            var cached = sessionStorage.getItem('sls_steam_hide_owned');
-            if (cached !== null) {
-                return cached === '1';
+        var legacyHiddenEls = document.querySelectorAll('.sls-lua-library-hidden');
+        for (var i = 0; i < legacyHiddenEls.length; i++) {
+            var el = legacyHiddenEls[i];
+            if (el.classList && typeof el.classList.remove === 'function') {
+                el.classList.remove('sls-lua-library-hidden');
             }
-        } catch(e) {}
-
-        return false;
-    }
-
-    function isMultiItemContainer(el) {
-        if (!el || el === document.body || el === document.documentElement) return true;
-        if (el.id === 'responsive_page_template_content' || 
-            el.id === 'page_content' || 
-            el.id === 'global_header' || 
-            el.id === 'responsive_page_frame' ||
-            el.getAttribute('role') === 'main' || 
-            el.tagName.toLowerCase() === 'main') {
-            return true;
-        }
-        var cls = (el.className && typeof el.className === 'string') ? el.className.toLowerCase() : '';
-        if (cls.indexOf('responsive_page') !== -1 ||
-            cls.indexOf('react_landing_background') !== -1 ||
-            cls.indexOf('capsulelist') !== -1 ||
-            cls.indexOf('capsule_list') !== -1 ||
-            cls.indexOf('capsulegrid') !== -1 ||
-            cls.indexOf('capsule_grid') !== -1 ||
-            cls.indexOf('browsecontentgrid') !== -1 ||
-            cls.indexOf('search_results') !== -1 ||
-            cls.indexOf('categorysectionsctn') !== -1 ||
-            cls.indexOf('facetedbrowseitems') !== -1 ||
-            cls.indexOf('salepagesections') !== -1 ||
-            cls.indexOf('salepagesection') !== -1 ||
-            cls.indexOf('salesection') !== -1 ||
-            cls.indexOf('saleoutercontainer') !== -1 ||
-            cls.indexOf('salebackground') !== -1 ||
-            cls.indexOf('contenthub') !== -1 ||
-            cls.indexOf('carousel') !== -1 ||
-            cls.indexOf('slider') !== -1 ||
-            cls.indexOf('tablist') !== -1 ||
-            cls.indexOf('videorow') !== -1) {
-            return true;
-        }
-        return false;
-    }
-
-    function collapseSingleGameContainers(link, aid) {
-        var strAid = String(aid);
-        var cur = link;
-        var exclusiveAncestors = [];
-        var maxDepth = 8;
-        var depth = 0;
-
-        while (cur && depth < maxDepth) {
-            if (cur === document.body || cur === document.documentElement) break;
-            if (cur.id === 'responsive_page_template_content' || cur.id === 'page_content') break;
-            if (isMultiItemContainer(cur)) break;
-
-            // Multi-app check: does cur contain any link to a DIFFERENT game?
-            var subLinks = cur.querySelectorAll('a[href*="/app/"], [data-ds-appid]');
-            var hasOtherApp = false;
-            for (var i = 0; i < subLinks.length; i++) {
-                var sLink = subLinks[i];
-                var sDs = sLink.getAttribute('data-ds-appid');
-                if (sDs && sDs !== strAid) {
-                    hasOtherApp = true;
-                    break;
-                }
-                var sHref = sLink.getAttribute('href') || sLink.href || '';
-                var sm = sHref.match(/\/app\/([0-9]+)/);
-                if (sm && sm[1] !== strAid) {
-                    hasOtherApp = true;
-                    break;
-                }
-            }
-            if (hasOtherApp) {
-                // cur contains other games, so do not ascend into it
-                break;
-            }
-
-            exclusiveAncestors.push(cur);
-
-            // Check if cur's parent contains other games.
-            // If parent contains other games, cur is the individual item in that list/grid!
-            var parent = cur.parentElement;
-            if (parent) {
-                if (isMultiItemContainer(parent)) {
-                    // Parent is a known multi-item container, so cur is the item
-                    break;
-                }
-                var parentLinks = parent.querySelectorAll('a[href*="/app/"]');
-                var parentHasOther = false;
-                for (var j = 0; j < parentLinks.length; j++) {
-                    var pHref = parentLinks[j].getAttribute('href') || parentLinks[j].href || '';
-                    var pm = pHref.match(/\/app\/([0-9]+)/);
-                    if (pm && pm[1] !== strAid) {
-                        parentHasOther = true;
-                        break;
-                    }
-                }
-                if (parentHasOther) {
-                    // Parent contains other games! cur is the outermost single-game container!
-                    break;
-                }
-            }
-
-            cur = parent;
-            depth++;
-        }
-
-        // Collapse all exclusive ancestors from the link up to the outer grid cell/card
-        for (var k = 0; k < exclusiveAncestors.length; k++) {
-            var el = exclusiveAncestors[k];
-            if (isMultiItemContainer(el)) continue;
-            if (el.id === 'responsive_page_template_content' || el.id === 'page_content' || el === document.body || el === document.documentElement) continue;
-
-            if (!el.classList.contains('sls-lua-library-hidden')) {
-                el.classList.add('sls-lua-library-hidden');
-            }
-            el.style.setProperty('display', 'none', 'important');
-            el.style.setProperty('width', '0px', 'important');
-            el.style.setProperty('height', '0px', 'important');
-            el.style.setProperty('min-width', '0px', 'important');
-            el.style.setProperty('min-height', '0px', 'important');
-            el.style.setProperty('max-width', '0px', 'important');
-            el.style.setProperty('max-height', '0px', 'important');
-            el.style.setProperty('margin', '0px', 'important');
-            el.style.setProperty('padding', '0px', 'important');
-            el.style.setProperty('border', 'none', 'important');
-            el.style.setProperty('outline', 'none', 'important');
-            el.style.setProperty('box-shadow', 'none', 'important');
-            el.style.setProperty('position', 'absolute', 'important');
-            el.style.setProperty('pointer-events', 'none', 'important');
-            el.style.setProperty('visibility', 'hidden', 'important');
-            el.style.setProperty('opacity', '0', 'important');
-        }
-    }
-
-    function filterApplicationConfigData() {
-        var appConfig = document.getElementById('application_config');
-        if (!appConfig || !slsLuaAppIds || slsLuaAppIds.size === 0) return;
-
-        var attrs = appConfig.attributes;
-        for (var i = 0; i < attrs.length; i++) {
-            var attrName = attrs[i].name;
-            if (!attrName || attrName.indexOf('data-') !== 0) continue;
-
-            if (attrName.indexOf('ch_main') !== -1 ||
-                attrName.indexOf('section_') !== -1 ||
-                attrName.indexOf('contenthub') !== -1) {
-                try {
-                    var rawVal = attrs[i].value;
-                    if (!rawVal || (rawVal.indexOf('[') === -1 && rawVal.indexOf('{') === -1)) continue;
-                    var parsed = JSON.parse(rawVal);
-                    var modified = false;
-
-                    if (Array.isArray(parsed)) {
-                        parsed.forEach(function(group) {
-                            if (group && Array.isArray(group.apps)) {
-                                var beforeLen = group.apps.length;
-                                group.apps = group.apps.filter(function(app) {
-                                    return !slsLuaAppIds.has(Number(app.id));
-                                });
-                                if (group.apps.length !== beforeLen) modified = true;
-                            }
-                        });
-                    } else if (parsed && typeof parsed === 'object') {
-                        if (Array.isArray(parsed.appids)) {
-                            var bLen = parsed.appids.length;
-                            parsed.appids = parsed.appids.filter(function(id) {
-                                return !slsLuaAppIds.has(Number(id));
-                            });
-                            if (parsed.appids.length !== bLen) modified = true;
-                        }
-                        if (Array.isArray(parsed.store_item_keys)) {
-                            var bKeysLen = parsed.store_item_keys.length;
-                            parsed.store_item_keys = parsed.store_item_keys.filter(function(key) {
-                                var m = key.match(/app_([0-9]+)/);
-                                return !(m && slsLuaAppIds.has(Number(m[1])));
-                            });
-                            if (parsed.store_item_keys.length !== bKeysLen) modified = true;
-                        }
-                    }
-
-                    if (modified) {
-                        appConfig.setAttribute(attrName, JSON.stringify(parsed));
-                    }
-                } catch(e) {}
+            if (el.style) {
+                el.style.removeProperty('display');
+                el.style.removeProperty('width');
+                el.style.removeProperty('height');
+                el.style.removeProperty('min-width');
+                el.style.removeProperty('min-height');
+                el.style.removeProperty('max-width');
+                el.style.removeProperty('max-height');
+                el.style.removeProperty('margin');
+                el.style.removeProperty('padding');
+                el.style.removeProperty('border');
+                el.style.removeProperty('outline');
+                el.style.removeProperty('box-shadow');
+                el.style.removeProperty('position');
+                el.style.removeProperty('pointer-events');
+                el.style.removeProperty('visibility');
+                el.style.removeProperty('opacity');
+                el.style.removeProperty('overflow');
             }
         }
     }
 
-    function applyLuaLibraryHiding() {
-        if (!slsLuaAppIdsLoaded || slsLuaAppIds.size === 0) return;
+    function applyLuaLibraryOwnership() {
+        var testMode = (typeof getIsTesting === 'function') ? getIsTesting() : (typeof isTesting !== 'undefined' ? isTesting : false);
+        if (!testMode && (!slsLuaAppIdsLoaded || slsLuaAppIds.size === 0)) return;
 
-        // 1. Synchronize into GDynamicStore.s_rgOwnedApps
+        cleanupLegacyHiding();
+
+        // When test mode is active, collect all visible AppIDs from the DOM into the ownership set
+        var targetAppIds = new Set(slsLuaAppIds);
+        if (testMode) {
+            var candidateElements = document.querySelectorAll(
+                '[data-ds-appid], [data-ds-itemkey], a[href*="/app/"], .search_result_row'
+            );
+            for (var ci = 0; ci < candidateElements.length; ci++) {
+                var cel = candidateElements[ci];
+                var cAid = cel.getAttribute('data-ds-appid');
+                if (!cAid) {
+                    var chref = cel.getAttribute('href') || cel.href || '';
+                    var cm = chref.match(/\/app\/([0-9]+)/);
+                    if (cm) cAid = cm[1];
+                }
+                if (cAid) {
+                    var parsedAid = parseInt(cAid, 10);
+                    if (parsedAid) targetAppIds.add(parsedAid);
+                }
+            }
+        }
+
+        // 1. Synchronize into GDynamicStore.s_rgOwnedApps (native "IN LIBRARY" badge on store capsules/rows)
         if (window.GDynamicStore && GDynamicStore.s_rgOwnedApps) {
             var needsDecorate = false;
-            slsLuaAppIds.forEach(function(aid) {
+            targetAppIds.forEach(function(aid) {
                 if (!GDynamicStore.s_rgOwnedApps[aid]) {
                     GDynamicStore.s_rgOwnedApps[aid] = true;
                     needsDecorate = true;
                 }
             });
-            if (needsDecorate && typeof GDynamicStore.DecorateDynamicItems === 'function') {
+
+            // If jQuery is present, un-instrument elements so GDynamicStore decorates already-rendered capsules
+            if (window.jQuery && (testMode || needsDecorate)) {
+                try {
+                    window.jQuery('[data-ds-appid]').each(function() {
+                        var $el = window.jQuery(this);
+                        var aid = $el.data('dsAppid') || $el.attr('data-ds-appid');
+                        if (testMode || (aid && targetAppIds.has(Number(aid)))) {
+                            if (!$el.find('.ds_owned_flag').length) {
+                                $el.removeData('dsInstrumented');
+                            }
+                        }
+                    });
+                } catch(e) {}
+            }
+
+            if ((needsDecorate || testMode) && typeof GDynamicStore.DecorateDynamicItems === 'function') {
                 GDynamicStore.DecorateDynamicItems();
             }
         }
 
         // 2. Synchronize into StoreItemCache if present (used by modern React content hubs)
         if (window.StoreItemCache && StoreItemCache.m_mapApps) {
-            slsLuaAppIds.forEach(function(aid) {
+            targetAppIds.forEach(function(aid) {
                 var app = StoreItemCache.m_mapApps.get(Number(aid));
                 if (app) {
                     if (!app.m_userFilterFailure) app.m_userFilterFailure = {};
                     app.m_userFilterFailure.already_owned = true;
-                    app.m_bVisible = false;
+                    // Preserve normal owned visibility and ribbons without manual hiding
                 }
             });
         }
 
-        // Synchronize into modern Webpack React Query & UserPreferences stores
+        // 3. Synchronize into modern Webpack React Query & UserPreferences stores
         try {
             if (window.webpackChunkstore && Array.isArray(window.webpackChunkstore)) {
                 var req = null;
@@ -1824,7 +1656,7 @@
                             var store = mod6469.Fm.Get();
                             var data = store.ReadData();
                             if (data && data.setOwnedApps) {
-                                slsLuaAppIds.forEach(function(aid) {
+                                targetAppIds.forEach(function(aid) {
                                     data.setOwnedApps.add(Number(aid));
                                 });
                             }
@@ -1833,12 +1665,12 @@
                                 qc.getQueryCache().getAll().forEach(function(q) {
                                     if (q.queryKey && Array.isArray(q.queryKey)) {
                                         if (q.queryKey[0] === 'AccountOwnedApps' && q.state && q.state.data instanceof Set) {
-                                            slsLuaAppIds.forEach(function(aid) {
+                                            targetAppIds.forEach(function(aid) {
                                                 q.state.data.add(Number(aid));
                                             });
                                         }
                                         if (q.queryKey[0] === 'dynamicuserdata' && q.state && q.state.data && q.state.data.setOwnedApps instanceof Set) {
-                                            slsLuaAppIds.forEach(function(aid) {
+                                            targetAppIds.forEach(function(aid) {
                                                 q.state.data.setOwnedApps.add(Number(aid));
                                             });
                                         }
@@ -1851,247 +1683,65 @@
             }
         } catch(e) {}
 
-        // 3. Evaluate whether user has enabled "Hide items in my library"
-        var shouldHide = isHideLibraryEnabled();
-
-        if (!shouldHide) {
-            if (slsHideLibraryStyleEl && slsHideLibraryStyleEl.parentNode) {
-                slsHideLibraryStyleEl.parentNode.removeChild(slsHideLibraryStyleEl);
-                slsHideLibraryStyleEl = null;
-            }
-            document.querySelectorAll('.sls-lua-library-hidden').forEach(function(el) {
-                el.classList.remove('sls-lua-library-hidden');
-                el.style.display = '';
-                el.style.width = '';
-                el.style.height = '';
-                el.style.minWidth = '';
-                el.style.minHeight = '';
-                el.style.maxWidth = '';
-                el.style.maxHeight = '';
-                el.style.margin = '';
-                el.style.padding = '';
-                el.style.border = '';
-                el.style.outline = '';
-                el.style.boxShadow = '';
-                el.style.position = '';
-                el.style.pointerEvents = '';
-                el.style.visibility = '';
-                el.style.opacity = '';
-            });
-            document.querySelectorAll('.carousel__slide, [class*="slide___"]').forEach(function(sl) {
-                sl.style.removeProperty('display');
-            });
-            document.querySelectorAll('[data-sls-moved]').forEach(function(card) {
-                if (card.__slsOriginalParent) {
-                    card.__slsOriginalParent.insertBefore(card, card.__slsOriginalNextSibling || null);
-                    delete card.__slsOriginalParent;
-                    delete card.__slsOriginalNextSibling;
-                    card.removeAttribute('data-sls-moved');
-                }
-            });
-            return;
-        }
-
-        // Ensure root layout wrapper is never hidden
-        var rootContent = document.getElementById('responsive_page_template_content');
-        if (rootContent) {
-            if (rootContent.classList.contains('sls-lua-library-hidden')) {
-                rootContent.classList.remove('sls-lua-library-hidden');
-            }
-            if (rootContent.style.display === 'none') {
-                rootContent.style.removeProperty('display');
-            }
-        }
-
-        // 4. Clean initial data attributes on #application_config to prevent rendering
-        filterApplicationConfigData();
-
-        // 5. Inject scoped CSS rules to cleanly collapse Lua-owned items
-        if (!slsHideLibraryStyleEl) {
-            slsHideLibraryStyleEl = document.createElement('style');
-            slsHideLibraryStyleEl.id = 'sls-hide-lua-library';
-            document.head.appendChild(slsHideLibraryStyleEl);
-        }
-
-        var selectors = [];
-        slsLuaAppIds.forEach(function(aid) {
-            selectors.push(
-                // Direct links
-                'a[href*="/app/' + aid + '/"]',
-                'a[href*="/app/' + aid + '?"]',
-                'a[href$="/app/' + aid + '"]',
-                // Data attributes
-                '[data-ds-appid="' + aid + '"]',
-                '[data-ds-itemkey*="' + aid + '"]',
-                // Panel attributes
-                'div[data-panel*="\\"appid\\":' + aid + '"]',
-                'div[data-panel*="\\"appid\\": ' + aid + '"]',
-                'div[data-panel*="\\"itemid\\":{\\"appid\\":' + aid + '"]',
-                // Standard row / capsule elements
-                '.search_result_row[data-ds-appid="' + aid + '"]',
-                '.tab_item[data-ds-appid="' + aid + '"]',
-                // Scoped container hiding
-                '.search_result_row:has(a[href*="/app/' + aid + '/"])',
-                '.tab_item:has(a[href*="/app/' + aid + '/"])',
-                '.carousel_item:has(a[href*="/app/' + aid + '/"])',
-                '.item_wrapper:has(a[href*="/app/' + aid + '/"])',
-                '[class*="ItemCapsule"]:has(a[href*="/app/' + aid + '/"])',
-                '[class*="SaleItem"]:has(a[href*="/app/' + aid + '/"])'
-            );
-        });
-        selectors.push('.sls-lua-library-hidden');
-        slsHideLibraryStyleEl.textContent = selectors.join(', ') + ' { ' +
-            'display: none !important; ' +
-            'width: 0 !important; ' +
-            'height: 0 !important; ' +
-            'min-width: 0 !important; ' +
-            'min-height: 0 !important; ' +
-            'max-width: 0 !important; ' +
-            'max-height: 0 !important; ' +
-            'margin: 0 !important; ' +
-            'padding: 0 !important; ' +
-            'border: none !important; ' +
-            'outline: none !important; ' +
-            'box-shadow: none !important; ' +
-            'position: absolute !important; ' +
-            'pointer-events: none !important; ' +
-            'visibility: hidden !important; ' +
-            'opacity: 0 !important; ' +
-            'overflow: hidden !important; ' +
-        '}';
-
-        // 6. JavaScript DOM traversal to tag and collapse all container wrappers
-        var allGameLinks = document.querySelectorAll('a[href*="/app/"], [data-ds-appid]');
-        for (var i = 0; i < allGameLinks.length; i++) {
-            var link = allGameLinks[i];
+        // 4. Direct DOM decoration for any capsules/rows not handled by GDynamicStore
+        var targetElements = document.querySelectorAll(
+            '[data-ds-appid], .search_result_row, [class*="salecapsule_"], [class*="CapsuleContainer"], [class*="StoreSaleWidget"], a[href*="/app/"]'
+        );
+        for (var i = 0; i < targetElements.length; i++) {
+            var el = targetElements[i];
             var aid = null;
-            var dsAid = link.getAttribute('data-ds-appid');
+            var dsAid = el.getAttribute('data-ds-appid');
             if (dsAid) {
                 aid = parseInt(dsAid, 10);
             } else {
-                var href = link.getAttribute('href') || link.href || '';
+                var href = el.getAttribute('href') || el.href || '';
                 var m = href.match(/\/app\/([0-9]+)/);
                 if (m) aid = parseInt(m[1], 10);
             }
-            if (aid && slsLuaAppIds.has(aid)) {
-                collapseSingleGameContainers(link, aid);
+
+            if (testMode || (aid && targetAppIds.has(aid))) {
+                if (!el.querySelector('.ds_owned_flag, .sls-in-library-flag')) {
+                    el.classList.add('ds_flagged', 'ds_owned');
+                    var flag = document.createElement('div');
+                    flag.className = 'ds_flag ds_owned_flag sls-in-library-flag';
+                    flag.innerHTML = 'IN LIBRARY&nbsp;&nbsp;';
+
+                    var computedPos = window.getComputedStyle ? window.getComputedStyle(el).position : el.style.position;
+                    if (!computedPos || computedPos === 'static') {
+                        el.style.position = 'relative';
+                    }
+                    el.appendChild(flag);
+                }
             }
         }
 
-        // 7. Reflow carousel trays so the next appid shifts forward to replace hidden items
-        reflowCarouselTrays();
-    }
-
-    function reflowCarouselTrays() {
-        if (!isHideLibraryEnabled()) return;
-
-        var trays = document.querySelectorAll('.carousel__slider-tray');
-        trays.forEach(function(tray) {
-            var rows = Array.from(tray.querySelectorAll('.SaleSectionContainer'));
-            if (rows.length === 0) {
-                var slides = Array.from(tray.children).filter(function(ch) {
-                    return ch.classList.contains('carousel__slide') || (ch.className && typeof ch.className === 'string' && ch.className.indexOf('slide') !== -1);
-                });
-                if (slides.length > 0) rows = slides;
+        // 5. Product/App Page Banner (#game_area_already_owned)
+        var pageMatch = (typeof window !== 'undefined' && window.location && window.location.href)
+            ? window.location.href.match(/\/app\/([0-9]+)/)
+            : null;
+        if (pageMatch && pageMatch[1]) {
+            var pageAid = parseInt(pageMatch[1], 10);
+            if (testMode || targetAppIds.has(pageAid)) {
+                var purchaseArea = document.getElementById('game_area_purchase') || document.querySelector('.game_area_purchase');
+                if (purchaseArea && !document.getElementById('game_area_already_owned')) {
+                    var ownedBanner = document.createElement('div');
+                    ownedBanner.id = 'game_area_already_owned';
+                    ownedBanner.className = 'game_area_already_owned';
+                    ownedBanner.innerHTML = '<div class="ds_flag ds_owned_flag" style="display:inline-block;position:static;margin-right:8px;">IN LIBRARY</div><span>This title is already in your Steam library</span>';
+                    purchaseArea.insertBefore(ownedBanner, purchaseArea.firstChild);
+                }
             }
-            if (rows.length === 0) return;
-
-            var allVisible = [];
-            var allHidden = [];
-            var hasHiddenInTray = false;
-
-            rows.forEach(function(r) {
-                Array.from(r.children).forEach(function(c) {
-                    if (c.classList.contains('sls-lua-library-hidden') || c.style.display === 'none') {
-                        hasHiddenInTray = true;
-                        allHidden.push(c);
-                    } else {
-                        allVisible.push(c);
-                    }
-                });
-            });
-
-            if (!hasHiddenInTray || allVisible.length === 0) return;
-
-            // Re-distribute visible cards into row containers according to each row's capacity
-            var cardIdx = 0;
-            rows.forEach(function(r) {
-                var capacity = 3;
-                var m = r.className && typeof r.className === 'string' ? r.className.match(/ItemCount_([0-9]+)/) : null;
-                if (m) {
-                    capacity = parseInt(m[1], 10);
-                } else {
-                    var pm = r.parentElement && r.parentElement.className && typeof r.parentElement.className === 'string' ? r.parentElement.className.match(/items_in_row_([0-9]+)/) : null;
-                    if (pm) capacity = parseInt(pm[1], 10);
-                    else if (r.dataset.slsCapacity) capacity = parseInt(r.dataset.slsCapacity, 10);
-                    else {
-                        capacity = r.children.length;
-                        r.dataset.slsCapacity = String(capacity);
-                    }
-                }
-
-                var targetCardsForThisRow = allVisible.slice(cardIdx, cardIdx + capacity);
-                cardIdx += capacity;
-
-                var currentVisibleInRow = Array.from(r.children).filter(function(ch) {
-                    return !ch.classList.contains('sls-lua-library-hidden') && ch.style.display !== 'none';
-                });
-
-                var matches = currentVisibleInRow.length === targetCardsForThisRow.length;
-                if (matches) {
-                    for (var k = 0; k < targetCardsForThisRow.length; k++) {
-                        if (currentVisibleInRow[k] !== targetCardsForThisRow[k]) {
-                            matches = false;
-                            break;
-                        }
-                    }
-                }
-
-                if (!matches) {
-                    targetCardsForThisRow.forEach(function(card) {
-                        if (card.parentElement !== r) {
-                            if (!card.__slsOriginalParent) {
-                                card.__slsOriginalParent = card.parentElement;
-                                card.__slsOriginalNextSibling = card.nextSibling;
-                                card.setAttribute('data-sls-moved', 'true');
-                            }
-                        }
-                        r.appendChild(card);
-                    });
-                }
-            });
-
-            // Keep all hidden elements quarantined at the end of the last row
-            var lastRow = rows[rows.length - 1];
-            allHidden.forEach(function(h) {
-                if (h.parentElement !== lastRow || h !== lastRow.lastElementChild) {
-                    if (!h.__slsOriginalParent) {
-                        h.__slsOriginalParent = h.parentElement;
-                        h.__slsOriginalNextSibling = h.nextSibling;
-                        h.setAttribute('data-sls-moved', 'true');
-                    }
-                    lastRow.appendChild(h);
-                }
-            });
-
-            // Hide any slide that has zero visible cards remaining
-            var allSlides = Array.from(tray.children).filter(function(ch) {
-                return ch.classList.contains('carousel__slide') || (ch.className && typeof ch.className === 'string' && ch.className.indexOf('slide') !== -1);
-            });
-            allSlides.forEach(function(slide) {
-                var visibleCards = Array.from(slide.querySelectorAll('a[href*="/app/"]')).filter(function(a) {
-                    return !a.classList.contains('sls-lua-library-hidden') && !a.closest('.sls-lua-library-hidden') && a.style.display !== 'none';
-                });
-                if (visibleCards.length === 0) {
-                    slide.style.setProperty('display', 'none', 'important');
-                } else {
-                    slide.style.removeProperty('display');
-                }
-            });
-        });
+        }
     }
 
-    function initLuaLibraryHiding() {
+    function initLuaLibraryOwnership() {
+        cleanupLegacyHiding();
+
+        // If test mode is enabled, immediately apply ownership decoration to all items
+        if (getIsTesting()) {
+            applyLuaLibraryOwnership();
+        }
+
         // Fetch Lua AppIDs from local Navi server
         naviFetch('http://127.0.0.1:9001/lua_apps')
             .then(function(r) { return r.json(); })
@@ -2101,7 +1751,7 @@
                         slsLuaAppIds.add(Number(id));
                     });
                     slsLuaAppIdsLoaded = true;
-                    applyLuaLibraryHiding();
+                    applyLuaLibraryOwnership();
                 }
             })
             .catch(function(err) {
@@ -2112,25 +1762,10 @@
         if (window.GDynamicStore) {
             if (typeof GDynamicStore.OnReady === 'function') {
                 GDynamicStore.OnReady(function() {
-                    applyLuaLibraryHiding();
+                    applyLuaLibraryOwnership();
                 });
             }
         }
-
-        // Listen for user clicking filter toggles across search and browsing pages
-        document.addEventListener('click', function(e) {
-            var target = e.target;
-            if (target && (
-                target.closest('span[data-param="hide"]') ||
-                target.closest('#hide_owned') ||
-                target.closest('.tab_filter_control_row') ||
-                target.closest('[data-featuretarget*="filter"]') ||
-                target.closest('.facetedbrowse_FacetedBrowseFilterRow')
-            )) {
-                setTimeout(applyLuaLibraryHiding, 50);
-                setTimeout(applyLuaLibraryHiding, 250);
-            }
-        }, true);
     }
 
     function debouncedAddButtons() {
@@ -2138,11 +1773,11 @@
         debounceTimer = requestAnimationFrame(function() {
             debounceTimer = null;
             addButtons();
-            applyLuaLibraryHiding();
+            applyLuaLibraryOwnership();
         });
     }
 
-    initLuaLibraryHiding();
+    initLuaLibraryOwnership();
     addButtons();
     observer = new MutationObserver(debouncedAddButtons);
     if (document.documentElement) observer.observe(document.documentElement, { childList: true, subtree: true });

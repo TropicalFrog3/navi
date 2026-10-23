@@ -18,6 +18,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
@@ -99,30 +100,68 @@ namespace CDPInject
     // ── TCP helper ──
 
     /**
-     * Connect to host:port with a timeout. Returns socket fd or -1.
+     * Connect to host:port with a timeout. Supports both IPv4 and IPv6.
+     * Returns socket fd or -1.
      */
-    static int tcpConnect(const char* host, int port, int timeoutSec = 2)
+    int tcpConnect(const char* host, int port, int timeoutSec)
     {
-        int sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock < 0) return -1;
+        if (!host || port <= 0) return -1;
 
-        struct sockaddr_in addr{};
-        addr.sin_family = AF_INET;
-        addr.sin_port = htons(port);
-        inet_pton(AF_INET, host, &addr.sin_addr);
+        auto tryConnect = [](const char* targetHost, int targetPort, int timeout) -> int {
+            std::string cleanHost = targetHost;
+            if (cleanHost.size() >= 2 && cleanHost.front() == '[' && cleanHost.back() == ']')
+            {
+                cleanHost = cleanHost.substr(1, cleanHost.size() - 2);
+            }
 
-        struct timeval tv;
-        tv.tv_sec = timeoutSec;
-        tv.tv_usec = 0;
-        setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-        setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+            struct addrinfo hints{};
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_socktype = SOCK_STREAM;
 
-        if (connect(sock, (struct sockaddr*)&addr, sizeof(addr)) != 0)
+            std::string portStr = std::to_string(targetPort);
+            struct addrinfo* res = nullptr;
+            if (getaddrinfo(cleanHost.c_str(), portStr.c_str(), &hints, &res) != 0 || !res)
+            {
+                return -1;
+            }
+
+            int sock = -1;
+            for (struct addrinfo* p = res; p != nullptr; p = p->ai_next)
+            {
+                sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+                if (sock < 0) continue;
+
+                struct timeval tv;
+                tv.tv_sec = timeout;
+                tv.tv_usec = 0;
+                setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+                setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+
+                if (connect(sock, p->ai_addr, p->ai_addrlen) == 0)
+                {
+                    break;
+                }
+                close(sock);
+                sock = -1;
+            }
+            freeaddrinfo(res);
+            return sock;
+        };
+
+        int sock = tryConnect(host, port, timeoutSec);
+        if (sock >= 0) return sock;
+
+        // Fallback between IPv4 and IPv6 loopback
+        if (std::strcmp(host, "127.0.0.1") == 0)
         {
-            close(sock);
-            return -1;
+            return tryConnect("::1", port, timeoutSec);
         }
-        return sock;
+        else if (std::strcmp(host, "::1") == 0 || std::strcmp(host, "[::1]") == 0)
+        {
+            return tryConnect("127.0.0.1", port, timeoutSec);
+        }
+
+        return -1;
     }
 
     /**
@@ -179,29 +218,49 @@ namespace CDPInject
 
     /**
      * Parse a ws:// URL into host, port, path.
-     * Expected format: ws://host:port/path
+     * Expected format: ws://host:port/path or ws://[::1]:port/path
      */
     static bool parseWsUrl(const std::string& wsUrl, std::string& host, int& port, std::string& path)
     {
-        // ws://127.0.0.1:8080/devtools/page/XXXX
         if (wsUrl.rfind("ws://", 0) != 0) return false;
 
         size_t hostStart = 5; // after "ws://"
-        size_t colonPos = wsUrl.find(':', hostStart);
-        if (colonPos == std::string::npos) return false;
+        size_t colonPos = std::string::npos;
 
-        host = wsUrl.substr(hostStart, colonPos - hostStart);
-
-        size_t slashPos = wsUrl.find('/', colonPos);
-        if (slashPos == std::string::npos)
+        if (hostStart < wsUrl.size() && wsUrl[hostStart] == '[')
         {
-            port = std::stoi(wsUrl.substr(colonPos + 1));
-            path = "/";
+            size_t bracketEnd = wsUrl.find(']', hostStart);
+            if (bracketEnd == std::string::npos) return false;
+
+            host = wsUrl.substr(hostStart + 1, bracketEnd - hostStart - 1);
+            colonPos = bracketEnd + 1;
+            if (colonPos >= wsUrl.size() || wsUrl[colonPos] != ':') return false;
         }
         else
         {
-            port = std::stoi(wsUrl.substr(colonPos + 1, slashPos - colonPos - 1));
-            path = wsUrl.substr(slashPos);
+            colonPos = wsUrl.find(':', hostStart);
+            if (colonPos == std::string::npos) return false;
+
+            host = wsUrl.substr(hostStart, colonPos - hostStart);
+        }
+
+        size_t slashPos = wsUrl.find('/', colonPos);
+        try
+        {
+            if (slashPos == std::string::npos)
+            {
+                port = std::stoi(wsUrl.substr(colonPos + 1));
+                path = "/";
+            }
+            else
+            {
+                port = std::stoi(wsUrl.substr(colonPos + 1, slashPos - colonPos - 1));
+                path = wsUrl.substr(slashPos);
+            }
+        }
+        catch (...)
+        {
+            return false;
         }
         return true;
     }
@@ -227,9 +286,15 @@ namespace CDPInject
      */
     static bool wsHandshake(int sock, const std::string& host, int port, const std::string& path, const std::string& wsKey)
     {
+        std::string hostHeader = host;
+        if (hostHeader.find(':') != std::string::npos && hostHeader.front() != '[')
+        {
+            hostHeader = "[" + hostHeader + "]";
+        }
+
         std::ostringstream req;
         req << "GET " << path << " HTTP/1.1\r\n"
-            << "Host: " << host << ":" << port << "\r\n"
+            << "Host: " << hostHeader << ":" << port << "\r\n"
             << "Upgrade: websocket\r\n"
             << "Connection: Upgrade\r\n"
             << "Sec-WebSocket-Key: " << wsKey << "\r\n"
@@ -380,19 +445,21 @@ namespace CDPInject
 
     // ── Public API ──
 
-    std::vector<CDPPage> fetchPages(const char* host, int port)
+    static std::vector<CDPPage> fetchPagesOnce(const char* host, int port)
     {
         std::vector<CDPPage> pages;
 
         int sock = tcpConnect(host, port);
         if (sock < 0) return pages;
 
+        std::string hostHeader = host;
+        if (hostHeader.find(':') != std::string::npos && hostHeader.front() != '[')
+        {
+            hostHeader = "[" + hostHeader + "]";
+        }
+
         // Send HTTP GET /json
-        std::string httpReq = "GET /json HTTP/1.1\r\nHost: ";
-        httpReq += host;
-        httpReq += ":";
-        httpReq += std::to_string(port);
-        httpReq += "\r\nConnection: close\r\n\r\n";
+        std::string httpReq = "GET /json HTTP/1.1\r\nHost: " + hostHeader + ":" + std::to_string(port) + "\r\nConnection: close\r\n\r\n";
         send(sock, httpReq.c_str(), httpReq.size(), 0);
 
         std::string response = tcpReadAll(sock);
@@ -419,6 +486,24 @@ namespace CDPInject
             page.webSocketDebuggerUrl = jsonGetString(obj, "webSocketDebuggerUrl");
             page.type = jsonGetString(obj, "type");
             pages.push_back(std::move(page));
+        }
+
+        return pages;
+    }
+
+    std::vector<CDPPage> fetchPages(const char* host, int port)
+    {
+        auto pages = fetchPagesOnce(host, port);
+        if (!pages.empty()) return pages;
+
+        // Fallback between IPv4 and IPv6 loopback
+        if (std::strcmp(host, "127.0.0.1") == 0)
+        {
+            return fetchPagesOnce("::1", port);
+        }
+        else if (std::strcmp(host, "::1") == 0 || std::strcmp(host, "[::1]") == 0)
+        {
+            return fetchPagesOnce("127.0.0.1", port);
         }
 
         return pages;

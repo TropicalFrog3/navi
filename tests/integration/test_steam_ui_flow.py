@@ -79,16 +79,31 @@ class SteamCDPClient:
         self.port = port
         self.base_url = f"http://127.0.0.1:{self.port}"
 
+    def _get_base_url(self):
+        for host in ["127.0.0.1", "[::1]"]:
+            url = f"http://{host}:{self.port}"
+            try:
+                req = urllib.request.Request(f"{url}/json")
+                with urllib.request.urlopen(req, timeout=1) as resp:
+                    if resp.status == 200:
+                        self.base_url = url
+                        return url
+            except Exception:
+                pass
+        return self.base_url
+
     def is_reachable(self):
         try:
-            req = urllib.request.Request(f"{self.base_url}/json")
+            url = self._get_base_url()
+            req = urllib.request.Request(f"{url}/json")
             with urllib.request.urlopen(req, timeout=2) as resp:
                 return resp.status == 200
         except Exception:
             return False
 
     def get_targets(self):
-        req = urllib.request.Request(f"{self.base_url}/json")
+        url = self._get_base_url()
+        req = urllib.request.Request(f"{url}/json")
         with urllib.request.urlopen(req, timeout=3) as resp:
             return json.loads(resp.read().decode("utf-8"))
 
