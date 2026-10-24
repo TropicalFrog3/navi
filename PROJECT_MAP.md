@@ -4,7 +4,7 @@
 
 ## Generation Metadata
 
-- **Generation Command:** `project_map generate --output PROJECT_MAP.md`
+- **Generation Command:** `project_map generate`
 - **Project Root:** `/home/nicolas/Documents/my-github/SLSsteam_n_ACCELA`
 - **Scope (Include):** *All eligible source files*
 - **Exclusions:** *Default build/vendor ignores*
@@ -33,18 +33,18 @@
 
 | Metric | Value |
 | :--- | :--- |
-| Scanned Source Files | 239 |
-| Total Source Lines | 45104 |
-| Total Symbols Extracted | 714 |
+| Scanned Source Files | 240 |
+| Total Source Lines | 45160 |
+| Total Symbols Extracted | 718 |
 | Classes & Structs | 27 |
-| Functions & Methods | 687 |
-| External Dependencies | 96 |
-| Resolved Direct References | 699 |
+| Functions & Methods | 691 |
+| External Dependencies | 97 |
+| Resolved Direct References | 697 |
 | Dynamic / Uncertain References | 72 |
 
 ### External Dependencies
 
-`Crypto`, `X11/XKBlib`, `X11/Xlib`, `__future__`, `abc`, `algorithm`, `argparse`, `arpa/inet`, `ast`, `atomic`, `cctype`, `cerrno`, `charconv`, `chrono`, `cmath`, `collections`, `cstdarg`, `cstddef`, `cstdint`, `cstdio`, `cstdlib`, `cstring`, `curl/curl`, `dataclasses`, `datetime`, `dlfcn`, `elf`, `elftools`, `enum`, `errno`, `fcntl`, `filesystem`, `fnmatch`, `fstream`, `functional`, `future`, `glob`, `gtest/gtest`, `hashlib`, `iomanip`, `ios`, `iostream`, `iterator`, `json`, `link`, `linux/input`, `linux/joystick`, `linux/limits`, `map`, `memory`, `mutex`, `netinet/in`, `openssl/sha`, `optional`, `os`, `pathlib`, `project_map`, `pthread`, `pytest`, `random`, `re`, `regex`, `set`, `shared_mutex`, `shutil`, `signal`, `sstream`, `stdarg`, `stdexcept`, `stdio`, `string`, `string_view`, `strings`, `struct`, `subprocess`, `sys`, `sys/inotify`, `sys/ioctl`, `sys/mman`, `sys/socket`, `sys/stat`, `sys/types`, `sys/wait`, `system_error`, `thread`, `time`, `type_traits`, `typing`, `unistd`, `unittest`, `unordered_map`, `unordered_set`, `urllib`, `utility`, `vector`, `websocket`
+`Crypto`, `X11/XKBlib`, `X11/Xlib`, `__future__`, `abc`, `algorithm`, `argparse`, `arpa/inet`, `ast`, `atomic`, `cctype`, `cerrno`, `charconv`, `chrono`, `cmath`, `collections`, `cstdarg`, `cstddef`, `cstdint`, `cstdio`, `cstdlib`, `cstring`, `curl/curl`, `dataclasses`, `datetime`, `dlfcn`, `elf`, `elftools`, `enum`, `errno`, `fcntl`, `filesystem`, `fnmatch`, `fstream`, `functional`, `future`, `glob`, `gtest/gtest`, `hashlib`, `iomanip`, `ios`, `iostream`, `iterator`, `json`, `link`, `linux/input`, `linux/joystick`, `linux/limits`, `map`, `memory`, `mutex`, `netdb`, `netinet/in`, `openssl/sha`, `optional`, `os`, `pathlib`, `project_map`, `pthread`, `pytest`, `random`, `re`, `regex`, `set`, `shared_mutex`, `shutil`, `signal`, `sstream`, `stdarg`, `stdexcept`, `stdio`, `string`, `string_view`, `strings`, `struct`, `subprocess`, `sys`, `sys/inotify`, `sys/ioctl`, `sys/mman`, `sys/socket`, `sys/stat`, `sys/types`, `sys/wait`, `system_error`, `thread`, `time`, `type_traits`, `typing`, `unistd`, `unittest`, `unordered_map`, `unordered_set`, `urllib`, `utility`, `vector`, `websocket`
 
 
 ### Central & High-Fan-Out Symbols
@@ -52,17 +52,17 @@
 | Symbol | Kind | Inbound Callers | Outbound Calls | Location |
 | :--- | :--- | :--- | :--- | :--- |
 | [`run_project_map`](#sym-scripts-project_map-engine-py-run_project_map) | `function` | 10 | 8 | [scripts/project_map/engine.py#L18-L122](#file-scripts-project_map-engine-py) |
-| [`log_info`](#sym-tests-integration-test_steam_ui_flow-py-log_info) | `function` | 15 | 0 | [tests/integration/test_steam_ui_flow.py#L72-L73](#file-tests-integration-test_steam_ui_flow-py) |
 | [`log_step`](#sym-tests-integration-test_steam_ui_flow-py-log_step) | `function` | 15 | 0 | [tests/integration/test_steam_ui_flow.py#L63-L64](#file-tests-integration-test_steam_ui_flow-py) |
 | [`log_pass`](#sym-tests-integration-test_steam_ui_flow-py-log_pass) | `function` | 15 | 0 | [tests/integration/test_steam_ui_flow.py#L66-L67](#file-tests-integration-test_steam_ui_flow-py) |
+| [`log_info`](#sym-tests-integration-test_steam_ui_flow-py-log_info) | `function` | 15 | 0 | [tests/integration/test_steam_ui_flow.py#L72-L73](#file-tests-integration-test_steam_ui_flow-py) |
 | [`run_installer`](#sym-tests-conftest-py-run_installer) | `function` | 13 | 0 | [tests/conftest.py#L70-L88](#file-tests-conftest-py) |
 | [`ParseConfig`](#sym-scripts-project_map-models-py-parseconfig) | `class` | 10 | 0 | [scripts/project_map/models.py#L152-L164](#file-scripts-project_map-models-py) |
-| [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `method` | 9 | 0 | [tests/integration/test_steam_ui_flow.py#L388-L417](#file-tests-integration-test_steam_ui_flow-py) |
+| [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `method` | 9 | 0 | [tests/integration/test_steam_ui_flow.py#L403-L432](#file-tests-integration-test_steam_ui_flow-py) |
 | [`main`](#sym-scripts-project_map-cli-py-main) | `function` | 4 | 3 | [scripts/project_map/cli.py#L168-L182](#file-scripts-project_map-cli-py) |
-| [`SteamUIFlowTest.test_02_clean_slate_preflight`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_02_clean_slate_preflight) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L435-L546](#file-tests-integration-test_steam_ui_flow-py) |
-| [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1200-L1334](#file-tests-integration-test_steam_ui_flow-py) |
-| [`SteamUIFlowTest.test_12_uninstall_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_12_uninstall_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1336-L1406](#file-tests-integration-test_steam_ui_flow-py) |
-| [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `method` | 0 | 5 | [tests/integration/test_steam_ui_flow.py#L183-L307](#file-tests-integration-test_steam_ui_flow-py) |
+| [`SteamUIFlowTest.test_02_clean_slate_preflight`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_02_clean_slate_preflight) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L450-L561](#file-tests-integration-test_steam_ui_flow-py) |
+| [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1215-L1349](#file-tests-integration-test_steam_ui_flow-py) |
+| [`SteamUIFlowTest.test_12_uninstall_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_12_uninstall_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1351-L1421](#file-tests-integration-test_steam_ui_flow-py) |
+| [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `method` | 0 | 5 | [tests/integration/test_steam_ui_flow.py#L198-L322](#file-tests-integration-test_steam_ui_flow-py) |
 
 ### Key Entry Points & Public APIs
 
@@ -71,8 +71,8 @@
 | [`main`](#sym-agents-skills-steam-version-update-scripts-audit_client_hash-py-main) | `function` | `def main():` | `.agents/skills/steam-version-update/scripts/audit_client_hash.py:60` |
 | [`main`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-main) | `function` | `def main():` | `.agents/skills/steam-version-update/scripts/audit_vftable.py:139` |
 | [`main`](#sym-scripts-project_map-cli-py-main) | `function` | `def main(argv: Optional[List[str]] = None) -> int:` | `scripts/project_map/cli.py:168` |
-| [`main`](#sym-tests-inspect_store_ui-py-main) | `function` | `def main():` | `tests/inspect_store_ui.py:440` |
-| [`main`](#sym-tests-integration-test_steam_ui_flow-py-main) | `function` | `def main():` | `tests/integration/test_steam_ui_flow.py:1540` |
+| [`main`](#sym-tests-inspect_store_ui-py-main) | `function` | `def main():` | `tests/inspect_store_ui.py:455` |
+| [`main`](#sym-tests-integration-test_steam_ui_flow-py-main) | `function` | `def main():` | `tests/integration/test_steam_ui_flow.py:1555` |
 
 ## Directory Tree & File Skeleton
 
@@ -316,7 +316,8 @@ SLSsteam_n_ACCELA/
 │   ├── integration/
 │   │   ├── test_installer.py
 │   │   ├── test_migration.py
-│   │   └── test_steam_ui_flow.py
+│   │   ├── test_steam_ui_flow.py
+│   │   └── test_store_script.py
 │   ├── unit/
 │   │   ├── test_config.cpp
 │   │   ├── test_depotkeys.cpp
@@ -428,12 +429,12 @@ SLSsteam_n_ACCELA/
 | [res/cache.diff.yaml](#file-res-cache-diff-yaml) | `cache.diff` | `generic` | 8 | 0 | 8 lines (no parser registered) |
 | [res/config.diff.yaml](#file-res-config-diff-yaml) | `config.diff` | `generic` | 21 | 0 | 21 lines (no parser registered) |
 | [res/config.yaml](#file-res-config-yaml) | `config` | `generic` | 151 | 0 | 151 lines (no parser registered) |
-| [res/inject-scripts/app-details-script.js](#file-res-inject-scripts-app-details-script-js) | `app-details-script` | `javascript` | 876 | 25 | 876 lines, 0 classes/interfaces, 12 functions/methods |
+| [res/inject-scripts/app-details-script.js](#file-res-inject-scripts-app-details-script-js) | `app-details-script` | `javascript` | 873 | 25 | 873 lines, 0 classes/interfaces, 12 functions/methods |
 | [res/inject-scripts/auto-collection.js](#file-res-inject-scripts-auto-collection-js) | `auto-collection` | `javascript` | 70 | 1 | 70 lines, 0 classes/interfaces, 1 functions/methods |
 | [res/inject-scripts/depot-selection-script.js](#file-res-inject-scripts-depot-selection-script-js) | `depot-selection-script` | `javascript` | 600 | 16 | 600 lines, 0 classes/interfaces, 11 functions/methods |
 | [res/inject-scripts/import-lua-script.js](#file-res-inject-scripts-import-lua-script-js) | `import-lua-script` | `javascript` | 1199 | 26 | 1199 lines, 0 classes/interfaces, 13 functions/methods |
 | [res/inject-scripts/navi_inject.js](#file-res-inject-scripts-navi_inject-js) | `navi_inject` | `javascript` | 190 | 4 | 190 lines, 0 classes/interfaces, 4 functions/methods |
-| [res/inject-scripts/store-page-script.js](#file-res-inject-scripts-store-page-script-js) | `store-page-script` | `javascript` | 2149 | 52 | 2149 lines, 0 classes/interfaces, 37 functions/methods |
+| [res/inject-scripts/store-page-script.js](#file-res-inject-scripts-store-page-script-js) | `store-page-script` | `javascript` | 1784 | 49 | 1784 lines, 0 classes/interfaces, 35 functions/methods |
 | [res/inject-scripts/version-top-bar.js](#file-res-inject-scripts-version-top-bar-js) | `version-top-bar` | `javascript` | 35 | 1 | 35 lines, 0 classes/interfaces, 1 functions/methods |
 | [res/navi-native.desktop](#file-res-navi-native-desktop) | `navi-native` | `generic` | 283 | 0 | 283 lines (no parser registered) |
 | [res/navi.desktop](#file-res-navi-desktop) | `navi` | `generic` | 282 | 0 | 282 lines (no parser registered) |
@@ -553,7 +554,7 @@ SLSsteam_n_ACCELA/
 | [src/presenter/hooks.hpp](#file-src-presenter-hooks-hpp) | `hooks` | `cpp` | 233 | 12 | 233 lines, 0 classes/structs, 12 functions/methods |
 | [src/presenter/licenses.cpp](#file-src-presenter-licenses-cpp) | `licenses` | `cpp` | 307 | 7 | 307 lines, 0 classes/structs, 7 functions/methods |
 | [src/presenter/licenses.hpp](#file-src-presenter-licenses-hpp) | `licenses` | `cpp` | 29 | 13 | 29 lines, 0 classes/structs, 13 functions/methods |
-| [src/presenter/luadownload.cpp](#file-src-presenter-luadownload-cpp) | `luadownload` | `cpp` | 939 | 6 | 939 lines, 0 classes/structs, 6 functions/methods |
+| [src/presenter/luadownload.cpp](#file-src-presenter-luadownload-cpp) | `luadownload` | `cpp` | 917 | 7 | 917 lines, 0 classes/structs, 7 functions/methods |
 | [src/presenter/luadownload.hpp](#file-src-presenter-luadownload-hpp) | `luadownload` | `cpp` | 25 | 1 | 25 lines, 0 classes/structs, 1 functions/methods |
 | [src/presenter/luagenerator.cpp](#file-src-presenter-luagenerator-cpp) | `luagenerator` | `cpp` | 151 | 1 | 151 lines, 0 classes/structs, 1 functions/methods |
 | [src/presenter/luagenerator.hpp](#file-src-presenter-luagenerator-hpp) | `luagenerator` | `cpp` | 16 | 2 | 16 lines, 0 classes/structs, 2 functions/methods |
@@ -564,7 +565,7 @@ SLSsteam_n_ACCELA/
 | [src/presenter/nativeinstall.hpp](#file-src-presenter-nativeinstall-hpp) | `nativeinstall` | `cpp` | 45 | 12 | 45 lines, 0 classes/structs, 12 functions/methods |
 | [src/presenter/removelua.cpp](#file-src-presenter-removelua-cpp) | `removelua` | `cpp` | 163 | 2 | 163 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/removelua.hpp](#file-src-presenter-removelua-hpp) | `removelua` | `cpp` | 11 | 1 | 11 lines, 0 classes/structs, 1 functions/methods |
-| [src/presenter/storeinject.cpp](#file-src-presenter-storeinject-cpp) | `storeinject` | `cpp` | 1601 | 8 | 1601 lines, 1 classes/structs, 7 functions/methods |
+| [src/presenter/storeinject.cpp](#file-src-presenter-storeinject-cpp) | `storeinject` | `cpp` | 1587 | 8 | 1587 lines, 1 classes/structs, 7 functions/methods |
 | [src/presenter/storeinject.hpp](#file-src-presenter-storeinject-hpp) | `storeinject` | `cpp` | 18 | 2 | 18 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/ticket.cpp](#file-src-presenter-ticket-cpp) | `ticket` | `cpp` | 268 | 2 | 268 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/ticket.hpp](#file-src-presenter-ticket-hpp) | `ticket` | `cpp` | 46 | 13 | 46 lines, 0 classes/structs, 13 functions/methods |
@@ -572,8 +573,8 @@ SLSsteam_n_ACCELA/
 | [src/presenter/tier0hook.hpp](#file-src-presenter-tier0hook-hpp) | `tier0hook` | `cpp` | 42 | 3 | 42 lines, 0 classes/structs, 3 functions/methods |
 | [src/presenter/update.cpp](#file-src-presenter-update-cpp) | `update` | `cpp` | 217 | 0 | 217 lines, 0 classes/structs, 0 functions/methods |
 | [src/presenter/update.hpp](#file-src-presenter-update-hpp) | `update` | `cpp` | 22 | 6 | 22 lines, 0 classes/structs, 6 functions/methods |
-| [src/view/cdpinject.cpp](#file-src-view-cdpinject-cpp) | `cdpinject` | `cpp` | 1016 | 4 | 1016 lines, 0 classes/structs, 4 functions/methods |
-| [src/view/cdpinject.hpp](#file-src-view-cdpinject-hpp) | `cdpinject` | `cpp` | 78 | 9 | 78 lines, 0 classes/structs, 9 functions/methods |
+| [src/view/cdpinject.cpp](#file-src-view-cdpinject-cpp) | `cdpinject` | `cpp` | 1101 | 4 | 1101 lines, 0 classes/structs, 4 functions/methods |
+| [src/view/cdpinject.hpp](#file-src-view-cdpinject-hpp) | `cdpinject` | `cpp` | 84 | 10 | 84 lines, 0 classes/structs, 10 functions/methods |
 | [src/view/cefsizefix.cpp](#file-src-view-cefsizefix-cpp) | `cefsizefix` | `cpp` | 309 | 6 | 309 lines, 0 classes/structs, 6 functions/methods |
 | [src/view/cefsizefix.hpp](#file-src-view-cefsizefix-hpp) | `cefsizefix` | `cpp` | 25 | 2 | 25 lines, 0 classes/structs, 2 functions/methods |
 | [src/view/storeinject_view.cpp](#file-src-view-storeinject_view-cpp) | `storeinject_view` | `cpp` | 219 | 1 | 219 lines, 0 classes/structs, 1 functions/methods |
@@ -581,10 +582,11 @@ SLSsteam_n_ACCELA/
 | [tests/conftest.py](#file-tests-conftest-py) | `tests.conftest` | `python` | 88 | 5 | 88 lines, 0 classes, 5 functions/methods |
 | [tests/fixtures/__init__.py](#file-tests-fixtures-__init__-py) | `tests.fixtures` | `python` | 1 | 0 | 1 lines, 0 classes, 0 functions/methods |
 | [tests/fixtures/legacy_migration_fixtures.py](#file-tests-fixtures-legacy_migration_fixtures-py) | `tests.fixtures.legacy_migration_fixtures` | `python` | 151 | 5 | 151 lines, 0 classes, 5 functions/methods |
-| [tests/inspect_store_ui.py](#file-tests-inspect_store_ui-py) | `tests.inspect_store_ui` | `python` | 490 | 12 | 490 lines, 1 classes, 11 functions/methods |
+| [tests/inspect_store_ui.py](#file-tests-inspect_store_ui-py) | `tests.inspect_store_ui` | `python` | 505 | 12 | 505 lines, 1 classes, 11 functions/methods |
 | [tests/integration/test_installer.py](#file-tests-integration-test_installer-py) | `tests.integration.test_installer` | `python` | 227 | 6 | 227 lines, 0 classes, 6 functions/methods |
 | [tests/integration/test_migration.py](#file-tests-integration-test_migration-py) | `tests.integration.test_migration` | `python` | 237 | 7 | 237 lines, 0 classes, 7 functions/methods |
-| [tests/integration/test_steam_ui_flow.py](#file-tests-integration-test_steam_ui_flow-py) | `tests.integration.test_steam_ui_flow` | `python` | 1577 | 39 | 1577 lines, 2 classes, 37 functions/methods |
+| [tests/integration/test_steam_ui_flow.py](#file-tests-integration-test_steam_ui_flow-py) | `tests.integration.test_steam_ui_flow` | `python` | 1592 | 39 | 1592 lines, 2 classes, 37 functions/methods |
+| [tests/integration/test_store_script.py](#file-tests-integration-test_store_script-py) | `tests.integration.test_store_script` | `python` | 339 | 6 | 339 lines, 0 classes, 6 functions/methods |
 | [tests/test_project_map.py](#file-tests-test_project_map-py) | `tests.test_project_map` | `python` | 519 | 14 | 519 lines, 0 classes, 14 functions/methods |
 | [tests/unit/test_config.cpp](#file-tests-unit-test_config-cpp) | `test_config` | `cpp` | 240 | 3 | 240 lines, 0 classes/structs, 3 functions/methods |
 | [tests/unit/test_depotkeys.cpp](#file-tests-unit-test_depotkeys-cpp) | `test_depotkeys` | `cpp` | 263 | 5 | 263 lines, 0 classes/structs, 5 functions/methods |
@@ -623,20 +625,20 @@ SLSsteam_n_ACCELA/
 | [`audit_class_vtable`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-audit_class_vtable) | `function` | `+` public | [.agents/skills/steam-version-update/scripts/audit_vftable.py:L30-L137](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | *(root)* |
 | [`find_binary`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-find_binary) | `function` | `+` public | [.agents/skills/steam-version-update/scripts/audit_vftable.py:L19-L28](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | *(root)* |
 | [`main`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-main) | `function` | `+` public | [.agents/skills/steam-version-update/scripts/audit_vftable.py:L139-L148](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | *(root)* |
-| [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L825-L825](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L822-L822](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`checkAndCreateButton`](#sym-res-inject-scripts-app-details-script-js-checkandcreatebutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L165-L165](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`createRemoveButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L628-L628](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`createRemoveButton.makeSteamButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-makesteambutton) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L651-L651](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
-| [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L702-L702](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
-| [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L757-L757](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
-| [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L854-L854](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`createRemoveButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L625-L625](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`createRemoveButton.makeSteamButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-makesteambutton) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L648-L648](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L699-L699](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L754-L754](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L851-L851](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`extractAppId`](#sym-res-inject-scripts-app-details-script-js-extractappid) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L98-L98](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`log`](#sym-res-inject-scripts-app-details-script-js-log) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L6-L6](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`openChangeProviderModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L337-L337](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L388-L388](#file-res-inject-scripts-app-details-script-js) | `openChangeProviderModal` |
-| [`openNaviModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L521-L521](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`openNaviModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L577-L577](#file-res-inject-scripts-app-details-script-js) | `openNaviModal` |
-| [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L470-L470](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openChangeProviderModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L334-L334](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L385-L385](#file-res-inject-scripts-app-details-script-js) | `openChangeProviderModal` |
+| [`openNaviModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L518-L518](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openNaviModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L574-L574](#file-res-inject-scripts-app-details-script-js) | `openNaviModal` |
+| [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L467-L467](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`openSlsConfig`](#sym-res-inject-scripts-app-details-script-js-openslsconfig) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L201-L201](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L258-L258](#file-res-inject-scripts-app-details-script-js) | `openSlsConfig` |
 | [`openSlsConfig.updateCrackBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatecrackbtn) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L297-L297](#file-res-inject-scripts-app-details-script-js) | `openSlsConfig` |
@@ -696,23 +698,20 @@ SLSsteam_n_ACCELA/
 | [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L100-L100](#file-res-inject-scripts-navi_inject-js) | *(root)* |
 | [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L109-L109](#file-res-inject-scripts-navi_inject-js) | *(root)* |
 | [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1287-L1287](#file-res-inject-scripts-store-page-script-js) | *(root)* |
+| [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1578-L1578](#file-res-inject-scripts-store-page-script-js) | *(root)* |
+| [`cleanupLegacyHiding`](#sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1540-L1540](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`clearAllCache`](#sym-res-inject-scripts-store-page-script-js-clearallcache) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L805-L805](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`clearAppCache`](#sym-res-inject-scripts-store-page-script-js-clearappcache) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L768-L768](#file-res-inject-scripts-store-page-script-js) | *(root)* |
-| [`collapseSingleGameContainers`](#sym-res-inject-scripts-store-page-script-js-collapsesinglegamecontainers) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1640-L1640](#file-res-inject-scripts-store-page-script-js) | *(root)* |
+| [`debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1771-L1771](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`escapeHtml`](#sym-res-inject-scripts-store-page-script-js-escapehtml) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L315-L315](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`fetchConfigApiKeys`](#sym-res-inject-scripts-store-page-script-js-fetchconfigapikeys) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L338-L338](#file-res-inject-scripts-store-page-script-js) | *(root)* |
-| [`filterApplicationConfigData`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1732-L1732](#file-res-inject-scripts-store-page-script-js) | *(root)* |
-| [`filterApplicationConfigData.applyLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding) | `nested_function` | `+` public | [res/inject-scripts/store-page-script.js:L1786-L1786](#file-res-inject-scripts-store-page-script-js) | `filterApplicationConfigData` |
-| [`filterApplicationConfigData.applyLuaLibraryHiding.debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L2136-L2136](#file-res-inject-scripts-store-page-script-js) | `filterApplicationConfigData.applyLuaLibraryHiding` |
-| [`filterApplicationConfigData.applyLuaLibraryHiding.initLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-initlualibraryhiding) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L2094-L2094](#file-res-inject-scripts-store-page-script-js) | `filterApplicationConfigData.applyLuaLibraryHiding` |
-| [`filterApplicationConfigData.applyLuaLibraryHiding.reflowCarouselTrays`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-reflowcarouseltrays) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1985-L1985](#file-res-inject-scripts-store-page-script-js) | `filterApplicationConfigData.applyLuaLibraryHiding` |
 | [`findProviderIndexFromText`](#sym-res-inject-scripts-store-page-script-js-findproviderindexfromtext) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L639-L639](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`finishGlobalTracking`](#sym-res-inject-scripts-store-page-script-js-finishglobaltracking) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L735-L735](#file-res-inject-scripts-store-page-script-js) | *(root)* |
+| [`getIsTesting`](#sym-res-inject-scripts-store-page-script-js-getistesting) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1530-L1530](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`getOrCreateGlobalSession`](#sym-res-inject-scripts-store-page-script-js-getorcreateglobalsession) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L566-L566](#file-res-inject-scripts-store-page-script-js) | *(root)* |
-| [`getProviderOrder`](#sym-res-inject-scripts-store-page-script-js-getproviderorder) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L276-L276](#file-res-inject-scripts-store-page-script-js) | *(root)* |
+| [`getProviderOrder`](#sym-res-inject-scripts-store-page-script-js-getproviderorder) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L273-L273](#file-res-inject-scripts-store-page-script-js) | *(root)* |
+| [`initLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-initlualibraryownership) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1737-L1737](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`injectLoadingBarStyles`](#sym-res-inject-scripts-store-page-script-js-injectloadingbarstyles) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L396-L396](#file-res-inject-scripts-store-page-script-js) | *(root)* |
-| [`isHideLibraryEnabled`](#sym-res-inject-scripts-store-page-script-js-ishidelibraryenabled) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1530-L1530](#file-res-inject-scripts-store-page-script-js) | *(root)* |
-| [`isMultiItemContainer`](#sym-res-inject-scripts-store-page-script-js-ismultiitemcontainer) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1604-L1604](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`loadSessionFromStorage`](#sym-res-inject-scripts-store-page-script-js-loadsessionfromstorage) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L555-L555](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`naviFetch`](#sym-res-inject-scripts-store-page-script-js-navifetch) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L27-L27](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`naviRequest`](#sym-res-inject-scripts-store-page-script-js-navirequest) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L357-L357](#file-res-inject-scripts-store-page-script-js) | *(root)* |
@@ -1091,10 +1090,10 @@ SLSsteam_n_ACCELA/
 | [`setUser`](#sym-src-presenter-licenses-hpp-setuser) | `function` | `+` public | [src/presenter/licenses.hpp:L12-L12](#file-src-presenter-licenses-hpp) | *(root)* |
 | [`tryInitPackage0`](#sym-src-presenter-licenses-hpp-tryinitpackage0) | `function` | `+` public | [src/presenter/licenses.hpp:L16-L16](#file-src-presenter-licenses-hpp) | *(root)* |
 | [`wasInjected`](#sym-src-presenter-licenses-hpp-wasinjected) | `function` | `+` public | [src/presenter/licenses.hpp:L28-L28](#file-src-presenter-licenses-hpp) | *(root)* |
-| [`guard`](#sym-src-presenter-luadownload-cpp-guard) | `function` | `+` public | [src/presenter/luadownload.cpp:L157-L157](#file-src-presenter-luadownload-cpp) | *(root)* |
-| [`ifs`](#sym-src-presenter-luadownload-cpp-ifs) | `function` | `+` public | [src/presenter/luadownload.cpp:L505-L505](#file-src-presenter-luadownload-cpp) | *(root)* |
-| [`luaOut`](#sym-src-presenter-luadownload-cpp-luaout) | `function` | `+` public | [src/presenter/luadownload.cpp:L780-L780](#file-src-presenter-luadownload-cpp) | *(root)* |
-| [`pIn`](#sym-src-presenter-luadownload-cpp-pin) | `function` | `+` public | [src/presenter/luadownload.cpp:L900-L900](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`guard`](#sym-src-presenter-luadownload-cpp-guard) | `function` | `+` public | [src/presenter/luadownload.cpp:L142-L142](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`ifs`](#sym-src-presenter-luadownload-cpp-ifs) | `function` | `+` public | [src/presenter/luadownload.cpp:L635-L635](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`luaOut`](#sym-src-presenter-luadownload-cpp-luaout) | `function` | `+` public | [src/presenter/luadownload.cpp:L721-L721](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`pIn`](#sym-src-presenter-luadownload-cpp-pin) | `function` | `+` public | [src/presenter/luadownload.cpp:L878-L878](#file-src-presenter-luadownload-cpp) | *(root)* |
 | [`findSteamRoot`](#sym-src-presenter-luadownload-hpp-findsteamroot) | `function` | `+` public | [src/presenter/luadownload.hpp:L21-L21](#file-src-presenter-luadownload-hpp) | *(root)* |
 | [`buf`](#sym-src-presenter-luagenerator-cpp-buf) | `function` | `+` public | [src/presenter/luagenerator.cpp:L49-L49](#file-src-presenter-luagenerator-cpp) | *(root)* |
 | [`generateForApp`](#sym-src-presenter-luagenerator-hpp-generateforapp) | `function` | `+` public | [src/presenter/luagenerator.hpp:L12-L12](#file-src-presenter-luagenerator-hpp) | *(root)* |
@@ -1123,7 +1122,7 @@ SLSsteam_n_ACCELA/
 | [`ManualFile`](#sym-src-presenter-storeinject-cpp-manualfile) | `struct` | `+` public | [src/presenter/storeinject.cpp:L88-L88](#file-src-presenter-storeinject-cpp) | *(root)* |
 | [`g_shouldStop`](#sym-src-presenter-storeinject-cpp-g_shouldstop) | `function` | `+` public | [src/presenter/storeinject.cpp:L84-L84](#file-src-presenter-storeinject-cpp) | *(root)* |
 | [`if`](#sym-src-presenter-storeinject-cpp-if) | `function` | `+` public | [src/presenter/storeinject.cpp:L438-L438](#file-src-presenter-storeinject-cpp) | *(root)* |
-| [`pf`](#sym-src-presenter-storeinject-cpp-pf) | `function` | `+` public | [src/presenter/storeinject.cpp:L880-L880](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`pf`](#sym-src-presenter-storeinject-cpp-pf) | `function` | `+` public | [src/presenter/storeinject.cpp:L866-L866](#file-src-presenter-storeinject-cpp) | *(root)* |
 | [`stream`](#sym-src-presenter-storeinject-cpp-stream) | `function` | `+` public | [src/presenter/storeinject.cpp:L55-L55](#file-src-presenter-storeinject-cpp) | *(root)* |
 | [`urlDecode`](#sym-src-presenter-storeinject-cpp-urldecode) | `function` | `+` public | [src/presenter/storeinject.cpp:L34-L34](#file-src-presenter-storeinject-cpp) | *(root)* |
 | [`init`](#sym-src-presenter-storeinject-hpp-init) | `function` | `+` public | [src/presenter/storeinject.hpp:L12-L12](#file-src-presenter-storeinject-hpp) | *(root)* |
@@ -1158,18 +1157,19 @@ SLSsteam_n_ACCELA/
 | [`loadFromCache`](#sym-src-presenter-update-hpp-loadfromcache) | `function` | `+` public | [src/presenter/update.hpp:L16-L16](#file-src-presenter-update-hpp) | *(root)* |
 | [`saveToCache`](#sym-src-presenter-update-hpp-savetocache) | `function` | `+` public | [src/presenter/update.hpp:L17-L17](#file-src-presenter-update-hpp) | *(root)* |
 | [`verifySafeModeHash`](#sym-src-presenter-update-hpp-verifysafemodehash) | `function` | `+` public | [src/presenter/update.hpp:L20-L20](#file-src-presenter-update-hpp) | *(root)* |
-| [`dist`](#sym-src-view-cdpinject-cpp-dist) | `function` | `+` public | [src/view/cdpinject.cpp:L528-L528](#file-src-view-cdpinject-cpp) | *(root)* |
-| [`file`](#sym-src-view-cdpinject-cpp-file) | `function` | `+` public | [src/view/cdpinject.cpp:L754-L754](#file-src-view-cdpinject-cpp) | *(root)* |
-| [`libPath`](#sym-src-view-cdpinject-cpp-libpath) | `function` | `+` public | [src/view/cdpinject.cpp:L731-L731](#file-src-view-cdpinject-cpp) | *(root)* |
-| [`downloadViaPage`](#sym-src-view-cdpinject-hpp-downloadviapage) | `function` | `+` public | [src/view/cdpinject.hpp:L67-L67](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`ensureCompatTool`](#sym-src-view-cdpinject-hpp-ensurecompattool) | `function` | `+` public | [src/view/cdpinject.hpp:L77-L77](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`evalString`](#sym-src-view-cdpinject-hpp-evalstring) | `function` | `+` public | [src/view/cdpinject.hpp:L45-L45](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`dist`](#sym-src-view-cdpinject-cpp-dist) | `function` | `+` public | [src/view/cdpinject.cpp:L613-L613](#file-src-view-cdpinject-cpp) | *(root)* |
+| [`file`](#sym-src-view-cdpinject-cpp-file) | `function` | `+` public | [src/view/cdpinject.cpp:L839-L839](#file-src-view-cdpinject-cpp) | *(root)* |
+| [`libPath`](#sym-src-view-cdpinject-cpp-libpath) | `function` | `+` public | [src/view/cdpinject.cpp:L816-L816](#file-src-view-cdpinject-cpp) | *(root)* |
+| [`downloadViaPage`](#sym-src-view-cdpinject-hpp-downloadviapage) | `function` | `+` public | [src/view/cdpinject.hpp:L73-L73](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`ensureCompatTool`](#sym-src-view-cdpinject-hpp-ensurecompattool) | `function` | `+` public | [src/view/cdpinject.hpp:L83-L83](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`evalString`](#sym-src-view-cdpinject-hpp-evalstring) | `function` | `+` public | [src/view/cdpinject.hpp:L51-L51](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`fetchPages`](#sym-src-view-cdpinject-hpp-fetchpages) | `function` | `+` public | [src/view/cdpinject.hpp:L24-L24](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`injectDepotSelectionUI`](#sym-src-view-cdpinject-hpp-injectdepotselectionui) | `function` | `+` public | [src/view/cdpinject.hpp:L58-L58](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`injectJS`](#sym-src-view-cdpinject-hpp-injectjs) | `function` | `+` public | [src/view/cdpinject.hpp:L32-L32](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `function` | `+` public | [src/view/cdpinject.hpp:L53-L53](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `function` | `+` public | [src/view/cdpinject.hpp:L38-L38](#file-src-view-cdpinject-hpp) | *(root)* |
-| [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `function` | `+` public | [src/view/cdpinject.hpp:L72-L72](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`injectDepotSelectionUI`](#sym-src-view-cdpinject-hpp-injectdepotselectionui) | `function` | `+` public | [src/view/cdpinject.hpp:L64-L64](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`injectJS`](#sym-src-view-cdpinject-hpp-injectjs) | `function` | `+` public | [src/view/cdpinject.hpp:L38-L38](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `function` | `+` public | [src/view/cdpinject.hpp:L59-L59](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `function` | `+` public | [src/view/cdpinject.hpp:L44-L44](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `function` | `+` public | [src/view/cdpinject.hpp:L78-L78](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect) | `function` | `+` public | [src/view/cdpinject.hpp:L30-L30](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`applyFix`](#sym-src-view-cefsizefix-cpp-applyfix) | `function` | `+` public | [src/view/cefsizefix.cpp:L151-L151](#file-src-view-cefsizefix-cpp) | *(root)* |
 | [`fetchAppSize`](#sym-src-view-cefsizefix-cpp-fetchappsize) | `function` | `+` public | [src/view/cefsizefix.cpp:L64-L64](#file-src-view-cefsizefix-cpp) | *(root)* |
 | [`inFile`](#sym-src-view-cefsizefix-cpp-infile) | `function` | `+` public | [src/view/cefsizefix.cpp:L284-L284](#file-src-view-cefsizefix-cpp) | *(root)* |
@@ -1197,18 +1197,18 @@ SLSsteam_n_ACCELA/
 | [`populate_legacy_slssteam`](#sym-tests-fixtures-legacy_migration_fixtures-py-populate_legacy_slssteam) | `function` | `+` public | [tests/fixtures/legacy_migration_fixtures.py:L50-L89](#file-tests-fixtures-legacy_migration_fixtures-py) | *(root)* |
 | [`populate_legacy_steam_sh_audit`](#sym-tests-fixtures-legacy_migration_fixtures-py-populate_legacy_steam_sh_audit) | `function` | `+` public | [tests/fixtures/legacy_migration_fixtures.py:L92-L107](#file-tests-fixtures-legacy_migration_fixtures-py) | *(root)* |
 | [`populate_legacy_steam_sh_inline_audit`](#sym-tests-fixtures-legacy_migration_fixtures-py-populate_legacy_steam_sh_inline_audit) | `function` | `+` public | [tests/fixtures/legacy_migration_fixtures.py:L135-L150](#file-tests-fixtures-legacy_migration_fixtures-py) | *(root)* |
-| [`SteamCEFInspector`](#sym-tests-inspect_store_ui-py-steamcefinspector) | `class` | `+` public | [tests/inspect_store_ui.py:L55-L150](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`SteamCEFInspector`](#sym-tests-inspect_store_ui-py-steamcefinspector) | `class` | `+` public | [tests/inspect_store_ui.py:L55-L165](#file-tests-inspect_store_ui-py) | *(root)* |
 | [`SteamCEFInspector.__init__`](#sym-tests-inspect_store_ui-py-steamcefinspector-__init__) | `method` | `+` public | [tests/inspect_store_ui.py:L56-L58](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
-| [`SteamCEFInspector.evaluate`](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate) | `method` | `+` public | [tests/inspect_store_ui.py:L117-L150](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
-| [`SteamCEFInspector.find_target`](#sym-tests-inspect_store_ui-py-steamcefinspector-find_target) | `method` | `+` public | [tests/inspect_store_ui.py:L73-L115](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
-| [`SteamCEFInspector.get_targets`](#sym-tests-inspect_store_ui-py-steamcefinspector-get_targets) | `method` | `+` public | [tests/inspect_store_ui.py:L68-L71](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
-| [`SteamCEFInspector.is_reachable`](#sym-tests-inspect_store_ui-py-steamcefinspector-is_reachable) | `method` | `+` public | [tests/inspect_store_ui.py:L60-L66](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
-| [`cmd_click`](#sym-tests-inspect_store_ui-py-cmd_click) | `function` | `+` public | [tests/inspect_store_ui.py:L343-L437](#file-tests-inspect_store_ui-py) | *(root)* |
-| [`cmd_dump`](#sym-tests-inspect_store_ui-py-cmd_dump) | `function` | `+` public | [tests/inspect_store_ui.py:L222-L313](#file-tests-inspect_store_ui-py) | *(root)* |
-| [`cmd_eval`](#sym-tests-inspect_store_ui-py-cmd_eval) | `function` | `+` public | [tests/inspect_store_ui.py:L316-L340](#file-tests-inspect_store_ui-py) | *(root)* |
-| [`cmd_nav`](#sym-tests-inspect_store_ui-py-cmd_nav) | `function` | `+` public | [tests/inspect_store_ui.py:L175-L219](#file-tests-inspect_store_ui-py) | *(root)* |
-| [`cmd_targets`](#sym-tests-inspect_store_ui-py-cmd_targets) | `function` | `+` public | [tests/inspect_store_ui.py:L153-L172](#file-tests-inspect_store_ui-py) | *(root)* |
-| [`main`](#sym-tests-inspect_store_ui-py-main) | `function` | `+` public | [tests/inspect_store_ui.py:L440-L486](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`SteamCEFInspector.evaluate`](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate) | `method` | `+` public | [tests/inspect_store_ui.py:L132-L165](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
+| [`SteamCEFInspector.find_target`](#sym-tests-inspect_store_ui-py-steamcefinspector-find_target) | `method` | `+` public | [tests/inspect_store_ui.py:L88-L130](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
+| [`SteamCEFInspector.get_targets`](#sym-tests-inspect_store_ui-py-steamcefinspector-get_targets) | `method` | `+` public | [tests/inspect_store_ui.py:L82-L86](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
+| [`SteamCEFInspector.is_reachable`](#sym-tests-inspect_store_ui-py-steamcefinspector-is_reachable) | `method` | `+` public | [tests/inspect_store_ui.py:L73-L80](#file-tests-inspect_store_ui-py) | `SteamCEFInspector` |
+| [`cmd_click`](#sym-tests-inspect_store_ui-py-cmd_click) | `function` | `+` public | [tests/inspect_store_ui.py:L358-L452](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`cmd_dump`](#sym-tests-inspect_store_ui-py-cmd_dump) | `function` | `+` public | [tests/inspect_store_ui.py:L237-L328](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`cmd_eval`](#sym-tests-inspect_store_ui-py-cmd_eval) | `function` | `+` public | [tests/inspect_store_ui.py:L331-L355](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`cmd_nav`](#sym-tests-inspect_store_ui-py-cmd_nav) | `function` | `+` public | [tests/inspect_store_ui.py:L190-L234](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`cmd_targets`](#sym-tests-inspect_store_ui-py-cmd_targets) | `function` | `+` public | [tests/inspect_store_ui.py:L168-L187](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`main`](#sym-tests-inspect_store_ui-py-main) | `function` | `+` public | [tests/inspect_store_ui.py:L455-L501](#file-tests-inspect_store_ui-py) | *(root)* |
 | [`test_dry_run_modes`](#sym-tests-integration-test_installer-py-test_dry_run_modes) | `function` | `+` public | [tests/integration/test_installer.py:L12-L34](#file-tests-integration-test_installer-py) | *(root)* |
 | [`test_flatpak_steam_detection`](#sym-tests-integration-test_installer-py-test_flatpak_steam_detection) | `function` | `+` public | [tests/integration/test_installer.py:L139-L165](#file-tests-integration-test_installer-py) | *(root)* |
 | [`test_install_update_uninstall_lifecycle`](#sym-tests-integration-test_installer-py-test_install_update_uninstall_lifecycle) | `function` | `+` public | [tests/integration/test_installer.py:L37-L77](#file-tests-integration-test_installer-py) | *(root)* |
@@ -1222,45 +1222,51 @@ SLSsteam_n_ACCELA/
 | [`test_slssteam_config_conflict_navi_wins`](#sym-tests-integration-test_migration-py-test_slssteam_config_conflict_navi_wins) | `function` | `+` public | [tests/integration/test_migration.py:L102-L120](#file-tests-integration-test_migration-py) | *(root)* |
 | [`test_slssteam_config_migration`](#sym-tests-integration-test_migration-py-test_slssteam_config_migration) | `function` | `+` public | [tests/integration/test_migration.py:L65-L99](#file-tests-integration-test_migration-py) | *(root)* |
 | [`test_slssteam_config_retention_on_uninstall`](#sym-tests-integration-test_migration-py-test_slssteam_config_retention_on_uninstall) | `function` | `+` public | [tests/integration/test_migration.py:L123-L145](#file-tests-integration-test_migration-py) | *(root)* |
-| [`SteamCDPClient`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient) | `class` | `+` public | [tests/integration/test_steam_ui_flow.py:L76-L137](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
+| [`SteamCDPClient`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient) | `class` | `+` public | [tests/integration/test_steam_ui_flow.py:L76-L152](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
 | [`SteamCDPClient.__init__`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-__init__) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L78-L80](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamCDPClient.evaluate`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-evaluate) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L113-L137](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamCDPClient.find_target_by_title`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L95-L99](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamCDPClient.find_target_by_title_substring`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title_substring) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L101-L105](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamCDPClient.find_target_by_url_substring`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_url_substring) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L107-L111](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamCDPClient.get_targets`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-get_targets) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L90-L93](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamCDPClient.is_reachable`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-is_reachable) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L82-L88](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
-| [`SteamUIFlowTest`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest) | `class` | `+` public | [tests/integration/test_steam_ui_flow.py:L140-L1526](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
-| [`SteamUIFlowTest.backup_files`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-backup_files) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L317-L342](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.is_app_installed_in_steam`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_app_installed_in_steam) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1181-L1198](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.is_app_installed_on_disk`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_app_installed_on_disk) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1143-L1179](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.is_steam_running`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_steam_running) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L144-L153](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L388-L417](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.restore_files`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-restore_files) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L345-L386](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L183-L307](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.start_steam`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-start_steam) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L156-L180](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.tearDownClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-teardownclass) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L310-L314](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_01_cef_targets_and_process`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_01_cef_targets_and_process) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L419-L433](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_02_clean_slate_preflight`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_02_clean_slate_preflight) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L435-L546](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_03_store_navigation_and_download_button`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_03_store_navigation_and_download_button) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L548-L608](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_04_download_modal_zero_progress_audit`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_04_download_modal_zero_progress_audit) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L610-L657](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_05_auto_download_and_installation`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_05_auto_download_and_installation) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L659-L724](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_06_library_search_and_click`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_06_library_search_and_click) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L726-L793](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_07_game_detail_view_and_hot_reload`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_07_game_detail_view_and_hot_reload) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L795-L889](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_08_luas_collection_and_date_sort`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_08_luas_collection_and_date_sort) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L891-L1068](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_09_navi_native_hook_telemetry`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_09_navi_native_hook_telemetry) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1070-L1086](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_10_change_provider_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_10_change_provider_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1088-L1141](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1200-L1334](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_12_uninstall_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_12_uninstall_rogue_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1336-L1406](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_13_remove_lua_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_13_remove_lua_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1408-L1486](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_14_stability_and_no_crash_dumps`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_14_stability_and_no_crash_dumps) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1488-L1498](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
-| [`SteamUIFlowTest.test_15_search_state_reset`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_15_search_state_reset) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1500-L1526](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamCDPClient.evaluate`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-evaluate) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L128-L152](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
+| [`SteamCDPClient.find_target_by_title`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L110-L114](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
+| [`SteamCDPClient.find_target_by_title_substring`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title_substring) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L116-L120](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
+| [`SteamCDPClient.find_target_by_url_substring`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_url_substring) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L122-L126](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
+| [`SteamCDPClient.get_targets`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-get_targets) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L104-L108](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
+| [`SteamCDPClient.is_reachable`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-is_reachable) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L95-L102](#file-tests-integration-test_steam_ui_flow-py) | `SteamCDPClient` |
+| [`SteamUIFlowTest`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest) | `class` | `+` public | [tests/integration/test_steam_ui_flow.py:L155-L1541](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
+| [`SteamUIFlowTest.backup_files`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-backup_files) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L332-L357](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.is_app_installed_in_steam`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_app_installed_in_steam) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1196-L1213](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.is_app_installed_on_disk`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_app_installed_on_disk) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1158-L1194](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.is_steam_running`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_steam_running) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L159-L168](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L403-L432](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.restore_files`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-restore_files) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L360-L401](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L198-L322](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.start_steam`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-start_steam) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L171-L195](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.tearDownClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-teardownclass) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L325-L329](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_01_cef_targets_and_process`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_01_cef_targets_and_process) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L434-L448](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_02_clean_slate_preflight`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_02_clean_slate_preflight) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L450-L561](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_03_store_navigation_and_download_button`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_03_store_navigation_and_download_button) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L563-L623](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_04_download_modal_zero_progress_audit`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_04_download_modal_zero_progress_audit) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L625-L672](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_05_auto_download_and_installation`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_05_auto_download_and_installation) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L674-L739](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_06_library_search_and_click`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_06_library_search_and_click) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L741-L808](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_07_game_detail_view_and_hot_reload`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_07_game_detail_view_and_hot_reload) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L810-L904](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_08_luas_collection_and_date_sort`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_08_luas_collection_and_date_sort) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L906-L1083](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_09_navi_native_hook_telemetry`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_09_navi_native_hook_telemetry) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1085-L1101](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_10_change_provider_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_10_change_provider_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1103-L1156](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1215-L1349](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_12_uninstall_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_12_uninstall_rogue_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1351-L1421](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_13_remove_lua_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_13_remove_lua_flow) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1423-L1501](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_14_stability_and_no_crash_dumps`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_14_stability_and_no_crash_dumps) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1503-L1513](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
+| [`SteamUIFlowTest.test_15_search_state_reset`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_15_search_state_reset) | `method` | `+` public | [tests/integration/test_steam_ui_flow.py:L1515-L1541](#file-tests-integration-test_steam_ui_flow-py) | `SteamUIFlowTest` |
 | [`log_fail`](#sym-tests-integration-test_steam_ui_flow-py-log_fail) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L69-L70](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
 | [`log_info`](#sym-tests-integration-test_steam_ui_flow-py-log_info) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L72-L73](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
 | [`log_pass`](#sym-tests-integration-test_steam_ui_flow-py-log_pass) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L66-L67](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
 | [`log_step`](#sym-tests-integration-test_steam_ui_flow-py-log_step) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L63-L64](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
-| [`main`](#sym-tests-integration-test_steam_ui_flow-py-main) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L1540-L1574](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
-| [`test_steam_ui_flow`](#sym-tests-integration-test_steam_ui_flow-py-test_steam_ui_flow) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L1530-L1537](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
+| [`main`](#sym-tests-integration-test_steam_ui_flow-py-main) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L1555-L1589](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
+| [`test_steam_ui_flow`](#sym-tests-integration-test_steam_ui_flow-py-test_steam_ui_flow) | `function` | `+` public | [tests/integration/test_steam_ui_flow.py:L1545-L1552](#file-tests-integration-test_steam_ui_flow-py) | *(root)* |
+| [`test_hiding_functions_completely_removed`](#sym-tests-integration-test_store_script-py-test_hiding_functions_completely_removed) | `function` | `+` public | [tests/integration/test_store_script.py:L25-L50](#file-tests-integration-test_store_script-py) | *(root)* |
+| [`test_node_execution_simulation`](#sym-tests-integration-test_store_script-py-test_node_execution_simulation) | `function` | `+` public | [tests/integration/test_store_script.py:L78-L178](#file-tests-integration-test_store_script-py) | *(root)* |
+| [`test_ownership_decoration_functions_present`](#sym-tests-integration-test_store_script-py-test_ownership_decoration_functions_present) | `function` | `+` public | [tests/integration/test_store_script.py:L53-L75](#file-tests-integration-test_store_script-py) | *(root)* |
+| [`test_store_page_script_syntax`](#sym-tests-integration-test_store_script-py-test_store_page_script_syntax) | `function` | `+` public | [tests/integration/test_store_script.py:L14-L22](#file-tests-integration-test_store_script-py) | *(root)* |
+| [`test_testing_mode_decorates_all_items`](#sym-tests-integration-test_store_script-py-test_testing_mode_decorates_all_items) | `function` | `+` public | [tests/integration/test_store_script.py:L181-L271](#file-tests-integration-test_store_script-py) | *(root)* |
+| [`test_testing_mode_toggle_off`](#sym-tests-integration-test_store_script-py-test_testing_mode_toggle_off) | `function` | `+` public | [tests/integration/test_store_script.py:L274-L339](#file-tests-integration-test_store_script-py) | *(root)* |
 | [`sample_project`](#sym-tests-test_project_map-py-sample_project) | `function` | `+` public | [tests/test_project_map.py:L29-L166](#file-tests-test_project_map-py) | *(root)* |
 | [`test_call_graph_and_cross_references`](#sym-tests-test_project_map-py-test_call_graph_and_cross_references) | `function` | `+` public | [tests/test_project_map.py:L262-L284](#file-tests-test_project_map-py) | *(root)* |
 | [`test_classes_and_inheritance`](#sym-tests-test_project_map-py-test_classes_and_inheritance) | `function` | `+` public | [tests/test_project_map.py:L208-L239](#file-tests-test_project_map-py) | *(root)* |
@@ -1452,23 +1458,20 @@ graph TD
 | [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | `--> direct` | [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | - |
 | [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | `--> direct` | [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | - |
 | [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons) | `--> direct` | [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons) | - |
+| [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership) | `--> direct` | [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership) | - |
+| [`cleanupLegacyHiding`](#sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding) | `--> direct` | [`cleanupLegacyHiding`](#sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding) | - |
 | [`clearAllCache`](#sym-res-inject-scripts-store-page-script-js-clearallcache) | `--> direct` | [`clearAllCache`](#sym-res-inject-scripts-store-page-script-js-clearallcache) | - |
 | [`clearAppCache`](#sym-res-inject-scripts-store-page-script-js-clearappcache) | `--> direct` | [`clearAppCache`](#sym-res-inject-scripts-store-page-script-js-clearappcache) | - |
-| [`collapseSingleGameContainers`](#sym-res-inject-scripts-store-page-script-js-collapsesinglegamecontainers) | `--> direct` | [`collapseSingleGameContainers`](#sym-res-inject-scripts-store-page-script-js-collapsesinglegamecontainers) | - |
+| [`debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-debouncedaddbuttons) | `--> direct` | [`debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-debouncedaddbuttons) | - |
 | [`escapeHtml`](#sym-res-inject-scripts-store-page-script-js-escapehtml) | `--> direct` | [`escapeHtml`](#sym-res-inject-scripts-store-page-script-js-escapehtml) | - |
 | [`fetchConfigApiKeys`](#sym-res-inject-scripts-store-page-script-js-fetchconfigapikeys) | `--> direct` | [`fetchConfigApiKeys`](#sym-res-inject-scripts-store-page-script-js-fetchconfigapikeys) | - |
-| [`filterApplicationConfigData`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata) | `--> direct` | [`filterApplicationConfigData`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata) | - |
-| [`filterApplicationConfigData.applyLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding) | `--> direct` | [`filterApplicationConfigData.applyLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding) | - |
-| [`filterApplicationConfigData.applyLuaLibraryHiding.debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-debouncedaddbuttons) | `--> direct` | [`filterApplicationConfigData.applyLuaLibraryHiding.debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-debouncedaddbuttons) | - |
-| [`filterApplicationConfigData.applyLuaLibraryHiding.initLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-initlualibraryhiding) | `--> direct` | [`filterApplicationConfigData.applyLuaLibraryHiding.initLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-initlualibraryhiding) | - |
-| [`filterApplicationConfigData.applyLuaLibraryHiding.reflowCarouselTrays`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-reflowcarouseltrays) | `--> direct` | [`filterApplicationConfigData.applyLuaLibraryHiding.reflowCarouselTrays`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-reflowcarouseltrays) | - |
 | [`findProviderIndexFromText`](#sym-res-inject-scripts-store-page-script-js-findproviderindexfromtext) | `--> direct` | [`findProviderIndexFromText`](#sym-res-inject-scripts-store-page-script-js-findproviderindexfromtext) | - |
 | [`finishGlobalTracking`](#sym-res-inject-scripts-store-page-script-js-finishglobaltracking) | `--> direct` | [`finishGlobalTracking`](#sym-res-inject-scripts-store-page-script-js-finishglobaltracking) | - |
+| [`getIsTesting`](#sym-res-inject-scripts-store-page-script-js-getistesting) | `--> direct` | [`getIsTesting`](#sym-res-inject-scripts-store-page-script-js-getistesting) | - |
 | [`getOrCreateGlobalSession`](#sym-res-inject-scripts-store-page-script-js-getorcreateglobalsession) | `--> direct` | [`getOrCreateGlobalSession`](#sym-res-inject-scripts-store-page-script-js-getorcreateglobalsession) | - |
 | [`getProviderOrder`](#sym-res-inject-scripts-store-page-script-js-getproviderorder) | `--> direct` | [`getProviderOrder`](#sym-res-inject-scripts-store-page-script-js-getproviderorder) | - |
+| [`initLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-initlualibraryownership) | `--> direct` | [`initLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-initlualibraryownership) | - |
 | [`injectLoadingBarStyles`](#sym-res-inject-scripts-store-page-script-js-injectloadingbarstyles) | `--> direct` | [`injectLoadingBarStyles`](#sym-res-inject-scripts-store-page-script-js-injectloadingbarstyles) | - |
-| [`isHideLibraryEnabled`](#sym-res-inject-scripts-store-page-script-js-ishidelibraryenabled) | `--> direct` | [`isHideLibraryEnabled`](#sym-res-inject-scripts-store-page-script-js-ishidelibraryenabled) | - |
-| [`isMultiItemContainer`](#sym-res-inject-scripts-store-page-script-js-ismultiitemcontainer) | `--> direct` | [`isMultiItemContainer`](#sym-res-inject-scripts-store-page-script-js-ismultiitemcontainer) | - |
 | [`loadSessionFromStorage`](#sym-res-inject-scripts-store-page-script-js-loadsessionfromstorage) | `--> direct` | [`loadSessionFromStorage`](#sym-res-inject-scripts-store-page-script-js-loadsessionfromstorage) | - |
 | [`naviFetch`](#sym-res-inject-scripts-store-page-script-js-navifetch) | `--> direct` | [`naviFetch`](#sym-res-inject-scripts-store-page-script-js-navifetch) | - |
 | [`naviRequest`](#sym-res-inject-scripts-store-page-script-js-navirequest) | `--> direct` | [`naviRequest`](#sym-res-inject-scripts-store-page-script-js-navirequest) | - |
@@ -1904,6 +1907,7 @@ graph TD
 | [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `--> direct` | [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `void` |
 | [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `--> direct` | [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `bool`, `const std::string&` |
 | [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `--> direct` | [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `uint32_t`, `void` |
+| [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect) | `--> direct` | [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect) | `const char*`, `int` |
 | [`applyFix`](#sym-src-view-cefsizefix-cpp-applyfix) | `--> direct` | [`applyFix`](#sym-src-view-cefsizefix-cpp-applyfix) | `function` |
 | [`fetchAppSize`](#sym-src-view-cefsizefix-cpp-fetchappsize) | `--> direct` | [`fetchAppSize`](#sym-src-view-cefsizefix-cpp-fetchappsize) | `function` |
 | [`inFile`](#sym-src-view-cefsizefix-cpp-infile) | `--> direct` | [`inFile`](#sym-src-view-cefsizefix-cpp-infile) | `std::ifstream` |
@@ -2238,8 +2242,8 @@ graph TD
 
 ### <a id="file-res-inject-scripts-app-details-script-js"></a>File: `res/inject-scripts/app-details-script.js`
 
-- **Module:** `app-details-script` | **Language:** `javascript` | **Lines:** 876 (`L1-L876`)
-- **Structure:** 876 lines, 0 classes/interfaces, 12 functions/methods
+- **Module:** `app-details-script` | **Language:** `javascript` | **Lines:** 873 (`L1-L873`)
+- **Structure:** 873 lines, 0 classes/interfaces, 12 functions/methods
 
 #### <a id="sym-res-inject-scripts-app-details-script-js-log"></a>`log` (function)
 
@@ -2420,7 +2424,7 @@ graph TD
 - **Qualified Name:** `openChangeProviderModal`
 - **Signature:** `function openChangeProviderModal(appid, currentProvider)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L337-L337`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L334-L334`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2434,7 +2438,7 @@ graph TD
 - **Qualified Name:** `openChangeProviderModal.closeModal`
 - **Signature:** `function closeModal()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L388-L388`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L385-L385`](#file-res-inject-scripts-app-details-script-js)
 - **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal)
 
 #### <a id="sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal"></a>`openRemoveConfirmModal` (function)
@@ -2442,7 +2446,7 @@ graph TD
 - **Qualified Name:** `openRemoveConfirmModal`
 - **Signature:** `function openRemoveConfirmModal(appid, onConfirmed)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L470-L470`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L467-L467`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2456,7 +2460,7 @@ graph TD
 - **Qualified Name:** `openNaviModal`
 - **Signature:** `function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L521-L521`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L518-L518`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2474,7 +2478,7 @@ graph TD
 - **Qualified Name:** `openNaviModal.closeModal`
 - **Signature:** `function closeModal(cb)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L577-L577`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L574-L574`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2486,7 +2490,7 @@ graph TD
 - **Qualified Name:** `createRemoveButton`
 - **Signature:** `function createRemoveButton(manageContainer, appid, isPending, onlineFixInstalled, autoCrackInstalled, provider)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L628-L628`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L625-L625`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2504,7 +2508,7 @@ graph TD
 - **Qualified Name:** `createRemoveButton.makeSteamButton`
 - **Signature:** `function makeSteamButton(className, text, extraAttrs)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L651-L651`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L648-L648`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2519,7 +2523,7 @@ graph TD
 - **Qualified Name:** `createRemoveButton.setDeckRestartState`
 - **Signature:** `function setDeckRestartState()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L702-L702`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L699-L699`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate)
 - **Called By:** [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate)
 
@@ -2528,7 +2532,7 @@ graph TD
 - **Qualified Name:** `createRemoveButton.setRestartState`
 - **Signature:** `function setRestartState()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L757-L757`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L754-L754`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate)
 - **Called By:** [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate)
 
@@ -2537,7 +2541,7 @@ graph TD
 - **Qualified Name:** `addRemoveLuaButton`
 - **Signature:** `function addRemoveLuaButton()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L825-L825`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L822-L822`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton)
 - **Called By:** [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton)
 
@@ -2546,7 +2550,7 @@ graph TD
 - **Qualified Name:** `debouncedAddButtons`
 - **Signature:** `function debouncedAddButtons()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L854-L854`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L851-L851`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons)
 - **Called By:** [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons)
 
@@ -3114,8 +3118,8 @@ graph TD
 
 ### <a id="file-res-inject-scripts-store-page-script-js"></a>File: `res/inject-scripts/store-page-script.js`
 
-- **Module:** `store-page-script` | **Language:** `javascript` | **Lines:** 2149 (`L1-L2149`)
-- **Structure:** 2149 lines, 0 classes/interfaces, 37 functions/methods
+- **Module:** `store-page-script` | **Language:** `javascript` | **Lines:** 1784 (`L1-L1784`)
+- **Structure:** 1784 lines, 0 classes/interfaces, 35 functions/methods
 
 #### <a id="sym-res-inject-scripts-store-page-script-js-ping"></a>`ping` (function)
 
@@ -3262,7 +3266,7 @@ graph TD
 - **Qualified Name:** `getProviderOrder`
 - **Signature:** `function getProviderOrder()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L276-L276`](#file-res-inject-scripts-store-page-script-js)
+- **Source Location:** [`res/inject-scripts/store-page-script.js:L273-L273`](#file-res-inject-scripts-store-page-script-js)
 - **Calls:** [`getProviderOrder`](#sym-res-inject-scripts-store-page-script-js-getproviderorder)
 - **Called By:** [`getProviderOrder`](#sym-res-inject-scripts-store-page-script-js-getproviderorder)
 
@@ -3666,86 +3670,50 @@ graph TD
 - **Calls:** [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons)
 - **Called By:** [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons)
 
-#### <a id="sym-res-inject-scripts-store-page-script-js-ishidelibraryenabled"></a>`isHideLibraryEnabled` (function)
+#### <a id="sym-res-inject-scripts-store-page-script-js-getistesting"></a>`getIsTesting` (function)
 
-- **Qualified Name:** `isHideLibraryEnabled`
-- **Signature:** `function isHideLibraryEnabled()`
+- **Qualified Name:** `getIsTesting`
+- **Signature:** `function getIsTesting()`
 - **Visibility:** `+` public
 - **Source Location:** [`res/inject-scripts/store-page-script.js:L1530-L1530`](#file-res-inject-scripts-store-page-script-js)
-- **Calls:** [`isHideLibraryEnabled`](#sym-res-inject-scripts-store-page-script-js-ishidelibraryenabled)
-- **Called By:** [`isHideLibraryEnabled`](#sym-res-inject-scripts-store-page-script-js-ishidelibraryenabled)
+- **Calls:** [`getIsTesting`](#sym-res-inject-scripts-store-page-script-js-getistesting)
+- **Called By:** [`getIsTesting`](#sym-res-inject-scripts-store-page-script-js-getistesting)
 
-#### <a id="sym-res-inject-scripts-store-page-script-js-ismultiitemcontainer"></a>`isMultiItemContainer` (function)
+#### <a id="sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding"></a>`cleanupLegacyHiding` (function)
 
-- **Qualified Name:** `isMultiItemContainer`
-- **Signature:** `function isMultiItemContainer(el)`
+- **Qualified Name:** `cleanupLegacyHiding`
+- **Signature:** `function cleanupLegacyHiding()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L1604-L1604`](#file-res-inject-scripts-store-page-script-js)
-- **Parameters:**
-  | Name | Type | Default | Required | Kind |
-  | :--- | :--- | :--- | :--- | :--- |
-  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
-- **Calls:** [`isMultiItemContainer`](#sym-res-inject-scripts-store-page-script-js-ismultiitemcontainer)
-- **Called By:** [`isMultiItemContainer`](#sym-res-inject-scripts-store-page-script-js-ismultiitemcontainer)
+- **Source Location:** [`res/inject-scripts/store-page-script.js:L1540-L1540`](#file-res-inject-scripts-store-page-script-js)
+- **Calls:** [`cleanupLegacyHiding`](#sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding)
+- **Called By:** [`cleanupLegacyHiding`](#sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding)
 
-#### <a id="sym-res-inject-scripts-store-page-script-js-collapsesinglegamecontainers"></a>`collapseSingleGameContainers` (function)
+#### <a id="sym-res-inject-scripts-store-page-script-js-applylualibraryownership"></a>`applyLuaLibraryOwnership` (function)
 
-- **Qualified Name:** `collapseSingleGameContainers`
-- **Signature:** `function collapseSingleGameContainers(link, aid)`
+- **Qualified Name:** `applyLuaLibraryOwnership`
+- **Signature:** `function applyLuaLibraryOwnership()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L1640-L1640`](#file-res-inject-scripts-store-page-script-js)
-- **Parameters:**
-  | Name | Type | Default | Required | Kind |
-  | :--- | :--- | :--- | :--- | :--- |
-  | `link` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
-  | `aid` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
-- **Calls:** [`collapseSingleGameContainers`](#sym-res-inject-scripts-store-page-script-js-collapsesinglegamecontainers)
-- **Called By:** [`collapseSingleGameContainers`](#sym-res-inject-scripts-store-page-script-js-collapsesinglegamecontainers)
+- **Source Location:** [`res/inject-scripts/store-page-script.js:L1578-L1578`](#file-res-inject-scripts-store-page-script-js)
+- **Calls:** [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership)
+- **Called By:** [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership)
 
-#### <a id="sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata"></a>`filterApplicationConfigData` (function)
+#### <a id="sym-res-inject-scripts-store-page-script-js-initlualibraryownership"></a>`initLuaLibraryOwnership` (function)
 
-- **Qualified Name:** `filterApplicationConfigData`
-- **Signature:** `function filterApplicationConfigData()`
+- **Qualified Name:** `initLuaLibraryOwnership`
+- **Signature:** `function initLuaLibraryOwnership()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L1732-L1732`](#file-res-inject-scripts-store-page-script-js)
-- **Calls:** [`filterApplicationConfigData`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata)
-- **Called By:** [`filterApplicationConfigData`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata)
+- **Source Location:** [`res/inject-scripts/store-page-script.js:L1737-L1737`](#file-res-inject-scripts-store-page-script-js)
+- **Calls:** [`initLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-initlualibraryownership)
+- **Called By:** [`initLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-initlualibraryownership)
 
-##### <a id="sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding"></a>`applyLuaLibraryHiding` (nested_function)
+#### <a id="sym-res-inject-scripts-store-page-script-js-debouncedaddbuttons"></a>`debouncedAddButtons` (function)
 
-- **Qualified Name:** `filterApplicationConfigData.applyLuaLibraryHiding`
-- **Signature:** `function applyLuaLibraryHiding()`
-- **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L1786-L1786`](#file-res-inject-scripts-store-page-script-js)
-- **Calls:** [`filterApplicationConfigData.applyLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding)
-- **Called By:** [`filterApplicationConfigData.applyLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding)
-
-###### <a id="sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-reflowcarouseltrays"></a>`reflowCarouselTrays` (function)
-
-- **Qualified Name:** `filterApplicationConfigData.applyLuaLibraryHiding.reflowCarouselTrays`
-- **Signature:** `function reflowCarouselTrays()`
-- **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L1985-L1985`](#file-res-inject-scripts-store-page-script-js)
-- **Calls:** [`filterApplicationConfigData.applyLuaLibraryHiding.reflowCarouselTrays`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-reflowcarouseltrays)
-- **Called By:** [`filterApplicationConfigData.applyLuaLibraryHiding.reflowCarouselTrays`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-reflowcarouseltrays)
-
-###### <a id="sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-initlualibraryhiding"></a>`initLuaLibraryHiding` (function)
-
-- **Qualified Name:** `filterApplicationConfigData.applyLuaLibraryHiding.initLuaLibraryHiding`
-- **Signature:** `function initLuaLibraryHiding()`
-- **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L2094-L2094`](#file-res-inject-scripts-store-page-script-js)
-- **Calls:** [`filterApplicationConfigData.applyLuaLibraryHiding.initLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-initlualibraryhiding)
-- **Called By:** [`filterApplicationConfigData.applyLuaLibraryHiding.initLuaLibraryHiding`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-initlualibraryhiding)
-
-###### <a id="sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-debouncedaddbuttons"></a>`debouncedAddButtons` (function)
-
-- **Qualified Name:** `filterApplicationConfigData.applyLuaLibraryHiding.debouncedAddButtons`
+- **Qualified Name:** `debouncedAddButtons`
 - **Signature:** `function debouncedAddButtons()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/store-page-script.js:L2136-L2136`](#file-res-inject-scripts-store-page-script-js)
-- **Calls:** [`filterApplicationConfigData.applyLuaLibraryHiding.debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-debouncedaddbuttons)
-- **Called By:** [`filterApplicationConfigData.applyLuaLibraryHiding.debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-filterapplicationconfigdata-applylualibraryhiding-debouncedaddbuttons)
+- **Source Location:** [`res/inject-scripts/store-page-script.js:L1771-L1771`](#file-res-inject-scripts-store-page-script-js)
+- **Calls:** [`debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-debouncedaddbuttons)
+- **Called By:** [`debouncedAddButtons`](#sym-res-inject-scripts-store-page-script-js-debouncedaddbuttons)
 
 ### <a id="file-res-inject-scripts-version-top-bar-js"></a>File: `res/inject-scripts/version-top-bar.js`
 
@@ -9833,8 +9801,8 @@ graph TD
 
 ### <a id="file-src-presenter-luadownload-cpp"></a>File: `src/presenter/luadownload.cpp`
 
-- **Module:** `luadownload` | **Language:** `cpp` | **Lines:** 939 (`L1-L939`)
-- **Structure:** 939 lines, 0 classes/structs, 6 functions/methods
+- **Module:** `luadownload` | **Language:** `cpp` | **Lines:** 917 (`L1-L917`)
+- **Structure:** 917 lines, 0 classes/structs, 7 functions/methods
 - **Internal Imports:** `luadownload.hpp`, `cdpinject.hpp`, `config.hpp`, `log.hpp`, `globals.hpp`, `atomic_file.hpp`, `paths.hpp`, `zip.hpp`, `lua_parser.hpp`, `depotkeys.hpp`, `licenses.hpp`
 - **External Dependencies:** `algorithm`, `cctype`, `cstdio`, `cstdlib`, `cstring`, `filesystem`, `fstream`, `regex`, `sstream`, `string`, `vector`, `curl/curl.h`
 
@@ -9844,7 +9812,7 @@ graph TD
 - **Signature:** `AtomicFile::TempFileGuard guard(tmpPath)`
 - **Visibility:** `+` public
 - **Return Type:** `AtomicFile::TempFileGuard`
-- **Source Location:** [`src/presenter/luadownload.cpp:L157-L157`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L142-L142`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9858,7 +9826,22 @@ graph TD
 - **Signature:** `std::ifstream ifs(zipPath, std::ios::binary)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L505-L505`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L635-L635`](#file-src-presenter-luadownload-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `zipPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::binary` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-luadownload-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-luadownload-cpp-ifs)
+
+#### <a id="sym-src-presenter-luadownload-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(zipPath, std::ios::binary)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/luadownload.cpp:L635-L635`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9873,7 +9856,7 @@ graph TD
 - **Signature:** `std::ofstream luaOut(synthLuaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L780-L780`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L721-L721`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9887,7 +9870,7 @@ graph TD
 - **Signature:** `std::ofstream luaOut(synthLuaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L780-L780`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L721-L721`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9901,7 +9884,7 @@ graph TD
 - **Signature:** `std::ofstream luaOut(synthLuaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L780-L780`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L721-L721`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9915,7 +9898,7 @@ graph TD
 - **Signature:** `std::ifstream pIn(files.providerFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L900-L900`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L878-L878`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10465,8 +10448,8 @@ graph TD
 
 ### <a id="file-src-presenter-storeinject-cpp"></a>File: `src/presenter/storeinject.cpp`
 
-- **Module:** `storeinject` | **Language:** `cpp` | **Lines:** 1601 (`L1-L1601`)
-- **Structure:** 1601 lines, 1 classes/structs, 7 functions/methods
+- **Module:** `storeinject` | **Language:** `cpp` | **Lines:** 1587 (`L1-L1587`)
+- **Structure:** 1587 lines, 1 classes/structs, 7 functions/methods
 - **Internal Imports:** `storeinject.hpp`, `storeinject_view.hpp`, `cdpinject.hpp`, `luadownload.hpp`, `removelua.hpp`, `apps.hpp`, `nativeinstall.hpp`, `depotkeys.hpp`, `licenses.hpp`, `lua_parser.hpp`, `IClientAppManager.hpp`, `IClientApps.hpp`, `log.hpp`, `config.hpp`, `utils.hpp`, `atomic_file.hpp`, `ticket.hpp`, `paths.hpp`, `base64/base64.hpp`
 - **External Dependencies:** `thread`, `atomic`, `chrono`, `filesystem`, `iostream`, `iomanip`, `sys/wait.h`, `regex`, `fstream`, `cctype`, `set`, `sstream`, `string`, `algorithm`, `set`, `sys/socket.h`, `netinet/in.h`, `arpa/inet.h`, `unistd.h`, `fcntl.h`, `cstring`, `cerrno`
 
@@ -10563,7 +10546,7 @@ graph TD
 - **Signature:** `std::ifstream pf(providerPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/storeinject.cpp:L880-L880`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L866-L866`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11056,10 +11039,10 @@ graph TD
 
 ### <a id="file-src-view-cdpinject-cpp"></a>File: `src/view/cdpinject.cpp`
 
-- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 1016 (`L1-L1016`)
-- **Structure:** 1016 lines, 0 classes/structs, 4 functions/methods
+- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 1101 (`L1-L1101`)
+- **Structure:** 1101 lines, 0 classes/structs, 4 functions/methods
 - **Internal Imports:** `cdpinject.hpp`, `log.hpp`, `config.hpp`, `atomic_file.hpp`, `apps.hpp`, `base64/base64.hpp`
-- **External Dependencies:** `cstring`, `dlfcn.h`, `filesystem`, `fstream`, `random`, `set`, `sstream`, `string`, `vector`, `sys/socket.h`, `netinet/in.h`, `arpa/inet.h`, `unistd.h`, `sys/wait.h`, `signal.h`, `openssl/sha.h`
+- **External Dependencies:** `cstring`, `dlfcn.h`, `filesystem`, `fstream`, `random`, `set`, `sstream`, `string`, `vector`, `sys/socket.h`, `netinet/in.h`, `arpa/inet.h`, `netdb.h`, `unistd.h`, `sys/wait.h`, `signal.h`, `openssl/sha.h`
 
 #### <a id="sym-src-view-cdpinject-cpp-dist"></a>`dist` (function)
 
@@ -11067,7 +11050,7 @@ graph TD
 - **Signature:** `std::uniform_int_distribution<> dist(40000, 50000)`
 - **Visibility:** `+` public
 - **Return Type:** `std::uniform_int_distribution<>`
-- **Source Location:** [`src/view/cdpinject.cpp:L528-L528`](#file-src-view-cdpinject-cpp)
+- **Source Location:** [`src/view/cdpinject.cpp:L613-L613`](#file-src-view-cdpinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11082,7 +11065,7 @@ graph TD
 - **Signature:** `std::uniform_int_distribution<> dist(40000, 50000)`
 - **Visibility:** `+` public
 - **Return Type:** `std::uniform_int_distribution<>`
-- **Source Location:** [`src/view/cdpinject.cpp:L528-L528`](#file-src-view-cdpinject-cpp)
+- **Source Location:** [`src/view/cdpinject.cpp:L613-L613`](#file-src-view-cdpinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11097,7 +11080,7 @@ graph TD
 - **Signature:** `std::filesystem::path libPath(info.dli_fname)`
 - **Visibility:** `+` public
 - **Return Type:** `std::filesystem::path`
-- **Source Location:** [`src/view/cdpinject.cpp:L731-L731`](#file-src-view-cdpinject-cpp)
+- **Source Location:** [`src/view/cdpinject.cpp:L816-L816`](#file-src-view-cdpinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11111,7 +11094,7 @@ graph TD
 - **Signature:** `std::ifstream file(path, std::ios::binary)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/view/cdpinject.cpp:L754-L754`](#file-src-view-cdpinject-cpp)
+- **Source Location:** [`src/view/cdpinject.cpp:L839-L839`](#file-src-view-cdpinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11122,8 +11105,8 @@ graph TD
 
 ### <a id="file-src-view-cdpinject-hpp"></a>File: `src/view/cdpinject.hpp`
 
-- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 78 (`L1-L78`)
-- **Structure:** 78 lines, 0 classes/structs, 9 functions/methods
+- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 84 (`L1-L84`)
+- **Structure:** 84 lines, 0 classes/structs, 10 functions/methods
 - **External Dependencies:** `string`, `vector`, `cstdint`
 
 #### <a id="sym-src-view-cdpinject-hpp-fetchpages"></a>`fetchPages` (function)
@@ -11142,6 +11125,23 @@ graph TD
 - **Calls:** [`fetchPages`](#sym-src-view-cdpinject-hpp-fetchpages)
 - **Called By:** [`fetchPages`](#sym-src-view-cdpinject-hpp-fetchpages)
 
+#### <a id="sym-src-view-cdpinject-hpp-tcpconnect"></a>`tcpConnect` (function)
+
+- **Qualified Name:** `tcpConnect`
+- **Signature:** `int tcpConnect(const char* host, int port, int timeoutSec = 2)`
+- **Visibility:** `+` public
+- **Return Type:** `int`
+- **Docstring:** *Connect to host:port with a timeout. Supports both IPv4 and IPv6. Returns socket fd or -1.*
+- **Source Location:** [`src/view/cdpinject.hpp:L30-L30`](#file-src-view-cdpinject-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `host` | `const char*` | *(none)* | Yes | `positional_or_keyword` |
+  | `port` | `int` | *(none)* | Yes | `positional_or_keyword` |
+  | `timeoutSec` | `int` | `2` | No | `positional_or_keyword` |
+- **Calls:** [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect)
+- **Called By:** [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect)
+
 #### <a id="sym-src-view-cdpinject-hpp-injectjs"></a>`injectJS` (function)
 
 - **Qualified Name:** `injectJS`
@@ -11149,7 +11149,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `bool`
 - **Docstring:** *Inject JavaScript into a page via its CDP WebSocket debugger URL. Uses Runtime.evaluate over a minimal WebSocket client (RFC 6455).*
-- **Source Location:** [`src/view/cdpinject.hpp:L32-L32`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L38-L38`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11165,7 +11165,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `bool`
 - **Docstring:** *Check if a script has already been injected by evaluating an expression (e.g. "!!window.__slsLuaBtnAdded"). Returns true if the expression evaluates to true, false otherwise.*
-- **Source Location:** [`src/view/cdpinject.hpp:L38-L38`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L44-L44`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11181,7 +11181,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Evaluate an expression in a page and return its string result ("" on failure or empty result). The result must only contain [A-Za-z0-9%._~!*'()-] (e.g. the*
-- **Source Location:** [`src/view/cdpinject.hpp:L45-L45`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L51-L51`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11197,7 +11197,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Run the full injection pass: fetch pages, filter for Steam store pages, and inject the "Download Lua" button script into each.*
-- **Source Location:** [`src/view/cdpinject.hpp:L53-L53`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L59-L59`](#file-src-view-cdpinject-hpp)
 - **Calls:** [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages)
 - **Called By:** [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages)
 
@@ -11208,7 +11208,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Injects a depot selection UI for the given appId into any active Steam Client library or store page.*
-- **Source Location:** [`src/view/cdpinject.hpp:L58-L58`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L64-L64`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11223,7 +11223,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `int`
 - **Docstring:** *Use the Steam browser to download a URL by injecting fetch() into an existing page. Bypasses Cloudflare and similar protections because it runs in a real browser context.*
-- **Source Location:** [`src/view/cdpinject.hpp:L67-L67`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L73-L73`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11239,7 +11239,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Delete an uninstalled/removed app from CEF's SharedJSContext appStore.m_mapApps.*
-- **Source Location:** [`src/view/cdpinject.hpp:L72-L72`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L78-L78`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11254,7 +11254,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Ensure Steam on Linux assigns a compatibility tool (Proton) to an app so it installs without "Invalid platform".*
-- **Source Location:** [`src/view/cdpinject.hpp:L77-L77`](#file-src-view-cdpinject-hpp)
+- **Source Location:** [`src/view/cdpinject.hpp:L83-L83`](#file-src-view-cdpinject-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11665,9 +11665,9 @@ graph TD
 
 ### <a id="file-tests-inspect_store_ui-py"></a>File: `tests/inspect_store_ui.py`
 
-- **Module:** `tests.inspect_store_ui` | **Language:** `python` | **Lines:** 490 (`L1-L490`)
+- **Module:** `tests.inspect_store_ui` | **Language:** `python` | **Lines:** 505 (`L1-L505`)
 - **Summary:** tests/inspect_store_ui.py (=========================)
-- **Structure:** 490 lines, 1 classes, 11 functions/methods
+- **Structure:** 505 lines, 1 classes, 11 functions/methods
 - **External Dependencies:** `os`, `sys`, `time`, `json`, `argparse`, `urllib.request`, `urllib.error`, `websocket`
 
 #### <a id="sym-tests-inspect_store_ui-py-steamcefinspector"></a>`SteamCEFInspector` (class)
@@ -11675,7 +11675,7 @@ graph TD
 - **Qualified Name:** `SteamCEFInspector`
 - **Signature:** `class SteamCEFInspector:`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L55-L150`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L55-L165`](#file-tests-inspect_store_ui-py)
 - **Called By:** [`main`](#sym-tests-inspect_store_ui-py-main)
 
 ##### <a id="sym-tests-inspect_store_ui-py-steamcefinspector-__init__"></a>`__init__` (method)
@@ -11695,7 +11695,7 @@ graph TD
 - **Qualified Name:** `SteamCEFInspector.is_reachable`
 - **Signature:** `def is_reachable(self):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L60-L66`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L73-L80`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11706,7 +11706,7 @@ graph TD
 - **Qualified Name:** `SteamCEFInspector.get_targets`
 - **Signature:** `def get_targets(self):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L68-L71`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L82-L86`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11719,7 +11719,7 @@ graph TD
 - **Signature:** `def find_target(self, query = None):`
 - **Visibility:** `+` public
 - **Docstring:** *Finds a target matching query (by title or URL substring).*
-- **Source Location:** [`tests/inspect_store_ui.py:L73-L115`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L88-L130`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11732,7 +11732,7 @@ graph TD
 - **Qualified Name:** `SteamCEFInspector.evaluate`
 - **Signature:** `def evaluate(self, ws_url, expression, timeout = 6):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L117-L150`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L132-L165`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11747,7 +11747,7 @@ graph TD
 - **Qualified Name:** `cmd_targets`
 - **Signature:** `def cmd_targets(inspector, args):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L153-L172`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L168-L187`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11760,7 +11760,7 @@ graph TD
 - **Qualified Name:** `cmd_nav`
 - **Signature:** `def cmd_nav(inspector, args):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L175-L219`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L190-L234`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11773,7 +11773,7 @@ graph TD
 - **Qualified Name:** `cmd_dump`
 - **Signature:** `def cmd_dump(inspector, args):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L222-L313`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L237-L328`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11786,7 +11786,7 @@ graph TD
 - **Qualified Name:** `cmd_eval`
 - **Signature:** `def cmd_eval(inspector, args):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L316-L340`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L331-L355`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11799,7 +11799,7 @@ graph TD
 - **Qualified Name:** `cmd_click`
 - **Signature:** `def cmd_click(inspector, args):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L343-L437`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L358-L452`](#file-tests-inspect_store_ui-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11812,7 +11812,7 @@ graph TD
 - **Qualified Name:** `main`
 - **Signature:** `def main():`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/inspect_store_ui.py:L440-L486`](#file-tests-inspect_store_ui-py)
+- **Source Location:** [`tests/inspect_store_ui.py:L455-L501`](#file-tests-inspect_store_ui-py)
 - **Calls:** [`SteamCEFInspector`](#sym-tests-inspect_store_ui-py-steamcefinspector)
 
 ### <a id="file-tests-integration-test_installer-py"></a>File: `tests/integration/test_installer.py`
@@ -12014,9 +12014,9 @@ graph TD
 
 ### <a id="file-tests-integration-test_steam_ui_flow-py"></a>File: `tests/integration/test_steam_ui_flow.py`
 
-- **Module:** `tests.integration.test_steam_ui_flow` | **Language:** `python` | **Lines:** 1577 (`L1-L1577`)
+- **Module:** `tests.integration.test_steam_ui_flow` | **Language:** `python` | **Lines:** 1592 (`L1-L1592`)
 - **Summary:** tests/test_steam_ui_flow.py (===========================)
-- **Structure:** 1577 lines, 2 classes, 37 functions/methods
+- **Structure:** 1592 lines, 2 classes, 37 functions/methods
 - **External Dependencies:** `os`, `sys`, `time`, `json`, `glob`, `shutil`, `subprocess`, `argparse`, `unittest`, `urllib.request`, `urllib.error`, `pytest`, `websocket`
 
 #### <a id="sym-tests-integration-test_steam_ui_flow-py-log_step"></a>`log_step` (function)
@@ -12072,7 +12072,7 @@ graph TD
 - **Signature:** `class SteamCDPClient:`
 - **Visibility:** `+` public
 - **Docstring:** *Helper client to discover targets and evaluate JavaScript via CDP WebSocket.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L76-L137`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L76-L152`](#file-tests-integration-test_steam_ui_flow-py)
 - **Called By:** [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass)
 
 ##### <a id="sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-__init__"></a>`__init__` (method)
@@ -12092,7 +12092,7 @@ graph TD
 - **Qualified Name:** `SteamCDPClient.is_reachable`
 - **Signature:** `def is_reachable(self):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L82-L88`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L95-L102`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12103,7 +12103,7 @@ graph TD
 - **Qualified Name:** `SteamCDPClient.get_targets`
 - **Signature:** `def get_targets(self):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L90-L93`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L104-L108`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12115,7 +12115,7 @@ graph TD
 - **Qualified Name:** `SteamCDPClient.find_target_by_title`
 - **Signature:** `def find_target_by_title(self, title):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L95-L99`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L110-L114`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12128,7 +12128,7 @@ graph TD
 - **Qualified Name:** `SteamCDPClient.find_target_by_title_substring`
 - **Signature:** `def find_target_by_title_substring(self, substring):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L101-L105`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L116-L120`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12141,7 +12141,7 @@ graph TD
 - **Qualified Name:** `SteamCDPClient.find_target_by_url_substring`
 - **Signature:** `def find_target_by_url_substring(self, substring):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L107-L111`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L122-L126`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12154,7 +12154,7 @@ graph TD
 - **Qualified Name:** `SteamCDPClient.evaluate`
 - **Signature:** `def evaluate(self, ws_url, expression, timeout = 6):`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L113-L137`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L128-L152`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12170,7 +12170,7 @@ graph TD
 - **Signature:** `class SteamUIFlowTest(unittest.TestCase):`
 - **Visibility:** `+` public
 - **Inherits / Implements:** `unittest.TestCase`
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L140-L1526`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L155-L1541`](#file-tests-integration-test_steam_ui_flow-py)
 
 ##### <a id="sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_steam_running"></a>`is_steam_running` (method)
 
@@ -12179,7 +12179,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@classmethod`
 - **Docstring:** *Check if steam or steamwebhelper processes are actively running.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L144-L153`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L159-L168`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12193,7 +12193,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@classmethod`
 - **Docstring:** *Start Steam with -cef-enable-debugging if not already opened.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L156-L180`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L171-L195`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12207,7 +12207,7 @@ graph TD
 - **Signature:** `def setUpClass(cls):`
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@classmethod`
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L183-L307`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L198-L322`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12221,7 +12221,7 @@ graph TD
 - **Signature:** `def tearDownClass(cls):`
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@classmethod`
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L310-L314`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L325-L329`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12233,7 +12233,7 @@ graph TD
 - **Signature:** `def backup_files(cls):`
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@classmethod`
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L317-L342`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L332-L357`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12246,7 +12246,7 @@ graph TD
 - **Signature:** `def restore_files(cls):`
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@classmethod`
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L345-L386`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L360-L401`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12258,7 +12258,7 @@ graph TD
 - **Signature:** `def navigate_url(self, url):`
 - **Visibility:** `+` public
 - **Docstring:** *Execute a steam:// navigation via SteamClient.URL, CLI, or window.location.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L388-L417`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L403-L432`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12273,7 +12273,7 @@ graph TD
 - **Signature:** `def test_01_cef_targets_and_process(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Verify Steam process is alive and primary CEF windows are exposed.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L419-L433`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L434-L448`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12287,7 +12287,7 @@ graph TD
 - **Signature:** `def test_02_clean_slate_preflight(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Verify that game lua is NOT installed and NOT present in LUAs collection prior to store download.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L435-L546`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L450-L561`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12301,7 +12301,7 @@ graph TD
 - **Signature:** `def test_03_store_navigation_and_download_button(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Navigate to Store page for game and verify SLS 'Download Lua' button is mounted.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L548-L608`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L563-L623`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12315,7 +12315,7 @@ graph TD
 - **Signature:** `def test_04_download_modal_zero_progress_audit(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Click 'Download Lua' and assert all provider progress bars in the overlay modal are strictly at 0%.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L610-L657`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L625-L672`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12329,7 +12329,7 @@ graph TD
 - **Signature:** `def test_05_auto_download_and_installation(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Click Auto Download, poll until 100% progress and lua file installation on disk, and close modal.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L659-L724`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L674-L739`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12343,7 +12343,7 @@ graph TD
 - **Signature:** `def test_06_library_search_and_click(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Navigate to Library, search for Rogue, and click it in virtualized list.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L726-L793`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L741-L808`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12357,7 +12357,7 @@ graph TD
 - **Signature:** `def test_07_game_detail_view_and_hot_reload(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Verify game detail view navigation, action buttons, SharedJSContext registration, and /check API.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L795-L889`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L810-L904`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12371,7 +12371,7 @@ graph TD
 - **Signature:** `def test_08_luas_collection_and_date_sort(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Sync LUAs collection, navigate to collection view, sort by Date Added to Library, and verify date headers.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L891-L1068`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L906-L1083`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12385,7 +12385,7 @@ graph TD
 - **Signature:** `def test_09_navi_native_hook_telemetry(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Verify ~/.navi.log for AppID hook invocations and absence of memory corruptions.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1070-L1086`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1085-L1101`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12398,7 +12398,7 @@ graph TD
 - **Signature:** `def test_10_change_provider_flow(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Test Change Provider modal, available provider list, and /change-provider endpoint.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1088-L1141`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1103-L1156`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12412,7 +12412,7 @@ graph TD
 - **Signature:** `def is_app_installed_on_disk(self, appid):`
 - **Visibility:** `+` public
 - **Docstring:** *Check if an appmanifest file exists with StateFlags indicating installed.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1143-L1179`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1158-L1194`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12426,7 +12426,7 @@ graph TD
 - **Signature:** `def is_app_installed_in_steam(self, appid):`
 - **Visibility:** `+` public
 - **Docstring:** *Check SharedJSContext MobX appStore or overview for installed status.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1181-L1198`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1196-L1213`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12441,7 +12441,7 @@ graph TD
 - **Signature:** `def test_11_install_rogue_flow(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Test triggering install flow (steam://install/<appid>), handling dialogs, and strictly verifying installation.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1200-L1334`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1215-L1349`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12455,7 +12455,7 @@ graph TD
 - **Signature:** `def test_12_uninstall_rogue_flow(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Test triggering steam://uninstall/<appid>, clicking confirmation, and validating uninstallation.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1336-L1406`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1351-L1421`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12469,7 +12469,7 @@ graph TD
 - **Signature:** `def test_13_remove_lua_flow(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Test Remove Lua UI modal, cancel action, remove action, and restoration.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1408-L1486`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1423-L1501`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12483,7 +12483,7 @@ graph TD
 - **Signature:** `def test_14_stability_and_no_crash_dumps(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Verify that no new crash dumps were created and Steam is alive.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1488-L1498`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1503-L1513`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12497,7 +12497,7 @@ graph TD
 - **Signature:** `def test_15_search_state_reset(self):`
 - **Visibility:** `+` public
 - **Docstring:** *Reset search input to empty string to restore clean user UI state.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1500-L1526`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1515-L1541`](#file-tests-integration-test_steam_ui_flow-py)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12512,14 +12512,69 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `@pytest.mark.live`
 - **Docstring:** *Live end-to-end integration flow test for Navi against running Steam client.*
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1530-L1537`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1545-L1552`](#file-tests-integration-test_steam_ui_flow-py)
 
 #### <a id="sym-tests-integration-test_steam_ui_flow-py-main"></a>`main` (function)
 
 - **Qualified Name:** `main`
 - **Signature:** `def main():`
 - **Visibility:** `+` public
-- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1540-L1574`](#file-tests-integration-test_steam_ui_flow-py)
+- **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1555-L1589`](#file-tests-integration-test_steam_ui_flow-py)
+
+### <a id="file-tests-integration-test_store_script-py"></a>File: `tests/integration/test_store_script.py`
+
+- **Module:** `tests.integration.test_store_script` | **Language:** `python` | **Lines:** 339 (`L1-L339`)
+- **Summary:** Unit and syntax tests for res/inject-scripts/store-page-script.js (Verifies that store hiding logic has been replaced with native ownership decoration ("IN LIBRARY" label).)
+- **Structure:** 339 lines, 0 classes, 6 functions/methods
+- **External Dependencies:** `subprocess`, `pathlib`
+
+#### <a id="sym-tests-integration-test_store_script-py-test_store_page_script_syntax"></a>`test_store_page_script_syntax` (function)
+
+- **Qualified Name:** `test_store_page_script_syntax`
+- **Signature:** `def test_store_page_script_syntax():`
+- **Visibility:** `+` public
+- **Docstring:** *Verify that store-page-script.js is syntactically valid JavaScript.*
+- **Source Location:** [`tests/integration/test_store_script.py:L14-L22`](#file-tests-integration-test_store_script-py)
+
+#### <a id="sym-tests-integration-test_store_script-py-test_hiding_functions_completely_removed"></a>`test_hiding_functions_completely_removed` (function)
+
+- **Qualified Name:** `test_hiding_functions_completely_removed`
+- **Signature:** `def test_hiding_functions_completely_removed():`
+- **Visibility:** `+` public
+- **Docstring:** *Ensure all manual DOM-collapsing, CSS hiding, and carousel-reflow functions (have been stripped from the store script.)*
+- **Source Location:** [`tests/integration/test_store_script.py:L25-L50`](#file-tests-integration-test_store_script-py)
+
+#### <a id="sym-tests-integration-test_store_script-py-test_ownership_decoration_functions_present"></a>`test_ownership_decoration_functions_present` (function)
+
+- **Qualified Name:** `test_ownership_decoration_functions_present`
+- **Signature:** `def test_ownership_decoration_functions_present():`
+- **Visibility:** `+` public
+- **Docstring:** *Verify that ownership synchronization and legacy cleanup are properly structured.*
+- **Source Location:** [`tests/integration/test_store_script.py:L53-L75`](#file-tests-integration-test_store_script-py)
+
+#### <a id="sym-tests-integration-test_store_script-py-test_node_execution_simulation"></a>`test_node_execution_simulation` (function)
+
+- **Qualified Name:** `test_node_execution_simulation`
+- **Signature:** `def test_node_execution_simulation():`
+- **Visibility:** `+` public
+- **Docstring:** *Run a simulated Node.js execution environment of the ownership logic (to ensure it populates GDynamicStore, clears legacy session keys,)*
+- **Source Location:** [`tests/integration/test_store_script.py:L78-L178`](#file-tests-integration-test_store_script-py)
+
+#### <a id="sym-tests-integration-test_store_script-py-test_testing_mode_decorates_all_items"></a>`test_testing_mode_decorates_all_items` (function)
+
+- **Qualified Name:** `test_testing_mode_decorates_all_items`
+- **Signature:** `def test_testing_mode_decorates_all_items():`
+- **Visibility:** `+` public
+- **Docstring:** *Verify that when isTesting is true, even unowned items found on the page (are decorated with the 'IN LIBRARY' label and synchronized to GDynamicStore.)*
+- **Source Location:** [`tests/integration/test_store_script.py:L181-L271`](#file-tests-integration-test_store_script-py)
+
+#### <a id="sym-tests-integration-test_store_script-py-test_testing_mode_toggle_off"></a>`test_testing_mode_toggle_off` (function)
+
+- **Qualified Name:** `test_testing_mode_toggle_off`
+- **Signature:** `def test_testing_mode_toggle_off():`
+- **Visibility:** `+` public
+- **Docstring:** *Verify that when window.__slsIsTesting is false, items not in slsLuaAppIds (are NOT marked as owned.)*
+- **Source Location:** [`tests/integration/test_store_script.py:L274-L339`](#file-tests-integration-test_store_script-py)
 
 ### <a id="file-tests-test_project_map-py"></a>File: `tests/test_project_map.py`
 

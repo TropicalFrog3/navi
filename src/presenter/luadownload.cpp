@@ -59,21 +59,6 @@ namespace LuaDownload
             "https://github.com/SPIN0ZAi/SB_manifest_DB/archive/refs/heads/<appid>.zip",
             200, 404, 60, false
         },
-        {
-            "OpenSteamTool",
-            "https://manifest.opensteamtool.com/<appid>",
-            200, 404, 60, false
-        },
-        {
-            "wudrm",
-            "http://gmrc.wudrm.com/manifest/<appid>",
-            200, 404, 60, false
-        },
-        {
-            "steamrun",
-            "https://manifest.steam.run/api/depot/<appid>",
-            200, 404, 60, false
-        },
     };
 
     // ── CDP status feedback ─────────────────────────────────────────────
@@ -499,7 +484,45 @@ namespace LuaDownload
                         break;
                     }
 
-                    // Read content for structured text / JSON inspection
+                    LOG_INFO("LuaDownload: API '%s' returned non-zip / invalid Lua file\n", api.name);
+                    std::filesystem::remove(zipPath);
+                    continue;
+                }
+
+                downloaded = true;
+                successApi = api.name;
+                LOG_INFO("LuaDownload: Downloaded zip from '%s' for appid=%s\n", api.name, appId.c_str());
+                break;
+            }
+        }
+
+        if (!downloaded)
+        {
+            // Manifest-only fallback for owned games or games with pre-existing depot keys
+            bool canUseManifestOnly = false;
+            if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(targetAppId))
+            {
+                canUseManifestOnly = true;
+            }
+            else
+            {
+                DepotKeys::loadDepotKeysYaml();
+                if (DepotKeys::hasKeysForApp(targetAppId))
+                {
+                    canUseManifestOnly = true;
+                }
+            }
+
+            if (canUseManifestOnly)
+            {
+                LOG_INFO("LuaDownload: Checking manifest-only providers fallback for appid=%s (owned or keys present)...\n", appId.c_str());
+                pushStatus(appId, "Trying Manifest fallback...");
+
+                // 1. Try steamrun depot list API
+                std::string steamrunUrl = "https://manifest.steam.run/api/depot/" + appId;
+                int srCode = downloadToFile(steamrunUrl, zipPath, "steamrun", "", 30);
+                if (srCode == 200)
+                {
                     std::string rawContent;
                     {
                         std::ifstream ifs(zipPath, std::ios::binary);
@@ -510,7 +533,6 @@ namespace LuaDownload
                         }
                     }
 
-                    // 2. Check for steamrun depot list JSON (contains "depots" array)
                     if (rawContent.find("\"depots\"") != std::string::npos)
                     {
                         struct DepotManifestEntry
@@ -549,44 +571,8 @@ namespace LuaDownload
 
                         if (!depotEntries.empty())
                         {
-                            bool steamrunKeysOk = false;
-                            if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(targetAppId))
-                            {
-                                steamrunKeysOk = true;
-                            }
-                            else
-                            {
-                                DepotKeys::loadDepotKeysYaml();
-                                if (DepotKeys::hasKeysForApp(targetAppId))
-                                {
-                                    steamrunKeysOk = true;
-                                }
-                                else
-                                {
-                                    for (const auto& d : depotEntries)
-                                    {
-                                        uint32_t dId = 0;
-                                        try { dId = static_cast<uint32_t>(std::stoul(d.depotId)); } catch (...) {}
-                                        if (dId > 0 && DepotKeys::getDepotKey(dId).size() == 64)
-                                        {
-                                            steamrunKeysOk = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (!steamrunKeysOk)
-                            {
-                                LOG_INFO("LuaDownload: API '%s' provides manifests without decryption keys for unowned app %s\n",
-                                         api.name, appId.c_str());
-                                missingKeysDetected = true;
-                                std::filesystem::remove(zipPath);
-                                continue;
-                            }
-
-                            LOG_INFO("LuaDownload: API '%s' returned %zu depot(s) for appid=%s\n",
-                                     api.name, depotEntries.size(), appId.c_str());
+                            LOG_INFO("LuaDownload: steamrun returned %zu depot(s) for appid=%s\n",
+                                     depotEntries.size(), appId.c_str());
                             std::filesystem::create_directories(extractDir);
 
                             std::string synthLuaPath = extractDir + "/" + appId + ".lua";
@@ -609,129 +595,84 @@ namespace LuaDownload
                             }
 
                             std::vector<std::string> manifestPaths;
-                            // Download binary manifests for each depot from steamrun
                             for (const auto& d : depotEntries)
                             {
                                 std::string manifestUrl = "https://manifest.steam.run/api/download_manifest?depot_id=" +
                                                           d.depotId + "&manifest_id=" + d.manifestId;
                                 std::string manifestFile = extractDir + "/" + d.depotId + "_" + d.manifestId + ".manifest";
                                 pushStatus(appId, "Downloading depot " + d.depotId + "...");
-                                int code = downloadToFile(manifestUrl, manifestFile, api.name, authHeader, 60);
+                                int code = downloadToFile(manifestUrl, manifestFile, "steamrun", "", 60);
                                 if (code == 200)
                                 {
                                     LOG_INFO("LuaDownload: Downloaded manifest for depot %s -> %s\n",
                                              d.depotId.c_str(), manifestFile.c_str());
                                     manifestPaths.push_back(manifestFile);
                                 }
-                                else
-                                {
-                                    LOG_INFO("LuaDownload: Failed to download manifest for depot %s (HTTP %d)\n",
-                                             d.depotId.c_str(), code);
-                                }
                             }
 
-                            // Save provider sidecar
                             std::string provSidecar = extractDir + "/" + appId + ".provider";
-                            AtomicFile::write(provSidecar, api.name);
+                            AtomicFile::write(provSidecar, "steamrun (Manifest)");
 
-                            // Package into a valid zip archive at zipPath so it is cached
                             std::filesystem::remove(zipPath);
-                            if (Zip::assemble(zipPath, synthLuaPath, manifestPaths, provSidecar))
-                            {
-                                LOG_INFO("LuaDownload: Assembled cached zip for steamrun appid=%s at %s (%zu manifests)\n",
-                                         appId.c_str(), zipPath.c_str(), manifestPaths.size());
-                            }
-                            else
-                            {
-                                LOG_WARN("LuaDownload: Failed to assemble cached zip for steamrun appid=%s\n",
-                                         appId.c_str());
-                            }
+                            Zip::assemble(zipPath, synthLuaPath, manifestPaths, provSidecar);
 
                             downloaded = true;
-                            successApi = api.name;
-                            break;
+                            successApi = "steamrun (Manifest)";
                         }
                     }
-
-                    // 3. Check for wudrm plain-text manifest GID (numeric string)
-                    std::string trimmed = rawContent;
-                    trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
-                        return !std::isspace(ch);
-                    }));
-                    trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch) {
-                        return !std::isspace(ch);
-                    }).base(), trimmed.end());
-
-                    bool isNumeric = !trimmed.empty() && std::all_of(trimmed.begin(), trimmed.end(), ::isdigit);
-                    if (isNumeric && trimmed.length() > 5 && trimmed != "0")
-                    {
-                        bool wudrmKeysOk = false;
-                        if (g_pSteamEngine && g_pSteamEngine->getUser(0) && g_pSteamEngine->getUser(0)->isSubscribed(targetAppId))
-                        {
-                            wudrmKeysOk = true;
-                        }
-                        else
-                        {
-                            DepotKeys::loadDepotKeysYaml();
-                            uint32_t dId = targetAppId;
-                            if (DepotKeys::hasKeysForApp(targetAppId) || DepotKeys::getDepotKey(dId).size() == 64)
-                            {
-                                wudrmKeysOk = true;
-                            }
-                        }
-
-                        if (!wudrmKeysOk)
-                        {
-                            LOG_INFO("LuaDownload: API '%s' provides manifests without decryption keys for unowned app %s\n",
-                                     api.name, appId.c_str());
-                            missingKeysDetected = true;
-                            std::filesystem::remove(zipPath);
-                            continue;
-                        }
-
-                        LOG_INFO("LuaDownload: API '%s' returned a plain-text manifest ID: %s\n",
-                                 api.name, trimmed.c_str());
-                        std::filesystem::create_directories(extractDir);
-                        std::string synthLuaPath = extractDir + "/" + appId + ".lua";
-                        std::ofstream luaOut(synthLuaPath);
-                        if (luaOut.is_open())
-                        {
-                            luaOut << "addappid(" << appId << ")\n";
-                            luaOut << "setManifestid(" << appId << ", \"" << trimmed << "\")\n";
-                            luaOut.close();
-
-                            // Save provider sidecar
-                            std::string provSidecar = extractDir + "/" + appId + ".provider";
-                            AtomicFile::write(provSidecar, api.name);
-
-                            // Package into a valid zip archive at zipPath so it is cached
-                            std::filesystem::remove(zipPath);
-                            if (Zip::assemble(zipPath, synthLuaPath, {}, provSidecar))
-                            {
-                                LOG_INFO("LuaDownload: Assembled cached zip for %s appid=%s at %s\n",
-                                         api.name, appId.c_str(), zipPath.c_str());
-                            }
-                            else
-                            {
-                                LOG_WARN("LuaDownload: Failed to assemble cached zip for %s appid=%s\n",
-                                         api.name, appId.c_str());
-                            }
-
-                            downloaded = true;
-                            successApi = api.name;
-                            break;
-                        }
-                    }
-
-                    LOG_INFO("LuaDownload: API '%s' returned non-zip / invalid Lua file\n", api.name);
-                    std::filesystem::remove(zipPath);
-                    continue;
                 }
 
-                downloaded = true;
-                successApi = api.name;
-                LOG_INFO("LuaDownload: Downloaded zip from '%s' for appid=%s\n", api.name, appId.c_str());
-                break;
+                // 2. If steamrun failed, try wudrm
+                if (!downloaded)
+                {
+                    std::filesystem::remove(zipPath);
+                    std::string wudrmUrl = "http://gmrc.wudrm.com/manifest/" + appId;
+                    int wdCode = downloadToFile(wudrmUrl, zipPath, "wudrm", "", 30);
+                    if (wdCode == 200)
+                    {
+                        std::string rawContent;
+                        {
+                            std::ifstream ifs(zipPath, std::ios::binary);
+                            if (ifs.is_open())
+                            {
+                                rawContent.assign((std::istreambuf_iterator<char>(ifs)),
+                                                  std::istreambuf_iterator<char>());
+                            }
+                        }
+                        std::string trimmed = rawContent;
+                        trimmed.erase(trimmed.begin(), std::find_if(trimmed.begin(), trimmed.end(), [](unsigned char ch) {
+                            return !std::isspace(ch);
+                        }));
+                        trimmed.erase(std::find_if(trimmed.rbegin(), trimmed.rend(), [](unsigned char ch) {
+                            return !std::isspace(ch);
+                        }).base(), trimmed.end());
+
+                        bool isNumeric = !trimmed.empty() && std::all_of(trimmed.begin(), trimmed.end(), ::isdigit);
+                        if (isNumeric && trimmed.length() > 5 && trimmed != "0")
+                        {
+                            LOG_INFO("LuaDownload: wudrm returned manifest ID %s for appid=%s\n",
+                                     trimmed.c_str(), appId.c_str());
+                            std::filesystem::create_directories(extractDir);
+                            std::string synthLuaPath = extractDir + "/" + appId + ".lua";
+                            std::ofstream luaOut(synthLuaPath);
+                            if (luaOut.is_open())
+                            {
+                                luaOut << "addappid(" << appId << ")\n";
+                                luaOut << "setManifestid(" << appId << ", \"" << trimmed << "\")\n";
+                                luaOut.close();
+
+                                std::string provSidecar = extractDir + "/" + appId + ".provider";
+                                AtomicFile::write(provSidecar, "wudrm (Manifest)");
+
+                                std::filesystem::remove(zipPath);
+                                Zip::assemble(zipPath, synthLuaPath, {}, provSidecar);
+
+                                downloaded = true;
+                                successApi = "wudrm (Manifest)";
+                            }
+                        }
+                    }
+                }
             }
         }
 
@@ -814,26 +755,63 @@ namespace LuaDownload
                       files.luaFile.c_str(), files.manifestFiles.size());
 
         // Validate the Lua file — must have at least one manifest, and for unowned apps, must have decryption key(s)
+        auto luaData = LuaParser::parseFile(files.luaFile);
+        if (!luaData.valid || luaData.manifests.empty())
         {
-            auto luaData = LuaParser::parseFile(files.luaFile);
-            if (!luaData.valid || luaData.manifests.empty())
-            {
-                LOG_INFO("LuaDownload: Lua file has no valid manifests (via %s) — unusable\n",
-                         successApi.c_str());
-                std::filesystem::remove_all(extractDir);
-                std::filesystem::remove(zipPath);
-                pushStatus(appId, "Invalid Lua (no manifests)", "hue-rotate(0deg) brightness(1.0)");
-                return false;
-            }
+            LOG_INFO("LuaDownload: Lua file has no valid manifests (via %s) — unusable\n",
+                     successApi.c_str());
+            std::filesystem::remove_all(extractDir);
+            std::filesystem::remove(zipPath);
+            pushStatus(appId, "Invalid Lua (no manifests)", "hue-rotate(0deg) brightness(1.0)");
+            return false;
+        }
 
-            if (!hasUsableKeys(targetAppId, luaData))
+        if (!hasUsableKeys(targetAppId, luaData))
+        {
+            LOG_WARN("LuaDownload: BAIL! No decryption key available for app %s depots (via %s) — cannot decrypt\n",
+                     appId.c_str(), successApi.c_str());
+            std::filesystem::remove_all(extractDir);
+            std::filesystem::remove(zipPath);
+            pushStatus(appId, "No decryption key", "hue-rotate(0deg) brightness(1.0)");
+            return false;
+        }
+
+        // Fallback: If provider provided Lua but missing binary .manifest files, attempt to download them from steamrun
+        for (const auto& [depotId, manifestId] : luaData.manifests)
+        {
+            if (manifestId.empty() || manifestId == "0") continue;
+            std::string expectedName = depotId + "_" + manifestId + ".manifest";
+            bool alreadyExtracted = false;
+            for (const auto& mf : files.manifestFiles)
             {
-                LOG_WARN("LuaDownload: BAIL! No decryption key available for app %s depots (via %s) — cannot decrypt\n",
-                         appId.c_str(), successApi.c_str());
-                std::filesystem::remove_all(extractDir);
-                std::filesystem::remove(zipPath);
-                pushStatus(appId, "No decryption key", "hue-rotate(0deg) brightness(1.0)");
-                return false;
+                if (std::filesystem::path(mf).filename() == expectedName)
+                {
+                    alreadyExtracted = true;
+                    break;
+                }
+            }
+            if (alreadyExtracted) continue;
+
+            std::string destPath = depotcacheDir + "/" + expectedName;
+            if (std::filesystem::exists(destPath)) continue;
+
+            std::string manifestUrl = "https://manifest.steam.run/api/download_manifest?depot_id=" +
+                                      depotId + "&manifest_id=" + manifestId;
+            std::string tempManifestFile = extractDir + "/" + expectedName;
+            pushStatus(appId, "Downloading manifest " + depotId + "...");
+            int code = downloadToFile(manifestUrl, tempManifestFile, "steamrun", "", 30);
+            if (code == 200 && std::filesystem::exists(tempManifestFile) && std::filesystem::file_size(tempManifestFile) > 0)
+            {
+                LOG_INFO("LuaDownload: Downloaded fallback manifest for depot %s -> %s\n",
+                         depotId.c_str(), tempManifestFile.c_str());
+                files.manifestFiles.push_back(tempManifestFile);
+            }
+            else
+            {
+                if (std::filesystem::exists(tempManifestFile))
+                    std::filesystem::remove(tempManifestFile);
+                LOG_INFO("LuaDownload: Manifest for depot %s not available on steamrun, will resolve via CDN request code\n",
+                         depotId.c_str());
             }
         }
 
