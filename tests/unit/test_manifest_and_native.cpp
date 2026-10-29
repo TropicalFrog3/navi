@@ -87,6 +87,49 @@ TEST(ManifestCodeTest, ProtobufWireCodec)
     EXPECT_EQ(readCode, sampleCode);
 }
 
+TEST(ManifestCodeTest, EnsureManifestFileLocalAndRemoteFallback)
+{
+    // Test 0: Invalid arguments
+    EXPECT_FALSE(ManifestCode::ensureManifestFile(0, 0, 0));
+    EXPECT_FALSE(ManifestCode::ensureManifestFile(480, 0, 12345));
+    EXPECT_FALSE(ManifestCode::ensureManifestFile(480, 481, 0));
+
+    // Test 1: Local cache detection
+    const std::string testDir = "/tmp/unit_test_manifest_" + std::to_string(getpid());
+    fs::remove_all(testDir);
+    fs::create_directories(testDir + "/.local/share/Steam/steamui");
+    fs::create_directories(testDir + "/.local/share/Steam/depotcache");
+    fs::create_directories(testDir + "/.local/share/Steam/config/depotcache");
+
+    const char* origHome = getenv("HOME");
+    std::string origHomeStr = origHome ? origHome : "";
+    setenv("HOME", testDir.c_str(), 1);
+
+    // Create a local manifest in depotcache
+    std::string cachedManifest = testDir + "/.local/share/Steam/depotcache/481_999999999.manifest";
+    {
+        std::ofstream f(cachedManifest, std::ios::binary);
+        f << "DUMMY_MANIFEST_PAYLOAD_TEST";
+    }
+
+    EXPECT_TRUE(ManifestCode::ensureManifestFile(480, 481, 999999999ULL));
+
+    // Test 2: Legacy config/depotcache promotion
+    std::string legacyManifest = testDir + "/.local/share/Steam/config/depotcache/482_888888888.manifest";
+    {
+        std::ofstream f(legacyManifest, std::ios::binary);
+        f << "LEGACY_MANIFEST_PAYLOAD_TEST";
+    }
+
+    EXPECT_TRUE(ManifestCode::ensureManifestFile(480, 482, 888888888ULL));
+    EXPECT_TRUE(fs::exists(testDir + "/.local/share/Steam/depotcache/482_888888888.manifest"));
+
+    // Clean up
+    if (origHome) setenv("HOME", origHomeStr.c_str(), 1);
+    else unsetenv("HOME");
+    fs::remove_all(testDir);
+}
+
 TEST(NativeInstallTest, PersistenceAndArmDisarm)
 {
     const std::string testDir = "/tmp/unit_test_native_persist_" + std::to_string(getpid());

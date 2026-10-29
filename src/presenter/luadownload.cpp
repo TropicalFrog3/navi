@@ -9,6 +9,7 @@
 #include "lua_parser.hpp"
 #include "depotkeys.hpp"
 #include "licenses.hpp"
+#include "manifestcode.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -777,47 +778,10 @@ namespace LuaDownload
         }
 
         // Fallback: If provider provided Lua but missing binary .manifest files, attempt to download them from steamrun
-        for (const auto& [depotId, manifestId] : luaData.manifests)
-        {
-            if (manifestId.empty() || manifestId == "0") continue;
-            std::string expectedName = depotId + "_" + manifestId + ".manifest";
-            bool alreadyExtracted = false;
-            for (const auto& mf : files.manifestFiles)
-            {
-                if (std::filesystem::path(mf).filename() == expectedName)
-                {
-                    alreadyExtracted = true;
-                    break;
-                }
-            }
-            if (alreadyExtracted) continue;
-
-            std::string destPath = depotcacheDir + "/" + expectedName;
-            if (std::filesystem::exists(destPath)) continue;
-
-            std::string manifestUrl = "https://manifest.steam.run/api/download_manifest?depot_id=" +
-                                      depotId + "&manifest_id=" + manifestId;
-            std::string tempManifestFile = extractDir + "/" + expectedName;
-            pushStatus(appId, "Downloading manifest " + depotId + "...");
-            int code = downloadToFile(manifestUrl, tempManifestFile, "steamrun", "", 30);
-            if (code == 200 && std::filesystem::exists(tempManifestFile) && std::filesystem::file_size(tempManifestFile) > 0)
-            {
-                LOG_INFO("LuaDownload: Downloaded fallback manifest for depot %s -> %s\n",
-                         depotId.c_str(), tempManifestFile.c_str());
-                files.manifestFiles.push_back(tempManifestFile);
-            }
-            else
-            {
-                if (std::filesystem::exists(tempManifestFile))
-                    std::filesystem::remove(tempManifestFile);
-                LOG_INFO("LuaDownload: Manifest for depot %s not available on steamrun, will resolve via CDN request code\n",
-                         depotId.c_str());
-            }
-        }
-
         pushStatus(appId, "Installing...");
 
         // Clean up any old manifests from previous provider in depotcache to prevent orphan bloat
+        // Only remove manifests for this app that do NOT match current depots
         std::string legacyDepotcache = Paths::findSteamRoot() + "/config/depotcache";
         for (const auto& d : { depotcacheDir, legacyDepotcache }) {
             if (d.empty() || !std::filesystem::exists(d)) continue;
@@ -825,7 +789,14 @@ namespace LuaDownload
                 for (const auto& entry : std::filesystem::directory_iterator(d)) {
                     if (entry.is_regular_file() && entry.path().extension() == ".manifest") {
                         std::string stem = entry.path().stem().string();
-                        if (stem.find(appId) == 0) {
+                        bool isCurrentManifest = false;
+                        for (const auto& [depotId, manifestId] : luaData.manifests) {
+                            if (stem == depotId + "_" + manifestId) {
+                                isCurrentManifest = true;
+                                break;
+                            }
+                        }
+                        if (!isCurrentManifest && stem.find(appId) == 0) {
                             std::filesystem::remove(entry.path());
                         }
                     }
@@ -833,7 +804,7 @@ namespace LuaDownload
             } catch (...) {}
         }
 
-        // Install manifest files to depotcache and mirror to config/depotcache
+        // Install manifest files extracted from zip to depotcache and mirror to config/depotcache
         for (const auto& manifestPath : files.manifestFiles)
         {
             std::string filename = std::filesystem::path(manifestPath).filename().string();
@@ -852,6 +823,30 @@ namespace LuaDownload
             {
                 std::filesystem::create_directories(legacyDepotcache);
                 AtomicFile::copy(manifestPath, legacyDepotcache + "/" + filename);
+            }
+        }
+        // For any manifests not included in the provider zip, ensure via tiered fallbacks
+        for (const auto& [depotId, manifestId] : luaData.manifests)
+        {
+            if (manifestId.empty() || manifestId == "0") continue;
+            std::string expectedName = depotId + "_" + manifestId + ".manifest";
+            std::string destPath = depotcacheDir + "/" + expectedName;
+            if (std::filesystem::exists(destPath)) continue;
+
+            uint32_t dId = 0;
+            try { dId = std::stoul(depotId); } catch (...) {}
+            uint64_t mGid = 0;
+            try { mGid = std::stoull(manifestId); } catch (...) {}
+
+            pushStatus(appId, "Downloading manifest " + depotId + "...");
+            if (ManifestCode::ensureManifestFile(targetAppId, dId, mGid))
+            {
+                LOG_INFO("LuaDownload: Acquired manifest for depot %s via ensureManifestFile\n", depotId.c_str());
+            }
+            else
+            {
+                LOG_INFO("LuaDownload: Manifest for depot %s not available via fallbacks, will resolve via CDN request code\n",
+                         depotId.c_str());
             }
         }
 

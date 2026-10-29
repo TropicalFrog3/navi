@@ -40,6 +40,18 @@ namespace DepotKeys
 	// Get all app IDs that have keys in depot_keys.yaml
 	std::unordered_set<uint32_t> getAllAppIdsWithKeys();
 
+	// Path to ~/.config/navi/depotkeys.json
+	std::string getDepotKeysJsonPath();
+
+	// Path to ~/.config/navi/appaccesstokens.json
+	std::string getAppAccessTokensJsonPath();
+
+	// Find and get a depot decryption key from memory, YAML, or Archive.org ManifestHub depotkeys.json
+	std::string findAndGetDepotKey(uint32_t depotId);
+
+	// Find and get an app access token from Archive.org ManifestHub appaccesstokens.json
+	std::string findAndGetAppAccessToken(uint32_t appId);
+
 	// Handle incoming protobuf messages — intercept failed depot decryption key responses
 	void recvMsg(CNetPacket* pkt);
 }

@@ -63,19 +63,26 @@ UNIT_TEST_OBJS := $(UNIT_TEST_SRCS:tests/unit/%.cpp=obj/$(FLAGSSHA)/tests/unit/%
 GTEST_OBJS := obj/$(FLAGSSHA)/gtest/gtest-all.o obj/$(FLAGSSHA)/gtest/gtest_main.o
 
 UNIT_TEST_PROD_SRCS := \
+	src/core/cloud_provider.cpp \
 	src/core/curl.cpp \
 	src/core/decompiler.cpp \
 	src/core/filewatcher.cpp \
 	src/core/memhlp.cpp \
+	src/core/p2p_discovery.cpp \
+	src/core/p2p_session.cpp \
 	src/core/patterns.cpp \
+	src/core/sync_crypto.cpp \
 	src/core/utils.cpp \
 	src/core/vftableinfo.cpp \
 	src/core/zip.cpp \
+	src/model/achievement_merger.cpp \
 	src/model/config.cpp \
 	src/model/depotkeys.cpp \
 	src/model/lua_parser.cpp \
 	src/model/manifestcode.cpp \
 	src/model/paths.cpp \
+	src/model/sync_manifest.cpp \
+	src/model/sync_snapshot.cpp \
 	src/model/vdf.cpp \
 	src/model/migrations/cache_migration.cpp \
 	src/model/migrations/config_migration.cpp \
@@ -93,6 +100,9 @@ UNIT_TEST_PROD_SRCS := \
 	src/presenter/autoupdate.cpp \
 	src/presenter/luagenerator.cpp \
 	src/presenter/nativeinstall.cpp \
+	src/presenter/power_monitor.cpp \
+	src/presenter/process_lock.cpp \
+	src/presenter/sync_engine.cpp \
 	src/view/storeinject_view.cpp
 
 UNIT_TEST_PROD_OBJS := $(UNIT_TEST_PROD_SRCS:src/%.cpp=obj/$(FLAGSSHA)/%.o)
@@ -137,10 +147,13 @@ test: bin/unit_tests
 
 coverage: bin/unit_tests_cov
 	./bin/unit_tests_cov
-	PATH="$(HOME)/.local/bin:$(PATH)" gcovr -r src obj/cov
+	PATH="$(HOME)/.local/bin:$(PATH)" gcovr --gcov-ignore-parse-errors=negative_hits.warn_once_per_file -r src obj/cov
 
 test-flow:
 	pytest -q --live tests/integration/test_steam_ui_flow.py
+
+test-e2e:
+	pytest -q tests/integration/test_cross_device_sync_e2e.py
 
 test-all: test test-flow
 
@@ -260,5 +273,6 @@ release: rebuild zips
 	release \
 	test \
 	test-flow \
+	test-e2e \
 	test-all \
 	coverage

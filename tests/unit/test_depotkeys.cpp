@@ -261,3 +261,37 @@ TEST_F(DepotKeysTest, BailWhenNoDecryptionKey)
     EXPECT_TRUE(DepotKeys::getDepotKey(999889).empty());
     fs::remove(keylessLuaPath);
 }
+
+TEST_F(DepotKeysTest, FindAndGetDepotKeyAndTokenFromJson)
+{
+    // Write mock depotkeys.json and appaccesstokens.json in m_tempDir + "/.config/navi"
+    std::string keysJsonPath = m_tempDir + "/.config/navi/depotkeys.json";
+    {
+        std::ofstream out(keysJsonPath);
+        out << "{\n";
+        out << "  \"785481\": \"0856170e60687e3639654046517fab3060863565fca9f1df9deddaea2c1d32f4\",\n";
+        out << "  \"999123\": \"1111111111111111111111111111111111111111111111111111111111111111\"\n";
+        out << "}\n";
+    }
+
+    std::string tokensJsonPath = m_tempDir + "/.config/navi/appaccesstokens.json";
+    {
+        std::ofstream out(tokensJsonPath);
+        out << "{\n";
+        out << "  \"766\": \"6919353661818993790\",\n";
+        out << "  \"999120\": \"12345678901234567890\"\n";
+        out << "}\n";
+    }
+
+    // Lookup depot key
+    EXPECT_EQ(DepotKeys::findAndGetDepotKey(785481), "0856170e60687e3639654046517fab3060863565fca9f1df9deddaea2c1d32f4");
+    EXPECT_EQ(DepotKeys::findAndGetDepotKey(999123), "1111111111111111111111111111111111111111111111111111111111111111");
+
+    // Lookup app access token
+    EXPECT_EQ(DepotKeys::findAndGetAppAccessToken(766), "6919353661818993790");
+    EXPECT_EQ(DepotKeys::findAndGetAppAccessToken(999120), "12345678901234567890");
+
+    // Non-existent entries
+    EXPECT_TRUE(DepotKeys::findAndGetDepotKey(0).empty());
+    EXPECT_TRUE(DepotKeys::findAndGetAppAccessToken(0).empty());
+}

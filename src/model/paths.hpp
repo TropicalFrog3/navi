@@ -2,6 +2,9 @@
 
 #include <cstdint>
 #include <string>
+#include <vector>
+
+#include "sync_manifest.hpp"
 
 /**
  * Paths
@@ -48,5 +51,38 @@ namespace Paths
      * Preserves manifests/ subdirectory and installed .lua files.
      */
     bool clearAllCache();
+
+    /**
+     * Parses <steam_root>/steamapps/libraryfolders.vdf or <steam_root>/config/libraryfolders.vdf
+     * for all "path" entries. Always includes <steam_root> first if valid.
+     * Handles SteamOS SD card paths like /run/media/mmcblk0p1.
+     */
+    std::vector<std::string> findLibraryFolders(const std::string& steamRootOverride = "");
+
+    /**
+     * Checks which library folder contains steamapps/appmanifest_<appId>.acf,
+     * falling back to the primary <steam_root>.
+     */
+    std::string findAppLibraryFolder(uint32_t appId, const std::string& steamRootOverride = "");
+
+    /**
+     * Resolves a cross-platform logical sync URI to a canonical absolute local path.
+     * Supported schemes:
+     *   steamapps://appmanifest_{appid}.acf
+     *   depotcache://{filename}
+     *   stplugin://{filename}
+     *   userdata://{steam32}/{appid}/remote/{relpath}
+     *   protonprefix://{appid}/drive_c/users/steamuser/{relpath}
+     *
+     * Security Invariant:
+     *   Rejects empty relative paths, null bytes, absolute path injection, '..' traversal,
+     *   and symlinks pointing outside the resolved base root. Returns "" on violation.
+     */
+    std::string resolveLogicalSyncPath(const std::string& logicalUri, uint64_t steamId64, uint32_t appId = 0, const std::string& steamRootOverride = "");
+
+    /**
+     * Converts a local relative subpath and metadata into a cross-platform logical sync URI.
+     */
+    std::string toLogicalSyncUri(Sync::ESyncCategory category, uint32_t appId, const std::string& relativeSubPath, uint64_t steamId64 = 0);
 } // namespace Paths
 

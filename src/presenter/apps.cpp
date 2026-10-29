@@ -9,6 +9,7 @@
 #include "nativeinstall.hpp"
 #include "licenses.hpp"
 #include "depotkeys.hpp"
+#include "manifestcode.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -20,6 +21,7 @@
 #include <cstring>
 #include <mutex>
 #include <string>
+#include <thread>
 
 
 
@@ -873,6 +875,22 @@ void Apps::buildDepotDependency(AppId_t appId, CUtlVector<DepotInfo_t>* depots, 
 
 			LOG_INFO("BuildDepotDependency: Injected depot %u for app %u (manifest %llu, size %llu)\n",
 			         depotId, appId, info.manifestId, info.manifestSize);
+		}
+	}
+
+	// 6. Ensure .manifest file exists locally in depotcache for active depots.
+	//    Dispatch pre-fetch asynchronously so Steam's main thread is NEVER blocked during startup.
+	for (uint32_t i = 0; i < depots->size; ++i)
+	{
+		const auto depot = depots->at(i);
+		if (depot && depot->manifestId != 0)
+		{
+			uint32_t aId = depot->appId != 0 ? depot->appId : appId;
+			uint32_t dId = depot->depotId;
+			uint64_t mId = depot->manifestId;
+			std::thread([aId, dId, mId]() {
+				ManifestCode::ensureManifestFile(aId, dId, mId);
+			}).detach();
 		}
 	}
 

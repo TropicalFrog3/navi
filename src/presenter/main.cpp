@@ -381,9 +381,64 @@ extern "C" unsigned int la_objclose(uintptr_t *cookie)
 	return 0;
 }
 
+static const void* g_registeredEhFrameBegin = nullptr;
+alignas(8) static uint8_t g_ehFrameObjectStorage[64] = {};
+
+__attribute__((constructor)) static void registerAuditEhFrame()
+{
+	// glibc's _dl_find_object only indexes LM_ID_BASE and returns -1 for libraries
+	// loaded inside an LD_AUDIT (dlmopen) namespace, causing libgcc_s _Unwind_Find_FDE
+	// to fail and std::terminate() on any C++ exception unless .eh_frame is registered.
+	Dl_info dlInfo{};
+	if (dladdr(reinterpret_cast<const void*>(&registerAuditEhFrame), &dlInfo) == 0 || !dlInfo.dli_fbase)
+	{
+		return;
+	}
+
+	const auto* base = static_cast<const uint8_t*>(dlInfo.dli_fbase);
+	const auto* ehdr = reinterpret_cast<const Elf32_Ehdr*>(base);
+	if (std::memcmp(ehdr->e_ident, ELFMAG, SELFMAG) != 0)
+	{
+		return;
+	}
+
+	const auto* phdrs = reinterpret_cast<const Elf32_Phdr*>(base + ehdr->e_phoff);
+	for (uint16_t i = 0; i < ehdr->e_phnum; ++i)
+	{
+		if (phdrs[i].p_type == PT_GNU_EH_FRAME)
+		{
+			const uint8_t* ehFrameHdr = base + phdrs[i].p_vaddr;
+			if (ehFrameHdr[0] == 1 && ehFrameHdr[1] == 0x1b)
+			{
+				int32_t relOffset = 0;
+				std::memcpy(&relOffset, ehFrameHdr + 4, sizeof(relOffset));
+				const void* ehFrameBegin = (ehFrameHdr + 4) + relOffset;
+				using RegisterFrameInfoFn = void (*)(const void*, void*);
+				auto regFn = reinterpret_cast<RegisterFrameInfoFn>(dlsym(RTLD_DEFAULT, "__register_frame_info"));
+				if (regFn)
+				{
+					g_registeredEhFrameBegin = ehFrameBegin;
+					regFn(g_registeredEhFrameBegin, g_ehFrameObjectStorage);
+				}
+			}
+			break;
+		}
+	}
+}
+
 __attribute__((destructor)) static void onLibraryUnload()
 {
 	StoreInject::shutdown();
+	if (g_registeredEhFrameBegin != nullptr)
+	{
+		using DeregisterFrameInfoFn = void* (*)(const void*);
+		auto deregFn = reinterpret_cast<DeregisterFrameInfoFn>(dlsym(RTLD_DEFAULT, "__deregister_frame_info"));
+		if (deregFn)
+		{
+			deregFn(g_registeredEhFrameBegin);
+		}
+		g_registeredEhFrameBegin = nullptr;
+	}
 }
 
 void la_preinit(__attribute__((unused)) uintptr_t *cookie)

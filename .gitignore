@@ -84,3 +84,8 @@ navi.zip
 .cla*/*
 steam-os/*
 .antigravityignore
+
+# CEF Annotator
+tools/cef-annotator/annotations.json
+tools/cef-annotator/*.png
+

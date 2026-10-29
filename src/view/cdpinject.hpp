@@ -81,4 +81,10 @@ namespace CDPInject
      * Ensure Steam on Linux assigns a compatibility tool (Proton) to an app so it installs without "Invalid platform".
      */
     void ensureCompatTool(uint32_t appId);
+
+    /**
+     * Injects and triggers the Navi Cross-Device Sync overlay modal on active Steam CEF contexts.
+     */
+    void injectSyncOverlayModal();
 }
+

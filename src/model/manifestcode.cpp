@@ -4,8 +4,7 @@
 #include "paths.hpp"
 #include "atomic_file.hpp"
 #include "config.hpp"
-
-#include <curl/curl.h>
+#include "curl.hpp"
 #include <charconv>
 #include <chrono>
 #include <filesystem>
@@ -257,37 +256,26 @@ namespace ManifestCode
 
     // ── HTTP Fetcher & Providers ──────────────────────────────────────────
 
-    static size_t curlWriteCallback(void* ptr, size_t size, size_t nmemb, void* userdata)
-    {
-        std::string* s = reinterpret_cast<std::string*>(userdata);
-        s->append(reinterpret_cast<char*>(ptr), size * nmemb);
-        return size * nmemb;
-    }
-
     static bool httpGet(const std::string& url, std::string& response, long timeoutSec = 10)
     {
-        CURL* curl = curl_easy_init();
-        if (!curl) return false;
+        Curl::HttpRequest_t req;
+        req.method = "GET";
+        req.url = url;
+        req.timeoutSec = static_cast<int>(timeoutSec);
+        req.headers.push_back({"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"});
 
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, timeoutSec);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 5L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Navi-ManifestClient/1.0");
-
-        CURLcode res = curl_easy_perform(curl);
-        long httpCode = 0;
-        if (res == CURLE_OK)
+        Curl::HttpResponse_t resp;
+        if (!Curl::request(req, resp))
         {
-            curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
+            return false;
         }
-        curl_easy_cleanup(curl);
 
-        return (res == CURLE_OK && httpCode >= 200 && httpCode < 300);
+        if (resp.statusCode >= 200 && resp.statusCode < 300)
+        {
+            response.assign(reinterpret_cast<const char*>(resp.body.data()), resp.body.size());
+            return true;
+        }
+        return false;
     }
 
     static bool parsePlainUint(std::string_view body, uint64_t* out)
@@ -360,6 +348,93 @@ namespace ManifestCode
         return false;
     }
 
+    static bool isValidManifestContent(const std::string& data)
+    {
+        if (data.size() < 16) return false;
+        // Reject HTML error pages, Cloudflare blocks, and JSON error bodies
+        if (data.rfind("<!DOCTYPE", 0) == 0 || data.rfind("<html", 0) == 0 ||
+            data.rfind("error code:", 0) == 0 || data.rfind("{\"error\"", 0) == 0 ||
+            data.rfind("<html>", 0) == 0 || data.rfind("503 Service", 0) == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    static std::vector<std::string> getSteamContentServers()
+    {
+        static std::vector<std::string> s_cachedServers;
+        static std::chrono::steady_clock::time_point s_lastFetch;
+        static std::mutex s_mutex;
+
+        std::lock_guard<std::mutex> lock(s_mutex);
+        auto now = std::chrono::steady_clock::now();
+        if (!s_cachedServers.empty() && (now - s_lastFetch < std::chrono::hours(1)))
+        {
+            return s_cachedServers;
+        }
+
+        std::string resp;
+        std::vector<std::string> servers;
+        if (httpGet("https://api.steampowered.com/IContentServerDirectoryService/GetServersForSteamPipe/v1/?cellId=0", resp, 4))
+        {
+            size_t pos = 0;
+            while ((pos = resp.find("\"host\":\"", pos)) != std::string::npos)
+            {
+                pos += 8;
+                size_t end = resp.find('"', pos);
+                if (end == std::string::npos) break;
+                std::string host = resp.substr(pos, end - pos);
+                if (!host.empty() && std::find(servers.begin(), servers.end(), host) == servers.end())
+                {
+                    servers.push_back(host);
+                    if (servers.size() >= 4) break;
+                }
+                pos = end + 1;
+            }
+        }
+
+        if (std::find(servers.begin(), servers.end(), "cache1-ord1.steamcontent.com") == servers.end())
+            servers.push_back("cache1-ord1.steamcontent.com");
+        if (std::find(servers.begin(), servers.end(), "content.steampowered.com") == servers.end())
+            servers.push_back("content.steampowered.com");
+        if (std::find(servers.begin(), servers.end(), "client-download.steampowered.com") == servers.end())
+            servers.push_back("client-download.steampowered.com");
+
+        s_cachedServers = servers;
+        s_lastFetch = now;
+        return s_cachedServers;
+    }
+
+    static bool fetchManifestFromSteamServer(uint32_t depotId, uint64_t manifestGid, std::string& outContent, uint64_t requestCode = 0)
+    {
+        const auto servers = getSteamContentServers();
+        for (const auto& server : servers)
+        {
+            std::vector<std::string> urls;
+            if (requestCode != 0)
+            {
+                urls.push_back("https://" + server + "/depot/" + std::to_string(depotId) +
+                               "/manifest/" + std::to_string(manifestGid) + "/5/" + std::to_string(requestCode));
+            }
+            urls.push_back("https://" + server + "/depot/" + std::to_string(depotId) +
+                           "/manifest/" + std::to_string(manifestGid) + "/5");
+
+            for (const auto& url : urls)
+            {
+                std::string resp;
+                if (httpGet(url, resp, 8) && isValidManifestContent(resp))
+                {
+                    LOG_INFO("ManifestCode: Successfully fetched manifest for depot %u from Steam server %s (size %zu bytes)\n",
+                             depotId, server.c_str(), resp.size());
+                    outContent = std::move(resp);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     bool ensureManifestFile(uint32_t appId, uint32_t depotId, uint64_t manifestGid)
     {
         if (depotId == 0 || manifestGid == 0) return false;
@@ -399,21 +474,70 @@ namespace ManifestCode
             }
         }
 
-        LOG_INFO("ManifestCode: Local manifest %s not found. Attempting pre-fetch...\n", manifestFilename.c_str());
+        LOG_INFO("ManifestCode: Local manifest %s not found. Attempting pre-fetch from Archive.org repository sources...\n", manifestFilename.c_str());
 
-        // Fast-path Download attempt: check if binary manifest can be fetched directly
-        // Try depotbox / manifest providers if available
-        std::string url = "https://depotbox.org/manifest/" + std::to_string(depotId) + "/" + std::to_string(manifestGid);
         std::string content;
-        if (httpGet(url, content, 10) && !content.empty())
+
+        // 1. First Fallback: Archive.org ManifestHub repositories with encoded in-zip paths
+        // - https://archive.org/download/manifest-hub-repo/NEW-depot-keys.zip/NEW-depot-keys%2F{appId main}%2F{appId depot}_{depot}.manifest
+        // - https://archive.org/download/manifest-hub-repo/branches.zip/branches%2F{appid main}%2F{appid depot}_{depot}.manifest
+        // - https://archive.org/download/manifest-hub-repo/depot-keys-2026-05-15.zip/depot-keys-2026-05-15%2F{appid main}%2F{appid depot}_{depot}.manifest
+        static const char* const kArchiveBases[] = {
+            "https://archive.org/download/manifest-hub-repo/NEW-depot-keys.zip/NEW-depot-keys%2F",
+            "https://archive.org/download/manifest-hub-repo/branches.zip/branches%2F",
+            "https://archive.org/download/manifest-hub-repo/depot-keys-2026-05-15.zip/depot-keys-2026-05-15%2F"
+        };
+
+        const uint32_t mainAppId = (appId != 0) ? appId : depotId;
+        for (const char* base : kArchiveBases)
+        {
+            std::string aUrl = base + std::to_string(mainAppId) + "%2F" + manifestFilename;
+            if (httpGet(aUrl, content, 4) && isValidManifestContent(content))
+            {
+                if (AtomicFile::write(manifestPath, content, true))
+                {
+                    LOG_INFO("ManifestCode: Successfully downloaded and cached manifest from archive.org (%s) to %s (size %zu bytes)\n",
+                             aUrl.c_str(), manifestPath.c_str(), content.size());
+                    if (!legacyPath.empty()) AtomicFile::write(legacyPath, content, true);
+                    return true;
+                }
+            }
+        }
+
+        // 2. Second Fallback: Steam content server direct request (SteamPipe CDN)
+        uint64_t reqCode = 0;
+        fetchManifestRequestCode(manifestGid, &reqCode, appId, depotId);
+        if (fetchManifestFromSteamServer(depotId, manifestGid, content, reqCode))
         {
             if (AtomicFile::write(manifestPath, content, true))
             {
-                LOG_INFO("ManifestCode: Successfully downloaded and cached manifest to %s\n", manifestPath.c_str());
-                if (!legacyPath.empty())
-                {
-                    AtomicFile::write(legacyPath, content, true);
-                }
+                LOG_INFO("ManifestCode: Successfully downloaded and cached Steam server manifest to %s\n", manifestPath.c_str());
+                if (!legacyPath.empty()) AtomicFile::write(legacyPath, content, true);
+                return true;
+            }
+        }
+
+        // 3. Third Fallback: steamrun download_manifest
+        std::string steamrunUrl = "https://manifest.steam.run/api/download_manifest?depot_id=" +
+                                  std::to_string(depotId) + "&manifest_id=" + std::to_string(manifestGid);
+        if (httpGet(steamrunUrl, content, 10) && isValidManifestContent(content))
+        {
+            if (AtomicFile::write(manifestPath, content, true))
+            {
+                LOG_INFO("ManifestCode: Successfully downloaded and cached steamrun manifest to %s\n", manifestPath.c_str());
+                if (!legacyPath.empty()) AtomicFile::write(legacyPath, content, true);
+                return true;
+            }
+        }
+
+        // 4. Fourth Fallback: depotbox
+        std::string depotboxUrl = "https://depotbox.org/manifest/" + std::to_string(depotId) + "/" + std::to_string(manifestGid);
+        if (httpGet(depotboxUrl, content, 10) && isValidManifestContent(content))
+        {
+            if (AtomicFile::write(manifestPath, content, true))
+            {
+                LOG_INFO("ManifestCode: Successfully downloaded and cached depotbox manifest to %s\n", manifestPath.c_str());
+                if (!legacyPath.empty()) AtomicFile::write(legacyPath, content, true);
                 return true;
             }
         }
@@ -459,6 +583,7 @@ namespace ManifestCode
                  depotId, manifestGid, jobId, appId);
 
         auto task = std::async(std::launch::async, [manifestGid, appId, depotId]() -> uint64_t {
+            ensureManifestFile(appId, depotId, manifestGid);
             uint64_t code = 0;
             fetchManifestRequestCode(manifestGid, &code, appId, depotId);
             return code;
@@ -487,6 +612,18 @@ namespace ManifestCode
             if (it == s_codeFutures.end()) return;
             future = it->second;
             s_codeFutures.erase(it);
+        }
+
+        // If native Steam server already succeeded with OK and valid code, do not overwrite
+        if (hdr.has_eresult() && hdr.eresult() == static_cast<int32_t>(k_EResultOK))
+        {
+            auto nativeResp = pkt->deserializeBody<CContentServerDirectory_GetManifestRequestCode_Response>();
+            if (nativeResp.has_manifest_request_code() && nativeResp.manifest_request_code() != 0)
+            {
+                LOG_INFO("ManifestCode: Native Steam server returned OK with code=%llu for jobId=%llu, leaving untouched\n",
+                         nativeResp.manifest_request_code(), jobId);
+                return;
+            }
         }
 
         auto status = future.wait_for(std::chrono::seconds(12));

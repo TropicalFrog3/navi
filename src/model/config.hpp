@@ -4,6 +4,7 @@
 
 #include "mtvar.hpp"
 #include "log.hpp"
+#include "sync_manifest.hpp"
 
 #include "yaml-cpp/exceptions.h"
 #include "yaml-cpp/node/node.h"
@@ -83,13 +84,20 @@ public:
 	MTVariable<std::string> depotBoxKey;
 	MTVariable<std::string> hubcapKey;
 
+	// Cross-device sync
+	MTVariable<std::string> syncRole{"disabled"};
+	MTVariable<std::string> syncTopology{"cloud"};
+	MTVariable<std::string> syncCloudProvider{"none"};
+	MTVariable<std::string> syncWebDavUrl{""};
+	MTVariable<std::string> syncWebDavUser{""};
+	MTVariable<Sync::SyncSelectionFilter_t> syncFilter;
 
 	std::mutex appsChangedMutex;
 	std::unordered_set<AppId_t> newApps;
 	std::unordered_set<AppId_t> removedApps;
 
 	//Using incomplete class to avoid runtime linking errors
-	CFileWatcher* watcher;
+	CFileWatcher* watcher = nullptr;
 
 	~CConfig();
 

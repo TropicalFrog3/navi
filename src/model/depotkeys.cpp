@@ -1,9 +1,12 @@
 #include "depotkeys.hpp"
 #include "luagenerator.hpp"
 
+#include "atomic_file.hpp"
 #include "config.hpp"
+#include "curl.hpp"
 #include "globals.hpp"
 #include "log.hpp"
+#include "utils.hpp"
 #include "CNetPacket.hpp"
 #include "protobufs/steammessages_clientserver_2.pb.h"
 
@@ -219,15 +222,161 @@ void DepotKeys::scanLuaPluginsForDepotKeys()
 	LOG_INFO("DepotKeys: Scan complete, total loaded %zu depot key(s)\n", g_depotKeys.size());
 }
 
+std::string DepotKeys::getDepotKeysJsonPath()
+{
+	return g_config.getDir() + "/depotkeys.json";
+}
+
+std::string DepotKeys::getAppAccessTokensJsonPath()
+{
+	return g_config.getDir() + "/appaccesstokens.json";
+}
+
+std::string DepotKeys::findAndGetDepotKey(uint32_t depotId)
+{
+	if (depotId == 0) return "";
+
+	// Check in-memory map first
+	{
+		std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+		auto it = g_depotKeys.find(depotId);
+		if (it != g_depotKeys.end() && !it->second.empty())
+		{
+			return it->second;
+		}
+	}
+
+	const std::string jsonPath = getDepotKeysJsonPath();
+
+	// If depotkeys.json is missing, fetch from Archive.org ManifestHub-repo.zip
+	if (!std::filesystem::exists(jsonPath))
+	{
+		LOG_INFO("DepotKeys: depotkeys.json not found locally. Fetching from Archive.org ManifestHub-repo.zip...\n");
+		Curl::HttpRequest_t req;
+		req.method = "GET";
+		req.url = "https://ia600607.us.archive.org/view_archive.php?archive=/33/items/manifest-hub-repo/ManifestHub-repo.zip&file=ManifestHub%2Fdepotkeys.json";
+		req.timeoutSec = 20;
+		req.headers.push_back({"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"});
+
+		Curl::HttpResponse_t resp;
+		if (Curl::request(req, resp) && resp.statusCode == 200 && resp.body.size() > 1024)
+		{
+			std::string bodyStr(reinterpret_cast<const char*>(resp.body.data()), resp.body.size());
+			AtomicFile::write(jsonPath, bodyStr, true);
+			LOG_INFO("DepotKeys: Successfully saved depotkeys.json to %s (size %zu bytes)\n", jsonPath.c_str(), resp.body.size());
+		}
+		else
+		{
+			LOG_WARN("DepotKeys: Failed to fetch depotkeys.json from Archive.org (status=%d)\n", resp.statusCode);
+		}
+	}
+
+	// Search depotkeys.json for `"depotId": "hexKey"`
+	if (std::filesystem::exists(jsonPath))
+	{
+		std::ifstream file(jsonPath);
+		if (file.is_open())
+		{
+			std::string line;
+			const std::string target = "\"" + std::to_string(depotId) + "\":";
+			while (std::getline(file, line))
+			{
+				size_t pos = line.find(target);
+				if (pos != std::string::npos)
+				{
+					size_t q1 = line.find('"', pos + target.size());
+					if (q1 != std::string::npos)
+					{
+						size_t q2 = line.find('"', q1 + 1);
+						if (q2 != std::string::npos && q2 - q1 - 1 == 64)
+						{
+							std::string key = line.substr(q1 + 1, 64);
+							std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+							g_depotKeys[depotId] = key;
+							LOG_INFO("DepotKeys: Found and cached depot key for depot %u from %s\n", depotId, jsonPath.c_str());
+							return key;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return "";
+}
+
+std::string DepotKeys::findAndGetAppAccessToken(uint32_t appId)
+{
+	if (appId == 0) return "";
+
+	const std::string jsonPath = getAppAccessTokensJsonPath();
+
+	// If appaccesstokens.json is missing, fetch from Archive.org ManifestHub-repo.zip
+	if (!std::filesystem::exists(jsonPath))
+	{
+		LOG_INFO("DepotKeys: appaccesstokens.json not found locally. Fetching from Archive.org ManifestHub-repo.zip...\n");
+		Curl::HttpRequest_t req;
+		req.method = "GET";
+		req.url = "https://ia600607.us.archive.org/view_archive.php?archive=/33/items/manifest-hub-repo/ManifestHub-repo.zip&file=ManifestHub%2Fappaccesstokens.json";
+		req.timeoutSec = 10;
+		req.headers.push_back({"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"});
+
+		Curl::HttpResponse_t resp;
+		if (Curl::request(req, resp) && resp.statusCode == 200 && resp.body.size() > 100)
+		{
+			std::string bodyStr(reinterpret_cast<const char*>(resp.body.data()), resp.body.size());
+			AtomicFile::write(jsonPath, bodyStr, true);
+			LOG_INFO("DepotKeys: Successfully saved appaccesstokens.json to %s (size %zu bytes)\n", jsonPath.c_str(), resp.body.size());
+		}
+		else
+		{
+			LOG_WARN("DepotKeys: Failed to fetch appaccesstokens.json from Archive.org (status=%d)\n", resp.statusCode);
+		}
+	}
+
+	// Search appaccesstokens.json for `"appId": "token"`
+	if (std::filesystem::exists(jsonPath))
+	{
+		std::ifstream file(jsonPath);
+		if (file.is_open())
+		{
+			std::string line;
+			const std::string target = "\"" + std::to_string(appId) + "\":";
+			while (std::getline(file, line))
+			{
+				size_t pos = line.find(target);
+				if (pos != std::string::npos)
+				{
+					size_t q1 = line.find('"', pos + target.size());
+					if (q1 != std::string::npos)
+					{
+						size_t q2 = line.find('"', q1 + 1);
+						if (q2 != std::string::npos)
+						{
+							std::string token = line.substr(q1 + 1, q2 - q1 - 1);
+							LOG_INFO("DepotKeys: Found and loaded app access token for app %u from %s\n", appId, jsonPath.c_str());
+							return token;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return "";
+}
+
 std::string DepotKeys::getDepotKey(uint32_t depotId)
 {
-	std::lock_guard<std::mutex> lock(g_depotKeysMutex);
-	auto it = g_depotKeys.find(depotId);
-	if (it != g_depotKeys.end())
 	{
-		return it->second;
+		std::lock_guard<std::mutex> lock(g_depotKeysMutex);
+		auto it = g_depotKeys.find(depotId);
+		if (it != g_depotKeys.end() && !it->second.empty())
+		{
+			return it->second;
+		}
 	}
-	return "";
+	return findAndGetDepotKey(depotId);
 }
 
 bool DepotKeys::isKeyManagedApp(uint32_t appId)
@@ -301,6 +450,14 @@ static void handleDepotDecryptionKeyResponse(CNetPacket* pkt)
 		// Try reloading depot_keys.yaml in case it was updated on disk while Steam was running
 		DepotKeys::loadDepotKeysYaml();
 		hexKey = DepotKeys::getDepotKey(depotId);
+	}
+	if (hexKey.empty() && DepotKeys::isKeyManagedApp(depotId))
+	{
+		// Steam queries the App ID itself as a depot container during installation.
+		// If depotId is an app managed by Navi with valid depot keys, provide a dummy key
+		// so Steam does not fail the whole app before querying child depots.
+		hexKey = "0000000000000000000000000000000000000000000000000000000000000000";
+		LOG_INFO("DepotKeys: Injected dummy container key for managed app %u\n", depotId);
 	}
 	if (hexKey.empty())
 	{

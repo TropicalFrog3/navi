@@ -120,10 +120,79 @@
     }
 
     var historyUnlisten = null;
+    var gdrivePollInterval = null;
+    var configKeyDownHandler = null;
 
     var activeSlsAppId = null;
 
+    function escapeHtml(str) {
+        if (str === null || typeof str === 'undefined') return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    function ensureCustomTabStyles() {
+        if (document.getElementById('sls-custom-tab-styles')) return;
+        var styleEl = document.createElement('style');
+        styleEl.id = 'sls-custom-tab-styles';
+        styleEl.innerHTML =
+            '@keyframes sls-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }' +
+            '@keyframes sls-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }' +
+            'body:has(#sls-top-tab.' + STEAM_TAB_ACTIVE_CLASS + ', #sls-config-top-tab.' + STEAM_TAB_ACTIVE_CLASS + ') .' + STEAM_TAB_BASE_CLASS + ':not(#sls-top-tab):not(#sls-config-top-tab) .' + STEAM_TAB_TEXT_CLASS + ' {' +
+            '    color: rgb(150, 150, 150) !important;' +
+            '    text-shadow: none !important;' +
+            '    font-weight: normal !important;' +
+            '}' +
+            'body:has(#sls-top-tab.' + STEAM_TAB_ACTIVE_CLASS + ', #sls-config-top-tab.' + STEAM_TAB_ACTIVE_CLASS + ') .' + STEAM_TAB_BASE_CLASS + ':not(#sls-top-tab):not(#sls-config-top-tab) .' + STEAM_TAB_TEXT_CLASS + '::after {' +
+            '    display: none !important;' +
+            '}' +
+            'details summary::-webkit-details-marker { display: none !important; }' +
+            'details summary { list-style: none !important; }' +
+            'details .sls-lua-chevron { transition: transform 0.2s ease; color: rgb(139, 146, 154); }' +
+            'details[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 255); }' +
+            '.sls-cfg-pill { background: transparent; border: none; border-radius: 0; color: rgb(184, 188, 191); padding: 10px 12px 10px 24px; height: 40px; box-sizing: border-box; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: background-color 0.1s ease, color 0.1s ease; user-select: none; outline: none; }' +
+            '.sls-cfg-pill:hover { background-color: rgba(61, 68, 80, 0.5); color: rgb(255, 255, 255); }' +
+            '.sls-cfg-pill.active { background-color: rgb(61, 68, 80); color: rgb(255, 255, 255); }' +
+            '.sls-toggle-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }' +
+            '.sls-toggle-switch input { opacity: 0; width: 0; height: 0; }' +
+            '.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.15); transition: .2s; border-radius: 9001px; }' +
+            '.sls-toggle-slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 0px; bottom: 0px; background-color: rgb(255, 255, 255); transition: .2s; border-radius: 9001px; box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 5px 0px; }' +
+            '.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: rgb(26, 159, 255); }' +
+            '.sls-toggle-switch input:checked + .sls-toggle-slider:before { transform: translateX(16px); }' +
+            ':focus-visible { outline: 2px solid rgb(26, 159, 255) !important; outline-offset: 2px !important; }' +
+            '.sls-card-selectable { border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: 4px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }' +
+            '.sls-card-selectable:hover { border-color: rgba(26, 159, 255, 0.4); background: rgba(26, 159, 255, 0.06); }' +
+            '.sls-card-selectable.active { border-color: rgb(26, 159, 255) !important; background: rgba(26, 159, 255, 0.14) !important; }' +
+            '.sls-preset-chip { background: rgba(59, 63, 72, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2px; color: rgb(184, 188, 191); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }' +
+            '.sls-preset-chip:hover { background: rgba(103, 112, 123, 0.5); color: #fff; }' +
+            '.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: rgb(26, 159, 255); color: rgb(26, 159, 255); font-weight: 700; }' +
+            '.sls-step-node { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 120px; }' +
+            '.sls-step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: rgb(150, 150, 150); flex-shrink: 0; }' +
+            '.sls-step-node.active .sls-step-circle { background: rgb(26, 159, 255); color: #fff; }' +
+            '.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #2ecc71; color: #fff; }' +
+            '.sls-cfg-input { background-color: rgba(59, 63, 72, 0.5); border: none; color: rgb(223, 227, 230); border-radius: 3px; padding: 7px 12px; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: background-color 0.2s; }' +
+            '.sls-cfg-input:focus { background-color: rgba(59, 63, 72, 0.8); box-shadow: 0 0 0 1px rgb(26, 159, 255); }' +
+            '.sls-cfg-textarea { background-color: rgba(59, 63, 72, 0.5); border: none; color: rgb(223, 227, 230); border-radius: 3px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: background-color 0.2s; box-sizing: border-box; width: 100%; }' +
+            '.sls-cfg-textarea:focus { background-color: rgba(59, 63, 72, 0.8); box-shadow: 0 0 0 1px rgb(26, 159, 255); }' +
+            '.sls-cfg-btn { background-color: rgba(59, 63, 72, 0.5); border: none; border-radius: 2px; color: rgb(223, 227, 230); padding: 8px 14px; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease; outline: none; }' +
+            '.sls-cfg-btn:hover { background-color: rgba(103, 112, 123, 0.5); color: #fff; }' +
+            '.sls-cfg-btn:active { background-color: rgba(103, 112, 123, 0.8); }' +
+            '.sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar { width: 12px; }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 6px; border: 3px solid transparent; background-clip: content-box; }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); border: 3px solid transparent; background-clip: content-box; }';
+        document.head.appendChild(styleEl);
+    }
+
     function showSlsPage() {
+        hideConfigPage();
+        ensureCustomTabStyles();
+
         // Use Steam's React Router to navigate to /library/home which hides the browser overlay
         var history = getSteamHistory();
         if (history) {
@@ -133,23 +202,6 @@
 
         var container = document.getElementById('sls-page-container');
         if (!container) {
-            // Inject CSS override to suppress other tabs' active styles when SLS tab is active
-            var styleEl = document.createElement('style');
-            styleEl.innerHTML =
-                'body:has(#sls-top-tab.' + STEAM_TAB_ACTIVE_CLASS + ') .' + STEAM_TAB_BASE_CLASS + ':not(#sls-top-tab) .' + STEAM_TAB_TEXT_CLASS + ' {' +
-                '    color: rgb(150, 150, 150) !important;' +
-                '    text-shadow: none !important;' +
-                '    font-weight: normal !important;' +
-                '}' +
-                'body:has(#sls-top-tab.' + STEAM_TAB_ACTIVE_CLASS + ') .' + STEAM_TAB_BASE_CLASS + ':not(#sls-top-tab) .' + STEAM_TAB_TEXT_CLASS + '::after {' +
-                '    display: none !important;' +
-                '}' +
-                'details summary::-webkit-details-marker { display: none !important; }' +
-                'details summary { list-style: none !important; }' +
-                'details .sls-lua-chevron { transition: transform 0.2s ease; color: #8f98a0; }' +
-                'details[open] .sls-lua-chevron { transform: rotate(180deg); color: #66c0f4; }';
-            document.head.appendChild(styleEl);
-
             container = document.createElement('div');
             container.id = 'sls-page-container';
             container.style.cssText = 'position: fixed; left: 0; right: 0; bottom: 0; z-index: 999999; background: radial-gradient(circle at top, #1b2838 0%, #0d121a 100%); display: none; overflow-y: auto; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; color: #d6d7d9; padding: 40px 60px;';
@@ -208,6 +260,7 @@
                         return;
                     }
                     hideSlsPage();
+                    hideConfigPage();
                 });
             }
         }
@@ -227,6 +280,2304 @@
         if (slsTab) {
             slsTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
         }
+    }
+
+    function hideConfigPage() {
+        if (gdrivePollInterval) {
+            clearInterval(gdrivePollInterval);
+            gdrivePollInterval = null;
+        }
+        if (configKeyDownHandler) {
+            window.removeEventListener('keydown', configKeyDownHandler);
+            configKeyDownHandler = null;
+        }
+        var container = document.getElementById('sls-config-page-container');
+        if (container) {
+            container.style.display = 'none';
+        }
+        var configTab = document.getElementById('sls-config-top-tab');
+        if (configTab) {
+            configTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
+        }
+    }
+
+    function showConfigPage() {
+        hideSlsPage();
+        ensureCustomTabStyles();
+
+        var history = getSteamHistory();
+        if (history) {
+            window.__slsNavigating = true;
+            history.push('/library/home');
+        }
+
+        var container = document.getElementById('sls-config-page-container');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'sls-config-page-container';
+            container.style.cssText = 'position: fixed; left: 0; right: 0; bottom: 0; z-index: 999999; background: rgb(23, 29, 37); display: none; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; color: rgb(150, 150, 150); padding: 0; box-sizing: border-box; overflow: hidden;';
+            document.body.appendChild(container);
+        } else {
+            container.style.cssText = 'position: fixed; left: 0; right: 0; bottom: 0; z-index: 999999; background: rgb(23, 29, 37); display: none; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; color: rgb(150, 150, 150); padding: 0; box-sizing: border-box; overflow: hidden;';
+        }
+
+        container.style.top = getTopBarHeight() + 'px';
+        container.style.display = 'block';
+
+        if (!historyUnlisten) {
+            var hist = getSteamHistory();
+            if (hist) {
+                historyUnlisten = hist.listen(function (location) {
+                    if (window.__slsNavigating) {
+                        window.__slsNavigating = false;
+                        return;
+                    }
+                    hideSlsPage();
+                    hideConfigPage();
+                });
+            }
+        }
+
+        var configTab = document.getElementById('sls-config-top-tab');
+        if (configTab) {
+            setActiveTabStyle(configTab);
+        }
+
+        container.innerHTML = '<div style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column;">' +
+            '<div style="font-size: 18px; font-weight: 700; color: rgb(26, 159, 255); margin-bottom: 8px;">Loading Navi Configuration...</div>' +
+            '<div style="font-size: 13px; color: rgb(139, 146, 154);">Connecting to Navi backend (http://127.0.0.1:9001)...</div>' +
+            '</div>';
+
+        Promise.all([
+            fetch('http://127.0.0.1:9001/config/full').then(function (r) { return r.json(); }),
+            fetch('http://127.0.0.1:9001/sync/status').then(function (r) { return r.json(); }).catch(function () { return {}; })
+        ]).then(function (results) {
+            var cfgData = results[0];
+            var syncStatus = results[1] || {};
+            renderConfigPage(container, cfgData, syncStatus);
+        }).catch(function (err) {
+            container.innerHTML = '<div style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column;">' +
+                '<h2 style="color: #ff4d4d; margin-bottom: 12px;">Failed to Load Configuration</h2>' +
+                '<p style="color: rgb(139, 146, 154); font-size: 14px; margin-bottom: 24px;">' + escapeHtml(err.message) + '</p>' +
+                '<button id="sls-cfg-retry-btn" class="sls-cfg-btn" style="padding: 10px 24px;">Retry</button>' +
+                '</div>';
+            var retryBtn = document.getElementById('sls-cfg-retry-btn');
+            if (retryBtn) retryBtn.onclick = showConfigPage;
+        });
+    }
+    window.__naviShowConfigPage = showConfigPage;
+
+    function renderConfigPage(container, cfg, sync) {
+        if (gdrivePollInterval) {
+            clearInterval(gdrivePollInterval);
+            gdrivePollInterval = null;
+        }
+        if (configKeyDownHandler) {
+            window.removeEventListener('keydown', configKeyDownHandler);
+            configKeyDownHandler = null;
+        }
+        cfg = cfg || {};
+        sync = sync || {};
+        var sf = cfg.SyncFilter || {};
+
+        container.style.padding = '0';
+        container.style.overflow = 'hidden';
+        container.style.background = 'rgb(23, 29, 37)';
+
+        function makeCard(title, subtitle, contentHtml) {
+            return '<div class="DialogControlsSection" style="margin-top: 20px;">' +
+                (title ? '<div style="color: rgb(255, 255, 255); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">' + title + '</div>' : '') +
+                (subtitle ? '<div style="color: rgb(139, 146, 154); font-size: 13px; font-weight: 400; line-height: 18px; margin-bottom: 8px;">' + subtitle + '</div>' : '') +
+                contentHtml +
+            '</div>';
+        }
+
+        function makeSettingRow(label, desc, controlHtml, searchTerms) {
+            return '<div class="sls-cfg-item" data-search="' + escapeHtml((label + ' ' + (desc || '') + ' ' + (searchTerms || '')).toLowerCase()) + '" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; box-sizing: border-box; flex-wrap: wrap;">' +
+                '<div style="flex: 1 1 260px; min-width: 220px; padding-right: 16px;">' +
+                    '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223); line-height: 18px;">' + label + '</div>' +
+                    (desc ? '<div style="font-size: 13px; font-weight: 400; color: rgb(139, 146, 154); line-height: 18px; margin-top: 4px;">' + desc + '</div>' : '') +
+                '</div>' +
+                '<div style="flex: 0 1 auto; display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">' +
+                    controlHtml +
+                '</div>' +
+            '</div>';
+        }
+
+        function makeToggle(id, checked) {
+            return '<label class="sls-toggle-switch">' +
+                '<input type="checkbox" id="' + id + '" ' + (checked ? 'checked' : '') + '>' +
+                '<span class="sls-toggle-slider"></span>' +
+            '</label>';
+        }
+
+        function formatArrayForEditor(arr) {
+            return (arr || []).join(', ');
+        }
+
+        function formatKvForEditor(m) {
+            var lines = [];
+            for (var k in (m || {})) {
+                if (Object.prototype.hasOwnProperty.call(m, k)) {
+                    lines.push(k + ': ' + m[k]);
+                }
+            }
+            return lines.join('\n');
+        }
+
+        cfg.SyncRole = 'peer';
+        cfg.SyncTopology = 'cloud';
+        if (cfg.SyncCloudProvider !== 'gdrive' && cfg.SyncCloudProvider !== 'none') {
+            cfg.SyncCloudProvider = 'gdrive';
+        }
+
+        var syncRoleOpt = [
+            { val: 'peer', label: 'Two-Way Sync (peer)' }
+        ].map(function (opt) {
+            return '<option value="' + opt.val + '" selected>' + opt.label + '</option>';
+        }).join('');
+
+        var syncTopoOpt = [
+            { val: 'cloud', label: 'Cloud Relay (cloud)' }
+        ].map(function (opt) {
+            return '<option value="' + opt.val + '" selected>' + opt.label + '</option>';
+        }).join('');
+
+        var syncProvOpt = [
+            { val: 'gdrive', label: 'Google Drive' },
+            { val: 'none', label: 'P2P Local' }
+        ].map(function (opt) {
+            return '<option value="' + opt.val + '" ' + (cfg.SyncCloudProvider === opt.val ? 'selected' : '') + '>' + opt.label + '</option>';
+        }).join('');
+
+        var isGDriveAuth = !!(cfg.GDriveAuthenticated || (sync && sync.cloudAuthenticated && cfg.SyncCloudProvider === 'gdrive'));
+        var gdriveStatusBadge = isGDriveAuth
+            ? '<span id="sls-cfg-gdrive-status-badge" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 2px;">Authenticated ✓</span>'
+            : '<span id="sls-cfg-gdrive-status-badge" style="background: rgba(255, 255, 255, 0.06); color: rgb(139, 146, 154); border: 1px solid rgba(255, 255, 255, 0.12); font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 2px;">Not Connected</span>';
+
+        var currentRecKey = sync.recoveryKeyMaskedOrFull || '';
+
+        // Top-Priority Cloud Push & Sync Action Bar
+        var topPriorityPushBarHtml = '<div id="sls-cfg-top-sync-actions" class="sls-cfg-item" data-search="sync files push to cloud check remote sync status generation" style="background: linear-gradient(90deg, rgba(26, 159, 255, 0.16) 0%, rgba(35, 38, 46, 0.98) 100%); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 2px; padding: 14px 18px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">' +
+            '<div>' +
+                '<div style="font-size: 15px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px;">' +
+                    '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgb(26, 159, 255)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>' +
+                    '<span>Cloud Sync Quick Actions</span>' +
+                '</div>' +
+                '<div style="font-size: 12px; color: rgb(184, 188, 191); margin-top: 3px;">Sync files individually (auto-adds new files, prompts on modified diffs or removals), or force push all local files to the cloud.</div>' +
+            '</div>' +
+            '<div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">' +
+                '<button id="sls-cfg-check-sync-btn" class="sls-cfg-btn" style="background: linear-gradient(90deg, #06bfff 0%, #2d73ff 100%); border: none; border-radius: 2px; color: #ffffff; padding: 9px 20px; font-size: 13px; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 2px 10px rgba(26, 159, 255, 0.35);">' +
+                    '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>' +
+                    '<span>Sync Files</span>' +
+                '</button>' +
+                '<button id="sls-cfg-push-sync-btn" class="sls-cfg-btn" style="background: rgba(26, 159, 255, 0.18); border: 1px solid rgba(26, 159, 255, 0.45); border-radius: 2px; color: #ffffff; padding: 9px 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;">' +
+                    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>' +
+                    '<span>Push to Cloud Now</span>' +
+                '</button>' +
+            '</div>' +
+        '</div>';
+
+        // Friendly Sync Progress Box
+        var syncProgressBoxHtml = '<div id="sls-cfg-sync-progress-box" style="display: none; background: rgb(24, 28, 36); border: 1px solid rgba(26, 159, 255, 0.4); border-radius: 4px; margin-bottom: 14px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.45);">' +
+        '</div>';
+
+        // Guided Journey & Readiness Checklist Banner
+        var readinessBannerHtml = '<div id="sls-cfg-readiness-banner" style="background-color: rgb(35, 38, 46); border-radius: 2px; padding: 14px 16px; margin-bottom: 12px; border-left: 3px solid rgb(26, 159, 255);">' +
+            '<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">' +
+                '<div style="display: flex; align-items: center; gap: 10px;">' +
+                    '<span style="font-size: 14px; font-weight: 600; color: rgb(220, 222, 223);">Sync Readiness &amp; Setup Journey</span>' +
+                    '<span id="sls-cfg-readiness-badge" style="background: rgba(46, 204, 113, 0.15); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.3); font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 2px 8px; border-radius: 2px;">Ready</span>' +
+                '</div>' +
+                '<div id="sls-cfg-readiness-hostname" style="font-size: 12px; color: rgb(139, 146, 154);">Connected Host: <strong style="color: rgb(26, 159, 255);">' + escapeHtml(sync.overriderHostname || 'local-device') + '</strong></div>' +
+            '</div>' +
+            '<div style="display: flex; align-items: center; justify-content: space-between; position: relative; margin-bottom: 14px; gap: 8px; flex-wrap: wrap;">' +
+                '<div id="sls-cfg-step-1" class="sls-step-node">' +
+                    '<div class="sls-step-circle">1</div>' +
+                    '<div><div style="font-size: 12px; font-weight: 600; color: rgb(220, 222, 223);">Device Role</div><div id="sls-cfg-step-1-sub" style="font-size: 11px; color: rgb(139, 146, 154);">Two-Way Sync (peer)</div></div>' +
+                '</div>' +
+                '<div style="flex: 1; height: 1px; background: rgba(255,255,255,0.08); min-width: 12px;"></div>' +
+                '<div id="sls-cfg-step-2" class="sls-step-node">' +
+                    '<div class="sls-step-circle">2</div>' +
+                    '<div><div style="font-size: 12px; font-weight: 600; color: rgb(220, 222, 223);">Connection &amp; Auth</div><div id="sls-cfg-step-2-sub" style="font-size: 11px; color: rgb(139, 146, 154);">' + escapeHtml(cfg.SyncCloudProvider || 'gdrive') + '</div></div>' +
+                '</div>' +
+                '<div style="flex: 1; height: 1px; background: rgba(255,255,255,0.08); min-width: 12px;"></div>' +
+                '<div id="sls-cfg-step-ready" class="sls-step-node">' +
+                    '<div class="sls-step-circle">✓</div>' +
+                    '<div><div style="font-size: 12px; font-weight: 600; color: rgb(220, 222, 223);">Sync Status</div><div id="sls-cfg-step-ready-sub" style="font-size: 11px; color: rgb(139, 146, 154);">Live</div></div>' +
+                '</div>' +
+            '</div>' +
+            '<div id="sls-cfg-readiness-guidance" style="background: rgba(26, 159, 255, 0.08); border: 1px solid rgba(26, 159, 255, 0.2); border-radius: 2px; padding: 10px 14px; font-size: 12px; color: rgb(220, 222, 223); display: flex; align-items: center; gap: 10px;">' +
+                '<svg style="width: 16px; height: 16px; color: rgb(26, 159, 255); flex-shrink: 0;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>' +
+                '<span id="sls-cfg-guidance-text">Checking readiness...</span>' +
+            '</div>' +
+        '</div>';
+
+        var roleRowHtml = makeSettingRow('Device Operational Role', 'Two-way bidirectional peer synchronization across your devices',
+            '<select id="sls-cfg-SyncRole" class="sls-cfg-input" style="width: 260px;">' + syncRoleOpt + '</select>', 'sync role device mode peer');
+
+        var topoRowHtml = makeSettingRow('Network Topology', 'Synchronize files through cloud relay',
+            '<select id="sls-cfg-SyncTopology" class="sls-cfg-input" style="width: 260px;">' + syncTopoOpt + '</select>', 'sync topology cloud');
+
+        var gdriveDisconnectBtnHtml = '<button id="sls-cfg-gdrive-disconnect-btn" class="sls-cfg-btn" style="display: ' + (isGDriveAuth ? 'inline-flex' : 'none') + '; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); border-radius: 2px; color: #f87171; padding: 7px 14px; font-size: 12px; font-weight: 500; cursor: pointer; align-items: center; gap: 6px;">Disconnect</button>';
+
+        var gdriveBlockHtml = '<div id="sls-cfg-gdrive-block">' +
+            makeSettingRow('Google Drive Account', 'Connect your Google account to sync visible files in your Google Drive under /Navi/',
+                '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
+                    gdriveStatusBadge +
+                    '<button id="sls-cfg-gdrive-browser-auth-btn" class="sls-cfg-btn" style="background: #1a73e8; border: none; border-radius: 2px; color: #fff; padding: 7px 14px; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;">' +
+                        '<svg width="14" height="14" viewBox="0 0 24 24"><path fill="#ffffff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#ffffff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#ffffff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#ffffff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>' +
+                        '<span>Connect to Google</span>' +
+                    '</button>' +
+                    gdriveDisconnectBtnHtml +
+                '</div>', 'GDriveBrowserAuth') +
+            '<div id="sls-cfg-gdrive-browser-panel" role="status" aria-live="polite" style="display: none; margin-top: 8px; background: rgba(26, 115, 232, 0.08); border: 1px solid rgba(66, 133, 244, 0.4); border-radius: 2px; padding: 14px;"></div>' +
+        '</div>';
+
+        var noneBlockHtml = '<div id="sls-cfg-none-block" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px; font-size: 13px; color: rgb(139, 146, 154);">' +
+            'Local P2P mode selected. Synchronization will occur directly over local Wi-Fi via P2P PIN pairing.' +
+        '</div>';
+
+        var syncCard1 = roleRowHtml +
+            topoRowHtml +
+            makeSettingRow('Cloud Storage Provider', 'Choose Google Drive cloud storage or P2P local network sync',
+                '<select id="sls-cfg-SyncCloudProvider" class="sls-cfg-input" style="width: 260px;">' + syncProvOpt + '</select>', 'SyncCloudProvider') +
+            gdriveBlockHtml +
+            noneBlockHtml;
+
+        var provNamesSet = {};
+        (sf.ProviderNames || []).forEach(function (p) { provNamesSet[p] = true; });
+
+        var syncCard2 = makeSettingRow('Sync All Manifests & Lua', 'Synchronize all local Lua plugins and depotcache manifests',
+            makeToggle('sls-cfg-sf-AllManifestsAndLua', sf.AllManifestsAndLua), 'AllManifestsAndLua') +
+            '<div style="padding-left: 2px;"><span id="sls-cfg-badge-ManifestAppIds" style="font-size: 12px; color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px; margin: 4px 0 6px 0;">✓ All Manifests &amp; Lua included — uncheck to filter by specific AppIDs</span></div>' +
+            '<div id="sls-cfg-row-ManifestAppIds">' +
+                makeSettingRow('Specific Manifest AppIDs', 'Filter synchronization to specific game AppIDs (comma-separated)',
+                    '<input type="text" id="sls-cfg-sf-ManifestAppIds" class="sls-cfg-input" style="width: 320px;" value="' + escapeHtml(formatArrayForEditor(sf.ManifestAppIds)) + '" placeholder="e.g. 440, 730, 480">', 'ManifestAppIds') +
+            '</div>' +
+            makeSettingRow('Sync All Configurations', 'Synchronize client preferences and config keys across devices',
+                makeToggle('sls-cfg-sf-AllConfigs', sf.AllConfigs), 'AllConfigs') +
+            '<div style="padding-left: 2px;"><span id="sls-cfg-badge-ConfigKeys" style="font-size: 12px; color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px; margin: 4px 0 6px 0;">✓ All Configurations included — uncheck to filter by specific Config Keys</span></div>' +
+            '<div id="sls-cfg-row-ConfigKeys">' +
+                makeSettingRow('Specific Config Keys', 'Only synchronize specific configuration keys (comma-separated)',
+                    '<input type="text" id="sls-cfg-sf-ConfigKeys" class="sls-cfg-input" style="width: 320px;" value="' + escapeHtml(formatArrayForEditor(sf.ConfigKeys)) + '" placeholder="e.g. SafeMode, RyuuKey">', 'ConfigKeys') +
+            '</div>' +
+            makeSettingRow('Sync All Cloud Saves', 'Synchronize game save files across devices',
+                makeToggle('sls-cfg-sf-AllCloudSaves', sf.AllCloudSaves), 'AllCloudSaves') +
+            '<div style="padding-left: 2px;"><span id="sls-cfg-badge-CloudSaveAppIds" style="font-size: 12px; color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px; margin: 4px 0 6px 0;">✓ All Cloud Saves included — uncheck to filter by specific AppIDs</span></div>' +
+            '<div id="sls-cfg-row-CloudSaveAppIds">' +
+                makeSettingRow('Specific Cloud Save AppIDs', 'Only synchronize save files for specific games (comma-separated)',
+                    '<input type="text" id="sls-cfg-sf-CloudSaveAppIds" class="sls-cfg-input" style="width: 320px;" value="' + escapeHtml(formatArrayForEditor(sf.CloudSaveAppIds)) + '" placeholder="e.g. 480, 1234">', 'CloudSaveAppIds') +
+            '</div>' +
+            makeSettingRow('Sync All Achievements', 'Synchronize unlocked achievements union across devices',
+                makeToggle('sls-cfg-sf-AllAchievements', sf.AllAchievements), 'AllAchievements') +
+            '<div style="padding-left: 2px;"><span id="sls-cfg-badge-AchievementAppIds" style="font-size: 12px; color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px; margin: 4px 0 6px 0;">✓ All Achievements included — uncheck to filter by specific AppIDs</span></div>' +
+            '<div id="sls-cfg-row-AchievementAppIds">' +
+                makeSettingRow('Specific Achievement AppIDs', 'Only synchronize achievements for specific games (comma-separated)',
+                    '<input type="text" id="sls-cfg-sf-AchievementAppIds" class="sls-cfg-input" style="width: 320px;" value="' + escapeHtml(formatArrayForEditor(sf.AchievementAppIds)) + '" placeholder="e.g. 730">', 'AchievementAppIds') +
+            '</div>' +
+            makeSettingRow('Sync All API Keys', 'Synchronize Ryuu, DepotBox, and Hubcap access credentials',
+                makeToggle('sls-cfg-sf-AllApiKeys', sf.AllApiKeys), 'AllApiKeys') +
+            '<div style="padding-left: 2px;"><span id="sls-cfg-badge-ProviderNames" style="font-size: 12px; color: #34d399; background: rgba(52, 211, 153, 0.1); border: 1px solid rgba(52, 211, 153, 0.2); padding: 4px 10px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px; margin: 4px 0 6px 0;">✓ All Provider API Keys included — uncheck to select individually</span></div>' +
+            '<div id="sls-cfg-row-ProviderNames">' +
+                makeSettingRow('Provider Keys Selection', 'Selectively synchronize individual API provider keys',
+                    '<div style="display: flex; gap: 16px; align-items: center;">' +
+                        '<label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgb(220, 222, 223); cursor: pointer;"><input type="checkbox" id="sls-cfg-prov-ryuu" ' + (provNamesSet['ryuu'] ? 'checked' : '') + '> Ryuu</label>' +
+                        '<label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgb(220, 222, 223); cursor: pointer;"><input type="checkbox" id="sls-cfg-prov-depotbox" ' + (provNamesSet['depotbox'] ? 'checked' : '') + '> DepotBox</label>' +
+                        '<label style="display: flex; align-items: center; gap: 6px; font-size: 13px; color: rgb(220, 222, 223); cursor: pointer;"><input type="checkbox" id="sls-cfg-prov-hubcap" ' + (provNamesSet['hubcap'] ? 'checked' : '') + '> Hubcap</label>' +
+                    '</div>', 'ProviderNames') +
+            '</div>';
+
+        var syncCard3 = '<div class="sls-cfg-item" data-search="p2p pin pair peer to peer" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px;">' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; gap: 16px;">' +
+                    '<div>' +
+                        '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223);">Local P2P Pairing</div>' +
+                        '<div style="font-size: 13px; color: rgb(139, 146, 154); margin-top: 2px;">Pair two devices on the same LAN using a zero-configuration 6-digit PIN</div>' +
+                    '</div>' +
+                    '<div style="display: flex; gap: 10px;">' +
+                        '<button id="sls-cfg-gen-pin-btn" class="sls-cfg-btn" style="padding: 6px 14px; font-size: 12px;">Generate 6-Digit PIN</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div id="sls-cfg-pin-display" style="margin-top: 10px; text-align: center;"></div>' +
+                '<div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 10px;">' +
+                    '<input type="text" id="sls-cfg-pair-pin-input" class="sls-cfg-input" style="width: 160px; text-align: center; letter-spacing: 3px; font-weight: 700;" placeholder="000000" maxlength="6">' +
+                    '<button id="sls-cfg-pair-pin-btn" class="sls-cfg-btn" style="padding: 6px 14px; font-size: 12px; color: rgb(26, 159, 255);">Pair with PIN</button>' +
+                '</div>' +
+            '</div>' +
+            '<div style="margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.06); font-size: 11px; color: rgb(139, 146, 154); display: flex; align-items: center; gap: 8px;">' +
+                '<span>Files are stored visibly and unencrypted in your Google Drive under <code>/Navi/</code> so you can inspect and manage them directly.</span>' +
+            '</div>';
+
+        var sec1Html = '<div id="sls-cfg-sec-sync" class="sls-cfg-section" style="display: block; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Cloud &amp; Sync</div>' +
+            topPriorityPushBarHtml +
+            syncProgressBoxHtml +
+            readinessBannerHtml +
+            '<div id="sls-cfg-cloud-settings-card">' + makeCard('Cloud & Topology Settings', 'Configure cross-device sync topology, roles, and cloud credentials', syncCard1) + '</div>' +
+            '<div id="sls-cfg-sync-filter-card">' + makeCard('Granular SyncFilter', 'Fine-grained control over which items synchronize automatically', syncCard2) + '</div>' +
+            '<div id="sls-cfg-pairing-card">' + makeCard('Local P2P Pairing', 'Direct local network pairing with a 6-digit PIN', syncCard3) + '</div>' +
+        '</div>';
+
+        // SECTION 2: Provider API Keys
+        function makeApiKeyRow(keyName, label, desc, currentVal) {
+            return makeSettingRow(label, desc,
+                '<div style="display: flex; gap: 8px;">' +
+                    '<input type="password" id="sls-cfg-' + keyName + '" class="sls-cfg-input" style="width: 280px;" value="' + escapeHtml(currentVal || '') + '" placeholder="API token or key...">' +
+                    '<button id="sls-cfg-toggle-' + keyName + '" class="sls-cfg-btn" style="padding: 6px 12px; font-size: 12px;">Show</button>' +
+                '</div>', keyName);
+        }
+
+        var apiCards = makeApiKeyRow('RyuuKey', 'Ryuu API Key', 'Access token for Ryuu manifest and depot index provider', cfg.RyuuKey) +
+            makeApiKeyRow('DepotBoxKey', 'DepotBox API Key', 'Access key for DepotBox depot decryption key database', cfg.DepotBoxKey) +
+            makeApiKeyRow('HubcapKey', 'Hubcap API Key', 'Authentication token for Hubcap community manifest mirror', cfg.HubcapKey);
+
+        var sec2Html = '<div id="sls-cfg-sec-api" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Provider Keys</div>' +
+            makeCard('External Service Credentials', 'Tokens used by Navi to query manifests and depot AES decryption keys', apiCards) +
+        '</div>';
+
+        // SECTION 3: General & Unlock Behavior
+        var genCards = makeSettingRow('Disable Family Share Lock', 'Bypasses simultaneous library play locking for yourself and family share members',
+            makeToggle('sls-cfg-DisableFamilyShareLock', cfg.DisableFamilyShareLock), 'DisableFamilyShareLock') +
+            makeSettingRow('Use Whitelist Mode', 'Switches AppID filtering to whitelist mode instead of default blacklist mode',
+                makeToggle('sls-cfg-UseWhitelist', cfg.UseWhitelist), 'UseWhitelist') +
+            makeSettingRow('Disable Cloud Saves', 'Disable Valve Steam Cloud synchronization for unlocked titles (prevents overwrites)',
+                makeToggle('sls-cfg-DisableCloud', cfg.DisableCloud), 'DisableCloud') +
+            makeSettingRow('Disable Updates', 'Prevents automatic updates for titles specified in AdditionalApps list',
+                makeToggle('sls-cfg-DisableUpdates', cfg.DisableUpdates), 'DisableUpdates') +
+            makeSettingRow('Safe Mode', 'Automatically disables Navi injection when steamclient.so hash differs from known hashes',
+                makeToggle('sls-cfg-SafeMode', cfg.SafeMode), 'SafeMode') +
+            makeSettingRow('Warn Hash Mismatch', 'Display notification warning when steamclient.so binary hash differs from safe list',
+                makeToggle('sls-cfg-WarnHashMissmatch', cfg.WarnHashMissmatch), 'WarnHashMissmatch') +
+            makeSettingRow('Notify Initialization', 'Show a desktop/Steam notification when Navi has successfully initialized hooks',
+                makeToggle('sls-cfg-NotifyInit', cfg.NotifyInit), 'NotifyInit') +
+            makeSettingRow('Enable Local API', 'Enable receiving local command IPC via /tmp/navi.API FIFO pipe',
+                makeToggle('sls-cfg-API', cfg.API), 'API') +
+            makeSettingRow('Max Schema Tries', 'Maximum retry attempts when fetching Achievement schemas directly from Steam CDN (0 to disable)',
+                '<input type="number" id="sls-cfg-MaxSchemaTries" class="sls-cfg-input" style="width: 120px;" min="0" max="100" value="' + (typeof cfg.MaxSchemaTries === 'number' ? cfg.MaxSchemaTries : 10) + '">', 'MaxSchemaTries');
+
+        var sec3Html = '<div id="sls-cfg-sec-general" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">General &amp; Unlock</div>' +
+            makeCard('Unlock Policies & Security Options', 'Configure family sharing, safe mode, and schema retrieval rules', genCards) +
+        '</div>';
+
+        // SECTION 4: Profile, Status & Spoofing
+        var idleStatus = cfg.IdleStatus || {};
+        var unownedStatus = cfg.UnownedStatus || {};
+
+        var profCards = makeSettingRow('Fake Persona Name', 'Clientside persona display name override (leave blank for native)',
+            '<input type="text" id="sls-cfg-FakeName" class="sls-cfg-input" style="width: 280px;" value="' + escapeHtml(cfg.FakeName || '') + '" placeholder="e.g. Gordon Freeman">', 'FakeName') +
+            makeSettingRow('Fake Account Email', 'Clientside account email override (leave blank to disable)',
+                '<input type="text" id="sls-cfg-FakeEmail" class="sls-cfg-input" style="width: 280px;" value="' + escapeHtml(cfg.FakeEmail || '') + '" placeholder="e.g. user@example.com">', 'FakeEmail') +
+            makeSettingRow('Fake Wallet Balance', 'Clientside wallet balance in currency units or cents (0 to disable)',
+                '<input type="number" id="sls-cfg-FakeWalletBalance" class="sls-cfg-input" style="width: 180px;" value="' + (typeof cfg.FakeWalletBalance === 'number' ? cfg.FakeWalletBalance : 0) + '">', 'FakeWalletBalance') +
+            makeSettingRow('Idle Status Override', 'Custom in-game presence displayed to friends when idle (AppID 0 to disable)',
+                '<div style="display: flex; gap: 8px;">' +
+                    '<input type="number" id="sls-cfg-IdleStatus-AppId" class="sls-cfg-input" style="width: 120px;" placeholder="AppID" value="' + (idleStatus.AppId || 0) + '">' +
+                    '<input type="text" id="sls-cfg-IdleStatus-Title" class="sls-cfg-input" style="width: 220px;" placeholder="Title e.g. In Space" value="' + escapeHtml(idleStatus.Title || '') + '">' +
+                '</div>', 'IdleStatus') +
+            makeSettingRow('Unowned Status Override', 'Custom presence displayed when running unowned games (AppID 0 to disable)',
+                '<div style="display: flex; gap: 8px;">' +
+                    '<input type="number" id="sls-cfg-UnownedStatus-AppId" class="sls-cfg-input" style="width: 120px;" placeholder="AppID" value="' + (unownedStatus.AppId || 0) + '">' +
+                    '<input type="text" id="sls-cfg-UnownedStatus-Title" class="sls-cfg-input" style="width: 220px;" placeholder="Title e.g. Testing" value="' + escapeHtml(unownedStatus.Title || '') + '">' +
+                '</div>', 'UnownedStatus');
+
+        var sec4Html = '<div id="sls-cfg-sec-profile" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Account &amp; Spoofing</div>' +
+            makeCard('Persona & Presence Overrides', 'Clientside spoofing of account info, wallet balance, and rich presence', profCards) +
+        '</div>';
+
+        // SECTION 5: App Lists, DLC & Depot Overrides
+        function makeTextareaItem(id, label, desc, content, placeholder, rows) {
+            return '<div class="sls-cfg-item" data-search="' + escapeHtml(label.toLowerCase() + ' ' + (desc || '').toLowerCase() + ' ' + id.toLowerCase()) + '" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px;">' +
+                '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223);">' + label + '</div>' +
+                (desc ? '<div style="font-size: 13px; color: rgb(139, 146, 154); margin: 2px 0 8px;">' + desc + '</div>' : '<div style="margin-bottom: 6px;"></div>') +
+                '<textarea id="' + id + '" class="sls-cfg-textarea" rows="' + (rows || 3) + '" placeholder="' + escapeHtml(placeholder || '') + '">' + escapeHtml(content) + '</textarea>' +
+            '</div>';
+        }
+
+        var appListsContent = makeTextareaItem('sls-cfg-AppIds', 'AppIds', 'List of AppIDs to ex-/include individually (comma-separated or one per line)', formatArrayForEditor(cfg.AppIds), '440, 730, 480...') +
+            makeTextareaItem('sls-cfg-AdditionalApps', 'AdditionalApps', 'AppIDs to inject directly into your library licenses', formatArrayForEditor(cfg.AdditionalApps), '3934270, 480...') +
+            makeTextareaItem('sls-cfg-FakeOffline', 'FakeOffline', 'Simulate Steam being offline for specified AppIDs', formatArrayForEditor(cfg.FakeOffline), '480, 730...') +
+            makeTextareaItem('sls-cfg-DepotBlacklist', 'DepotBlacklist', 'Depot IDs to never download or update', formatArrayForEditor(cfg.DepotBlacklist), '228980, 228985...');
+
+        var kvContent = makeTextareaItem('sls-cfg-FakeAppIds', 'FakeAppIds (AppID -> FakeAppID)', 'Change AppIDs of games to enable networking features (one Key: Value per line)', formatKvForEditor(cfg.FakeAppIds), '480: 440\n123: 456') +
+            makeTextareaItem('sls-cfg-ManifestIds', 'ManifestIds (DepotID -> ManifestID)', 'Lock specific game depots to older manifest versions', formatKvForEditor(cfg.ManifestIds), '441: 123456789012345678') +
+            makeTextareaItem('sls-cfg-AppTokens', 'AppTokens (AppID -> Token)', 'ProductInfo access tokens from Steam servers', formatKvForEditor(cfg.AppTokens), '730: 987654321098765432') +
+            makeTextareaItem('sls-cfg-CDKeys', 'CDKeys (AppID -> CDKey)', 'Legacy CD keys required by older titles', formatKvForEditor(cfg.CDKeys), '440: ABCD-1234-EFGH-5678') +
+            makeTextareaItem('sls-cfg-GameTitles', 'GameTitles (AppID -> Title)', 'Override display titles for owned games', formatKvForEditor(cfg.GameTitles), '440: Team Fortress 2 Custom') +
+            makeTextareaItem('sls-cfg-SubscriptionTimestamps', 'SubscriptionTimestamps (AppID -> Timestamp)', 'Override purchase timestamps (Unix epoch seconds)', formatKvForEditor(cfg.SubscriptionTimestamps), '440: 1600000000') +
+            makeTextareaItem('sls-cfg-SteamIdOverride', 'SteamIdOverride (AppID -> SteamID64)', 'Override SteamID64 an app receives (workaround for locked saves)', formatKvForEditor(cfg.SteamIdOverride), '440: 76561198000000001');
+
+        var yamlContent = makeTextareaItem('sls-cfg-DlcDataYaml', 'DlcData (YAML Block)', 'Extra DLC data mapping (ParentAppID -> DLC ID: Name) for games with 64+ DLCs', cfg.DlcDataYaml || '', '440:\n  441: "DLC 1 Name"', 5) +
+            makeTextareaItem('sls-cfg-DenuvoGamesYaml', 'DenuvoGames (YAML Block)', 'Blocks games from unlocking on unauthorized accounts (SteamID64 -> [AppIDs])', cfg.DenuvoGamesYaml || '', '76561198000000001:\n  - 440\n  - 730', 5);
+
+        var sec5Html = '<div id="sls-cfg-sec-overrides" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Library &amp; Depots</div>' +
+            makeCard('Application Lists', 'Configure AppIDs for injection, offline spoofing, and depot blacklisting', appListsContent) +
+            makeCard('Key-Value Overrides', 'Fine-grained key-value maps for manifests, CD keys, and spoofed parameters', kvContent) +
+            makeCard('Complex YAML Blocks', 'Raw YAML definitions for DLC dictionaries and Denuvo account locks', yamlContent) +
+        '</div>';
+
+        // SECTION 6: Logging & Diagnostics
+        var LOG_LEVEL_FLAGS = [
+            { flag: 0x01, name: 'Trace', hex: '0x01', desc: 'Detailed tracing statements' },
+            { flag: 0x02, name: 'Once', hex: '0x02', desc: 'Only log statement once' },
+            { flag: 0x04, name: 'Debug', hex: '0x04', desc: 'Internal debugging output' },
+            { flag: 0x08, name: 'Warn', hex: '0x08', desc: 'Non-fatal recoverable warnings' },
+            { flag: 0x10, name: 'Error', hex: '0x10', desc: 'Fatal unrecoverable errors' },
+            { flag: 0x20, name: 'Info', hex: '0x20', desc: 'General informational logs' },
+            { flag: 0x40, name: 'NotifyShort', hex: '0x40', desc: 'Short toast notifications' },
+            { flag: 0x80, name: 'NotifyLong', hex: '0x80', desc: 'Long toast notifications' }
+        ];
+
+        var currentLogLevel = typeof cfg.LogLevels === 'number' ? cfg.LogLevels : 255;
+        var bitmaskCheckboxes = LOG_LEVEL_FLAGS.map(function (lf) {
+            var checked = (currentLogLevel & lf.flag) !== 0;
+            return '<label class="sls-cfg-item" data-search="' + lf.name.toLowerCase() + ' ' + lf.hex + '" style="background-color: rgb(35, 38, 46); padding: 10px 16px; margin-top: 4px; border-radius: 2px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+                '<div>' +
+                    '<div style="font-size: 13px; font-weight: 400; color: rgb(220, 222, 223);">' + lf.name + ' <span style="color: rgb(26, 159, 255); font-family: monospace; font-size: 12px;">(' + lf.hex + ')</span></div>' +
+                    '<div style="font-size: 12px; color: rgb(139, 146, 154);">' + lf.desc + '</div>' +
+                '</div>' +
+                '<input type="checkbox" id="sls-cfg-log-0x' + lf.flag.toString(16) + '" class="sls-cfg-log-flag" data-flag="' + lf.flag + '" ' + (checked ? 'checked' : '') + ' style="width: 18px; height: 18px; cursor: pointer;">' +
+            '</label>';
+        }).join('');
+
+        var presetsHtml = '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">' +
+            '<span style="font-size: 12px; font-weight: 500; color: rgb(139, 146, 154); align-self: center; margin-right: 4px;">Presets:</span>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 255 ? 'active' : '') + '" data-preset="255">Default (0xFF)</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 248 ? 'active' : '') + '" data-preset="248">Standard (0xF8)</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 24 ? 'active' : '') + '" data-preset="24">Quiet (0x18)</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 0 ? 'active' : '') + '" data-preset="0">Silent (0x00)</button>' +
+        '</div>';
+
+        var logLevelsCard = presetsHtml +
+            '<div class="sls-cfg-item" data-search="loglevel bitmask hex" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px; display: flex; align-items: center; justify-content: space-between;">' +
+            '<div>' +
+                '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223);">Combined Bitmask Value</div>' +
+                '<div style="font-size: 13px; color: rgb(139, 146, 154); margin-top: 2px;">Calculated integer bitmask for active log levels</div>' +
+            '</div>' +
+            '<input type="text" id="sls-cfg-loglevel-hex" class="sls-cfg-input" style="width: 180px; font-family: monospace; font-weight: 700; text-align: center;" value="0x' + currentLogLevel.toString(16).toUpperCase() + ' (' + currentLogLevel + ')">' +
+        '</div>' +
+        '<div style="display: flex; flex-direction: column; margin-top: 6px;">' + bitmaskCheckboxes + '</div>';
+
+        var diagCard = makeSettingRow('Dump Client Interfaces', 'Dumps all used IClientInterfaceMaps to disk for reverse engineering',
+            makeToggle('sls-cfg-DumpClientInterfaces', cfg.DumpClientInterfaces), 'DumpClientInterfaces') +
+            makeSettingRow('Extended Logging', 'Logs all calls to Steamworks (creates extremely large logfile, only for debugging)',
+                makeToggle('sls-cfg-ExtendedLogging', cfg.ExtendedLogging), 'ExtendedLogging');
+
+        var sec6Html = '<div id="sls-cfg-sec-logging" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Notifications &amp; Logs</div>' +
+            makeCard('LogLevels Bitmask Configuration', 'Bitwise flags controlling terminal and in-client notification verbosity', logLevelsCard) +
+            makeCard('Engine Diagnostics & Interface Dumps', 'Low-level introspection flags for Navi and Steamworks interfaces', diagCard) +
+        '</div>';
+
+        var sidebarHtml = '<div class="PageListColumn" style="background-color: rgb(42, 45, 52); width: 220px; min-width: 200px; max-width: 240px; height: 100%; padding: 36px 0px 16px 0px; display: flex; flex-direction: column; box-sizing: border-box; flex-shrink: 0; user-select: none;">' +
+            '<div style="color: rgb(26, 159, 255); font-size: 17px; font-weight: 700; text-transform: uppercase; padding: 0px 14px 0px 24px; margin: 0px 0px 14px 0px; line-height: 24px;">NAVI SETTINGS</div>' +
+            '<div style="margin: 0 16px 12px 16px; position: relative;">' +
+                '<input type="text" id="sls-cfg-search" placeholder="Filter settings..." style="width: 100%; background: rgba(23, 29, 37, 0.7); border: none; border-radius: 2px; color: rgb(223, 227, 230); padding: 6px 10px 6px 28px; font-size: 12px; height: 30px; min-height: 30px; outline: none; box-sizing: border-box;">' +
+                '<svg style="position: absolute; left: 8px; top: 7px; width: 14px; height: 14px; color: rgb(139, 146, 154);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>' +
+            '</div>' +
+            '<div role="tablist" aria-orientation="vertical" style="display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 0; margin: 0;">' +
+                '<div class="sls-cfg-pill active" role="tab" tabindex="0" aria-selected="true" data-target="sls-cfg-sec-sync">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M25.2376 7.0939C26.9019 8.83356 27.8828 11.1153 28 13.52C29.9979 14.2303 31.6809 15.6232 32.7521 17.4532C33.8234 19.2831 34.2141 21.4325 33.8554 23.5224C33.4968 25.6122 32.4117 27.5084 30.7916 28.8764C29.1715 30.2444 27.1204 30.9965 25 31H11C8.87956 30.9965 6.82846 30.2444 5.20836 28.8764C3.58826 27.5084 2.50321 25.6122 2.14454 23.5224C1.78587 21.4325 2.1766 19.2831 3.24785 17.4532C4.31911 15.6232 6.00207 14.2303 7.99999 13.52C8.11839 11.109 9.10489 8.82222 10.7774 7.08168C12.45 5.34114 14.6956 4.26433 17.1 4.04999H18.02H18.94C21.3372 4.27345 23.5733 5.35425 25.2376 7.0939ZM8.12134 17.6086L13.4213 12.3086L18.7213 17.6086L16.5062 19.8237L14.9887 18.3062L14.9851 27.2943L11.8575 27.2943L11.8539 18.3062L10.3364 19.8237L8.12134 17.6086ZM26.0554 19.9863L28.2705 22.2014L22.9705 27.5014L17.6706 22.2014L19.8857 19.9863L21.4032 21.5038L21.4067 12.5157L24.5344 12.5157L24.5379 21.5038L26.0554 19.9863Z"></path></svg>' +
+                    '</div>' +
+                    '<span>Cloud &amp; Sync</span>' +
+                '</div>' +
+                '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-api">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path fill="currentColor" d="M6.05882 7.05042C8.17647 6.59664 10.1429 5.9916 12.1092 5.08403C14.0756 4.02521 16.042 2.81513 17.7059 1.30252C18.0084 1.15126 18.3109 1 18.6134 1C18.916 1 19.2185 1.15126 19.3697 1.30252C21.0336 2.81513 23 4.02521 24.9664 5.08403C26.7815 5.9916 28.8992 6.7479 31.0168 7.05042C31.6218 7.05042 32.0756 7.65546 32.0756 8.2605C32.0756 14.6134 31.1681 19.4538 29.2017 23.3866C27.2353 27.4706 23.9076 30.6471 19.2185 33.6723C19.0672 33.8235 18.7647 33.8235 18.4622 33.8235C18.1597 33.8235 18.0084 33.8235 17.7059 33.6723C13.0168 30.7983 9.68908 27.4706 7.72269 23.3866C5.90756 19.4538 5 14.6134 5 8.2605C5 7.65546 5.45378 7.20168 6.05882 7.05042Z"></path></svg>' +
+                    '</div>' +
+                    '<span>Provider Keys</span>' +
+                '</div>' +
+                '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-general">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path d="M34 6H2V28H10.6L9 34H27L25.4 28H34V6ZM30 24H6V10H30V24Z" fill="currentColor"></path></svg>' +
+                    '</div>' +
+                    '<span>General &amp; Unlock</span>' +
+                '</div>' +
+                '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-profile">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path d="M2 6.04999V30.05H34V6.04999H2ZM12 9.04999C13.933 9.04999 15.5 10.617 15.5 12.55C15.5 14.483 13.933 16.05 12 16.05C10.067 16.05 8.5 14.483 8.5 12.55C8.5 10.617 10.067 9.04999 12 9.04999ZM5 27.05C5 23.184 8.13401 20.05 12 20.05C15.866 20.05 19 23.184 19 27.05H5ZM30.05 21.05H22.05V17.05H30.05V21.05ZM29.99 14.05H20V10.05H30L29.99 14.05Z" fill="currentColor"></path></svg>' +
+                    '</div>' +
+                    '<span>Account &amp; Spoofing</span>' +
+                '</div>' +
+                '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-overrides">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path fill-rule="evenodd" clip-rule="evenodd" d="M33 19.9286H3L7.35714 6H28.6429L33 19.9286ZM3 31.7143V24.2143H33V31.7143H3Z" fill="currentColor"></path></svg>' +
+                    '</div>' +
+                    '<span>Library &amp; Depots</span>' +
+                '</div>' +
+                '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-logging">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" width="20" height="20"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66666C14.6024 1.66666 18.3334 5.39762 18.3334 10C18.3334 14.6024 14.6024 18.3333 10 18.3333C5.39765 18.3333 1.66669 14.6024 1.66669 10C1.66669 5.39762 5.39765 1.66666 10 1.66666ZM12.2223 5L11.389 10H8.61119L7.77786 5H12.2223ZM10.0001 15C8.92619 15 8.05564 14.1294 8.05564 13.0556C8.05564 11.9817 8.92619 11.1111 10.0001 11.1111C11.074 11.1111 11.9445 11.9817 11.9445 13.0556C11.9445 14.1294 11.074 15 10.0001 15Z"></path></svg>' +
+                    '</div>' +
+                    '<span>Notifications &amp; Logs</span>' +
+                '</div>' +
+            '</div>' +
+            '<div style="height: 1px; background: rgba(255,255,255,0.08); margin: 12px 16px;"></div>' +
+            '<div style="padding: 0 16px; display: flex; flex-direction: column; gap: 8px;">' +
+                '<div id="sls-cfg-dirty-pill" style="font-size: 11px; font-weight: 500; color: #2ecc71; text-align: center; padding: 2px 0;">✓ All changes saved</div>' +
+                '<button id="sls-cfg-save-btn" class="sls-cfg-btn" style="background: linear-gradient(to right, #47bfff 0%, #1a44c2 60%); color: #fff; border: none; border-radius: 2px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; text-align: center;">Save Changes (Ctrl+S)</button>' +
+                '<button id="sls-cfg-discard-btn" class="sls-cfg-btn" style="display: none; width: 100%; text-align: center;">Discard Changes</button>' +
+                '<button id="sls-cfg-sync-modal-btn" class="sls-cfg-btn" style="width: 100%; text-align: center;">Open Sync Modal</button>' +
+                '<button id="sls-cfg-restart-btn" class="sls-cfg-btn" style="background: rgba(255, 77, 77, 0.15); border: 1px solid rgba(255, 77, 77, 0.3); color: #ff6b6b; width: 100%; text-align: center;">Restart Steam</button>' +
+            '</div>' +
+        '</div>';
+
+        var dialogContentHtml = '<div class="DialogContent _DialogLayout" style="background-color: rgb(23, 29, 37); flex: 1; height: 100%; padding: 0; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;">' +
+            '<div id="sls-cfg-status-banner" role="status" aria-live="polite" style="display: none; margin: 16px 32px 0 32px; max-width: 980px; border-radius: 2px; padding: 10px 14px; font-size: 13px; font-weight: 500; border: 1px solid transparent; box-sizing: border-box;"></div>' +
+            '<div class="sls-cfg-dialog-body" style="overflow-y: auto; padding: 24px 32px 48px 32px; width: 100%; max-width: 100%; flex: 1; display: flex; flex-direction: column; box-sizing: border-box;">' +
+                sec1Html +
+                sec2Html +
+                sec3Html +
+                sec4Html +
+                sec5Html +
+                sec6Html +
+            '</div>' +
+        '</div>';
+
+        container.innerHTML = '<div style="display: flex; flex-direction: row; width: 100%; height: 100%; overflow: hidden;">' +
+            sidebarHtml +
+            dialogContentHtml +
+        '</div>';
+
+        // BIND EVENT LISTENERS
+        function showStatusBanner(msg, color) {
+            var banner = document.getElementById('sls-cfg-status-banner');
+            if (!banner) return;
+            banner.textContent = msg;
+            banner.style.display = 'block';
+            banner.style.backgroundColor = color === '#2ecc71' ? 'rgba(46, 204, 113, 0.15)' : (color === '#66c0f4' || color === 'rgb(26, 159, 255)' ? 'rgba(26, 159, 255, 0.15)' : 'rgba(255, 77, 77, 0.15)');
+            banner.style.borderColor = color === '#2ecc71' ? '#2ecc71' : (color === '#66c0f4' || color === 'rgb(26, 159, 255)' ? 'rgb(26, 159, 255)' : '#ff4d4d');
+            banner.style.color = color === '#2ecc71' ? '#2ecc71' : (color === '#66c0f4' || color === 'rgb(26, 159, 255)' ? 'rgb(26, 159, 255)' : '#ff4d4d');
+            setTimeout(function () {
+                if (banner) banner.style.display = 'none';
+            }, 6000);
+        }
+
+        // 1. Category pill switching
+        var pills = container.querySelectorAll('.sls-cfg-pill');
+        var dialogBody = container.querySelector('.sls-cfg-dialog-body');
+        pills.forEach(function (pill) {
+            function activateTab() {
+                pills.forEach(function (p) {
+                    p.classList.remove('active');
+                    p.setAttribute('aria-selected', 'false');
+                });
+                pill.classList.add('active');
+                pill.setAttribute('aria-selected', 'true');
+                var targetId = pill.getAttribute('data-target');
+                var sections = container.querySelectorAll('.sls-cfg-section');
+                sections.forEach(function (sec) {
+                    sec.style.display = (sec.id === targetId) ? 'block' : 'none';
+                });
+                if (dialogBody) {
+                    dialogBody.scrollTop = 0;
+                }
+            }
+            pill.onclick = activateTab;
+            pill.onkeydown = function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    activateTab();
+                }
+            };
+        });
+
+        // 2. Live search filter
+        var searchInput = document.getElementById('sls-cfg-search');
+        if (searchInput) {
+            searchInput.oninput = function () {
+                var q = searchInput.value.trim().toLowerCase();
+                var items = container.querySelectorAll('.sls-cfg-item');
+                items.forEach(function (el) {
+                    if (!q) {
+                        el.style.display = '';
+                        return;
+                    }
+                    var text = (el.getAttribute('data-search') || el.textContent || '').toLowerCase();
+                    el.style.display = (text.indexOf(q) !== -1) ? '' : 'none';
+                });
+                var advCreds = document.getElementById('sls-cfg-gdrive-advanced-creds');
+                if (advCreds && q) {
+                    var matchInside = advCreds.querySelector('.sls-cfg-item:not([style*="display: none"])');
+                    if (matchInside) advCreds.open = true;
+                }
+                var sections = container.querySelectorAll('.sls-cfg-section');
+                if (!q) {
+                    var activePill = container.querySelector('.sls-cfg-pill.active');
+                    var targetId = activePill ? activePill.getAttribute('data-target') : 'sls-cfg-sec-sync';
+                    sections.forEach(function (sec) {
+                        sec.style.display = (sec.id === targetId) ? 'block' : 'none';
+                    });
+                } else {
+                    sections.forEach(function (sec) {
+                        var visible = sec.querySelectorAll('.sls-cfg-item:not([style*="display: none"])');
+                        sec.style.display = visible.length > 0 ? 'block' : 'none';
+                    });
+                }
+            };
+        }
+
+                // 3. Progressive Disclosure & Dynamic Visibility
+        function updateProgressiveDisclosure() {
+            var roleSelect = document.getElementById('sls-cfg-SyncRole');
+            var currentRole = roleSelect ? roleSelect.value : 'disabled';
+            var isDisabled = (currentRole === 'disabled');
+
+            var callout = document.getElementById('sls-cfg-sync-disabled-callout');
+            var cloudCard = document.getElementById('sls-cfg-cloud-settings-card');
+            var filterCard = document.getElementById('sls-cfg-sync-filter-card');
+            var pairingCard = document.getElementById('sls-cfg-pairing-card');
+
+            if (callout) callout.style.display = isDisabled ? 'block' : 'none';
+            if (cloudCard) cloudCard.style.display = isDisabled ? 'none' : 'block';
+            if (filterCard) filterCard.style.display = isDisabled ? 'none' : 'block';
+            if (pairingCard) pairingCard.style.display = isDisabled ? 'none' : 'block';
+
+            var provSelect = document.getElementById('sls-cfg-SyncCloudProvider');
+            var currentProv = provSelect ? provSelect.value : 'none';
+            var gdriveBlock = document.getElementById('sls-cfg-gdrive-block');
+            var webdavBlock = document.getElementById('sls-cfg-webdav-block');
+            var noneBlock = document.getElementById('sls-cfg-none-block');
+
+            if (gdriveBlock) gdriveBlock.style.display = (currentProv === 'gdrive') ? 'block' : 'none';
+            if (webdavBlock) webdavBlock.style.display = (currentProv === 'webdav') ? 'block' : 'none';
+            if (noneBlock) noneBlock.style.display = (currentProv === 'none') ? 'block' : 'none';
+
+            function updateFilterRow(toggleId, badgeId, rowId) {
+                var chk = document.getElementById(toggleId);
+                var isAll = chk ? chk.checked : true;
+                var badge = document.getElementById(badgeId);
+                var row = document.getElementById(rowId);
+                if (badge) badge.style.display = isAll ? 'inline-flex' : 'none';
+                if (row) row.style.display = isAll ? 'none' : 'block';
+            }
+
+            updateFilterRow('sls-cfg-sf-AllManifestsAndLua', 'sls-cfg-badge-ManifestAppIds', 'sls-cfg-row-ManifestAppIds');
+            updateFilterRow('sls-cfg-sf-AllConfigs', 'sls-cfg-badge-ConfigKeys', 'sls-cfg-row-ConfigKeys');
+            updateFilterRow('sls-cfg-sf-AllCloudSaves', 'sls-cfg-badge-CloudSaveAppIds', 'sls-cfg-row-CloudSaveAppIds');
+            updateFilterRow('sls-cfg-sf-AllAchievements', 'sls-cfg-badge-AchievementAppIds', 'sls-cfg-row-AchievementAppIds');
+            updateFilterRow('sls-cfg-sf-AllApiKeys', 'sls-cfg-badge-ProviderNames', 'sls-cfg-row-ProviderNames');
+        }
+
+        // 4. Guided Journey & Live Readiness Banner
+        function updateGDriveAuthUi(isAuthed) {
+            cfg.GDriveAuthenticated = !!isAuthed;
+            if (sync) {
+                sync.cloudAuthenticated = !!isAuthed;
+                sync.gdriveAuthenticated = !!isAuthed;
+            }
+            var badge = document.getElementById('sls-cfg-gdrive-status-badge');
+            if (badge) {
+                badge.textContent = isAuthed ? 'Authenticated ✓' : 'Not Connected';
+                badge.style.background = isAuthed ? 'rgba(46, 204, 113, 0.15)' : 'rgba(255, 255, 255, 0.06)';
+                badge.style.color = isAuthed ? '#2ecc71' : '#8f98a0';
+                badge.style.border = isAuthed ? '1px solid rgba(46, 204, 113, 0.3)' : '1px solid rgba(255, 255, 255, 0.12)';
+            }
+            var dBtn = document.getElementById('sls-cfg-gdrive-disconnect-btn');
+            if (dBtn) {
+                dBtn.style.display = isAuthed ? 'inline-flex' : 'none';
+            }
+            updateReadinessBanner();
+        }
+
+        function updateReadinessBanner() {
+            var roleSelect = document.getElementById('sls-cfg-SyncRole');
+            var currentRole = roleSelect ? roleSelect.value : 'disabled';
+            var provSelect = document.getElementById('sls-cfg-SyncCloudProvider');
+            var currentProv = provSelect ? provSelect.value : 'none';
+            var disp = document.getElementById('sls-cfg-recovery-key-display');
+            var recKeyText = (disp ? disp.textContent : '').trim();
+            var hasRecKey = recKeyText && recKeyText.indexOf('No recovery key') === -1;
+
+            var gdriveBadge = document.getElementById('sls-cfg-gdrive-status-badge');
+            var isGDriveAuthCurrent = (typeof cfg.GDriveAuthenticated === 'boolean')
+                ? cfg.GDriveAuthenticated
+                : !!((sync && (sync.gdriveAuthenticated || (sync.cloudAuthenticated && currentProv === 'gdrive'))) ||
+                     (gdriveBadge && gdriveBadge.textContent.toLowerCase().indexOf('authenticated') !== -1));
+
+            var s1Sub = document.getElementById('sls-cfg-step-1-sub');
+            if (s1Sub) s1Sub.textContent = currentRole;
+
+            var s2Sub = document.getElementById('sls-cfg-step-2-sub');
+            if (s2Sub) {
+                if (currentProv === 'gdrive') {
+                    s2Sub.textContent = isGDriveAuthCurrent ? 'Google Drive (Authed)' : 'GDrive (Auth Needed)';
+                } else if (currentProv === 'webdav') {
+                    s2Sub.textContent = 'WebDAV';
+                } else {
+                    s2Sub.textContent = 'Local P2P Only';
+                }
+            }
+
+            var s3Sub = document.getElementById('sls-cfg-step-3-sub');
+            if (s3Sub) s3Sub.textContent = hasRecKey ? 'Key Active' : 'No Key';
+
+            var sReadySub = document.getElementById('sls-cfg-step-ready-sub');
+            var badge = document.getElementById('sls-cfg-readiness-badge');
+            var guidance = document.getElementById('sls-cfg-guidance-text');
+
+            var step1 = document.getElementById('sls-cfg-step-1');
+            var step2 = document.getElementById('sls-cfg-step-2');
+            var step3 = document.getElementById('sls-cfg-step-3');
+            var stepReady = document.getElementById('sls-cfg-step-ready');
+
+            function setStepState(el, state) {
+                if (!el) return;
+                var circle = el.querySelector('.sls-step-circle');
+                if (state === 'completed') {
+                    el.classList.add('completed');
+                    el.classList.remove('active');
+                    if (circle) {
+                        circle.style.background = '#2ecc71';
+                        circle.style.borderColor = '#2ecc71';
+                        circle.style.color = '#fff';
+                    }
+                } else if (state === 'active') {
+                    el.classList.add('active');
+                    el.classList.remove('completed');
+                    if (circle) {
+                        circle.style.background = '#1a9fff';
+                        circle.style.borderColor = '#66c0f4';
+                        circle.style.color = '#fff';
+                    }
+                } else {
+                    el.classList.remove('active');
+                    el.classList.remove('completed');
+                    if (circle) {
+                        circle.style.background = 'rgba(255,255,255,0.06)';
+                        circle.style.borderColor = 'rgba(255,255,255,0.15)';
+                        circle.style.color = '#8f98a0';
+                    }
+                }
+            }
+
+            if (currentRole === 'disabled') {
+                setStepState(step1, 'active');
+                setStepState(step2, 'inactive');
+                setStepState(step3, 'inactive');
+                setStepState(stepReady, 'inactive');
+                if (badge) {
+                    badge.textContent = 'Disabled';
+                    badge.style.color = '#8f98a0';
+                    badge.style.background = 'rgba(255,255,255,0.06)';
+                    badge.style.borderColor = 'rgba(255,255,255,0.12)';
+                }
+                if (sReadySub) sReadySub.textContent = 'Disabled';
+                if (guidance) guidance.innerHTML = 'Cross-Device Sync is turned off. Select <strong>Primary PC</strong>, <strong>Secondary / Steam Deck</strong>, or <strong>Two-Way Sync</strong> above to start.';
+            } else {
+                setStepState(step1, 'completed');
+
+                var provReady = (currentProv === 'none') || (currentProv === 'webdav') || (currentProv === 'gdrive' && isGDriveAuthCurrent);
+                if (provReady) {
+                    setStepState(step2, 'completed');
+                } else {
+                    setStepState(step2, 'active');
+                }
+
+                if (hasRecKey) {
+                    setStepState(step3, 'completed');
+                } else {
+                    setStepState(step3, provReady ? 'active' : 'inactive');
+                }
+
+                if (!provReady) {
+                    setStepState(stepReady, 'inactive');
+                    if (badge) {
+                        badge.textContent = 'Action Needed';
+                        badge.style.color = '#f39c12';
+                        badge.style.background = 'rgba(243, 156, 18, 0.15)';
+                        badge.style.borderColor = 'rgba(243, 156, 18, 0.3)';
+                    }
+                    if (sReadySub) sReadySub.textContent = 'Auth Pending';
+                    if (guidance) guidance.innerHTML = 'Google Drive is selected but not authenticated. Click <strong>Sign in with Google</strong> below to connect.';
+                } else if (!hasRecKey && currentRole === 'receiver') {
+                    setStepState(stepReady, 'inactive');
+                    if (badge) {
+                        badge.textContent = 'Key Needed';
+                        badge.style.color = '#f39c12';
+                        badge.style.background = 'rgba(243, 156, 18, 0.15)';
+                        badge.style.borderColor = 'rgba(243, 156, 18, 0.3)';
+                    }
+                    if (sReadySub) sReadySub.textContent = 'No Key';
+                    if (guidance) guidance.innerHTML = 'Secondary device needs the recovery key from your Primary PC. Copy it from Primary and click <strong>Import Key</strong>, or pair via <strong>PIN</strong>.';
+                } else {
+                    setStepState(stepReady, 'completed');
+                    if (badge) {
+                        badge.textContent = 'Ready';
+                        badge.style.color = '#2ecc71';
+                        badge.style.background = 'rgba(46, 204, 113, 0.15)';
+                        badge.style.borderColor = 'rgba(46, 204, 113, 0.3)';
+                    }
+                    if (sReadySub) sReadySub.textContent = 'Ready';
+                    if (guidance) guidance.innerHTML = 'All systems ready! Snapshots and manifests will sync automatically, or push now with <strong>Push to Cloud Now</strong>.';
+                }
+            }
+        }
+
+        // 5. Role & Topology Selects and Selection Cards
+        var roleSelect = document.getElementById('sls-cfg-SyncRole');
+        if (roleSelect) {
+            roleSelect.onchange = function () {
+                updateProgressiveDisclosure();
+                updateReadinessBanner();
+                checkDirty();
+            };
+        }
+
+        var topoSelect = document.getElementById('sls-cfg-SyncTopology');
+        if (topoSelect) {
+            topoSelect.onchange = function () {
+                checkDirty();
+            };
+        }
+
+        var roleCards = container.querySelectorAll('.sls-role-card');
+        roleCards.forEach(function (card) {
+            card.onclick = function () {
+                var r = card.getAttribute('data-role');
+                var sel = document.getElementById('sls-cfg-SyncRole');
+                if (sel) sel.value = r;
+                roleCards.forEach(function (c) { c.classList.remove('active'); });
+                card.classList.add('active');
+                updateProgressiveDisclosure();
+                updateReadinessBanner();
+                checkDirty();
+            };
+        });
+
+        var topoCards = container.querySelectorAll('.sls-topo-card');
+        topoCards.forEach(function (card) {
+            card.onclick = function () {
+                var t = card.getAttribute('data-topo');
+                var sel = document.getElementById('sls-cfg-SyncTopology');
+                if (sel) sel.value = t;
+                topoCards.forEach(function (c) { c.classList.remove('active'); });
+                card.classList.add('active');
+                checkDirty();
+            };
+        });
+
+        var provSelect = document.getElementById('sls-cfg-SyncCloudProvider');
+        if (provSelect) {
+            provSelect.onchange = function () {
+                updateProgressiveDisclosure();
+                updateReadinessBanner();
+                checkDirty();
+            };
+        }
+
+        [
+            'sls-cfg-sf-AllManifestsAndLua',
+            'sls-cfg-sf-AllConfigs',
+            'sls-cfg-sf-AllCloudSaves',
+            'sls-cfg-sf-AllAchievements',
+            'sls-cfg-sf-AllApiKeys'
+        ].forEach(function (id) {
+            var el = document.getElementById(id);
+            if (el) {
+                el.onchange = function () {
+                    updateProgressiveDisclosure();
+                    checkDirty();
+                };
+            }
+        });
+
+        // 6. Bitmask sync and 1-Click Presets
+        var logFlagInputs = container.querySelectorAll('.sls-cfg-log-flag');
+        var hexInput = document.getElementById('sls-cfg-loglevel-hex');
+        var presetChips = container.querySelectorAll('.sls-preset-chip');
+
+        function updateActivePresetChip(mask) {
+            presetChips.forEach(function (chip) {
+                var p = parseInt(chip.getAttribute('data-preset'), 10);
+                if (p === mask) {
+                    chip.classList.add('active');
+                } else {
+                    chip.classList.remove('active');
+                }
+            });
+        }
+
+        presetChips.forEach(function (chip) {
+            chip.onclick = function () {
+                var pVal = parseInt(chip.getAttribute('data-preset'), 10);
+                currentLogLevel = pVal;
+                logFlagInputs.forEach(function (fi) {
+                    var fl = parseInt(fi.getAttribute('data-flag'), 10);
+                    fi.checked = (pVal & fl) !== 0;
+                });
+                if (hexInput) {
+                    hexInput.value = '0x' + pVal.toString(16).toUpperCase() + ' (' + pVal + ')';
+                }
+                updateActivePresetChip(pVal);
+                checkDirty();
+            };
+        });
+
+        logFlagInputs.forEach(function (inp) {
+            inp.onchange = function () {
+                var newMask = 0;
+                logFlagInputs.forEach(function (fi) {
+                    if (fi.checked) {
+                        newMask |= parseInt(fi.getAttribute('data-flag'), 10);
+                    }
+                });
+                currentLogLevel = newMask;
+                if (hexInput) {
+                    hexInput.value = '0x' + newMask.toString(16).toUpperCase() + ' (' + newMask + ')';
+                }
+                updateActivePresetChip(newMask);
+                checkDirty();
+            };
+        });
+
+        if (hexInput) {
+            hexInput.onchange = function () {
+                var raw = hexInput.value.trim().split(' ')[0];
+                var parsed = parseInt(raw, (raw.startsWith('0x') || raw.startsWith('0X')) ? 16 : 10);
+                if (!isNaN(parsed) && parsed >= 0) {
+                    currentLogLevel = parsed;
+                    logFlagInputs.forEach(function (fi) {
+                        var fl = parseInt(fi.getAttribute('data-flag'), 10);
+                        fi.checked = (parsed & fl) !== 0;
+                    });
+                    hexInput.value = '0x' + parsed.toString(16).toUpperCase() + ' (' + parsed + ')';
+                    updateActivePresetChip(parsed);
+                    checkDirty();
+                }
+            };
+        }
+
+        // 7. API keys and secret credentials toggle visibility
+        ['RyuuKey', 'DepotBoxKey', 'HubcapKey', 'SyncGDriveClientSecret', 'SyncWebDavPass'].forEach(function (k) {
+            var btn = document.getElementById('sls-cfg-toggle-' + k);
+            var inp = document.getElementById('sls-cfg-' + k);
+            if (btn && inp) {
+                btn.onclick = function (e) {
+                    e.preventDefault();
+                    if (inp.type === 'password') {
+                        inp.type = 'text';
+                        btn.textContent = 'Hide';
+                    } else {
+                        inp.type = 'password';
+                        btn.textContent = 'Show';
+                    }
+                };
+            }
+        });
+
+        // 8. Interactive Pairing & Key Actions
+        var copyRecKeyBtn = document.getElementById('sls-cfg-copy-rec-key-btn');
+        if (copyRecKeyBtn) {
+            copyRecKeyBtn.onclick = function (e) {
+                e.preventDefault();
+                var disp = document.getElementById('sls-cfg-recovery-key-display');
+                var text = (disp ? disp.textContent : '').trim();
+                if (text && text.indexOf('No recovery key') === -1) {
+                    navigator.clipboard.writeText(text).then(function () {
+                        showStatusBanner('Recovery key copied to clipboard!', '#2ecc71');
+                    }).catch(function () {
+                        showStatusBanner('Please copy key manually from display box.', '#66c0f4');
+                    });
+                } else {
+                    showStatusBanner('No valid recovery key to copy.', '#ff4d4d');
+                }
+            };
+        }
+
+        var rotateRecKeyBtn = document.getElementById('sls-cfg-rotate-rec-key-btn');
+        if (rotateRecKeyBtn) {
+            rotateRecKeyBtn.onclick = function (e) {
+                e.preventDefault();
+                if (!confirm('Are you sure you want to rotate the recovery key? Existing paired devices will need the new key.')) return;
+                fetch('http://127.0.0.1:9001/sync/recovery-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'rotate' })
+                }).then(function (r) { return r.json(); }).then(function (res) {
+                    if (res.success && res.recoveryKey) {
+                        var disp = document.getElementById('sls-cfg-recovery-key-display');
+                        if (disp) disp.textContent = res.recoveryKey;
+                        updateReadinessBanner();
+                        showStatusBanner('Recovery key rotated successfully! New key epoch: ' + (res.keyEpoch || 1), '#2ecc71');
+                    } else {
+                        showStatusBanner('Failed to rotate recovery key: ' + (res.message || 'unknown error'), '#ff4d4d');
+                    }
+                }).catch(function (err) {
+                    showStatusBanner('Error rotating recovery key: ' + err.message, '#ff4d4d');
+                });
+            };
+        }
+
+        var importRecKeyBtn = document.getElementById('sls-cfg-import-rec-key-btn');
+        if (importRecKeyBtn) {
+            importRecKeyBtn.onclick = function (e) {
+                e.preventDefault();
+                var keyInput = document.getElementById('sls-cfg-import-recovery-key');
+                var keyVal = keyInput ? keyInput.value.trim() : '';
+                if (!keyVal) {
+                    showStatusBanner('Please enter a 55-character Base32 recovery key to import.', '#ff4d4d');
+                    return;
+                }
+                fetch('http://127.0.0.1:9001/sync/recovery-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recoveryKey: keyVal })
+                }).then(function (r) { return r.json(); }).then(function (res) {
+                    if (res.success) {
+                        var disp = document.getElementById('sls-cfg-recovery-key-display');
+                        if (disp) disp.textContent = keyVal;
+                        if (keyInput) keyInput.value = '';
+                        updateReadinessBanner();
+                        showStatusBanner('Master recovery key imported successfully!', '#2ecc71');
+                    } else {
+                        showStatusBanner('Failed to import recovery key: ' + (res.message || 'CRC checksum mismatch'), '#ff4d4d');
+                    }
+                }).catch(function (err) {
+                    showStatusBanner('Error importing recovery key: ' + err.message, '#ff4d4d');
+                });
+            };
+        }
+
+        var genPinBtn = document.getElementById('sls-cfg-gen-pin-btn');
+        if (genPinBtn) {
+            genPinBtn.onclick = function (e) {
+                e.preventDefault();
+                function doGenPin() {
+                    fetch('http://127.0.0.1:9001/sync/p2p/pair', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    }).then(function (r) { return r.json(); }).then(function (res) {
+                        if (res.success && res.pin) {
+                            var pdisp = document.getElementById('sls-cfg-pin-display');
+                            if (pdisp) {
+                                pdisp.innerHTML = '<div style="background: rgba(102, 192, 244, 0.1); border: 1px solid rgba(102, 192, 244, 0.3); border-radius: 8px; padding: 16px; margin: 8px 0;">' +
+                                    '<div style="font-size: 28px; font-weight: 800; letter-spacing: 6px; color: #66c0f4;">' + escapeHtml(res.pin) + '</div>' +
+                                    '<div style="font-size: 12px; color: #8f98a0; margin-top: 4px;">Enter this PIN on your other device within 5 minutes to complete P2P LAN pairing.</div>' +
+                                '</div>';
+                            }
+                            showStatusBanner('Generated P2P Pairing PIN: ' + res.pin, '#2ecc71');
+                        } else {
+                            showStatusBanner('Failed to generate PIN: ' + (res.message || 'unknown error'), '#ff4d4d');
+                        }
+                    }).catch(function (err) {
+                        showStatusBanner('Error generating PIN: ' + err.message, '#ff4d4d');
+                    });
+                }
+                if (isDirty) {
+                    collectAndSaveConfig(function (err) {
+                        if (!err) doGenPin();
+                    }, true);
+                } else {
+                    doGenPin();
+                }
+            };
+        }
+
+        var pairPinBtn = document.getElementById('sls-cfg-pair-pin-btn');
+        if (pairPinBtn) {
+            pairPinBtn.onclick = function (e) {
+                e.preventDefault();
+                var pinInput = document.getElementById('sls-cfg-pair-pin-input');
+                var pinVal = pinInput ? pinInput.value.trim() : '';
+                if (!pinVal || pinVal.length !== 6) {
+                    showStatusBanner('Please enter a valid 6-digit pairing PIN.', '#ff4d4d');
+                    return;
+                }
+                fetch('http://127.0.0.1:9001/sync/p2p/pair', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ pin: pinVal })
+                }).then(function (r) { return r.json(); }).then(function (res) {
+                    if (res.success) {
+                        showStatusBanner('P2P Pairing handshake successful! Connected to peer.', '#2ecc71');
+                        if (pinInput) pinInput.value = '';
+                    } else {
+                        showStatusBanner('P2P Pairing failed: ' + (res.message || 'Invalid PIN or peer unreachable'), '#ff4d4d');
+                    }
+                }).catch(function (err) {
+                    showStatusBanner('Error pairing with PIN: ' + err.message, '#ff4d4d');
+                });
+            };
+        }
+
+        var syncProgressPollInterval = null;
+
+        function formatEta(seconds) {
+            if (!seconds || seconds <= 0) return '0s';
+            if (seconds >= 60) {
+                var m = Math.floor(seconds / 60);
+                var s = Math.floor(seconds % 60);
+                return m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+            }
+            return '~' + Math.round(seconds) + 's';
+        }
+
+        function renderSyncProgressBox(data, opFallback) {
+            var box = document.getElementById('sls-cfg-sync-progress-box');
+            if (!box) return;
+
+            var inProgress = data && data.inProgress;
+            var op = (data && data.operation) || opFallback || 'sync';
+            var total = (data && data.totalFiles) || 0;
+            var completed = (data && data.completedFiles) || 0;
+            var remaining = (data && typeof data.remainingFiles === 'number') ? data.remainingFiles : Math.max(0, total - completed);
+            var speed = (data && data.filesPerSecond) || 0;
+            var eta = (data && data.estimatedSecondsRemaining) || 0;
+            var folders = (data && data.folders) || [];
+
+            box.style.display = 'block';
+
+            var titleText = inProgress
+                ? (op === 'push' ? 'Pushing Files to Cloud...' : (op === 'check' ? 'Checking & Syncing Files...' : 'Applying Sync Decisions...'))
+                : (op === 'push' ? 'Push to Cloud Completed' : 'File Sync Completed');
+
+            var badgeText = inProgress ? 'In Progress' : 'Completed';
+            var badgeColor = inProgress ? '#66c0f4' : '#4ade80';
+            var badgeBg = inProgress ? 'rgba(102, 192, 244, 0.15)' : 'rgba(74, 222, 128, 0.15)';
+            var badgeBorder = inProgress ? 'rgba(102, 192, 244, 0.35)' : 'rgba(74, 222, 128, 0.35)';
+
+            var spinnerHtml = inProgress
+                ? '<span style="display: inline-block; width: 14px; height: 14px; border: 2px solid #66c0f4; border-top-color: transparent; border-radius: 50%; animation: sls-spin 0.8s linear infinite;"></span>'
+                : '<span style="color: #4ade80; font-size: 16px; font-weight: 700;">✓</span>';
+
+            var folderRowsHtml = '';
+            if (folders.length > 0) {
+                folderRowsHtml = folders.map(function (f) {
+                    var isDone = f.isDone || (f.totalFiles > 0 && f.completedFiles >= f.totalFiles);
+                    var fRemaining = (typeof f.remainingFiles === 'number') ? f.remainingFiles : Math.max(0, f.totalFiles - f.completedFiles);
+
+                    var leftCheck = isDone
+                        ? '<span style="color: #4ade80; font-size: 16px; font-weight: 700; width: 22px; display: inline-flex; align-items: center; justify-content: center;">✓</span>'
+                        : (f.completedFiles > 0
+                            ? '<span style="display: inline-block; width: 12px; height: 12px; border: 2px solid #66c0f4; border-top-color: transparent; border-radius: 50%; animation: sls-spin 0.8s linear infinite; margin-left: 5px; margin-right: 5px;"></span>'
+                            : '<span style="color: #6b7280; font-size: 16px; width: 22px; display: inline-flex; align-items: center; justify-content: center;">○</span>');
+
+                    var rightText = isDone
+                        ? '<span style="color: #4ade80; font-weight: 600; font-size: 12px;">✓ 0 remaining</span>'
+                        : '<span style="color: #e2e8f0; font-weight: 600; font-size: 12px;">' + fRemaining + ' remaining</span>';
+
+                    return '<div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 18px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">' +
+                        '<div style="display: flex; align-items: center; gap: 12px;">' +
+                            leftCheck +
+                            '<span style="font-size: 13px; font-weight: 600; color: #f3f4f6;">' + escapeHtml(f.folderName) + '</span>' +
+                        '</div>' +
+                        '<div>' + rightText + '</div>' +
+                    '</div>';
+                }).join('');
+            } else {
+                folderRowsHtml = '<div style="padding: 12px 18px; font-size: 12px; color: rgb(139, 146, 154);">Scanning folders...</div>';
+            }
+
+            var speedStr = (speed > 0) ? (speed.toFixed(1) + ' files/s') : '--';
+            var etaStr = inProgress ? (eta > 0 ? formatEta(eta) : 'Calculating...') : 'Finished';
+            var remainingColor = (!inProgress || remaining === 0) ? '#4ade80' : '#66c0f4';
+
+            box.innerHTML = '<div style="padding: 12px 18px; background: rgb(30, 35, 45); border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between;">' +
+                '<div style="display: flex; align-items: center; gap: 10px;">' +
+                    spinnerHtml +
+                    '<span style="font-size: 13px; font-weight: 700; color: #ffffff; letter-spacing: 0.5px; text-transform: uppercase;">' + titleText + '</span>' +
+                '</div>' +
+                '<span style="font-size: 11px; font-weight: 700; color: ' + badgeColor + '; background: ' + badgeBg + '; border: 1px solid ' + badgeBorder + '; padding: 2px 10px; border-radius: 2px; text-transform: uppercase;">' + badgeText + '</span>' +
+            '</div>' +
+            '<div style="padding: 2px 0;">' +
+                folderRowsHtml +
+            '</div>' +
+            '<div style="padding: 12px 18px; background: rgba(18, 20, 26, 0.95); border-top: 1px solid rgba(255, 255, 255, 0.08);">' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">' +
+                    '<span style="font-size: 13px; font-weight: 700; color: #ffffff;">All Files Remaining</span>' +
+                    '<span style="font-size: 14px; font-weight: 700; color: ' + remainingColor + ';">' + remaining + ' remaining' + (total > 0 ? ' (' + completed + ' of ' + total + ' done)' : '') + '</span>' +
+                '</div>' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: rgb(139, 146, 154);">' +
+                    '<span>Upload Speed: <strong style="color: rgb(220, 222, 223); font-weight: 600;">' + speedStr + '</strong></span>' +
+                    '<span>Estimated Time: <strong style="color: rgb(220, 222, 223); font-weight: 600;">' + etaStr + '</strong></span>' +
+                '</div>' +
+            '</div>';
+        }
+
+        function startSyncProgressPolling(opName) {
+            if (syncProgressPollInterval) clearInterval(syncProgressPollInterval);
+            renderSyncProgressBox({ inProgress: true, operation: opName, folders: [], totalFiles: 0, completedFiles: 0, remainingFiles: 0 }, opName);
+
+            function queryProgress() {
+                fetch('http://127.0.0.1:9001/sync/progress')
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        renderSyncProgressBox(data, opName);
+                        if (!data.inProgress && data.totalFiles > 0) {
+                            stopSyncProgressPolling();
+                        }
+                    })
+                    .catch(function () {});
+            }
+
+            queryProgress();
+            syncProgressPollInterval = setInterval(queryProgress, 400);
+        }
+
+        function stopSyncProgressPolling() {
+            if (syncProgressPollInterval) {
+                clearInterval(syncProgressPollInterval);
+                syncProgressPollInterval = null;
+            }
+        }
+
+        function fetchSyncProgressOnce(opName) {
+            fetch('http://127.0.0.1:9001/sync/progress')
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (data && (data.inProgress || data.totalFiles > 0)) {
+                        renderSyncProgressBox(data, opName);
+                        if (data.inProgress && !syncProgressPollInterval) {
+                            startSyncProgressPolling(data.operation || opName || 'sync');
+                        }
+                    }
+                })
+                .catch(function () {});
+        }
+
+        window.__renderSyncProgressBox = renderSyncProgressBox;
+        window.__startSyncProgressPolling = startSyncProgressPolling;
+        window.__stopSyncProgressPolling = stopSyncProgressPolling;
+        window.__fetchSyncProgressOnce = fetchSyncProgressOnce;
+
+        function formatSyncTimestamp(sec) {
+            if (!sec || sec <= 0) return 'Unknown timestamp';
+            var d = new Date(sec * 1000);
+            var pad = function (n) { return n < 10 ? '0' + n : '' + n; };
+            return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + ' ' +
+                   pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+        }
+
+        function formatSyncBytes(bytes) {
+            if (typeof bytes !== 'number' || isNaN(bytes) || bytes < 0) return '0 B';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+        }
+
+        function openSmartSyncResolutionModal(syncRes) {
+            var oldModal = document.getElementById('sls-sync-file-modal');
+            if (oldModal) oldModal.remove();
+
+            var autoAdded = syncRes.autoAddedFiles || [];
+            var diffPrompts = syncRes.diffPrompts || [];
+            var removePrompts = syncRes.removePrompts || [];
+
+            var diffChoices = {};
+            var removeChoices = {};
+
+            diffPrompts.forEach(function (d) {
+                diffChoices[d.logicalPath] = (d.localMtimeUnixSec >= d.remoteMtimeUnixSec) ? 'local' : 'remote';
+            });
+            removePrompts.forEach(function (r) {
+                removeChoices[r.logicalPath] = 'remove';
+            });
+
+            var overlay = document.createElement('div');
+            overlay.id = 'sls-sync-file-modal';
+            overlay.style.cssText = 'position: fixed; inset: 0; z-index: 999999; background: rgba(14, 17, 22, 0.86); backdrop-filter: blur(6px); display: flex; align-items: center; justify-content: center; padding: 24px; box-sizing: border-box; font-family: "Motiva Sans", Arial, Helvetica, sans-serif;';
+
+            var autoAddedHtml = '';
+            if (autoAdded.length > 0) {
+                var addedRows = autoAdded.map(function (a) {
+                    var badgeText = a.direction === 'downloaded' ? 'Added to Local ↓' : 'Added to Cloud ↑';
+                    return '<div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 12px; background: rgba(46, 204, 113, 0.08); border: 1px solid rgba(46, 204, 113, 0.25); border-radius: 2px; margin-top: 6px;">' +
+                        '<div>' +
+                            '<div style="font-size: 13px; font-weight: 600; color: #ffffff;">' + escapeHtml(a.fileName || a.logicalPath) + ' <span style="font-size: 11px; font-family: monospace; color: rgb(139, 146, 154);">(' + escapeHtml(a.logicalPath) + ')</span></div>' +
+                            '<div style="font-size: 12px; color: rgb(184, 188, 191);">' + escapeHtml(a.description || '') + ' &bull; ' + formatSyncTimestamp(a.mtimeUnixSec) + '</div>' +
+                        '</div>' +
+                        '<span style="background: rgba(46, 204, 113, 0.18); color: #2ecc71; border: 1px solid rgba(46, 204, 113, 0.35); font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 2px; white-space: nowrap;">' + badgeText + '</span>' +
+                    '</div>';
+                }).join('');
+
+                autoAddedHtml = '<div style="margin-bottom: 18px;">' +
+                    '<div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #2ecc71; margin-bottom: 6px;">Automatically Added Files (' + autoAdded.length + ')</div>' +
+                    addedRows +
+                '</div>';
+            }
+
+            var diffHtml = '';
+            if (diffPrompts.length > 0) {
+                var diffCards = diffPrompts.map(function (d, idx) {
+                    var localNewer = d.localMtimeUnixSec > d.remoteMtimeUnixSec;
+                    var remoteNewer = d.remoteMtimeUnixSec > d.localMtimeUnixSec;
+                    var defaultChoice = diffChoices[d.logicalPath];
+
+                    var localBadge = localNewer ? '<span style="background: rgba(26, 159, 255, 0.2); color: #66c0f4; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 2px; margin-left: 6px;">NEWER</span>' : '';
+                    var remoteBadge = remoteNewer ? '<span style="background: rgba(26, 159, 255, 0.2); color: #66c0f4; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 2px; margin-left: 6px;">NEWER</span>' : '';
+
+                    return '<div class="sls-sync-diff-item" data-path="' + escapeHtml(d.logicalPath) + '" style="background: rgb(35, 38, 46); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2px; padding: 14px 16px; margin-top: 10px;">' +
+                        '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px;">' +
+                            '<div>' +
+                                '<div style="font-size: 14px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px;">' +
+                                    '<span>' + escapeHtml(d.fileName || d.logicalPath) + '</span>' +
+                                    '<span style="font-size: 11px; font-family: monospace; color: rgb(139, 146, 154); background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 2px;">' + escapeHtml(d.logicalPath) + '</span>' +
+                                '</div>' +
+                                '<div style="font-size: 12px; color: rgb(184, 188, 191); margin-top: 3px;">' + escapeHtml(d.description || 'Synchronized file') + '</div>' +
+                            '</div>' +
+                            '<span style="background: rgba(243, 156, 18, 0.15); color: #f39c12; border: 1px solid rgba(243, 156, 18, 0.35); font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; white-space: nowrap;">Modified Diff</span>' +
+                        '</div>' +
+                        '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">' +
+                            '<div class="sls-sync-choice-card" data-kind="diff" data-path="' + escapeHtml(d.logicalPath) + '" data-val="local" style="cursor: pointer; padding: 10px 12px; border-radius: 2px; border: 2px solid ' + (defaultChoice === 'local' ? 'rgb(26, 159, 255)' : 'rgba(255,255,255,0.1)') + '; background: ' + (defaultChoice === 'local' ? 'rgba(26, 159, 255, 0.12)' : 'rgba(23, 26, 33, 0.65)') + ';">' +
+                                '<div style="font-size: 13px; font-weight: 700; color: #ffffff; display: flex; align-items: center; justify-content: space-between;">' +
+                                    '<span>Keep Local Version' + localBadge + '</span>' +
+                                    '<span class="sls-choice-indicator" style="color: rgb(26, 159, 255); font-weight: 800;">' + (defaultChoice === 'local' ? '✓ Selected' : 'Select') + '</span>' +
+                                '</div>' +
+                                '<div style="font-size: 12px; color: rgb(220, 222, 223); margin-top: 6px;"><strong>Timestamp:</strong> ' + formatSyncTimestamp(d.localMtimeUnixSec) + '</div>' +
+                                '<div style="font-size: 11px; color: rgb(139, 146, 154); margin-top: 2px;">Size: ' + formatSyncBytes(d.localSizeBytes) + ' &bull; Push local file to Cloud</div>' +
+                            '</div>' +
+                            '<div class="sls-sync-choice-card" data-kind="diff" data-path="' + escapeHtml(d.logicalPath) + '" data-val="remote" style="cursor: pointer; padding: 10px 12px; border-radius: 2px; border: 2px solid ' + (defaultChoice === 'remote' ? 'rgb(26, 159, 255)' : 'rgba(255,255,255,0.1)') + '; background: ' + (defaultChoice === 'remote' ? 'rgba(26, 159, 255, 0.12)' : 'rgba(23, 26, 33, 0.65)') + ';">' +
+                                '<div style="font-size: 13px; font-weight: 700; color: #ffffff; display: flex; align-items: center; justify-content: space-between;">' +
+                                    '<span>Use Cloud Version' + remoteBadge + '</span>' +
+                                    '<span class="sls-choice-indicator" style="color: rgb(26, 159, 255); font-weight: 800;">' + (defaultChoice === 'remote' ? '✓ Selected' : 'Select') + '</span>' +
+                                '</div>' +
+                                '<div style="font-size: 12px; color: rgb(220, 222, 223); margin-top: 6px;"><strong>Timestamp:</strong> ' + formatSyncTimestamp(d.remoteMtimeUnixSec) + '</div>' +
+                                '<div style="font-size: 11px; color: rgb(139, 146, 154); margin-top: 2px;">Size: ' + formatSyncBytes(d.remoteSizeBytes) + ' &bull; Download Cloud file to Local</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+
+                diffHtml = '<div style="margin-bottom: 18px;">' +
+                    '<div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: rgb(26, 159, 255); margin-bottom: 4px;">Modified Files — Choose Which Version to Keep (' + diffPrompts.length + ')</div>' +
+                    diffCards +
+                '</div>';
+            }
+
+            var removeHtml = '';
+            if (removePrompts.length > 0) {
+                var removeCards = removePrompts.map(function (r) {
+                    var whereNotice = (r.removedSide === 'local')
+                        ? 'Removed on this device (still exists in Cloud)'
+                        : 'Removed in Cloud (still exists on this device)';
+                    var removeSub = (r.removedSide === 'local')
+                        ? 'Delete this file from Cloud storage as well'
+                        : 'Delete this file from your local device as well';
+                    var keepSub = (r.removedSide === 'local')
+                        ? 'Restore file from Cloud back to your local device'
+                        : 'Keep local file and re-upload it to Cloud';
+
+                    return '<div class="sls-sync-remove-item" data-path="' + escapeHtml(r.logicalPath) + '" style="background: rgb(35, 38, 46); border: 1px solid rgba(239, 68, 68, 0.25); border-radius: 2px; padding: 14px 16px; margin-top: 10px;">' +
+                        '<div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 10px;">' +
+                            '<div>' +
+                                '<div style="font-size: 14px; font-weight: 700; color: #ffffff; display: flex; align-items: center; gap: 8px;">' +
+                                    '<span>' + escapeHtml(r.fileName || r.logicalPath) + '</span>' +
+                                    '<span style="font-size: 11px; font-family: monospace; color: rgb(139, 146, 154); background: rgba(0,0,0,0.25); padding: 2px 6px; border-radius: 2px;">' + escapeHtml(r.logicalPath) + '</span>' +
+                                '</div>' +
+                                '<div style="font-size: 12px; color: rgb(184, 188, 191); margin-top: 3px;">' + escapeHtml(r.description || 'Synchronized file') + '</div>' +
+                                '<div style="font-size: 12px; color: #f87171; margin-top: 4px;">' + escapeHtml(whereNotice) + ' &bull; Last Modified: <strong>' + formatSyncTimestamp(r.mtimeUnixSec) + '</strong> (' + formatSyncBytes(r.sizeBytes) + ')</div>' +
+                            '</div>' +
+                            '<span style="background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.35); font-size: 11px; font-weight: 700; text-transform: uppercase; padding: 3px 8px; border-radius: 2px; white-space: nowrap;">File Removed</span>' +
+                        '</div>' +
+                        '<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">' +
+                            '<div class="sls-sync-choice-card" data-kind="remove" data-path="' + escapeHtml(r.logicalPath) + '" data-val="remove" style="cursor: pointer; padding: 10px 12px; border-radius: 2px; border: 2px solid #ef4444; background: rgba(239, 68, 68, 0.14);">' +
+                                '<div style="font-size: 13px; font-weight: 700; color: #ffffff; display: flex; align-items: center; justify-content: space-between;">' +
+                                    '<span>Yes, Remove File</span>' +
+                                    '<span class="sls-choice-indicator" style="color: #f87171; font-weight: 800;">✓ Selected</span>' +
+                                '</div>' +
+                                '<div style="font-size: 11px; color: rgb(200, 204, 208); margin-top: 4px;">' + escapeHtml(removeSub) + '</div>' +
+                            '</div>' +
+                            '<div class="sls-sync-choice-card" data-kind="remove" data-path="' + escapeHtml(r.logicalPath) + '" data-val="keep" style="cursor: pointer; padding: 10px 12px; border-radius: 2px; border: 2px solid rgba(255,255,255,0.1); background: rgba(23, 26, 33, 0.65);">' +
+                                '<div style="font-size: 13px; font-weight: 700; color: #ffffff; display: flex; align-items: center; justify-content: space-between;">' +
+                                    '<span>No, Keep / Restore File</span>' +
+                                    '<span class="sls-choice-indicator" style="color: rgb(26, 159, 255); font-weight: 800;">Select</span>' +
+                                '</div>' +
+                                '<div style="font-size: 11px; color: rgb(139, 146, 154); margin-top: 4px;">' + escapeHtml(keepSub) + '</div>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>';
+                }).join('');
+
+                removeHtml = '<div style="margin-bottom: 18px;">' +
+                    '<div style="font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: #f87171; margin-bottom: 4px;">Removed Files — Confirm File Removal (' + removePrompts.length + ')</div>' +
+                    removeCards +
+                '</div>';
+            }
+
+            overlay.innerHTML = '<div style="background: rgb(28, 31, 38); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 3px; width: 100%; max-width: 780px; max-height: 86vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75); overflow: hidden;">' +
+                '<div style="padding: 18px 22px; background: rgb(35, 38, 46); border-bottom: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: space-between;">' +
+                    '<div>' +
+                        '<div style="font-size: 18px; font-weight: 700; color: #ffffff;">Sync File Resolution</div>' +
+                        '<div style="font-size: 12px; color: rgb(139, 146, 154); margin-top: 2px;">Choose which file version to keep for modified files and confirm any file removals.</div>' +
+                    '</div>' +
+                    '<button id="sls-sync-modal-close-x" style="background: transparent; border: none; color: rgb(139, 146, 154); font-size: 20px; cursor: pointer; padding: 4px 8px;">&times;</button>' +
+                '</div>' +
+                '<div style="padding: 18px 22px; overflow-y: auto; flex: 1;">' +
+                    autoAddedHtml +
+                    diffHtml +
+                    removeHtml +
+                '</div>' +
+                '<div style="padding: 14px 22px; background: rgb(35, 38, 46); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; align-items: center; justify-content: flex-end; gap: 10px;">' +
+                    '<button id="sls-sync-modal-cancel-btn" class="sls-cfg-btn" style="padding: 8px 18px; font-size: 13px;">Cancel</button>' +
+                    '<button id="sls-sync-modal-apply-btn" class="sls-cfg-btn" style="background: linear-gradient(90deg, #06bfff 0%, #2d73ff 100%); border: none; color: #ffffff; padding: 8px 22px; font-size: 13px; font-weight: 700; cursor: pointer;">Apply Sync Decisions</button>' +
+                '</div>' +
+            '</div>';
+
+            document.body.appendChild(overlay);
+
+            var choiceCards = overlay.querySelectorAll('.sls-sync-choice-card');
+            choiceCards.forEach(function (card) {
+                card.onclick = function () {
+                    var kind = card.getAttribute('data-kind');
+                    var path = card.getAttribute('data-path');
+                    var val = card.getAttribute('data-val');
+
+                    if (kind === 'diff') {
+                        diffChoices[path] = val;
+                    } else if (kind === 'remove') {
+                        removeChoices[path] = val;
+                    }
+
+                    var siblings = overlay.querySelectorAll('.sls-sync-choice-card[data-kind="' + kind + '"][data-path="' + path.replace(/"/g, '\\"') + '"]');
+                    siblings.forEach(function (sib) {
+                        var isSel = (sib.getAttribute('data-val') === val);
+                        var isRemoveCard = (kind === 'remove' && sib.getAttribute('data-val') === 'remove');
+                        var activeColor = isRemoveCard ? '#ef4444' : 'rgb(26, 159, 255)';
+                        var activeBg = isRemoveCard ? 'rgba(239, 68, 68, 0.14)' : 'rgba(26, 159, 255, 0.12)';
+                        sib.style.border = '2px solid ' + (isSel ? activeColor : 'rgba(255,255,255,0.1)');
+                        sib.style.background = isSel ? activeBg : 'rgba(23, 26, 33, 0.65)';
+                        var ind = sib.querySelector('.sls-choice-indicator');
+                        if (ind) {
+                            ind.textContent = isSel ? '✓ Selected' : 'Select';
+                            ind.style.color = isSel ? (isRemoveCard ? '#f87171' : 'rgb(26, 159, 255)') : 'rgb(139, 146, 154)';
+                        }
+                    });
+                };
+            });
+
+            var closeBtnX = document.getElementById('sls-sync-modal-close-x');
+            var cancelBtn = document.getElementById('sls-sync-modal-cancel-btn');
+            var applyBtn = document.getElementById('sls-sync-modal-apply-btn');
+
+            function closeModal() {
+                if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            }
+            if (closeBtnX) closeBtnX.onclick = closeModal;
+            if (cancelBtn) cancelBtn.onclick = closeModal;
+
+            if (applyBtn) {
+                applyBtn.onclick = function () {
+                    applyBtn.disabled = true;
+                    applyBtn.textContent = 'Applying...';
+                    startSyncProgressPolling('sync');
+                    fetch('http://127.0.0.1:9001/sync/resolve', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            diffChoices: diffChoices,
+                            removeChoices: removeChoices
+                        })
+                    }).then(function (r) { return r.json(); }).then(function (res) {
+                        closeModal();
+                        stopSyncProgressPolling();
+                        fetchSyncProgressOnce('sync');
+                        if (res.success) {
+                            showStatusBanner('Sync completed! Resolved ' + (res.appliedDiffs || 0) + ' modified file(s) and ' + (res.appliedRemoves || 0) + ' removal(s). (Generation #' + (res.generation || 0) + ')', '#2ecc71');
+                        } else {
+                            showStatusBanner('Failed to apply sync choices: ' + (res.message || 'Unknown error'), '#ff4d4d');
+                        }
+                    }).catch(function (err) {
+                        applyBtn.disabled = false;
+                        applyBtn.textContent = 'Apply Sync Decisions';
+                        stopSyncProgressPolling();
+                        showStatusBanner('Network error applying sync decisions: ' + err.message, '#ff4d4d');
+                    });
+                };
+            }
+        }
+
+        var checkSyncBtn = document.getElementById('sls-cfg-check-sync-btn');
+        if (checkSyncBtn) {
+            checkSyncBtn.onclick = function (e) {
+                e.preventDefault();
+                function runSmartSync() {
+                    var origHtml = checkSyncBtn.innerHTML;
+                    checkSyncBtn.disabled = true;
+                    checkSyncBtn.textContent = 'Syncing Files...';
+                    showStatusBanner('Comparing local and cloud files...', '#66c0f4');
+                    startSyncProgressPolling('check');
+                    fetch('http://127.0.0.1:9001/sync/check', {
+                        method: 'POST'
+                    }).then(function (r) { return r.json(); }).then(function (res) {
+                        checkSyncBtn.disabled = false;
+                        checkSyncBtn.innerHTML = origHtml;
+                        stopSyncProgressPolling();
+                        fetchSyncProgressOnce('check');
+                        if (res.success !== false) {
+                            var autoAdded = res.autoAddedFiles || [];
+                            if (res.needsUserAction) {
+                                showStatusBanner('Sync review required: ' + ((res.diffPrompts || []).length) + ' modified file(s), ' + ((res.removePrompts || []).length) + ' removed file(s).', '#f39c12');
+                                openSmartSyncResolutionModal(res);
+                            } else if (autoAdded.length > 0) {
+                                var addedNames = autoAdded.map(function (a) {
+                                    return (a.fileName || a.logicalPath) + (a.direction === 'downloaded' ? ' ↓' : ' ↑');
+                                }).join(', ');
+                                showStatusBanner('Sync complete! Auto-added ' + autoAdded.length + ' new file(s) (' + addedNames + '). ' + (res.unchangedCount || 0) + ' file(s) already in sync.', '#2ecc71');
+                            } else {
+                                showStatusBanner('All ' + (res.unchangedCount || 0) + ' file(s) are in sync! Generation #' + (res.remoteGeneration || res.localGeneration || '0'), '#2ecc71');
+                            }
+                        } else {
+                            showStatusBanner('Sync check notice: ' + (res.message || 'No remote snapshot found'), '#66c0f4');
+                        }
+                    }).catch(function (err) {
+                        checkSyncBtn.disabled = false;
+                        checkSyncBtn.innerHTML = origHtml;
+                        stopSyncProgressPolling();
+                        showStatusBanner('Error syncing files: ' + err.message, '#ff4d4d');
+                    });
+                }
+
+                if (isDirty) {
+                    collectAndSaveConfig(function (err) {
+                        if (!err) runSmartSync();
+                    }, true);
+                } else {
+                    runSmartSync();
+                }
+            };
+        }
+
+        var pushSyncBtn = document.getElementById('sls-cfg-push-sync-btn');
+        if (pushSyncBtn) {
+            pushSyncBtn.onclick = function (e) {
+                e.preventDefault();
+                function doPush() {
+                    var origPushBtnHtml = pushSyncBtn.innerHTML;
+                    pushSyncBtn.disabled = true;
+                    pushSyncBtn.textContent = 'Pushing...';
+                    showStatusBanner('Uploading files to Google Drive...', '#66c0f4');
+                    startSyncProgressPolling('push');
+
+                    fetch('http://127.0.0.1:9001/sync/push', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    }).then(function (r) {
+                        return r.json();
+                    }).then(function (res) {
+                        pushSyncBtn.disabled = false;
+                        pushSyncBtn.innerHTML = origPushBtnHtml;
+                        stopSyncProgressPolling();
+                        fetchSyncProgressOnce('push');
+                        if (res.success) {
+                            showStatusBanner('Successfully pushed to cloud! Generation: ' + res.generation + ' (' + res.pushedFiles + ' files pushed, ETag: ' + (res.etag || 'ok') + ')', '#2ecc71');
+                        } else {
+                            showStatusBanner('Failed to push to cloud: ' + (res.message || 'Unknown error'), '#ff4d4d');
+                        }
+                    }).catch(function (err) {
+                        pushSyncBtn.disabled = false;
+                        pushSyncBtn.innerHTML = origPushBtnHtml;
+                        stopSyncProgressPolling();
+                        showStatusBanner('Network error pushing to cloud: ' + err.message, '#ff4d4d');
+                    });
+                }
+
+                if (isDirty) {
+                    collectAndSaveConfig(function (err) {
+                        if (!err) doPush();
+                    }, true);
+                } else {
+                    doPush();
+                }
+            };
+        }
+
+        var gdriveAuthBtn = document.getElementById('sls-cfg-gdrive-auth-btn');
+        var gdrivePanel = document.getElementById('sls-cfg-gdrive-device-panel');
+
+        if (gdriveAuthBtn && gdrivePanel) {
+            gdriveAuthBtn.onclick = function (e) {
+                e.preventDefault();
+                function doAuth() {
+                    var clientId = (document.getElementById('sls-cfg-SyncGDriveClientId') || {}).value || '';
+                    var clientSecret = (document.getElementById('sls-cfg-SyncGDriveClientSecret') || {}).value || '';
+
+                    var gdriveBrowserPanel = document.getElementById('sls-cfg-gdrive-browser-panel');
+                    if (gdriveBrowserPanel) gdriveBrowserPanel.style.display = 'none';
+
+                    gdriveAuthBtn.disabled = true;
+                    gdriveAuthBtn.textContent = 'Requesting Device Code...';
+
+                    if (gdrivePollInterval) {
+                        clearInterval(gdrivePollInterval);
+                        gdrivePollInterval = null;
+                    }
+
+                    fetch('http://127.0.0.1:9001/sync/gdrive/device-start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ clientId: clientId, clientSecret: clientSecret })
+                    }).then(function (r) {
+                        return r.json();
+                    }).then(function (res) {
+                        gdriveAuthBtn.disabled = false;
+                        gdriveAuthBtn.textContent = 'Sign in with Google Drive (Device Code)';
+
+                        if (!res.success) {
+                            showStatusBanner('Google Drive Auth Error: ' + (res.message || 'Failed to start device flow'), '#ff4d4d');
+                            return;
+                        }
+
+                        var userCode = res.userCode || '';
+                        var verifyUrl = res.verificationUrl || 'https://www.google.com/device';
+                        var deviceCode = res.deviceCode || '';
+                        var intervalSec = res.intervalSec || 5;
+
+                        gdrivePanel.style.display = 'block';
+                        gdrivePanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">' +
+                            '<div style="font-size: 14px; font-weight: 700; color: #fff;">Google Drive TV / Device Authorization</div>' +
+                            '<button id="sls-cfg-gdrive-device-cancel-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #8f98a0; font-size: 11px; padding: 4px 8px; cursor: pointer;">Cancel</button>' +
+                        '</div>' +
+                        '<div style="font-size: 13px; color: #fff; margin-bottom: 8px;">1. Visit this URL in your web browser:</div>' +
+                        '<div style="margin-bottom: 12px;"><a id="sls-cfg-gdrive-device-link" href="' + escapeHtml(verifyUrl) + '" target="_blank" style="color: #66c0f4; font-weight: 700; text-decoration: underline; font-size: 14px;">' + escapeHtml(verifyUrl) + '</a></div>' +
+                        '<div style="font-size: 13px; color: #fff; margin-bottom: 8px;">2. Enter this one-time code:</div>' +
+                        '<div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">' +
+                            '<span id="sls-cfg-gdrive-user-code" style="font-family: monospace; font-size: 24px; font-weight: 800; letter-spacing: 4px; color: #ffd700; background: #000; padding: 6px 14px; border-radius: 6px; border: 1px solid rgba(255,215,0,0.4);">' + escapeHtml(userCode) + '</span>' +
+                            '<button id="sls-cfg-gdrive-copy-code-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 6px; color: #fff; padding: 8px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Copy Code</button>' +
+                        '</div>' +
+                        '<div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">' +
+                            '<span id="sls-cfg-gdrive-poll-status" style="font-size: 12px; color: #8f98a0;">Waiting for browser authorization...</span>' +
+                            '<button id="sls-cfg-gdrive-verify-now-btn" style="background: rgba(46, 204, 113, 0.15); border: 1px solid #2ecc71; border-radius: 6px; color: #2ecc71; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer;">Verify Now</button>' +
+                        '</div>';
+
+                        var copyCodeBtn = document.getElementById('sls-cfg-gdrive-copy-code-btn');
+                        if (copyCodeBtn) {
+                            copyCodeBtn.onclick = function () {
+                                if (navigator.clipboard && navigator.clipboard.writeText) {
+                                    navigator.clipboard.writeText(userCode).then(function () {
+                                        copyCodeBtn.textContent = 'Copied!';
+                                        setTimeout(function () { copyCodeBtn.textContent = 'Copy Code'; }, 2000);
+                                    }).catch(function () {
+                                        fallbackCopy();
+                                    });
+                                } else {
+                                    fallbackCopy();
+                                }
+                                function fallbackCopy() {
+                                    var ta = document.createElement('textarea');
+                                    ta.value = userCode;
+                                    document.body.appendChild(ta);
+                                    ta.select();
+                                    document.execCommand('copy');
+                                    document.body.removeChild(ta);
+                                    copyCodeBtn.textContent = 'Copied!';
+                                    setTimeout(function () { copyCodeBtn.textContent = 'Copy Code'; }, 2000);
+                                }
+                            };
+                        }
+
+                        function pollVerification(manual) {
+                            var pollStatus = document.getElementById('sls-cfg-gdrive-poll-status');
+                            if (manual && pollStatus) pollStatus.textContent = 'Checking authorization status...';
+
+                            fetch('http://127.0.0.1:9001/sync/gdrive/device-poll', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ deviceCode: deviceCode })
+                            }).then(function (pr) {
+                                return pr.json();
+                            }).then(function (pres) {
+                                if (pres.success && pres.status === 'authenticated') {
+                                    if (gdrivePollInterval) {
+                                        clearInterval(gdrivePollInterval);
+                                        gdrivePollInterval = null;
+                                    }
+                                    updateGDriveAuthUi(true);
+                                    if (pollStatus) {
+                                        pollStatus.style.color = '#2ecc71';
+                                        pollStatus.textContent = 'Successfully authenticated with Google Drive!';
+                                    }
+                                    showStatusBanner('Google Drive authenticated successfully!', '#2ecc71');
+                                    setTimeout(function () {
+                                        gdrivePanel.style.display = 'none';
+                                    }, 3000);
+                                } else if (pres.success && pres.status === 'pending') {
+                                    if (pollStatus) {
+                                        pollStatus.style.color = '#8f98a0';
+                                        pollStatus.textContent = 'Authorization pending. Complete sign-in at ' + verifyUrl;
+                                    }
+                                } else {
+                                    if (gdrivePollInterval) {
+                                        clearInterval(gdrivePollInterval);
+                                        gdrivePollInterval = null;
+                                    }
+                                    if (pollStatus) {
+                                        pollStatus.style.color = '#ff4d4d';
+                                        pollStatus.textContent = 'Auth failed: ' + (pres.message || 'Authorization expired or denied');
+                                    }
+                                }
+                            }).catch(function (err) {
+                                if (pollStatus) pollStatus.textContent = 'Poll error: ' + err.message;
+                            });
+                        }
+
+                        var devCancelBtn = document.getElementById('sls-cfg-gdrive-device-cancel-btn');
+                        if (devCancelBtn) {
+                            devCancelBtn.onclick = function () {
+                                if (gdrivePollInterval) {
+                                    clearInterval(gdrivePollInterval);
+                                    gdrivePollInterval = null;
+                                }
+                                gdrivePanel.style.display = 'none';
+                            };
+                        }
+
+                        var devLink = document.getElementById('sls-cfg-gdrive-device-link');
+                        if (devLink) {
+                            devLink.onclick = function (e) {
+                                if (typeof SteamClient !== 'undefined' && SteamClient.System && typeof SteamClient.System.OpenInSystemBrowser === 'function') {
+                                    e.preventDefault();
+                                    SteamClient.System.OpenInSystemBrowser(verifyUrl);
+                                }
+                            };
+                        }
+
+                        var verifyNowBtn = document.getElementById('sls-cfg-gdrive-verify-now-btn');
+                        if (verifyNowBtn) {
+                            verifyNowBtn.onclick = function () {
+                                pollVerification(true);
+                            };
+                        }
+
+                        gdrivePollInterval = setInterval(function () {
+                            pollVerification(false);
+                        }, intervalSec * 1000);
+                    }).catch(function (err) {
+                        gdriveAuthBtn.disabled = false;
+                        gdriveAuthBtn.textContent = 'Sign in with Google Drive (Device Code)';
+                        showStatusBanner('Network error connecting to backend: ' + err.message, '#ff4d4d');
+                    });
+                }
+
+                if (isDirty) {
+                    collectAndSaveConfig(function (err) {
+                        if (!err) doAuth();
+                    }, true);
+                } else {
+                    doAuth();
+                }
+            };
+        }
+
+        var gdriveBrowserBtn = document.getElementById('sls-cfg-gdrive-browser-auth-btn');
+        var gdriveBrowserPanel = document.getElementById('sls-cfg-gdrive-browser-panel');
+
+        if (gdriveBrowserBtn && gdriveBrowserPanel) {
+            gdriveBrowserBtn.onclick = function (e) {
+                e.preventDefault();
+                function doBrowserAuth() {
+                    var clientId = (document.getElementById('sls-cfg-SyncGDriveClientId') || {}).value || '';
+                    var clientSecret = (document.getElementById('sls-cfg-SyncGDriveClientSecret') || {}).value || '';
+
+                    gdriveBrowserBtn.disabled = true;
+                    var origBtnHtml = gdriveBrowserBtn.innerHTML;
+                    gdriveBrowserBtn.textContent = 'Opening Browser...';
+
+                    if (gdrivePollInterval) {
+                        clearInterval(gdrivePollInterval);
+                        gdrivePollInterval = null;
+                    }
+
+                    fetch('http://127.0.0.1:9001/sync/gdrive/browser-start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ clientId: clientId, clientSecret: clientSecret })
+                    }).then(function (r) {
+                        return r.json();
+                    }).then(function (res) {
+                        gdriveBrowserBtn.disabled = false;
+                        gdriveBrowserBtn.innerHTML = origBtnHtml;
+
+                        if (!res.success) {
+                            showStatusBanner('Google Drive Auth Error: ' + (res.message || 'Failed to start browser sign-in'), '#ff4d4d');
+                            return;
+                        }
+
+                        var authUrl = res.authUrl || '';
+                        if (typeof SteamClient !== 'undefined' && SteamClient.System && typeof SteamClient.System.OpenInSystemBrowser === 'function') {
+                            SteamClient.System.OpenInSystemBrowser(authUrl);
+                        } else if (typeof window.open === 'function') {
+                            window.open(authUrl, '_blank');
+                        }
+
+                        if (gdrivePanel) gdrivePanel.style.display = 'none';
+
+                        gdriveBrowserPanel.style.display = 'block';
+                        gdriveBrowserPanel.innerHTML = '<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">' +
+                            '<div style="font-size: 14px; font-weight: 700; color: #fff;">Signing in with Google Account Chooser...</div>' +
+                            '<button id="sls-cfg-gdrive-browser-cancel-btn" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; color: #8f98a0; font-size: 11px; padding: 4px 8px; cursor: pointer;">Cancel</button>' +
+                        '</div>' +
+                        '<div style="font-size: 12px; color: #c6d4df; line-height: 1.5; margin-bottom: 12px;">' +
+                            'Google\'s Account Chooser has been opened in your browser. Select your Google account and grant permission to complete sign-in.' +
+                        '</div>' +
+                        '<div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 12px; color: #8f98a0;">' +
+                            '<span>Didn\'t open?</span> ' +
+                            '<a id="sls-cfg-gdrive-browser-link" href="' + escapeHtml(authUrl) + '" target="_blank" style="color: #66c0f4; text-decoration: underline; font-weight: 600;">Click here to open Sign-In page</a>' +
+                        '</div>' +
+                        '<div style="display: flex; align-items: center; gap: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">' +
+                            '<span id="sls-cfg-gdrive-browser-poll-status" style="font-size: 12px; color: #66c0f4;">Waiting for authorization in browser...</span>' +
+                        '</div>';
+
+                        var cancelBtn = document.getElementById('sls-cfg-gdrive-browser-cancel-btn');
+                        if (cancelBtn) {
+                            cancelBtn.onclick = function () {
+                                if (gdrivePollInterval) {
+                                    clearInterval(gdrivePollInterval);
+                                    gdrivePollInterval = null;
+                                }
+                                gdriveBrowserPanel.style.display = 'none';
+                            };
+                        }
+
+                        var browserLink = document.getElementById('sls-cfg-gdrive-browser-link');
+                        if (browserLink) {
+                            browserLink.onclick = function (e) {
+                                if (typeof SteamClient !== 'undefined' && SteamClient.System && typeof SteamClient.System.OpenInSystemBrowser === 'function') {
+                                    e.preventDefault();
+                                    SteamClient.System.OpenInSystemBrowser(authUrl);
+                                }
+                            };
+                        }
+
+                        gdrivePollInterval = setInterval(function () {
+                            fetch('http://127.0.0.1:9001/sync/status')
+                                .then(function (sr) { return sr.json(); })
+                                .then(function (sres) {
+                                    if (sres && (sres.gdriveAuthenticated || sres.cloudAuthenticated || sres.GDriveAuthenticated)) {
+                                        if (gdrivePollInterval) {
+                                            clearInterval(gdrivePollInterval);
+                                            gdrivePollInterval = null;
+                                        }
+                                        updateGDriveAuthUi(true);
+                                        var pollStatus = document.getElementById('sls-cfg-gdrive-browser-poll-status');
+                                        if (pollStatus) {
+                                            pollStatus.style.color = '#2ecc71';
+                                            pollStatus.textContent = 'Successfully authenticated with Google Drive!';
+                                        }
+                                        showStatusBanner('Google Drive authenticated successfully!', '#2ecc71');
+                                        setTimeout(function () {
+                                            gdriveBrowserPanel.style.display = 'none';
+                                        }, 2500);
+                                    }
+                                })
+                                .catch(function () {});
+                        }, 1500);
+                    }).catch(function (err) {
+                        gdriveBrowserBtn.disabled = false;
+                        gdriveBrowserBtn.innerHTML = origBtnHtml;
+                        showStatusBanner('Network error connecting to backend: ' + err.message, '#ff4d4d');
+                    });
+                }
+
+                if (isDirty) {
+                    collectAndSaveConfig(function (err) {
+                        if (!err) doBrowserAuth();
+                    }, true);
+                } else {
+                    doBrowserAuth();
+                }
+            };
+        }
+
+        var gdriveDisconnectBtn = document.getElementById('sls-cfg-gdrive-disconnect-btn');
+        if (gdriveDisconnectBtn) {
+            gdriveDisconnectBtn.onclick = function (e) {
+                e.preventDefault();
+                gdriveDisconnectBtn.disabled = true;
+                var origText = gdriveDisconnectBtn.textContent;
+                gdriveDisconnectBtn.textContent = 'Disconnecting...';
+
+                if (gdrivePollInterval) {
+                    clearInterval(gdrivePollInterval);
+                    gdrivePollInterval = null;
+                }
+
+                fetch('http://127.0.0.1:9001/sync/gdrive/disconnect', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}'
+                }).then(function (r) {
+                    return r.json();
+                }).then(function (res) {
+                    gdriveDisconnectBtn.disabled = false;
+                    gdriveDisconnectBtn.textContent = origText;
+                    if (res && res.success) {
+                        updateGDriveAuthUi(false);
+                        var bp = document.getElementById('sls-cfg-gdrive-browser-panel');
+                        if (bp) bp.style.display = 'none';
+                        var dp = document.getElementById('sls-cfg-gdrive-device-panel');
+                        if (dp) dp.style.display = 'none';
+                        showStatusBanner('Google Drive disconnected successfully.', '#2ecc71');
+                    } else {
+                        showStatusBanner('Failed to disconnect Google Drive: ' + ((res && res.message) || 'Unknown error'), '#ff4d4d');
+                    }
+                }).catch(function (err) {
+                    gdriveDisconnectBtn.disabled = false;
+                    gdriveDisconnectBtn.textContent = origText;
+                    showStatusBanner('Network error disconnecting Google Drive: ' + err.message, '#ff4d4d');
+                });
+            };
+        }
+
+        // 9. Header Action Buttons
+        var syncModalBtn = document.getElementById('sls-cfg-sync-modal-btn');
+        if (syncModalBtn) {
+            syncModalBtn.onclick = function (e) {
+                e.preventDefault();
+                if (typeof window.__naviShowSyncModal === 'function') {
+                    window.__naviShowSyncModal();
+                } else {
+                    showStatusBanner('Navi Sync Modal helper is not registered.', '#ff4d4d');
+                }
+            };
+        }
+
+        var restartBtn = document.getElementById('sls-cfg-restart-btn');
+        if (restartBtn) {
+            restartBtn.onclick = function (e) {
+                e.preventDefault();
+                if (!confirm('Are you sure you want to restart Steam? Navi will cleanly terminate and restart Steam.')) return;
+                fetch('http://127.0.0.1:9001/restart', { method: 'POST' }).then(function () {
+                    showStatusBanner('Restart signal sent to Steam...', '#66c0f4');
+                }).catch(function () {
+                    showStatusBanner('Restart signal sent to Steam...', '#66c0f4');
+                });
+            };
+        }
+
+        var discardBtn = document.getElementById('sls-cfg-discard-btn');
+        if (discardBtn) {
+            discardBtn.onclick = function (e) {
+                e.preventDefault();
+                renderConfigPage(container, cfg, sync);
+                showStatusBanner('All unsaved changes discarded.', '#66c0f4');
+            };
+        }
+
+        // 10. Save All Changes & State Tracking
+        var saveBtn = document.getElementById('sls-cfg-save-btn');
+
+        function serializeCurrentForm() {
+            function getVal(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+            function getCheckbox(id) { var el = document.getElementById(id); return el ? el.checked : false; }
+            var state = {
+                role: getVal('sls-cfg-SyncRole'),
+                topo: getVal('sls-cfg-SyncTopology'),
+                provider: getVal('sls-cfg-SyncCloudProvider'),
+                gdriveId: getVal('sls-cfg-SyncGDriveClientId'),
+                gdriveSecret: getVal('sls-cfg-SyncGDriveClientSecret'),
+                webdavUrl: getVal('sls-cfg-SyncWebDavUrl'),
+                webdavUser: getVal('sls-cfg-SyncWebDavUser'),
+                webdavPass: getVal('sls-cfg-SyncWebDavPass'),
+                sf_manifests: getCheckbox('sls-cfg-sf-AllManifestsAndLua'),
+                sf_manifest_ids: getVal('sls-cfg-sf-ManifestAppIds'),
+                sf_configs: getCheckbox('sls-cfg-sf-AllConfigs'),
+                sf_config_keys: getVal('sls-cfg-sf-ConfigKeys'),
+                sf_saves: getCheckbox('sls-cfg-sf-AllCloudSaves'),
+                sf_save_ids: getVal('sls-cfg-sf-CloudSaveAppIds'),
+                sf_achievements: getCheckbox('sls-cfg-sf-AllAchievements'),
+                sf_ach_ids: getVal('sls-cfg-sf-AchievementAppIds'),
+                sf_apikeys: getCheckbox('sls-cfg-sf-AllApiKeys'),
+                sf_ryuu: getCheckbox('sls-cfg-prov-ryuu'),
+                sf_depotbox: getCheckbox('sls-cfg-prov-depotbox'),
+                sf_hubcap: getCheckbox('sls-cfg-prov-hubcap'),
+                logLevel: currentLogLevel,
+                ryuuKey: getVal('sls-cfg-RyuuKey'),
+                depotBoxKey: getVal('sls-cfg-DepotBoxKey'),
+                hubcapKey: getVal('sls-cfg-HubcapKey'),
+                disableFamShare: getCheckbox('sls-cfg-DisableFamilyShareLock'),
+                useWhitelist: getCheckbox('sls-cfg-UseWhitelist'),
+                disableCloud: getCheckbox('sls-cfg-DisableCloud'),
+                disableUpdates: getCheckbox('sls-cfg-DisableUpdates'),
+                safeMode: getCheckbox('sls-cfg-SafeMode'),
+                warnHash: getCheckbox('sls-cfg-WarnHashMissmatch'),
+                notifyInit: getCheckbox('sls-cfg-NotifyInit'),
+                api: getCheckbox('sls-cfg-API'),
+                maxSchema: getVal('sls-cfg-MaxSchemaTries'),
+                fakeName: getVal('sls-cfg-FakeName'),
+                fakeEmail: getVal('sls-cfg-FakeEmail'),
+                fakeWallet: getVal('sls-cfg-FakeWalletBalance'),
+                idleAppId: getVal('sls-cfg-IdleStatus-AppId'),
+                idleTitle: getVal('sls-cfg-IdleStatus-Title'),
+                unownedAppId: getVal('sls-cfg-UnownedStatus-AppId'),
+                unownedTitle: getVal('sls-cfg-UnownedStatus-Title'),
+                appIds: getVal('sls-cfg-AppIds'),
+                additionalApps: getVal('sls-cfg-AdditionalApps'),
+                fakeOffline: getVal('sls-cfg-FakeOffline'),
+                depotBlacklist: getVal('sls-cfg-DepotBlacklist'),
+                fakeAppIds: getVal('sls-cfg-FakeAppIds'),
+                manifestIds: getVal('sls-cfg-ManifestIds'),
+                appTokens: getVal('sls-cfg-AppTokens'),
+                cdKeys: getVal('sls-cfg-CDKeys'),
+                gameTitles: getVal('sls-cfg-GameTitles'),
+                subTimestamps: getVal('sls-cfg-SubscriptionTimestamps'),
+                steamIdOverride: getVal('sls-cfg-SteamIdOverride'),
+                dlcYaml: getVal('sls-cfg-DlcDataYaml'),
+                denuvoYaml: getVal('sls-cfg-DenuvoGamesYaml'),
+                dumpInterfaces: getCheckbox('sls-cfg-DumpClientInterfaces'),
+                extendedLogging: getCheckbox('sls-cfg-ExtendedLogging')
+            };
+            return JSON.stringify(state);
+        }
+
+        var isDirty = false;
+        var initialFormState = '';
+
+        function checkDirty() {
+            var curr = serializeCurrentForm();
+            if (curr !== initialFormState) {
+                isDirty = true;
+                var pill = document.getElementById('sls-cfg-dirty-pill');
+                if (pill) {
+                    pill.textContent = '● Unsaved changes';
+                    pill.style.color = '#f39c12';
+                }
+                var dBtn = document.getElementById('sls-cfg-discard-btn');
+                if (dBtn) dBtn.style.display = 'block';
+                if (saveBtn) {
+                    saveBtn.style.boxShadow = '0 0 10px rgba(26, 159, 255, 0.6)';
+                }
+            } else {
+                markClean();
+            }
+        }
+
+        function markClean() {
+            isDirty = false;
+            var pill = document.getElementById('sls-cfg-dirty-pill');
+            if (pill) {
+                pill.textContent = '✓ All changes saved';
+                pill.style.color = '#2ecc71';
+            }
+            var dBtn = document.getElementById('sls-cfg-discard-btn');
+            if (dBtn) dBtn.style.display = 'none';
+            if (saveBtn) {
+                saveBtn.style.boxShadow = 'none';
+            }
+        }
+
+        container.addEventListener('input', checkDirty);
+        container.addEventListener('change', checkDirty);
+
+        function collectAndSaveConfig(callback, silent) {
+            if (!saveBtn) return;
+            saveBtn.disabled = true;
+            saveBtn.textContent = 'Saving...';
+
+            function getVal(id) {
+                var el = document.getElementById(id);
+                return el ? el.value : '';
+            }
+            function getInt(id, def) {
+                var v = parseInt(getVal(id), 10);
+                return isNaN(v) ? (def || 0) : v;
+            }
+            function getCheckbox(id) {
+                var el = document.getElementById(id);
+                return el ? el.checked : false;
+            }
+            function parseUintArray(id) {
+                var raw = getVal(id);
+                if (!raw) return [];
+                var tokens = raw.split(/[\s,]+/);
+                var res = [];
+                tokens.forEach(function (tok) {
+                    var t = tok.trim();
+                    if (!t) return;
+                    var n = parseInt(t, 10);
+                    if (!isNaN(n) && n >= 0) res.push(n);
+                });
+                return res;
+            }
+            function parseStringArray(id) {
+                var raw = getVal(id);
+                if (!raw) return [];
+                var tokens = raw.split(/[\s,]+/);
+                var res = [];
+                tokens.forEach(function (tok) {
+                    var t = tok.trim();
+                    if (t) res.push(t);
+                });
+                return res;
+            }
+            function parseKvMap(id) {
+                var raw = getVal(id);
+                if (!raw) return {};
+                var lines = raw.split('\n');
+                var map = {};
+                lines.forEach(function (line) {
+                    var l = line.trim();
+                    if (!l || l.indexOf('#') === 0) return;
+                    var colonIdx = l.indexOf(':');
+                    if (colonIdx === -1) colonIdx = l.indexOf('=');
+                    if (colonIdx !== -1) {
+                        var k = l.substring(0, colonIdx).trim();
+                        var v = l.substring(colonIdx + 1).trim();
+                        if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) {
+                            v = v.substring(1, v.length - 1);
+                        }
+                        if (k) map[k] = v;
+                    }
+                });
+                return map;
+            }
+            function getProviderNames() {
+                var names = [];
+                ['ryuu', 'depotbox', 'hubcap'].forEach(function (p) {
+                    var el = document.getElementById('sls-cfg-prov-' + p);
+                    if (el && el.checked) names.push(p);
+                });
+                return names;
+            }
+
+            var payload = {
+                DisableFamilyShareLock: getCheckbox('sls-cfg-DisableFamilyShareLock'),
+                UseWhitelist: getCheckbox('sls-cfg-UseWhitelist'),
+                SafeMode: getCheckbox('sls-cfg-SafeMode'),
+                WarnHashMissmatch: getCheckbox('sls-cfg-WarnHashMissmatch'),
+                NotifyInit: getCheckbox('sls-cfg-NotifyInit'),
+                API: getCheckbox('sls-cfg-API'),
+                DisableCloud: getCheckbox('sls-cfg-DisableCloud'),
+                DisableUpdates: getCheckbox('sls-cfg-DisableUpdates'),
+                DumpClientInterfaces: getCheckbox('sls-cfg-DumpClientInterfaces'),
+                ExtendedLogging: getCheckbox('sls-cfg-ExtendedLogging'),
+                MaxSchemaTries: getInt('sls-cfg-MaxSchemaTries', 10),
+                FakeWalletBalance: getInt('sls-cfg-FakeWalletBalance', 0),
+                LogLevels: currentLogLevel,
+                FakeName: getVal('sls-cfg-FakeName'),
+                FakeEmail: getVal('sls-cfg-FakeEmail'),
+                RyuuKey: getVal('sls-cfg-RyuuKey'),
+                DepotBoxKey: getVal('sls-cfg-DepotBoxKey'),
+                HubcapKey: getVal('sls-cfg-HubcapKey'),
+                IdleStatus: {
+                    AppId: getInt('sls-cfg-IdleStatus-AppId', 0),
+                    Title: getVal('sls-cfg-IdleStatus-Title')
+                },
+                UnownedStatus: {
+                    AppId: getInt('sls-cfg-UnownedStatus-AppId', 0),
+                    Title: getVal('sls-cfg-UnownedStatus-Title')
+                },
+                AppIds: parseUintArray('sls-cfg-AppIds'),
+                AdditionalApps: parseUintArray('sls-cfg-AdditionalApps'),
+                FakeOffline: parseUintArray('sls-cfg-FakeOffline'),
+                DepotBlacklist: parseUintArray('sls-cfg-DepotBlacklist'),
+                FakeAppIds: parseKvMap('sls-cfg-FakeAppIds'),
+                ManifestIds: parseKvMap('sls-cfg-ManifestIds'),
+                AppTokens: parseKvMap('sls-cfg-AppTokens'),
+                CDKeys: parseKvMap('sls-cfg-CDKeys'),
+                GameTitles: parseKvMap('sls-cfg-GameTitles'),
+                SubscriptionTimestamps: parseKvMap('sls-cfg-SubscriptionTimestamps'),
+                SteamIdOverride: parseKvMap('sls-cfg-SteamIdOverride'),
+                DlcDataYaml: getVal('sls-cfg-DlcDataYaml'),
+                DenuvoGamesYaml: getVal('sls-cfg-DenuvoGamesYaml'),
+                SyncRole: getVal('sls-cfg-SyncRole') || 'peer',
+                SyncTopology: getVal('sls-cfg-SyncTopology') || 'cloud',
+                SyncCloudProvider: getVal('sls-cfg-SyncCloudProvider') || 'gdrive',
+                SyncWebDavUrl: getVal('sls-cfg-SyncWebDavUrl') || cfg.SyncWebDavUrl || '',
+                SyncWebDavUser: getVal('sls-cfg-SyncWebDavUser') || cfg.SyncWebDavUser || '',
+                SyncGDriveClientId: getVal('sls-cfg-SyncGDriveClientId') || cfg.SyncGDriveClientId || '',
+                SyncGDriveClientSecret: getVal('sls-cfg-SyncGDriveClientSecret') || cfg.SyncGDriveClientSecret || '',
+                SyncWebDavPass: getVal('sls-cfg-SyncWebDavPass') || cfg.SyncWebDavPass || '',
+                SyncFilter: {
+                    AllManifestsAndLua: getCheckbox('sls-cfg-sf-AllManifestsAndLua'),
+                    ManifestAppIds: parseUintArray('sls-cfg-sf-ManifestAppIds'),
+                    AllConfigs: getCheckbox('sls-cfg-sf-AllConfigs'),
+                    ConfigKeys: parseStringArray('sls-cfg-sf-ConfigKeys'),
+                    AllCloudSaves: getCheckbox('sls-cfg-sf-AllCloudSaves'),
+                    CloudSaveAppIds: parseUintArray('sls-cfg-sf-CloudSaveAppIds'),
+                    AllAchievements: getCheckbox('sls-cfg-sf-AllAchievements'),
+                    AchievementAppIds: parseUintArray('sls-cfg-sf-AchievementAppIds'),
+                    AllApiKeys: getCheckbox('sls-cfg-sf-AllApiKeys'),
+                    ProviderNames: getProviderNames()
+                }
+            };
+
+            fetch('http://127.0.0.1:9001/config/full', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            }).then(function (r) {
+                return r.json();
+            }).then(function (res) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes (Ctrl+S)';
+                if (res.success) {
+                    var prevGDriveAuth = cfg.GDriveAuthenticated;
+                    cfg = JSON.parse(JSON.stringify(payload));
+                    cfg.GDriveAuthenticated = !!prevGDriveAuth;
+                    initialFormState = serializeCurrentForm();
+                    markClean();
+                    updateReadinessBanner();
+                    if (!silent) {
+                        showStatusBanner('Configuration saved and reloaded successfully!', '#2ecc71');
+                    }
+                    if (typeof callback === 'function') callback(null, res);
+                } else {
+                    if (!silent) {
+                        showStatusBanner('Error saving configuration: ' + (res.message || 'Unknown error'), '#ff4d4d');
+                    }
+                    if (typeof callback === 'function') callback(new Error(res.message || 'Unknown error'));
+                }
+            }).catch(function (err) {
+                saveBtn.disabled = false;
+                saveBtn.textContent = 'Save Changes (Ctrl+S)';
+                if (!silent) {
+                    showStatusBanner('Connection error: ' + err.message, '#ff4d4d');
+                }
+                if (typeof callback === 'function') callback(err);
+            });
+        }
+
+        if (saveBtn) {
+            saveBtn.onclick = function (e) {
+                e.preventDefault();
+                collectAndSaveConfig();
+            };
+        }
+
+        // 11. Global Keyboard Shortcuts
+        function handleKeyDown(e) {
+            if (!container || !container.isConnected || container.style.display === 'none') {
+                return;
+            }
+            if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                if (saveBtn) saveBtn.click();
+                return;
+            }
+            if (e.key === '/' && document.activeElement !== searchInput) {
+                var tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toUpperCase() : '';
+                if (tag !== 'INPUT' && tag !== 'TEXTAREA') {
+                    e.preventDefault();
+                    if (searchInput) {
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                }
+                return;
+            }
+            if (e.key === 'Escape') {
+                if (document.activeElement === searchInput) {
+                    searchInput.value = '';
+                    searchInput.blur();
+                    if (searchInput.oninput) searchInput.oninput();
+                }
+            }
+        }
+        configKeyDownHandler = handleKeyDown;
+        window.addEventListener('keydown', configKeyDownHandler);
+
+        // 12. Initial activation
+        updateProgressiveDisclosure();
+        updateReadinessBanner();
+        initialFormState = serializeCurrentForm();
+        markClean();
+        fetchSyncProgressOnce();
     }
 
     function initManualInstallPage() {
@@ -1109,7 +3460,9 @@
         var container = findSuperNavContainer();
         if (!container) return;
 
-        if (document.getElementById('sls-top-tab')) return;
+        var hasSlsTab = !!document.getElementById('sls-top-tab');
+        var hasConfigTab = !!document.getElementById('sls-config-top-tab');
+        if (hasSlsTab && hasConfigTab) return;
 
         // Find one of the existing tab divs (Store, Community, etc.) to clone
         var siblingTab = container.querySelector('.' + STEAM_TAB_BASE_CLASS);
@@ -1124,40 +3477,74 @@
         }
         if (!siblingTab) return;
 
-        // Clone the tab and strip inherited event listeners by round-tripping through HTML
-        var rawClone = siblingTab.cloneNode(true);
-        var slsTab = document.createElement('div');
-        slsTab.className = rawClone.className;
-        slsTab.innerHTML = rawClone.innerHTML;
-        slsTab.id = 'sls-top-tab';
-        // Remove active class if cloned tab had it
-        slsTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
+        if (!hasSlsTab) {
+            // Clone the tab and strip inherited event listeners by round-tripping through HTML
+            var rawClone = siblingTab.cloneNode(true);
+            var slsTab = document.createElement('div');
+            slsTab.className = rawClone.className;
+            slsTab.innerHTML = rawClone.innerHTML;
+            slsTab.id = 'sls-top-tab';
+            // Remove active class if cloned tab had it
+            slsTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
 
-        // Set the text to 'Import Lua files' inside the known text container class
-        var textEl = slsTab.querySelector('.' + STEAM_TAB_TEXT_CLASS);
-        if (textEl) {
-            textEl.textContent = 'Import Lua files';
-        } else {
-            // Fallback: find a span or the deepest text node
-            textEl = slsTab.querySelector('span') || slsTab.querySelector('div') || slsTab;
-            textEl.textContent = 'Import Lua files';
+            // Set the text to 'Import Lua files' inside the known text container class
+            var textEl = slsTab.querySelector('.' + STEAM_TAB_TEXT_CLASS);
+            if (textEl) {
+                textEl.textContent = 'Import Lua files';
+            } else {
+                // Fallback: find a span or the deepest text node
+                textEl = slsTab.querySelector('span') || slsTab.querySelector('div') || slsTab;
+                textEl.textContent = 'Import Lua files';
+            }
+
+            // Remove any href/navigation attributes from child anchors
+            var anchors = slsTab.querySelectorAll('a');
+            for (var ai = 0; ai < anchors.length; ai++) {
+                anchors[ai].removeAttribute('href');
+                anchors[ai].style.cursor = 'pointer';
+            }
+
+            container.appendChild(slsTab);
+            log('Added Import Lua files tab to top bar');
+
+            slsTab.onclick = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                (window.__naviShowImportLuaPage || showSlsPage)();
+            };
         }
 
-        // Remove any href/navigation attributes from child anchors
-        var anchors = slsTab.querySelectorAll('a');
-        for (var ai = 0; ai < anchors.length; ai++) {
-            anchors[ai].removeAttribute('href');
-            anchors[ai].style.cursor = 'pointer';
+        if (!hasConfigTab) {
+            var rawCloneCfg = siblingTab.cloneNode(true);
+            var configTab = document.createElement('div');
+            configTab.className = rawCloneCfg.className;
+            configTab.innerHTML = rawCloneCfg.innerHTML;
+            configTab.id = 'sls-config-top-tab';
+            configTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
+
+            var textElCfg = configTab.querySelector('.' + STEAM_TAB_TEXT_CLASS);
+            if (textElCfg) {
+                textElCfg.textContent = 'Navi Config';
+            } else {
+                textElCfg = configTab.querySelector('span') || configTab.querySelector('div') || configTab;
+                textElCfg.textContent = 'Navi Config';
+            }
+
+            var anchorsCfg = configTab.querySelectorAll('a');
+            for (var aiCfg = 0; aiCfg < anchorsCfg.length; aiCfg++) {
+                anchorsCfg[aiCfg].removeAttribute('href');
+                anchorsCfg[aiCfg].style.cursor = 'pointer';
+            }
+
+            container.appendChild(configTab);
+            log('Added Navi Config tab to top bar');
+
+            configTab.onclick = function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                (window.__naviShowConfigPage || showConfigPage)();
+            };
         }
-
-        container.appendChild(slsTab);
-        log('Added Import Lua files tab to top bar');
-
-        slsTab.onclick = function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-            showSlsPage();
-        };
     }
 
     function initSlsTabAndPage() {
@@ -1165,15 +3552,16 @@
         if (container) {
             addSlsTab();
 
-            // Set up a listener to hide the SLS page if any other tab is clicked
+            // Set up a listener to hide custom pages if any other tab is clicked
             if (!container.__slsTabListenerAttached) {
                 container.__slsTabListenerAttached = true;
                 container.addEventListener('click', function (e) {
                     var target = e.target;
                     while (target && target !== container) {
                         if (target.classList && target.classList.contains(STEAM_TAB_BASE_CLASS)) {
-                            if (target.id !== 'sls-top-tab') {
+                            if (target.id !== 'sls-top-tab' && target.id !== 'sls-config-top-tab') {
                                 hideSlsPage();
+                                hideConfigPage();
                             }
                             break;
                         }
@@ -1183,6 +3571,12 @@
             }
         }
     }
+
+    // Expose helpers globally on window
+    window.__naviShowConfigPage = showConfigPage;
+    window.__naviHideConfigPage = hideConfigPage;
+    window.__naviShowImportLuaPage = showSlsPage;
+    window.__naviHideImportLuaPage = hideSlsPage;
 
     var debounceTimer = null;
     function debouncedAddButtons() {
