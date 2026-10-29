@@ -219,7 +219,26 @@ install:
 uninstall:
 	./install.sh uninstall
 
-zips: build
+CLOUDREDIRECT_SO_HASH := c55ea63a02643e0df83b50241fc36a95c2a47fef8f71416479767f3b57d7c64d
+CLOUDREDIRECT_CLI_HASH := 839398e7da55bd8830dabf623542c46e74d0f1fea4cf551601a244965f89782d
+CLOUDREDIRECT_SO_SIZE := 2192860
+CLOUDREDIRECT_CLI_SIZE := 13660
+
+check-cloudredirect:
+	@echo "Checking CloudRedirect prebuilt binaries..."
+	@test -f res/cloud_redirect.so || (echo "ERROR: res/cloud_redirect.so missing"; exit 1)
+	@test -f res/cloud_redirect_cli || (echo "ERROR: res/cloud_redirect_cli missing"; exit 1)
+	@test "$$(sha256sum res/cloud_redirect.so | awk '{print $$1}')" = "$(CLOUDREDIRECT_SO_HASH)" || (echo "ERROR: SHA256 mismatch for res/cloud_redirect.so"; exit 1)
+	@test "$$(sha256sum res/cloud_redirect_cli | awk '{print $$1}')" = "$(CLOUDREDIRECT_CLI_HASH)" || (echo "ERROR: SHA256 mismatch for res/cloud_redirect_cli"; exit 1)
+	@test "$$(stat -c %s res/cloud_redirect.so)" = "$(CLOUDREDIRECT_SO_SIZE)" || (echo "ERROR: Size mismatch for res/cloud_redirect.so"; exit 1)
+	@test "$$(stat -c %s res/cloud_redirect_cli)" = "$(CLOUDREDIRECT_CLI_SIZE)" || (echo "ERROR: Size mismatch for res/cloud_redirect_cli"; exit 1)
+	@readelf -h res/cloud_redirect.so | grep -q "ELF32" || (echo "ERROR: res/cloud_redirect.so is not ELF32"; exit 1)
+	@readelf -h res/cloud_redirect_cli | grep -q "ELF32" || (echo "ERROR: res/cloud_redirect_cli is not ELF32"; exit 1)
+	@readelf -h res/cloud_redirect.so | grep -q "Intel 80386" || (echo "ERROR: res/cloud_redirect.so is not Intel 80386"; exit 1)
+	@readelf -h res/cloud_redirect_cli | grep -q "Intel 80386" || (echo "ERROR: res/cloud_redirect_cli is not Intel 80386"; exit 1)
+	@echo "OK: CloudRedirect prebuilt binaries verified (hashes, sizes, ELF32 architecture, co-located in res/)."
+
+zips: build check-cloudredirect
 	@mkdir -p zips
 	7z a -mx9 -m9=lzma2 \
 		"zips/navi $(DATE).7z" \
@@ -228,7 +247,10 @@ zips: build
 		"install.sh" \
 		"scripts/lib" \
 		"docs/LICENSE" \
+		"docs/THIRD_PARTY.md" \
 		"res/config.yaml" \
+		"res/cloud_redirect.so" \
+		"res/cloud_redirect_cli" \
 		"tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" \
 		"tools/schema-grabber/bin/Release/net9.0/linux-x64/publish/schema-grabber"
 
@@ -240,7 +262,10 @@ zips: build
 		"install.sh" \
 		"scripts/lib" \
 		"docs/LICENSE" \
+		"docs/THIRD_PARTY.md" \
 		"res/config.yaml" \
+		"res/cloud_redirect.so" \
+		"res/cloud_redirect_cli" \
 		"tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" \
 		"tools/schema-grabber/bin/Release/net9.0/linux-x64/publish/schema-grabber"
 
@@ -271,6 +296,7 @@ release: rebuild zips
 	build \
 	rebuild \
 	release \
+	check-cloudredirect \
 	test \
 	test-flow \
 	test-e2e \

@@ -25,6 +25,11 @@ do_release() {
         fi
     fi
 
+    if ! make check-cloudredirect; then
+        log_error "CloudRedirect binary verification failed."
+        return 1
+    fi
+
     # 2. Update prod-release/navi
     local prod_dir="$REPO_ROOT/prod-release"
     local prod_navi="$prod_dir/navi"
@@ -51,6 +56,10 @@ do_release() {
     [ -f "$REPO_ROOT/res/cache.diff.yaml" ] && cp -f "$REPO_ROOT/res/cache.diff.yaml" "$prod_navi/res/"
     cp -f "$REPO_ROOT/res/version" "$prod_navi/res/"
     cp -f "$REPO_ROOT/res/update-all.sh" "$prod_navi/res/"
+    if [ -f "$REPO_ROOT/res/cloud_redirect.so" ] && [ -f "$REPO_ROOT/res/cloud_redirect_cli" ]; then
+        cp -f "$REPO_ROOT/res/cloud_redirect.so" "$prod_navi/res/"
+        cp -f "$REPO_ROOT/res/cloud_redirect_cli" "$prod_navi/res/"
+    fi
     if [ -d "$REPO_ROOT/res/inject-scripts" ]; then
         rm -rf "$prod_navi/res/inject-scripts"
         cp -r "$REPO_ROOT/res/inject-scripts" "$prod_navi/res/"

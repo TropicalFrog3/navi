@@ -6,6 +6,7 @@ dist/
 *.o
 *.a
 *.so
+!res/cloud_redirect.so
 *.dylib
 *.exe
 *.dll
