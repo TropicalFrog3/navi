@@ -4,14 +4,47 @@
 ## Index
 
 1. [Getting started](#getting-started)
-2. [Hall of Fame 👑](#hall-of-fame-aka-credits)
-3. [Hall of Shame 🚨](#hall-of-shame-aka-scammers-leechers-etc)
-4. [Support](#support)
-5. [Related Projects](#related-projects)
+2. [Cloud Saves (CloudRedirect Integration)](#cloud-saves-cloudredirect-integration)
+3. [Hall of Fame 👑](#hall-of-fame-aka-credits)
+4. [Hall of Shame 🚨](#hall-of-shame-aka-scammers-leechers-etc)
+5. [Support](#support)
+6. [Related Projects](#related-projects)
 
 ## Getting started
 
 Check out the [Installation](https://github.com/AceSLS/navi/wiki/Installation) or the [Building from Source](https://github.com/AceSLS/navi/wiki/Building-from-Source) section in our Wiki!
+
+## Cloud Saves (CloudRedirect Integration)
+
+Navi natively integrates **CloudRedirect** (v2.6.5) to provide seamless cloud save diversion and synchronization for unowned, family-shared, and sideloaded games on Linux and SteamOS.
+
+### Key Features
+- **Transparent Save Redirection**: Intercepts Steam Cloud I/O via a lightweight 32-bit preload engine (`cloud_redirect.so`) and redirects save games into structured local directories.
+- **Multiple Cloud Backends**:
+  - `local-only`: High-performance local diversion without remote syncing (default).
+  - `gdrive`: Google Drive with secure local PKCE OAuth2 flow.
+  - `onedrive`: Microsoft OneDrive with local PKCE OAuth2 flow.
+  - `r2`: Cloudflare R2 object storage.
+  - `s3`: Amazon AWS S3 object storage.
+- **Backup & Rollback Safety**:
+  - Out-of-process operation queue (`bin/navi-cloud-apply-pending`) ensuring file wipes or restores run exclusively when Steam is closed.
+  - Automated compressed `.tar.gz` snapshots stored in `~/.config/navi/cloud_backups/` before any reset.
+  - Typed `"RESET"` confirmation required for destructive actions.
+  - Fail-closed rollback mechanism in case of errors.
+- **Non-Destructive SLSsteam Integration**: Uses a managed sentinel block with set-union merging ($S_{merged} = S_{user} \cup S_{navi}$) so existing user configurations are never overwritten.
+
+### Enabling & Configuration
+- **Via CEF UI**: Navigate to Steam Settings &gt; Cloud Saves to toggle redirection globally, link your cloud provider via one-click OAuth, or toggle cloud redirection per-game in the Steam Library interface.
+- **Via Configuration**: In `~/.config/SLSsteam/config.yaml` (or Navi settings):
+  ```yaml
+  CloudSavesEnabled: true
+  CloudSavesProvider: "local-only" # options: local-only, gdrive, onedrive, r2, s3
+  CloudSavesManagedApps:
+    - 480
+  ```
+
+For detailed architectural specifications, API details, and troubleshooting commands, see [docs/cloud-saves.md](docs/cloud-saves.md).
+
 
 
 ## Hall of Fame aka Credits

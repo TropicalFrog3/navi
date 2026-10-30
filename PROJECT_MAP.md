@@ -33,18 +33,18 @@
 
 | Metric | Value |
 | :--- | :--- |
-| Scanned Source Files | 240 |
-| Total Source Lines | 45160 |
-| Total Symbols Extracted | 718 |
-| Classes & Structs | 27 |
-| Functions & Methods | 691 |
-| External Dependencies | 97 |
-| Resolved Direct References | 697 |
-| Dynamic / Uncertain References | 72 |
+| Scanned Source Files | 278 |
+| Total Source Lines | 60217 |
+| Total Symbols Extracted | 1038 |
+| Classes & Structs | 31 |
+| Functions & Methods | 1007 |
+| External Dependencies | 108 |
+| Resolved Direct References | 987 |
+| Dynamic / Uncertain References | 111 |
 
 ### External Dependencies
 
-`Crypto`, `X11/XKBlib`, `X11/Xlib`, `__future__`, `abc`, `algorithm`, `argparse`, `arpa/inet`, `ast`, `atomic`, `cctype`, `cerrno`, `charconv`, `chrono`, `cmath`, `collections`, `cstdarg`, `cstddef`, `cstdint`, `cstdio`, `cstdlib`, `cstring`, `curl/curl`, `dataclasses`, `datetime`, `dlfcn`, `elf`, `elftools`, `enum`, `errno`, `fcntl`, `filesystem`, `fnmatch`, `fstream`, `functional`, `future`, `glob`, `gtest/gtest`, `hashlib`, `iomanip`, `ios`, `iostream`, `iterator`, `json`, `link`, `linux/input`, `linux/joystick`, `linux/limits`, `map`, `memory`, `mutex`, `netdb`, `netinet/in`, `openssl/sha`, `optional`, `os`, `pathlib`, `project_map`, `pthread`, `pytest`, `random`, `re`, `regex`, `set`, `shared_mutex`, `shutil`, `signal`, `sstream`, `stdarg`, `stdexcept`, `stdio`, `string`, `string_view`, `strings`, `struct`, `subprocess`, `sys`, `sys/inotify`, `sys/ioctl`, `sys/mman`, `sys/socket`, `sys/stat`, `sys/types`, `sys/wait`, `system_error`, `thread`, `time`, `type_traits`, `typing`, `unistd`, `unittest`, `unordered_map`, `unordered_set`, `urllib`, `utility`, `vector`, `websocket`
+`Crypto`, `X11/XKBlib`, `X11/Xlib`, `__future__`, `abc`, `algorithm`, `argparse`, `arpa/inet`, `array`, `ast`, `atomic`, `base64`, `cctype`, `cerrno`, `charconv`, `chrono`, `climits`, `cmath`, `collections`, `cstdarg`, `cstddef`, `cstdint`, `cstdio`, `cstdlib`, `cstring`, `curl/curl`, `dataclasses`, `datetime`, `dlfcn`, `elf`, `elftools`, `enum`, `errno`, `fcntl`, `filesystem`, `fnmatch`, `fstream`, `functional`, `future`, `glob`, `gtest/gtest`, `hashlib`, `http`, `iomanip`, `ios`, `iostream`, `iterator`, `json`, `link`, `linux/input`, `linux/joystick`, `linux/limits`, `map`, `memory`, `mutex`, `netdb`, `netinet/in`, `openssl/crypto`, `openssl/rand`, `openssl/sha`, `optional`, `os`, `pathlib`, `poll`, `project_map`, `pthread`, `pytest`, `random`, `re`, `regex`, `set`, `shared_mutex`, `shutil`, `signal`, `sstream`, `stdarg`, `stdexcept`, `stdio`, `string`, `string_view`, `strings`, `struct`, `subprocess`, `sys`, `sys/inotify`, `sys/ioctl`, `sys/mman`, `sys/poll`, `sys/socket`, `sys/stat`, `sys/types`, `sys/wait`, `system_error`, `tempfile`, `thread`, `threading`, `time`, `type_traits`, `typing`, `unistd`, `unittest`, `unordered_map`, `unordered_set`, `urllib`, `utility`, `uuid`, `vector`, `websocket`
 
 
 ### Central & High-Fan-Out Symbols
@@ -58,11 +58,11 @@
 | [`run_installer`](#sym-tests-conftest-py-run_installer) | `function` | 13 | 0 | [tests/conftest.py#L70-L88](#file-tests-conftest-py) |
 | [`ParseConfig`](#sym-scripts-project_map-models-py-parseconfig) | `class` | 10 | 0 | [scripts/project_map/models.py#L152-L164](#file-scripts-project_map-models-py) |
 | [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `method` | 9 | 0 | [tests/integration/test_steam_ui_flow.py#L403-L432](#file-tests-integration-test_steam_ui_flow-py) |
+| [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | `method` | 7 | 0 | [tools/cef-annotator/annotator.py#L154-L173](#file-tools-cef-annotator-annotator-py) |
 | [`main`](#sym-scripts-project_map-cli-py-main) | `function` | 4 | 3 | [scripts/project_map/cli.py#L168-L182](#file-scripts-project_map-cli-py) |
 | [`SteamUIFlowTest.test_02_clean_slate_preflight`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_02_clean_slate_preflight) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L450-L561](#file-tests-integration-test_steam_ui_flow-py) |
-| [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1215-L1349](#file-tests-integration-test_steam_ui_flow-py) |
 | [`SteamUIFlowTest.test_12_uninstall_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_12_uninstall_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1351-L1421](#file-tests-integration-test_steam_ui_flow-py) |
-| [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `method` | 0 | 5 | [tests/integration/test_steam_ui_flow.py#L198-L322](#file-tests-integration-test_steam_ui_flow-py) |
+| [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow) | `method` | 0 | 6 | [tests/integration/test_steam_ui_flow.py#L1215-L1349](#file-tests-integration-test_steam_ui_flow-py) |
 
 ### Key Entry Points & Public APIs
 
@@ -73,6 +73,8 @@
 | [`main`](#sym-scripts-project_map-cli-py-main) | `function` | `def main(argv: Optional[List[str]] = None) -> int:` | `scripts/project_map/cli.py:168` |
 | [`main`](#sym-tests-inspect_store_ui-py-main) | `function` | `def main():` | `tests/inspect_store_ui.py:455` |
 | [`main`](#sym-tests-integration-test_steam_ui_flow-py-main) | `function` | `def main():` | `tests/integration/test_steam_ui_flow.py:1555` |
+| [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | `method` | `def run(self):` | `tools/cef-annotator/annotator.py:677` |
+| [`main`](#sym-tools-cef-annotator-annotator-py-main) | `function` | `def main():` | `tools/cef-annotator/annotator.py:887` |
 
 ## Directory Tree & File Skeleton
 
@@ -90,6 +92,13 @@ SLSsteam_n_ACCELA/
 │   │   │   └── agent.md
 │   │   └── validator/
 │   │       └── agent.md
+│   ├── handoffs/
+│   │   ├── 2026-10-27-003800-archive-org-manifest-and-depotkeys-fetch.md
+│   │   ├── 2026-10-29-cef-annotator-phases-2-4.md
+│   │   ├── 2026-10-29-cloudredirect-phase-0-and-1-handoff.md
+│   │   ├── 2026-10-29-cloudredirect-phase-2-to-4-handoff.md
+│   │   ├── 2026-10-29-cloudredirect-phase-2-to-5-handoff.md
+│   │   └── 2026-10-29-cloudredirect-phase-2-to-6-handoff.md
 │   ├── rules/
 │   │   ├── cpp_hooking_patterns.md
 │   │   ├── devtools_interaction.md
@@ -118,19 +127,24 @@ SLSsteam_n_ACCELA/
 │   │   │   └── SKILL.md
 │   │   ├── steamdeck-wireless-workflow/
 │   │   │   └── SKILL.md
-│   │   └── steamos-qemu-workflow/
+│   │   ├── vibe-implement-annotations/
+│   │   │   └── SKILL.md
+│   │   └── vibe-server-setup/
 │   │       └── SKILL.md
-│   └── AGENTS.md
+│   ├── AGENTS.md
+│   └── mcp_config.json
 ├── docker/
 │   ├── Dockerfile
 │   └── build.sh
 ├── docs/
-│   └── LICENSE/
-│       ├── base64
-│       ├── libmem
-│       ├── navi
-│       ├── protobuf
-│       └── yaml-cpp
+│   ├── LICENSE/
+│   │   ├── base64
+│   │   ├── libmem
+│   │   ├── navi
+│   │   ├── protobuf
+│   │   └── yaml-cpp
+│   ├── THIRD_PARTY.md
+│   └── cloud-saves.md
 ├── nix-modules/
 │   ├── default.nix
 │   ├── deps.json
@@ -147,6 +161,7 @@ SLSsteam_n_ACCELA/
 │   ├── inject-scripts/
 │   │   ├── app-details-script.js
 │   │   ├── auto-collection.js
+│   │   ├── cloud_manager.js
 │   │   ├── depot-selection-script.js
 │   │   ├── import-lua-script.js
 │   │   ├── navi_inject.js
@@ -186,6 +201,8 @@ SLSsteam_n_ACCELA/
 │   │   ├── api.cpp
 │   │   ├── api.hpp
 │   │   ├── atomic_file.hpp
+│   │   ├── cloud_oauth.cpp
+│   │   ├── cloud_oauth.hpp
 │   │   ├── curl.cpp
 │   │   ├── curl.hpp
 │   │   ├── decompiler.cpp
@@ -254,6 +271,8 @@ SLSsteam_n_ACCELA/
 │   │   │   ├── steam.cpp
 │   │   │   ├── steam.hpp
 │   │   │   └── types.hpp
+│   │   ├── achievement_merger.cpp
+│   │   ├── achievement_merger.hpp
 │   │   ├── appsizes.hpp
 │   │   ├── config.cpp
 │   │   ├── config.hpp
@@ -275,6 +294,12 @@ SLSsteam_n_ACCELA/
 │   │   ├── apps.hpp
 │   │   ├── autoupdate.cpp
 │   │   ├── autoupdate.hpp
+│   │   ├── cloud_manager.cpp
+│   │   ├── cloud_manager.hpp
+│   │   ├── cloud_pending_ops.cpp
+│   │   ├── cloud_pending_ops.hpp
+│   │   ├── cloudredirect.cpp
+│   │   ├── cloudredirect.hpp
 │   │   ├── dlc.cpp
 │   │   ├── dlc.hpp
 │   │   ├── fakeappid.cpp
@@ -292,6 +317,8 @@ SLSsteam_n_ACCELA/
 │   │   ├── misc.hpp
 │   │   ├── nativeinstall.cpp
 │   │   ├── nativeinstall.hpp
+│   │   ├── process_lock.cpp
+│   │   ├── process_lock.hpp
 │   │   ├── removelua.cpp
 │   │   ├── removelua.hpp
 │   │   ├── storeinject.cpp
@@ -307,6 +334,8 @@ SLSsteam_n_ACCELA/
 │       ├── cdpinject.hpp
 │       ├── cefsizefix.cpp
 │       ├── cefsizefix.hpp
+│       ├── cloud_view.cpp
+│       ├── cloud_view.hpp
 │       ├── storeinject_view.cpp
 │       └── storeinject_view.hpp
 ├── tests/
@@ -314,11 +343,16 @@ SLSsteam_n_ACCELA/
 │   │   ├── __init__.py
 │   │   └── legacy_migration_fixtures.py
 │   ├── integration/
+│   │   ├── mock_cloud_relay_server.py
 │   │   ├── test_installer.py
 │   │   ├── test_migration.py
 │   │   ├── test_steam_ui_flow.py
 │   │   └── test_store_script.py
 │   ├── unit/
+│   │   ├── test_cloud_manager.cpp
+│   │   ├── test_cloud_oauth.cpp
+│   │   ├── test_cloud_pending_ops.cpp
+│   │   ├── test_cloudredirect_bridge.cpp
 │   │   ├── test_config.cpp
 │   │   ├── test_depotkeys.cpp
 │   │   ├── test_manifest_and_native.cpp
@@ -335,6 +369,16 @@ SLSsteam_n_ACCELA/
 │   ├── inspect_store_ui.py
 │   └── test_project_map.py
 ├── tools/
+│   ├── cef-annotator/
+│   │   ├── README.md
+│   │   ├── SKILL.md
+│   │   ├── annotations.json
+│   │   ├── annotator.py
+│   │   ├── overlay.js
+│   │   ├── run.sh
+│   │   └── start.sh
+│   ├── cloud_pending/
+│   │   └── main.cpp
 │   ├── library-inject/
 │   │   ├── .gitignore
 │   │   ├── Makefile
@@ -379,6 +423,13 @@ SLSsteam_n_ACCELA/
 | [.agents/agents/researcher/agent.md](#file-agents-agents-researcher-agent-md) | `agent` | `generic` | 31 | 0 | 31 lines (no parser registered) |
 | [.agents/agents/reviewer/agent.md](#file-agents-agents-reviewer-agent-md) | `agent` | `generic` | 30 | 0 | 30 lines (no parser registered) |
 | [.agents/agents/validator/agent.md](#file-agents-agents-validator-agent-md) | `agent` | `generic` | 36 | 0 | 36 lines (no parser registered) |
+| [.agents/handoffs/2026-10-27-003800-archive-org-manifest-and-depotkeys-fetch.md](#file-agents-handoffs-2026-10-27-003800-archive-org-manifest-and-depotkeys-fetch-md) | `2026-10-27-003800-archive-org-manifest-and-depotkeys-fetch` | `generic` | 113 | 0 | 113 lines (no parser registered) |
+| [.agents/handoffs/2026-10-29-cef-annotator-phases-2-4.md](#file-agents-handoffs-2026-10-29-cef-annotator-phases-2-4-md) | `2026-10-29-cef-annotator-phases-2-4` | `generic` | 65 | 0 | 65 lines (no parser registered) |
+| [.agents/handoffs/2026-10-29-cloudredirect-phase-0-and-1-handoff.md](#file-agents-handoffs-2026-10-29-cloudredirect-phase-0-and-1-handoff-md) | `2026-10-29-cloudredirect-phase-0-and-1-handoff` | `generic` | 103 | 0 | 103 lines (no parser registered) |
+| [.agents/handoffs/2026-10-29-cloudredirect-phase-2-to-4-handoff.md](#file-agents-handoffs-2026-10-29-cloudredirect-phase-2-to-4-handoff-md) | `2026-10-29-cloudredirect-phase-2-to-4-handoff` | `generic` | 81 | 0 | 81 lines (no parser registered) |
+| [.agents/handoffs/2026-10-29-cloudredirect-phase-2-to-5-handoff.md](#file-agents-handoffs-2026-10-29-cloudredirect-phase-2-to-5-handoff-md) | `2026-10-29-cloudredirect-phase-2-to-5-handoff` | `generic` | 78 | 0 | 78 lines (no parser registered) |
+| [.agents/handoffs/2026-10-29-cloudredirect-phase-2-to-6-handoff.md](#file-agents-handoffs-2026-10-29-cloudredirect-phase-2-to-6-handoff-md) | `2026-10-29-cloudredirect-phase-2-to-6-handoff` | `generic` | 79 | 0 | 79 lines (no parser registered) |
+| [.agents/mcp_config.json](#file-agents-mcp_config-json) | `mcp_config` | `generic` | 7 | 0 | 7 lines (no parser registered) |
 | [.agents/rules/cpp_hooking_patterns.md](#file-agents-rules-cpp_hooking_patterns-md) | `cpp_hooking_patterns` | `generic` | 41 | 0 | 41 lines (no parser registered) |
 | [.agents/rules/devtools_interaction.md](#file-agents-rules-devtools_interaction-md) | `devtools_interaction` | `generic` | 16 | 0 | 16 lines (no parser registered) |
 | [.agents/rules/steam_cef_ui_patterns.md](#file-agents-rules-steam_cef_ui_patterns-md) | `steam_cef_ui_patterns` | `generic` | 34 | 0 | 34 lines (no parser registered) |
@@ -395,16 +446,17 @@ SLSsteam_n_ACCELA/
 | [.agents/skills/steam-version-update/scripts/audit_client_hash.py](#file-agents-skills-steam-version-update-scripts-audit_client_hash-py) | `.agents.skills.steam-version-update.scripts.audit_client_hash` | `python` | 95 | 4 | 95 lines, 0 classes, 4 functions/methods |
 | [.agents/skills/steam-version-update/scripts/audit_vftable.py](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | `.agents.skills.steam-version-update.scripts.audit_vftable` | `python` | 151 | 3 | 151 lines, 0 classes, 3 functions/methods |
 | [.agents/skills/steamdeck-wireless-workflow/SKILL.md](#file-agents-skills-steamdeck-wireless-workflow-skill-md) | `SKILL` | `generic` | 70 | 0 | 70 lines (no parser registered) |
-| [.agents/skills/steamos-qemu-workflow/SKILL.md](#file-agents-skills-steamos-qemu-workflow-skill-md) | `SKILL` | `generic` | 137 | 0 | 137 lines (no parser registered) |
+| [.agents/skills/vibe-implement-annotations/SKILL.md](#file-agents-skills-vibe-implement-annotations-skill-md) | `SKILL` | `generic` | 111 | 0 | 111 lines (no parser registered) |
+| [.agents/skills/vibe-server-setup/SKILL.md](#file-agents-skills-vibe-server-setup-skill-md) | `SKILL` | `generic` | 111 | 0 | 111 lines (no parser registered) |
 | [.antigravityignore](#file-antigravityignore) | `.antigravityignore` | `generic` | 1 | 0 | 1 lines (no parser registered) |
-| [.gitignore](#file-gitignore) | `.gitignore` | `generic` | 86 | 0 | 86 lines (no parser registered) |
+| [.gitignore](#file-gitignore) | `.gitignore` | `generic` | 92 | 0 | 92 lines (no parser registered) |
 | [.gitmodules](#file-gitmodules) | `.gitmodules` | `generic` | 3 | 0 | 3 lines (no parser registered) |
 | [.mailmap](#file-mailmap) | `.mailmap` | `generic` | 1 | 0 | 1 lines (no parser registered) |
-| [API.md](#file-api-md) | `API` | `generic` | 19 | 0 | 19 lines (no parser registered) |
-| [Dev-Plan.txt](#file-dev-plan-txt) | `Dev-Plan` | `generic` | 32 | 0 | 32 lines (no parser registered) |
+| [API.md](#file-api-md) | `API` | `generic` | 291 | 0 | 291 lines (no parser registered) |
+| [Dev-Plan.txt](#file-dev-plan-txt) | `Dev-Plan` | `generic` | 44 | 0 | 44 lines (no parser registered) |
 | [LICENSE](#file-license) | `LICENSE` | `generic` | 661 | 0 | 661 lines (no parser registered) |
-| [Makefile](#file-makefile) | `Makefile` | `generic` | 264 | 0 | 264 lines (no parser registered) |
-| [README.md](#file-readme-md) | `README` | `generic` | 60 | 0 | 60 lines (no parser registered) |
+| [Makefile](#file-makefile) | `Makefile` | `generic` | 307 | 0 | 307 lines (no parser registered) |
+| [README.md](#file-readme-md) | `README` | `generic` | 93 | 0 | 93 lines (no parser registered) |
 | [docker/Dockerfile](#file-docker-dockerfile) | `Dockerfile` | `generic` | 12 | 0 | 12 lines (no parser registered) |
 | [docker/build.sh](#file-docker-build-sh) | `build` | `generic` | 31 | 0 | 31 lines (no parser registered) |
 | [docs/LICENSE/base64](#file-docs-license-base64) | `base64` | `generic` | 21 | 0 | 21 lines (no parser registered) |
@@ -412,6 +464,8 @@ SLSsteam_n_ACCELA/
 | [docs/LICENSE/navi](#file-docs-license-navi) | `navi` | `generic` | 661 | 0 | 661 lines (no parser registered) |
 | [docs/LICENSE/protobuf](#file-docs-license-protobuf) | `protobuf` | `generic` | 33 | 0 | 33 lines (no parser registered) |
 | [docs/LICENSE/yaml-cpp](#file-docs-license-yaml-cpp) | `yaml-cpp` | `generic` | 19 | 0 | 19 lines (no parser registered) |
+| [docs/THIRD_PARTY.md](#file-docs-third_party-md) | `THIRD_PARTY` | `generic` | 110 | 0 | 110 lines (no parser registered) |
+| [docs/cloud-saves.md](#file-docs-cloud-saves-md) | `cloud-saves` | `generic` | 243 | 0 | 243 lines (no parser registered) |
 | [embed-config.sh](#file-embed-config-sh) | `embed-config` | `generic` | 17 | 0 | 17 lines (no parser registered) |
 | [embed-version.sh](#file-embed-version-sh) | `embed-version` | `generic` | 20 | 0 | 20 lines (no parser registered) |
 | [flake.nix](#file-flake-nix) | `flake` | `generic` | 53 | 0 | 53 lines (no parser registered) |
@@ -428,12 +482,13 @@ SLSsteam_n_ACCELA/
 | [pytest.ini](#file-pytest-ini) | `pytest` | `generic` | 5 | 0 | 5 lines (no parser registered) |
 | [res/cache.diff.yaml](#file-res-cache-diff-yaml) | `cache.diff` | `generic` | 8 | 0 | 8 lines (no parser registered) |
 | [res/config.diff.yaml](#file-res-config-diff-yaml) | `config.diff` | `generic` | 21 | 0 | 21 lines (no parser registered) |
-| [res/config.yaml](#file-res-config-yaml) | `config` | `generic` | 151 | 0 | 151 lines (no parser registered) |
-| [res/inject-scripts/app-details-script.js](#file-res-inject-scripts-app-details-script-js) | `app-details-script` | `javascript` | 873 | 25 | 873 lines, 0 classes/interfaces, 12 functions/methods |
+| [res/config.yaml](#file-res-config-yaml) | `config` | `generic` | 159 | 0 | 159 lines (no parser registered) |
+| [res/inject-scripts/app-details-script.js](#file-res-inject-scripts-app-details-script-js) | `app-details-script` | `javascript` | 1239 | 34 | 1239 lines, 0 classes/interfaces, 17 functions/methods |
 | [res/inject-scripts/auto-collection.js](#file-res-inject-scripts-auto-collection-js) | `auto-collection` | `javascript` | 70 | 1 | 70 lines, 0 classes/interfaces, 1 functions/methods |
+| [res/inject-scripts/cloud_manager.js](#file-res-inject-scripts-cloud_manager-js) | `cloud_manager` | `javascript` | 825 | 34 | 825 lines, 0 classes/interfaces, 24 functions/methods |
 | [res/inject-scripts/depot-selection-script.js](#file-res-inject-scripts-depot-selection-script-js) | `depot-selection-script` | `javascript` | 600 | 16 | 600 lines, 0 classes/interfaces, 11 functions/methods |
-| [res/inject-scripts/import-lua-script.js](#file-res-inject-scripts-import-lua-script-js) | `import-lua-script` | `javascript` | 1199 | 26 | 1199 lines, 0 classes/interfaces, 13 functions/methods |
-| [res/inject-scripts/navi_inject.js](#file-res-inject-scripts-navi_inject-js) | `navi_inject` | `javascript` | 190 | 4 | 190 lines, 0 classes/interfaces, 4 functions/methods |
+| [res/inject-scripts/import-lua-script.js](#file-res-inject-scripts-import-lua-script-js) | `import-lua-script` | `javascript` | 2592 | 60 | 2592 lines, 0 classes/interfaces, 28 functions/methods |
+| [res/inject-scripts/navi_inject.js](#file-res-inject-scripts-navi_inject-js) | `navi_inject` | `javascript` | 543 | 26 | 543 lines, 0 classes/interfaces, 5 functions/methods |
 | [res/inject-scripts/store-page-script.js](#file-res-inject-scripts-store-page-script-js) | `store-page-script` | `javascript` | 1784 | 49 | 1784 lines, 0 classes/interfaces, 35 functions/methods |
 | [res/inject-scripts/version-top-bar.js](#file-res-inject-scripts-version-top-bar-js) | `version-top-bar` | `javascript` | 35 | 1 | 35 lines, 0 classes/interfaces, 1 functions/methods |
 | [res/navi-native.desktop](#file-res-navi-native-desktop) | `navi-native` | `generic` | 283 | 0 | 283 lines (no parser registered) |
@@ -461,8 +516,10 @@ SLSsteam_n_ACCELA/
 | [src/core/api.cpp](#file-src-core-api-cpp) | `api` | `cpp` | 326 | 0 | 326 lines, 0 classes/structs, 0 functions/methods |
 | [src/core/api.hpp](#file-src-core-api-hpp) | `api` | `cpp` | 60 | 6 | 60 lines, 0 classes/structs, 6 functions/methods |
 | [src/core/atomic_file.hpp](#file-src-core-atomic_file-hpp) | `atomic_file` | `cpp` | 295 | 11 | 295 lines, 0 classes/structs, 11 functions/methods |
-| [src/core/curl.cpp](#file-src-core-curl-cpp) | `curl` | `cpp` | 110 | 0 | 110 lines, 0 classes/structs, 0 functions/methods |
-| [src/core/curl.hpp](#file-src-core-curl-hpp) | `curl` | `cpp` | 9 | 1 | 9 lines, 0 classes/structs, 1 functions/methods |
+| [src/core/cloud_oauth.cpp](#file-src-core-cloud_oauth-cpp) | `cloud_oauth` | `cpp` | 319 | 6 | 319 lines, 0 classes/structs, 6 functions/methods |
+| [src/core/cloud_oauth.hpp](#file-src-core-cloud_oauth-hpp) | `cloud_oauth` | `cpp` | 71 | 15 | 71 lines, 0 classes/structs, 15 functions/methods |
+| [src/core/curl.cpp](#file-src-core-curl-cpp) | `curl` | `cpp` | 456 | 2 | 456 lines, 0 classes/structs, 2 functions/methods |
+| [src/core/curl.hpp](#file-src-core-curl-hpp) | `curl` | `cpp` | 36 | 3 | 36 lines, 0 classes/structs, 3 functions/methods |
 | [src/core/decompiler.cpp](#file-src-core-decompiler-cpp) | `decompiler` | `cpp` | 751 | 0 | 751 lines, 0 classes/structs, 0 functions/methods |
 | [src/core/decompiler.hpp](#file-src-core-decompiler-hpp) | `decompiler` | `cpp` | 73 | 13 | 73 lines, 0 classes/structs, 13 functions/methods |
 | [src/core/filewatcher.cpp](#file-src-core-filewatcher-cpp) | `filewatcher` | `cpp` | 110 | 0 | 110 lines, 0 classes/structs, 0 functions/methods |
@@ -483,15 +540,17 @@ SLSsteam_n_ACCELA/
 | [src/core/vftableinfo.hpp](#file-src-core-vftableinfo-hpp) | `vftableinfo` | `cpp` | 135 | 5 | 135 lines, 0 classes/structs, 5 functions/methods |
 | [src/core/zip.cpp](#file-src-core-zip-cpp) | `zip` | `cpp` | 186 | 0 | 186 lines, 0 classes/structs, 0 functions/methods |
 | [src/core/zip.hpp](#file-src-core-zip-hpp) | `zip` | `cpp` | 69 | 2 | 69 lines, 0 classes/structs, 2 functions/methods |
+| [src/model/achievement_merger.cpp](#file-src-model-achievement_merger-cpp) | `achievement_merger` | `cpp` | 425 | 0 | 425 lines, 0 classes/structs, 0 functions/methods |
+| [src/model/achievement_merger.hpp](#file-src-model-achievement_merger-hpp) | `achievement_merger` | `cpp` | 66 | 1 | 66 lines, 0 classes/structs, 1 functions/methods |
 | [src/model/appsizes.hpp](#file-src-model-appsizes-hpp) | `appsizes` | `cpp` | 5 | 1 | 5 lines, 0 classes/structs, 1 functions/methods |
-| [src/model/config.cpp](#file-src-model-config-cpp) | `config` | `cpp` | 994 | 5 | 994 lines, 0 classes/structs, 5 functions/methods |
-| [src/model/config.hpp](#file-src-model-config-hpp) | `config` | `cpp` | 291 | 15 | 291 lines, 1 classes/structs, 14 functions/methods |
-| [src/model/config_default.hpp](#file-src-model-config_default-hpp) | `config_default` | `cpp` | 153 | 0 | 153 lines, 0 classes/structs, 0 functions/methods |
-| [src/model/depotkeys.cpp](#file-src-model-depotkeys-cpp) | `depotkeys` | `cpp` | 393 | 9 | 393 lines, 0 classes/structs, 9 functions/methods |
-| [src/model/depotkeys.hpp](#file-src-model-depotkeys-hpp) | `depotkeys` | `cpp` | 46 | 9 | 46 lines, 0 classes/structs, 9 functions/methods |
+| [src/model/config.cpp](#file-src-model-config-cpp) | `config` | `cpp` | 1023 | 5 | 1023 lines, 0 classes/structs, 5 functions/methods |
+| [src/model/config.hpp](#file-src-model-config-hpp) | `config` | `cpp` | 298 | 16 | 298 lines, 1 classes/structs, 15 functions/methods |
+| [src/model/config_default.hpp](#file-src-model-config_default-hpp) | `config_default` | `cpp` | 161 | 0 | 161 lines, 0 classes/structs, 0 functions/methods |
+| [src/model/depotkeys.cpp](#file-src-model-depotkeys-cpp) | `depotkeys` | `cpp` | 550 | 13 | 550 lines, 0 classes/structs, 13 functions/methods |
+| [src/model/depotkeys.hpp](#file-src-model-depotkeys-hpp) | `depotkeys` | `cpp` | 58 | 13 | 58 lines, 0 classes/structs, 13 functions/methods |
 | [src/model/lua_parser.cpp](#file-src-model-lua_parser-cpp) | `lua_parser` | `cpp` | 319 | 2 | 319 lines, 0 classes/structs, 2 functions/methods |
 | [src/model/lua_parser.hpp](#file-src-model-lua_parser-hpp) | `lua_parser` | `cpp` | 75 | 2 | 75 lines, 0 classes/structs, 2 functions/methods |
-| [src/model/manifestcode.cpp](#file-src-model-manifestcode-cpp) | `manifestcode` | `cpp` | 515 | 2 | 515 lines, 0 classes/structs, 2 functions/methods |
+| [src/model/manifestcode.cpp](#file-src-model-manifestcode-cpp) | `manifestcode` | `cpp` | 652 | 3 | 652 lines, 0 classes/structs, 3 functions/methods |
 | [src/model/manifestcode.hpp](#file-src-model-manifestcode-hpp) | `manifestcode` | `cpp` | 69 | 22 | 69 lines, 0 classes/structs, 22 functions/methods |
 | [src/model/migrations/cache_migration.cpp](#file-src-model-migrations-cache_migration-cpp) | `cache_migration` | `cpp` | 232 | 1 | 232 lines, 0 classes/structs, 1 functions/methods |
 | [src/model/migrations/cache_migration.hpp](#file-src-model-migrations-cache_migration-hpp) | `cache_migration` | `cpp` | 18 | 4 | 18 lines, 1 classes/structs, 3 functions/methods |
@@ -499,8 +558,8 @@ SLSsteam_n_ACCELA/
 | [src/model/migrations/config_migration.hpp](#file-src-model-migrations-config_migration-hpp) | `config_migration` | `cpp` | 14 | 2 | 14 lines, 1 classes/structs, 1 functions/methods |
 | [src/model/migrations/legacy_migration.cpp](#file-src-model-migrations-legacy_migration-cpp) | `legacy_migration` | `cpp` | 393 | 1 | 393 lines, 0 classes/structs, 1 functions/methods |
 | [src/model/migrations/legacy_migration.hpp](#file-src-model-migrations-legacy_migration-hpp) | `legacy_migration` | `cpp` | 32 | 6 | 32 lines, 2 classes/structs, 4 functions/methods |
-| [src/model/paths.cpp](#file-src-model-paths-cpp) | `paths` | `cpp` | 154 | 2 | 154 lines, 0 classes/structs, 2 functions/methods |
-| [src/model/paths.hpp](#file-src-model-paths-hpp) | `paths` | `cpp` | 52 | 5 | 52 lines, 0 classes/structs, 5 functions/methods |
+| [src/model/paths.cpp](#file-src-model-paths-cpp) | `paths` | `cpp` | 251 | 3 | 251 lines, 0 classes/structs, 3 functions/methods |
+| [src/model/paths.hpp](#file-src-model-paths-hpp) | `paths` | `cpp` | 66 | 7 | 66 lines, 0 classes/structs, 7 functions/methods |
 | [src/model/sdk/CAPIJob.cpp](#file-src-model-sdk-capijob-cpp) | `CAPIJob` | `cpp` | 9 | 0 | 9 lines, 0 classes/structs, 0 functions/methods |
 | [src/model/sdk/CAPIJob.hpp](#file-src-model-sdk-capijob-hpp) | `CAPIJob` | `cpp` | 16 | 1 | 16 lines, 0 classes/structs, 1 functions/methods |
 | [src/model/sdk/CCMInterface.cpp](#file-src-model-sdk-ccminterface-cpp) | `CCMInterface` | `cpp` | 16 | 0 | 16 lines, 0 classes/structs, 0 functions/methods |
@@ -542,10 +601,16 @@ SLSsteam_n_ACCELA/
 | [src/model/vdf.hpp](#file-src-model-vdf-hpp) | `vdf` | `cpp` | 26 | 4 | 26 lines, 0 classes/structs, 4 functions/methods |
 | [src/presenter/achievements.cpp](#file-src-presenter-achievements-cpp) | `achievements` | `cpp` | 251 | 2 | 251 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/achievements.hpp](#file-src-presenter-achievements-hpp) | `achievements` | `cpp` | 41 | 4 | 41 lines, 0 classes/structs, 4 functions/methods |
-| [src/presenter/apps.cpp](#file-src-presenter-apps-cpp) | `apps` | `cpp` | 1417 | 12 | 1417 lines, 0 classes/structs, 12 functions/methods |
+| [src/presenter/apps.cpp](#file-src-presenter-apps-cpp) | `apps` | `cpp` | 1440 | 12 | 1440 lines, 0 classes/structs, 12 functions/methods |
 | [src/presenter/apps.hpp](#file-src-presenter-apps-hpp) | `apps` | `cpp` | 62 | 28 | 62 lines, 0 classes/structs, 28 functions/methods |
 | [src/presenter/autoupdate.cpp](#file-src-presenter-autoupdate-cpp) | `autoupdate` | `cpp` | 707 | 3 | 707 lines, 0 classes/structs, 3 functions/methods |
 | [src/presenter/autoupdate.hpp](#file-src-presenter-autoupdate-hpp) | `autoupdate` | `cpp` | 11 | 2 | 11 lines, 0 classes/structs, 2 functions/methods |
+| [src/presenter/cloud_manager.cpp](#file-src-presenter-cloud_manager-cpp) | `cloud_manager` | `cpp` | 328 | 3 | 328 lines, 0 classes/structs, 3 functions/methods |
+| [src/presenter/cloud_manager.hpp](#file-src-presenter-cloud_manager-hpp) | `cloud_manager` | `cpp` | 52 | 10 | 52 lines, 0 classes/structs, 10 functions/methods |
+| [src/presenter/cloud_pending_ops.cpp](#file-src-presenter-cloud_pending_ops-cpp) | `cloud_pending_ops` | `cpp` | 809 | 14 | 809 lines, 0 classes/structs, 14 functions/methods |
+| [src/presenter/cloud_pending_ops.hpp](#file-src-presenter-cloud_pending_ops-hpp) | `cloud_pending_ops` | `cpp` | 103 | 24 | 103 lines, 0 classes/structs, 24 functions/methods |
+| [src/presenter/cloudredirect.cpp](#file-src-presenter-cloudredirect-cpp) | `cloudredirect` | `cpp` | 526 | 8 | 526 lines, 0 classes/structs, 8 functions/methods |
+| [src/presenter/cloudredirect.hpp](#file-src-presenter-cloudredirect-hpp) | `cloudredirect` | `cpp` | 66 | 10 | 66 lines, 0 classes/structs, 10 functions/methods |
 | [src/presenter/dlc.cpp](#file-src-presenter-dlc-cpp) | `dlc` | `cpp` | 97 | 0 | 97 lines, 0 classes/structs, 0 functions/methods |
 | [src/presenter/dlc.hpp](#file-src-presenter-dlc-hpp) | `dlc` | `cpp` | 20 | 7 | 20 lines, 0 classes/structs, 7 functions/methods |
 | [src/presenter/fakeappid.cpp](#file-src-presenter-fakeappid-cpp) | `fakeappid` | `cpp` | 355 | 0 | 355 lines, 0 classes/structs, 0 functions/methods |
@@ -554,43 +619,52 @@ SLSsteam_n_ACCELA/
 | [src/presenter/hooks.hpp](#file-src-presenter-hooks-hpp) | `hooks` | `cpp` | 233 | 12 | 233 lines, 0 classes/structs, 12 functions/methods |
 | [src/presenter/licenses.cpp](#file-src-presenter-licenses-cpp) | `licenses` | `cpp` | 307 | 7 | 307 lines, 0 classes/structs, 7 functions/methods |
 | [src/presenter/licenses.hpp](#file-src-presenter-licenses-hpp) | `licenses` | `cpp` | 29 | 13 | 29 lines, 0 classes/structs, 13 functions/methods |
-| [src/presenter/luadownload.cpp](#file-src-presenter-luadownload-cpp) | `luadownload` | `cpp` | 917 | 7 | 917 lines, 0 classes/structs, 7 functions/methods |
+| [src/presenter/luadownload.cpp](#file-src-presenter-luadownload-cpp) | `luadownload` | `cpp` | 912 | 7 | 912 lines, 0 classes/structs, 7 functions/methods |
 | [src/presenter/luadownload.hpp](#file-src-presenter-luadownload-hpp) | `luadownload` | `cpp` | 25 | 1 | 25 lines, 0 classes/structs, 1 functions/methods |
 | [src/presenter/luagenerator.cpp](#file-src-presenter-luagenerator-cpp) | `luagenerator` | `cpp` | 151 | 1 | 151 lines, 0 classes/structs, 1 functions/methods |
 | [src/presenter/luagenerator.hpp](#file-src-presenter-luagenerator-hpp) | `luagenerator` | `cpp` | 16 | 2 | 16 lines, 0 classes/structs, 2 functions/methods |
-| [src/presenter/main.cpp](#file-src-presenter-main-cpp) | `main` | `cpp` | 392 | 0 | 392 lines, 0 classes/structs, 0 functions/methods |
+| [src/presenter/main.cpp](#file-src-presenter-main-cpp) | `main` | `cpp` | 447 | 0 | 447 lines, 0 classes/structs, 0 functions/methods |
 | [src/presenter/misc.cpp](#file-src-presenter-misc-cpp) | `misc` | `cpp` | 132 | 1 | 132 lines, 0 classes/structs, 1 functions/methods |
 | [src/presenter/misc.hpp](#file-src-presenter-misc-hpp) | `misc` | `cpp` | 11 | 3 | 11 lines, 0 classes/structs, 3 functions/methods |
 | [src/presenter/nativeinstall.cpp](#file-src-presenter-nativeinstall-cpp) | `nativeinstall` | `cpp` | 408 | 12 | 408 lines, 0 classes/structs, 12 functions/methods |
 | [src/presenter/nativeinstall.hpp](#file-src-presenter-nativeinstall-hpp) | `nativeinstall` | `cpp` | 45 | 12 | 45 lines, 0 classes/structs, 12 functions/methods |
+| [src/presenter/process_lock.cpp](#file-src-presenter-process_lock-cpp) | `process_lock` | `cpp` | 297 | 7 | 297 lines, 0 classes/structs, 7 functions/methods |
+| [src/presenter/process_lock.hpp](#file-src-presenter-process_lock-hpp) | `process_lock` | `cpp` | 41 | 2 | 41 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/removelua.cpp](#file-src-presenter-removelua-cpp) | `removelua` | `cpp` | 163 | 2 | 163 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/removelua.hpp](#file-src-presenter-removelua-hpp) | `removelua` | `cpp` | 11 | 1 | 11 lines, 0 classes/structs, 1 functions/methods |
-| [src/presenter/storeinject.cpp](#file-src-presenter-storeinject-cpp) | `storeinject` | `cpp` | 1587 | 8 | 1587 lines, 1 classes/structs, 7 functions/methods |
-| [src/presenter/storeinject.hpp](#file-src-presenter-storeinject-hpp) | `storeinject` | `cpp` | 18 | 2 | 18 lines, 0 classes/structs, 2 functions/methods |
+| [src/presenter/storeinject.cpp](#file-src-presenter-storeinject-cpp) | `storeinject` | `cpp` | 2065 | 8 | 2065 lines, 1 classes/structs, 7 functions/methods |
+| [src/presenter/storeinject.hpp](#file-src-presenter-storeinject-hpp) | `storeinject` | `cpp` | 28 | 3 | 28 lines, 0 classes/structs, 3 functions/methods |
 | [src/presenter/ticket.cpp](#file-src-presenter-ticket-cpp) | `ticket` | `cpp` | 268 | 2 | 268 lines, 0 classes/structs, 2 functions/methods |
 | [src/presenter/ticket.hpp](#file-src-presenter-ticket-hpp) | `ticket` | `cpp` | 46 | 13 | 46 lines, 0 classes/structs, 13 functions/methods |
 | [src/presenter/tier0hook.cpp](#file-src-presenter-tier0hook-cpp) | `tier0hook` | `cpp` | 202 | 8 | 202 lines, 1 classes/structs, 7 functions/methods |
 | [src/presenter/tier0hook.hpp](#file-src-presenter-tier0hook-hpp) | `tier0hook` | `cpp` | 42 | 3 | 42 lines, 0 classes/structs, 3 functions/methods |
 | [src/presenter/update.cpp](#file-src-presenter-update-cpp) | `update` | `cpp` | 217 | 0 | 217 lines, 0 classes/structs, 0 functions/methods |
 | [src/presenter/update.hpp](#file-src-presenter-update-hpp) | `update` | `cpp` | 22 | 6 | 22 lines, 0 classes/structs, 6 functions/methods |
-| [src/view/cdpinject.cpp](#file-src-view-cdpinject-cpp) | `cdpinject` | `cpp` | 1101 | 4 | 1101 lines, 0 classes/structs, 4 functions/methods |
-| [src/view/cdpinject.hpp](#file-src-view-cdpinject-hpp) | `cdpinject` | `cpp` | 84 | 10 | 84 lines, 0 classes/structs, 10 functions/methods |
+| [src/view/cdpinject.cpp](#file-src-view-cdpinject-cpp) | `cdpinject` | `cpp` | 1106 | 4 | 1106 lines, 0 classes/structs, 4 functions/methods |
+| [src/view/cdpinject.hpp](#file-src-view-cdpinject-hpp) | `cdpinject` | `cpp` | 90 | 11 | 90 lines, 0 classes/structs, 11 functions/methods |
 | [src/view/cefsizefix.cpp](#file-src-view-cefsizefix-cpp) | `cefsizefix` | `cpp` | 309 | 6 | 309 lines, 0 classes/structs, 6 functions/methods |
 | [src/view/cefsizefix.hpp](#file-src-view-cefsizefix-hpp) | `cefsizefix` | `cpp` | 25 | 2 | 25 lines, 0 classes/structs, 2 functions/methods |
-| [src/view/storeinject_view.cpp](#file-src-view-storeinject_view-cpp) | `storeinject_view` | `cpp` | 219 | 1 | 219 lines, 0 classes/structs, 1 functions/methods |
-| [src/view/storeinject_view.hpp](#file-src-view-storeinject_view-hpp) | `storeinject_view` | `cpp` | 111 | 9 | 111 lines, 2 classes/structs, 7 functions/methods |
+| [src/view/cloud_view.cpp](#file-src-view-cloud_view-cpp) | `cloud_view` | `cpp` | 202 | 0 | 202 lines, 0 classes/structs, 0 functions/methods |
+| [src/view/cloud_view.hpp](#file-src-view-cloud_view-hpp) | `cloud_view` | `cpp` | 30 | 12 | 30 lines, 0 classes/structs, 12 functions/methods |
+| [src/view/storeinject_view.cpp](#file-src-view-storeinject_view-cpp) | `storeinject_view` | `cpp` | 790 | 10 | 790 lines, 0 classes/structs, 10 functions/methods |
+| [src/view/storeinject_view.hpp](#file-src-view-storeinject_view-hpp) | `storeinject_view` | `cpp` | 125 | 11 | 125 lines, 2 classes/structs, 9 functions/methods |
 | [tests/conftest.py](#file-tests-conftest-py) | `tests.conftest` | `python` | 88 | 5 | 88 lines, 0 classes, 5 functions/methods |
 | [tests/fixtures/__init__.py](#file-tests-fixtures-__init__-py) | `tests.fixtures` | `python` | 1 | 0 | 1 lines, 0 classes, 0 functions/methods |
 | [tests/fixtures/legacy_migration_fixtures.py](#file-tests-fixtures-legacy_migration_fixtures-py) | `tests.fixtures.legacy_migration_fixtures` | `python` | 151 | 5 | 151 lines, 0 classes, 5 functions/methods |
 | [tests/inspect_store_ui.py](#file-tests-inspect_store_ui-py) | `tests.inspect_store_ui` | `python` | 505 | 12 | 505 lines, 1 classes, 11 functions/methods |
+| [tests/integration/mock_cloud_relay_server.py](#file-tests-integration-mock_cloud_relay_server-py) | `tests.integration.mock_cloud_relay_server` | `python` | 534 | 22 | 534 lines, 2 classes, 20 functions/methods |
 | [tests/integration/test_installer.py](#file-tests-integration-test_installer-py) | `tests.integration.test_installer` | `python` | 227 | 6 | 227 lines, 0 classes, 6 functions/methods |
 | [tests/integration/test_migration.py](#file-tests-integration-test_migration-py) | `tests.integration.test_migration` | `python` | 237 | 7 | 237 lines, 0 classes, 7 functions/methods |
 | [tests/integration/test_steam_ui_flow.py](#file-tests-integration-test_steam_ui_flow-py) | `tests.integration.test_steam_ui_flow` | `python` | 1592 | 39 | 1592 lines, 2 classes, 37 functions/methods |
 | [tests/integration/test_store_script.py](#file-tests-integration-test_store_script-py) | `tests.integration.test_store_script` | `python` | 339 | 6 | 339 lines, 0 classes, 6 functions/methods |
 | [tests/test_project_map.py](#file-tests-test_project_map-py) | `tests.test_project_map` | `python` | 519 | 14 | 519 lines, 0 classes, 14 functions/methods |
+| [tests/unit/test_cloud_manager.cpp](#file-tests-unit-test_cloud_manager-cpp) | `test_cloud_manager` | `cpp` | 136 | 4 | 136 lines, 0 classes/structs, 4 functions/methods |
+| [tests/unit/test_cloud_oauth.cpp](#file-tests-unit-test_cloud_oauth-cpp) | `test_cloud_oauth` | `cpp` | 174 | 1 | 174 lines, 0 classes/structs, 1 functions/methods |
+| [tests/unit/test_cloud_pending_ops.cpp](#file-tests-unit-test_cloud_pending_ops-cpp) | `test_cloud_pending_ops` | `cpp` | 241 | 5 | 241 lines, 0 classes/structs, 5 functions/methods |
+| [tests/unit/test_cloudredirect_bridge.cpp](#file-tests-unit-test_cloudredirect_bridge-cpp) | `test_cloudredirect_bridge` | `cpp` | 341 | 4 | 341 lines, 0 classes/structs, 4 functions/methods |
 | [tests/unit/test_config.cpp](#file-tests-unit-test_config-cpp) | `test_config` | `cpp` | 240 | 3 | 240 lines, 0 classes/structs, 3 functions/methods |
-| [tests/unit/test_depotkeys.cpp](#file-tests-unit-test_depotkeys-cpp) | `test_depotkeys` | `cpp` | 263 | 5 | 263 lines, 0 classes/structs, 5 functions/methods |
-| [tests/unit/test_manifest_and_native.cpp](#file-tests-unit-test_manifest_and_native-cpp) | `test_manifest_and_native` | `cpp` | 396 | 9 | 396 lines, 0 classes/structs, 9 functions/methods |
+| [tests/unit/test_depotkeys.cpp](#file-tests-unit-test_depotkeys-cpp) | `test_depotkeys` | `cpp` | 297 | 7 | 297 lines, 0 classes/structs, 7 functions/methods |
+| [tests/unit/test_manifest_and_native.cpp](#file-tests-unit-test_manifest_and_native-cpp) | `test_manifest_and_native` | `cpp` | 439 | 12 | 439 lines, 0 classes/structs, 12 functions/methods |
 | [tests/unit/test_migration.cpp](#file-tests-unit-test_migration-cpp) | `test_migration` | `cpp` | 623 | 38 | 623 lines, 0 classes/structs, 38 functions/methods |
 | [tests/unit/test_patterns_and_utils.cpp](#file-tests-unit-test_patterns_and_utils-cpp) | `test_patterns_and_utils` | `cpp` | 132 | 3 | 132 lines, 0 classes/structs, 3 functions/methods |
 | [tests/unit/test_stubs.cpp](#file-tests-unit-test_stubs-cpp) | `test_stubs` | `cpp` | 180 | 27 | 180 lines, 0 classes/structs, 27 functions/methods |
@@ -600,6 +674,14 @@ SLSsteam_n_ACCELA/
 | [tests/unit/test_stubs_unified.cpp](#file-tests-unit-test_stubs_unified-cpp) | `test_stubs_unified` | `cpp` | 1 | 0 | 1 lines, 0 classes/structs, 0 functions/methods |
 | [tests/unit/test_vdf_and_lua.cpp](#file-tests-unit-test_vdf_and_lua-cpp) | `test_vdf_and_lua` | `cpp` | 320 | 6 | 320 lines, 0 classes/structs, 6 functions/methods |
 | [tests/unit/test_zip_and_atomic.cpp](#file-tests-unit-test_zip_and_atomic-cpp) | `test_zip_and_atomic` | `cpp` | 169 | 10 | 169 lines, 0 classes/structs, 10 functions/methods |
+| [tools/cef-annotator/README.md](#file-tools-cef-annotator-readme-md) | `README` | `generic` | 150 | 0 | 150 lines (no parser registered) |
+| [tools/cef-annotator/SKILL.md](#file-tools-cef-annotator-skill-md) | `SKILL` | `generic` | 95 | 0 | 95 lines (no parser registered) |
+| [tools/cef-annotator/annotations.json](#file-tools-cef-annotator-annotations-json) | `annotations` | `generic` | 1 | 0 | 1 lines (no parser registered) |
+| [tools/cef-annotator/annotator.py](#file-tools-cef-annotator-annotator-py) | `tools.cef-annotator.annotator` | `python` | 921 | 35 | 921 lines, 2 classes, 32 functions/methods |
+| [tools/cef-annotator/overlay.js](#file-tools-cef-annotator-overlay-js) | `overlay` | `javascript` | 2564 | 41 | 2564 lines, 0 classes/interfaces, 41 functions/methods |
+| [tools/cef-annotator/run.sh](#file-tools-cef-annotator-run-sh) | `run` | `generic` | 93 | 0 | 93 lines (no parser registered) |
+| [tools/cef-annotator/start.sh](#file-tools-cef-annotator-start-sh) | `start` | `generic` | 93 | 0 | 93 lines (no parser registered) |
+| [tools/cloud_pending/main.cpp](#file-tools-cloud_pending-main-cpp) | `main` | `cpp` | 36 | 0 | 36 lines, 0 classes/structs, 0 functions/methods |
 | [tools/library-inject/.gitignore](#file-tools-library-inject-gitignore) | `.gitignore` | `generic` | 1 | 0 | 1 lines (no parser registered) |
 | [tools/library-inject/Makefile](#file-tools-library-inject-makefile) | `Makefile` | `generic` | 2 | 0 | 2 lines (no parser registered) |
 | [tools/library-inject/main.cpp](#file-tools-library-inject-main-cpp) | `main` | `cpp` | 89 | 0 | 89 lines, 0 classes/structs, 0 functions/methods |
@@ -625,25 +707,34 @@ SLSsteam_n_ACCELA/
 | [`audit_class_vtable`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-audit_class_vtable) | `function` | `+` public | [.agents/skills/steam-version-update/scripts/audit_vftable.py:L30-L137](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | *(root)* |
 | [`find_binary`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-find_binary) | `function` | `+` public | [.agents/skills/steam-version-update/scripts/audit_vftable.py:L19-L28](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | *(root)* |
 | [`main`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-main) | `function` | `+` public | [.agents/skills/steam-version-update/scripts/audit_vftable.py:L139-L148](#file-agents-skills-steam-version-update-scripts-audit_vftable-py) | *(root)* |
-| [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L822-L822](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L1188-L1188](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`backupAppCloudSave`](#sym-res-inject-scripts-app-details-script-js-backupappcloudsave) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L541-L541](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`checkAndCreateButton`](#sym-res-inject-scripts-app-details-script-js-checkandcreatebutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L165-L165](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`createRemoveButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L625-L625](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`createRemoveButton.makeSteamButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-makesteambutton) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L648-L648](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
-| [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L699-L699](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
-| [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L754-L754](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
-| [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L851-L851](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`createRemoveButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L907-L907](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`createRemoveButton.makeSteamButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-makesteambutton) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L930-L930](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L981-L981](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L1036-L1036](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`createRemoveButton.updateRowCloudUI`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-updaterowcloudui) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L1091-L1091](#file-res-inject-scripts-app-details-script-js) | `createRemoveButton` |
+| [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L1217-L1217](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`extractAppId`](#sym-res-inject-scripts-app-details-script-js-extractappid) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L98-L98](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`fetchAppCloudStatus`](#sym-res-inject-scripts-app-details-script-js-fetchappcloudstatus) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L518-L518](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`log`](#sym-res-inject-scripts-app-details-script-js-log) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L6-L6](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`openChangeProviderModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L334-L334](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L385-L385](#file-res-inject-scripts-app-details-script-js) | `openChangeProviderModal` |
-| [`openNaviModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L518-L518](#file-res-inject-scripts-app-details-script-js) | *(root)* |
-| [`openNaviModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L574-L574](#file-res-inject-scripts-app-details-script-js) | `openNaviModal` |
+| [`openNaviModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L726-L726](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openNaviModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L794-L794](#file-res-inject-scripts-app-details-script-js) | `openNaviModal` |
+| [`openNaviModal.updateModalCloudUI`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-updatemodalcloudui) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L833-L833](#file-res-inject-scripts-app-details-script-js) | `openNaviModal` |
 | [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L467-L467](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openResetModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L649-L649](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openResetModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L686-L686](#file-res-inject-scripts-app-details-script-js) | `openResetModal` |
+| [`openRestoreModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L551-L551](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`openRestoreModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L580-L580](#file-res-inject-scripts-app-details-script-js) | `openRestoreModal` |
 | [`openSlsConfig`](#sym-res-inject-scripts-app-details-script-js-openslsconfig) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L201-L201](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L258-L258](#file-res-inject-scripts-app-details-script-js) | `openSlsConfig` |
 | [`openSlsConfig.updateCrackBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatecrackbtn) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L297-L297](#file-res-inject-scripts-app-details-script-js) | `openSlsConfig` |
 | [`openSlsConfig.updateFixBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatefixbtn) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L273-L273](#file-res-inject-scripts-app-details-script-js) | `openSlsConfig` |
 | [`registerSteamFocusNode`](#sym-res-inject-scripts-app-details-script-js-registersteamfocusnode) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L11-L11](#file-res-inject-scripts-app-details-script-js) | *(root)* |
+| [`toggleAppCloudRedirect`](#sym-res-inject-scripts-app-details-script-js-toggleappcloudredirect) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L527-L527](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`trapSteamGamepadModal`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal) | `function` | `+` public | [res/inject-scripts/app-details-script.js:L45-L45](#file-res-inject-scripts-app-details-script-js) | *(root)* |
 | [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cancelcatcher) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L87-L87](#file-res-inject-scripts-app-details-script-js) | `trapSteamGamepadModal` |
 | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L62-L62](#file-res-inject-scripts-app-details-script-js) | `trapSteamGamepadModal` |
@@ -651,6 +742,40 @@ SLSsteam_n_ACCELA/
 | [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-okcatcher) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L82-L82](#file-res-inject-scripts-app-details-script-js) | `trapSteamGamepadModal` |
 | [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-updatefocus) | `nested_function` | `+` public | [res/inject-scripts/app-details-script.js:L47-L47](#file-res-inject-scripts-app-details-script-js) | `trapSteamGamepadModal` |
 | [`syncAutoCollection`](#sym-res-inject-scripts-auto-collection-js-syncautocollection) | `function` | `+` public | [res/inject-scripts/auto-collection.js:L8-L8](#file-res-inject-scripts-auto-collection-js) | *(root)* |
+| [`backupAppSave`](#sym-res-inject-scripts-cloud_manager-js-backupappsave) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L346-L346](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`executeResetAppSave`](#sym-res-inject-scripts-cloud_manager-js-executeresetappsave) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L365-L365](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`fetchAppStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchappstatus) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L333-L333](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`fetchPendingOps`](#sym-res-inject-scripts-cloud_manager-js-fetchpendingops) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L256-L256](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`fetchProviderStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchproviderstatus) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L299-L299](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`fetchStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchstatus) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L244-L244](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`init`](#sym-res-inject-scripts-cloud_manager-js-init) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L790-L790](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`isOriginCompliant`](#sym-res-inject-scripts-cloud_manager-js-isorigincompliant) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L35-L35](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`openRestoreModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L471-L471](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`openRestoreModal.closeModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L504-L504](#file-res-inject-scripts-cloud_manager-js) | `openRestoreModal` |
+| [`openSettingsModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L581-L581](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`openSettingsModal.closeModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-closemodal) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L653-L653](#file-res-inject-scripts-cloud_manager-js) | `openSettingsModal` |
+| [`openSettingsModal.refreshMasterUI`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshmasterui) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L660-L660](#file-res-inject-scripts-cloud_manager-js) | `openSettingsModal` |
+| [`openSettingsModal.refreshProviderAuth`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshproviderauth) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L681-L681](#file-res-inject-scripts-cloud_manager-js) | `openSettingsModal` |
+| [`poll`](#sym-res-inject-scripts-cloud_manager-js-poll) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L770-L770](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`resetAppSave`](#sym-res-inject-scripts-cloud_manager-js-resetappsave) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L380-L380](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`resetAppSave.closeModal`](#sym-res-inject-scripts-cloud_manager-js-resetappsave-closemodal) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L426-L426](#file-res-inject-scripts-cloud_manager-js) | `resetAppSave` |
+| [`restartSteam`](#sym-res-inject-scripts-cloud_manager-js-restartsteam) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L329-L329](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`restoreAppSave`](#sym-res-inject-scripts-cloud_manager-js-restoreappsave) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L353-L353](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`secureFetch`](#sym-res-inject-scripts-cloud_manager-js-securefetch) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L88-L88](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`signInProvider`](#sym-res-inject-scripts-cloud_manager-js-signinprovider) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L305-L305](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`signOutProvider`](#sym-res-inject-scripts-cloud_manager-js-signoutprovider) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L320-L320](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`startPolling`](#sym-res-inject-scripts-cloud_manager-js-startpolling) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L777-L777](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`stopPolling`](#sym-res-inject-scripts-cloud_manager-js-stoppolling) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L783-L783](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`toggleAppRedirect`](#sym-res-inject-scripts-cloud_manager-js-toggleappredirect) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L338-L338](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`toggleMaster`](#sym-res-inject-scripts-cloud_manager-js-togglemaster) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L277-L277](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`trapSteamGamepadModal`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L115-L115](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cancelcatcher) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L157-L157](#file-res-inject-scripts-cloud_manager-js) | `trapSteamGamepadModal` |
+| [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cleanup) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L133-L133](#file-res-inject-scripts-cloud_manager-js) | `trapSteamGamepadModal` |
+| [`trapSteamGamepadModal.gamepadCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-gamepadcatcher) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L138-L138](#file-res-inject-scripts-cloud_manager-js) | `trapSteamGamepadModal` |
+| [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-okcatcher) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L152-L152](#file-res-inject-scripts-cloud_manager-js) | `trapSteamGamepadModal` |
+| [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-updatefocus) | `nested_function` | `+` public | [res/inject-scripts/cloud_manager.js:L117-L117](#file-res-inject-scripts-cloud_manager-js) | `trapSteamGamepadModal` |
+| [`updatePendingBanner`](#sym-res-inject-scripts-cloud_manager-js-updatependingbanner) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L172-L172](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
+| [`validateTargetUrl`](#sym-res-inject-scripts-cloud_manager-js-validatetargeturl) | `function` | `+` public | [res/inject-scripts/cloud_manager.js:L66-L66](#file-res-inject-scripts-cloud_manager-js) | *(root)* |
 | [`buildOsBadge`](#sym-res-inject-scripts-depot-selection-script-js-buildosbadge) | `function` | `+` public | [res/inject-scripts/depot-selection-script.js:L279-L279](#file-res-inject-scripts-depot-selection-script-js) | *(root)* |
 | [`buildOsBadgeElement`](#sym-res-inject-scripts-depot-selection-script-js-buildosbadgeelement) | `function` | `+` public | [res/inject-scripts/depot-selection-script.js:L286-L286](#file-res-inject-scripts-depot-selection-script-js) | *(root)* |
 | [`closeAndCancel`](#sym-res-inject-scripts-depot-selection-script-js-closeandcancel) | `function` | `+` public | [res/inject-scripts/depot-selection-script.js:L295-L295](#file-res-inject-scripts-depot-selection-script-js) | *(root)* |
@@ -667,36 +792,92 @@ SLSsteam_n_ACCELA/
 | [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-depot-selection-script-js-trapsteamgamepadmodal-okcatcher) | `nested_function` | `+` public | [res/inject-scripts/depot-selection-script.js:L97-L97](#file-res-inject-scripts-depot-selection-script-js) | `trapSteamGamepadModal` |
 | [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-depot-selection-script-js-trapsteamgamepadmodal-updatefocus) | `nested_function` | `+` public | [res/inject-scripts/depot-selection-script.js:L29-L29](#file-res-inject-scripts-depot-selection-script-js) | `trapSteamGamepadModal` |
 | [`updateButtonState`](#sym-res-inject-scripts-depot-selection-script-js-updatebuttonstate) | `function` | `+` public | [res/inject-scripts/depot-selection-script.js:L517-L517](#file-res-inject-scripts-depot-selection-script-js) | *(root)* |
-| [`addSlsTab`](#sym-res-inject-scripts-import-lua-script-js-addslstab) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1108-L1108](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
-| [`debouncedAddButtons`](#sym-res-inject-scripts-import-lua-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1188-L1188](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`addSlsTab`](#sym-res-inject-scripts-import-lua-script-js-addslstab) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L2458-L2458](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`debouncedAddButtons`](#sym-res-inject-scripts-import-lua-script-js-debouncedaddbuttons) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L2581-L2581](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`ensureCustomTabStyles`](#sym-res-inject-scripts-import-lua-script-js-ensurecustomtabstyles) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L138-L138](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`escapeHtml`](#sym-res-inject-scripts-import-lua-script-js-escapehtml) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L128-L128](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
 | [`findSuperNavContainer`](#sym-res-inject-scripts-import-lua-script-js-findsupernavcontainer) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L42-L42](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
 | [`getSteamHistory`](#sym-res-inject-scripts-import-lua-script-js-getsteamhistory) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L98-L98](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
 | [`getTopBarHeight`](#sym-res-inject-scripts-import-lua-script-js-gettopbarheight) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L64-L64](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
-| [`hideSlsPage`](#sym-res-inject-scripts-import-lua-script-js-hideslspage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L221-L221](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
-| [`initManualInstallPage`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L232-L232](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
-| [`initManualInstallPage.classifyFile`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-classifyfile) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L476-L476](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.detectAppIdFromCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-detectappidfromcheckedfiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L603-L603](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.extractZipFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-extractzipfiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L313-L313](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.fetchAppMetadata`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-fetchappmetadata) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L434-L434](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.findRelatedLuaFile`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-findrelatedluafile) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L558-L558](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.getAppIdFromFileName`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getappidfromfilename) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L462-L462](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.getAppIdFromLuaContent`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getappidfromluacontent) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L596-L596](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.getCheckedOSCount`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getcheckedoscount) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L546-L546](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.handleFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-handlefiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L335-L335](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.handleFiles.addFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-handlefiles-addfiles) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L351-L351](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage.handleFiles` |
-| [`initManualInstallPage.initCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-initcheckedfiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L537-L537](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.loadLuaFilesCache`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-loadluafilescache) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L281-L281](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.updateFileList`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatefilelist) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L647-L647](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initManualInstallPage.updateSubmitButton`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatesubmitbutton) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L627-L627](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
-| [`initSlsTabAndPage`](#sym-res-inject-scripts-import-lua-script-js-initslstabandpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1163-L1163](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`hideConfigPage`](#sym-res-inject-scripts-import-lua-script-js-hideconfigpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L285-L285](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`hideSlsPage`](#sym-res-inject-scripts-import-lua-script-js-hideslspage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L274-L274](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`initManualInstallPage`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1582-L1582](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`initManualInstallPage.classifyFile`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-classifyfile) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1826-L1826](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.detectAppIdFromCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-detectappidfromcheckedfiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1953-L1953](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.extractZipFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-extractzipfiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1663-L1663](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.fetchAppMetadata`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-fetchappmetadata) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1784-L1784](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.findRelatedLuaFile`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-findrelatedluafile) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1908-L1908](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.getAppIdFromFileName`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getappidfromfilename) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1812-L1812](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.getAppIdFromLuaContent`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getappidfromluacontent) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1946-L1946](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.getCheckedOSCount`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getcheckedoscount) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1896-L1896](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.handleFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-handlefiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1685-L1685](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.handleFiles.addFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-handlefiles-addfiles) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1701-L1701](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage.handleFiles` |
+| [`initManualInstallPage.initCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-initcheckedfiles) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1887-L1887](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.loadLuaFilesCache`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-loadluafilescache) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1631-L1631](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.updateFileList`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatefilelist) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1997-L1997](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initManualInstallPage.updateSubmitButton`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatesubmitbutton) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1977-L1977](#file-res-inject-scripts-import-lua-script-js) | `initManualInstallPage` |
+| [`initSlsTabAndPage`](#sym-res-inject-scripts-import-lua-script-js-initslstabandpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L2549-L2549](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
 | [`loadJSZip`](#sym-res-inject-scripts-import-lua-script-js-loadjszip) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L13-L13](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
 | [`log`](#sym-res-inject-scripts-import-lua-script-js-log) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L6-L6](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`renderConfigPage`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L367-L367](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`renderConfigPage.activateTab`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-activatetab) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L850-L850](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.checkDirty`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-checkdirty) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1331-L1331](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.collectAndSaveConfig`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1367-L1367](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.collectAndSaveConfig.getCheckbox`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getcheckbox) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1380-L1380](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.collectAndSaveConfig.getInt`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getint) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1376-L1376](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.collectAndSaveConfig.getProviderNames`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getprovidernames) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1429-L1429](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.collectAndSaveConfig.getVal`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getval) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1372-L1372](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.collectAndSaveConfig.parseKvMap`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsekvmap) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1408-L1408](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.collectAndSaveConfig.parseStringArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsestringarray) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1397-L1397](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.collectAndSaveConfig.parseUintArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parseuintarray) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1384-L1384](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.collectAndSaveConfig` |
+| [`renderConfigPage.formatArrayForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatarrayforeditor) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L411-L411](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.formatKvForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatkvforeditor) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L415-L415](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.handleKeyDown`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-handlekeydown) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1544-L1544](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.makeApiKeyRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makeapikeyrow) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L609-L609](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.makeCard`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makecard) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L384-L384](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.makeSettingRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makesettingrow) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L392-L392](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.makeTextareaItem`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketextareaitem) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L678-L678](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.makeToggle`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketoggle) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L404-L404](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.markClean`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-markclean) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1350-L1350](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.serializeCurrentForm`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1265-L1265](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.serializeCurrentForm.getVal`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1266-L1266](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.serializeCurrentForm` |
+| [`renderConfigPage.serializeCurrentForm.getVal.getCheckbox`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1267-L1267](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.serializeCurrentForm.getVal` |
+| [`renderConfigPage.showStatusBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-showstatusbanner) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L833-L833](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.updateActivePresetChip`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateactivepresetchip) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L1154-L1154](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.updateGDriveAuthUi`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updategdriveauthui) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L951-L951](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.updateProgressiveDisclosure`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L911-L911](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.updateProgressiveDisclosure.updateFilterRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure-updatefilterrow) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L934-L934](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.updateProgressiveDisclosure` |
+| [`renderConfigPage.updateReadinessBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner) | `nested_function` | `+` public | [res/inject-scripts/import-lua-script.js:L971-L971](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage` |
+| [`renderConfigPage.updateReadinessBanner.setStepState`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner-setstepstate) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L1011-L1011](#file-res-inject-scripts-import-lua-script-js) | `renderConfigPage.updateReadinessBanner` |
 | [`setActiveTabStyle`](#sym-res-inject-scripts-import-lua-script-js-setactivetabstyle) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L82-L82](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
-| [`showSlsPage`](#sym-res-inject-scripts-import-lua-script-js-showslspage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L126-L126](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
-| [`fetchAppSize`](#sym-res-inject-scripts-navi_inject-js-fetchappsize) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L28-L28](#file-res-inject-scripts-navi_inject-js) | *(root)* |
-| [`getUnlockedAppIds`](#sym-res-inject-scripts-navi_inject-js-getunlockedappids) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L88-L88](#file-res-inject-scripts-navi_inject-js) | *(root)* |
-| [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L100-L100](#file-res-inject-scripts-navi_inject-js) | *(root)* |
-| [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L109-L109](#file-res-inject-scripts-navi_inject-js) | *(root)* |
+| [`showConfigPage`](#sym-res-inject-scripts-import-lua-script-js-showconfigpage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L304-L304](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`showSlsPage`](#sym-res-inject-scripts-import-lua-script-js-showslspage) | `function` | `+` public | [res/inject-scripts/import-lua-script.js:L192-L192](#file-res-inject-scripts-import-lua-script-js) | *(root)* |
+| [`fetchAppSize`](#sym-res-inject-scripts-navi_inject-js-fetchappsize) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L379-L379](#file-res-inject-scripts-navi_inject-js) | *(root)* |
+| [`getUnlockedAppIds`](#sym-res-inject-scripts-navi_inject-js-getunlockedappids) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L439-L439](#file-res-inject-scripts-navi_inject-js) | *(root)* |
+| [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L451-L451](#file-res-inject-scripts-navi_inject-js) | *(root)* |
+| [`setupCloudManager`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L22-L22](#file-res-inject-scripts-navi_inject-js) | *(root)* |
+| [`setupCloudManager.backupAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-backupappsave) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L272-L272](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.executeResetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-executeresetappsave) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L291-L291](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.fetchAppStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchappstatus) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L259-L259](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.fetchPendingOps`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchpendingops) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L182-L182](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.fetchProviderStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchproviderstatus) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L225-L225](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.fetchStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchstatus) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L170-L170](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.init`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-init) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L334-L334](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.isOriginCompliant`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-isorigincompliant) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L40-L40](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.poll`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-poll) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L314-L314](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.resetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-resetappsave) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L303-L303](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.restartSteam`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restartsteam) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L255-L255](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.restoreAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restoreappsave) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L279-L279](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.secureFetch`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-securefetch) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L83-L83](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.signInProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signinprovider) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L231-L231](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.signOutProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signoutprovider) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L246-L246](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.startPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-startpolling) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L321-L321](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.stopPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-stoppolling) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L327-L327](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.toggleAppRedirect`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-toggleappredirect) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L264-L264](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.toggleMaster`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-togglemaster) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L203-L203](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.updatePendingBanner`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-updatependingbanner) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L107-L107](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`setupCloudManager.validateTargetUrl`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-validatetargeturl) | `nested_function` | `+` public | [res/inject-scripts/navi_inject.js:L68-L68](#file-res-inject-scripts-navi_inject-js) | `setupCloudManager` |
+| [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | `function` | `+` public | [res/inject-scripts/navi_inject.js:L460-L460](#file-res-inject-scripts-navi_inject-js) | *(root)* |
 | [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1287-L1287](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1578-L1578](#file-res-inject-scripts-store-page-script-js) | *(root)* |
 | [`cleanupLegacyHiding`](#sym-res-inject-scripts-store-page-script-js-cleanuplegacyhiding) | `function` | `+` public | [res/inject-scripts/store-page-script.js:L1540-L1540](#file-res-inject-scripts-store-page-script-js) | *(root)* |
@@ -805,7 +986,26 @@ SLSsteam_n_ACCELA/
 | [`guard`](#sym-src-core-atomic_file-hpp-guard) | `function` | `+` public | [src/core/atomic_file.hpp:L179-L179](#file-src-core-atomic_file-hpp) | *(root)* |
 | [`ofs`](#sym-src-core-atomic_file-hpp-ofs) | `function` | `+` public | [src/core/atomic_file.hpp:L141-L141](#file-src-core-atomic_file-hpp) | *(root)* |
 | [`p`](#sym-src-core-atomic_file-hpp-p) | `function` | `+` public | [src/core/atomic_file.hpp:L171-L171](#file-src-core-atomic_file-hpp) | *(root)* |
-| [`getString`](#sym-src-core-curl-hpp-getstring) | `function` | `+` public | [src/core/curl.hpp:L8-L8](#file-src-core-curl-hpp) | *(root)* |
+| [`lock`](#sym-src-core-cloud_oauth-cpp-lock) | `function` | `+` public | [src/core/cloud_oauth.cpp:L231-L231](#file-src-core-cloud_oauth-cpp) | *(root)* |
+| [`CancelAuthFlow`](#sym-src-core-cloud_oauth-hpp-cancelauthflow) | `function` | `+` public | [src/core/cloud_oauth.hpp:L42-L42](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`ComputeCodeChallenge`](#sym-src-core-cloud_oauth-hpp-computecodechallenge) | `function` | `+` public | [src/core/cloud_oauth.hpp:L47-L47](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`GenerateCodeVerifier`](#sym-src-core-cloud_oauth-hpp-generatecodeverifier) | `function` | `+` public | [src/core/cloud_oauth.hpp:L46-L46](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`GenerateRandomState`](#sym-src-core-cloud_oauth-hpp-generaterandomstate) | `function` | `+` public | [src/core/cloud_oauth.hpp:L45-L45](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`GetProviderPort`](#sym-src-core-cloud_oauth-hpp-getproviderport) | `function` | `+` public | [src/core/cloud_oauth.hpp:L48-L48](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`GetProviderTokenFilename`](#sym-src-core-cloud_oauth-hpp-getprovidertokenfilename) | `function` | `+` public | [src/core/cloud_oauth.hpp:L49-L49](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`GetTokenFilePath`](#sym-src-core-cloud_oauth-hpp-gettokenfilepath) | `function` | `+` public | [src/core/cloud_oauth.hpp:L51-L51](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`Instance`](#sym-src-core-cloud_oauth-hpp-instance) | `function` | `+` public | [src/core/cloud_oauth.hpp:L35-L35](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`IsAuthInFlight`](#sym-src-core-cloud_oauth-hpp-isauthinflight) | `function` | `+` public | [src/core/cloud_oauth.hpp:L41-L41](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`OAuthProviderToString`](#sym-src-core-cloud_oauth-hpp-oauthprovidertostring) | `function` | `+` public | [src/core/cloud_oauth.hpp:L68-L68](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`SetTokenDirForTest`](#sym-src-core-cloud_oauth-hpp-settokendirfortest) | `function` | `+` public | [src/core/cloud_oauth.hpp:L54-L54](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`SignOut`](#sym-src-core-cloud_oauth-hpp-signout) | `function` | `+` public | [src/core/cloud_oauth.hpp:L43-L43](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`StartAuthFlow`](#sym-src-core-cloud_oauth-hpp-startauthflow) | `function` | `+` public | [src/core/cloud_oauth.hpp:L40-L40](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`StringToOAuthProvider`](#sym-src-core-cloud_oauth-hpp-stringtooauthprovider) | `function` | `+` public | [src/core/cloud_oauth.hpp:L67-L67](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`WriteTokenFile`](#sym-src-core-cloud_oauth-hpp-writetokenfile) | `function` | `+` public | [src/core/cloud_oauth.hpp:L52-L52](#file-src-core-cloud_oauth-hpp) | *(root)* |
+| [`lock`](#sym-src-core-curl-cpp-lock) | `function` | `+` public | [src/core/curl.cpp:L34-L34](#file-src-core-curl-cpp) | *(root)* |
+| [`getString`](#sym-src-core-curl-hpp-getstring) | `function` | `+` public | [src/core/curl.hpp:L35-L35](#file-src-core-curl-hpp) | *(root)* |
+| [`request`](#sym-src-core-curl-hpp-request) | `function` | `+` public | [src/core/curl.hpp:L33-L33](#file-src-core-curl-hpp) | *(root)* |
+| [`setHttpTransportOverride`](#sym-src-core-curl-hpp-sethttptransportoverride) | `function` | `+` public | [src/core/curl.hpp:L31-L31](#file-src-core-curl-hpp) | *(root)* |
 | [`cleanUp`](#sym-src-core-decompiler-hpp-cleanup) | `function` | `+` public | [src/core/decompiler.hpp:L72-L72](#file-src-core-decompiler-hpp) | *(root)* |
 | [`collectStrings`](#sym-src-core-decompiler-hpp-collectstrings) | `function` | `+` public | [src/core/decompiler.hpp:L54-L54](#file-src-core-decompiler-hpp) | *(root)* |
 | [`collectVFTables`](#sym-src-core-decompiler-hpp-collectvftables) | `function` | `+` public | [src/core/decompiler.hpp:L55-L55](#file-src-core-decompiler-hpp) | *(root)* |
@@ -862,42 +1062,48 @@ SLSsteam_n_ACCELA/
 | [`resolved`](#sym-src-core-vftableinfo-hpp-resolved) | `function` | `+` public | [src/core/vftableinfo.hpp:L24-L24](#file-src-core-vftableinfo-hpp) | *(root)* |
 | [`extract`](#sym-src-core-zip-hpp-extract) | `function` | `+` public | [src/core/zip.hpp:L50-L50](#file-src-core-zip-hpp) | *(root)* |
 | [`isValid`](#sym-src-core-zip-hpp-isvalid) | `function` | `+` public | [src/core/zip.hpp:L24-L24](#file-src-core-zip-hpp) | *(root)* |
+| [`serializeBinaryKV`](#sym-src-model-achievement_merger-hpp-serializebinarykv) | `function` | `+` public | [src/model/achievement_merger.hpp:L44-L44](#file-src-model-achievement_merger-hpp) | *(root)* |
 | [`GetAppSize`](#sym-src-model-appsizes-hpp-getappsize) | `function` | `+` public | [src/model/appsizes.hpp:L5-L5](#file-src-model-appsizes-hpp) | *(root)* |
-| [`file`](#sym-src-model-config-cpp-file) | `function` | `+` public | [src/model/config.cpp:L884-L884](#file-src-model-config-cpp) | *(root)* |
-| [`inFile`](#sym-src-model-config-cpp-infile) | `function` | `+` public | [src/model/config.cpp:L770-L770](#file-src-model-config-cpp) | *(root)* |
+| [`file`](#sym-src-model-config-cpp-file) | `function` | `+` public | [src/model/config.cpp:L913-L913](#file-src-model-config-cpp) | *(root)* |
+| [`inFile`](#sym-src-model-config-cpp-infile) | `function` | `+` public | [src/model/config.cpp:L799-L799](#file-src-model-config-cpp) | *(root)* |
 | [`s`](#sym-src-model-config-cpp-s) | `function` | `+` public | [src/model/config.cpp:L105-L105](#file-src-model-config-cpp) | *(root)* |
 | [`CConfig`](#sym-src-model-config-hpp-cconfig) | `class` | `+` public | [src/model/config.hpp:L23-L23](#file-src-model-config-hpp) | *(root)* |
-| [`CConfig::addAdditionalAppId`](#sym-src-model-config-hpp-cconfig-addadditionalappid) | `method` | `+` public | [src/model/config.hpp:L276-L276](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::createFile`](#sym-src-model-config-hpp-cconfig-createfile) | `method` | `+` public | [src/model/config.hpp:L99-L99](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::getDenuvoGameOwner`](#sym-src-model-config-hpp-cconfig-getdenuvogameowner) | `method` | `+` public | [src/model/config.hpp:L283-L283](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::getDir`](#sym-src-model-config-hpp-cconfig-getdir) | `method` | `+` public | [src/model/config.hpp:L96-L96](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::getPath`](#sym-src-model-config-hpp-cconfig-getpath) | `method` | `+` public | [src/model/config.hpp:L97-L97](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::getPluginDir`](#sym-src-model-config-hpp-cconfig-getplugindir) | `method` | `+` public | [src/model/config.hpp:L98-L98](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::init`](#sym-src-model-config-hpp-cconfig-init) | `method` | `+` public | [src/model/config.hpp:L100-L100](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::isAddedAppId`](#sym-src-model-config-hpp-cconfig-isaddedappid) | `method` | `+` public | [src/model/config.hpp:L275-L275](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::loadSettings`](#sym-src-model-config-hpp-cconfig-loadsettings) | `method` | `+` public | [src/model/config.hpp:L103-L103](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::removeAdditionalAppId`](#sym-src-model-config-hpp-cconfig-removeadditionalappid) | `method` | `+` public | [src/model/config.hpp:L277-L277](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::setError`](#sym-src-model-config-hpp-cconfig-seterror) | `method` | `+` public | [src/model/config.hpp:L102-L102](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::shouldExcludeAppId`](#sym-src-model-config-hpp-cconfig-shouldexcludeappid) | `method` | `+` public | [src/model/config.hpp:L282-L282](#file-src-model-config-hpp) | `CConfig` |
-| [`CConfig::updateApiAuth`](#sym-src-model-config-hpp-cconfig-updateapiauth) | `method` | `+` public | [src/model/config.hpp:L280-L280](#file-src-model-config-hpp) | `CConfig` |
-| [`scanLuaPluginsAndUpdateConfig`](#sym-src-model-config-hpp-scanluapluginsandupdateconfig) | `function` | `+` public | [src/model/config.hpp:L291-L291](#file-src-model-config-hpp) | *(root)* |
-| [`dummyTicket`](#sym-src-model-depotkeys-cpp-dummyticket) | `function` | `+` public | [src/model/depotkeys.cpp:L359-L359](#file-src-model-depotkeys-cpp) | *(root)* |
-| [`file`](#sym-src-model-depotkeys-cpp-file) | `function` | `+` public | [src/model/depotkeys.cpp:L246-L246](#file-src-model-depotkeys-cpp) | *(root)* |
-| [`lock`](#sym-src-model-depotkeys-cpp-lock) | `function` | `+` public | [src/model/depotkeys.cpp:L273-L273](#file-src-model-depotkeys-cpp) | *(root)* |
+| [`CConfig::IsAppCloudRedirected`](#sym-src-model-config-hpp-cconfig-isappcloudredirected) | `method` | `+` public | [src/model/config.hpp:L290-L290](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::addAdditionalAppId`](#sym-src-model-config-hpp-cconfig-addadditionalappid) | `method` | `+` public | [src/model/config.hpp:L282-L282](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::createFile`](#sym-src-model-config-hpp-cconfig-createfile) | `method` | `+` public | [src/model/config.hpp:L105-L105](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::getDenuvoGameOwner`](#sym-src-model-config-hpp-cconfig-getdenuvogameowner) | `method` | `+` public | [src/model/config.hpp:L289-L289](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::getDir`](#sym-src-model-config-hpp-cconfig-getdir) | `method` | `+` public | [src/model/config.hpp:L102-L102](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::getPath`](#sym-src-model-config-hpp-cconfig-getpath) | `method` | `+` public | [src/model/config.hpp:L103-L103](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::getPluginDir`](#sym-src-model-config-hpp-cconfig-getplugindir) | `method` | `+` public | [src/model/config.hpp:L104-L104](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::init`](#sym-src-model-config-hpp-cconfig-init) | `method` | `+` public | [src/model/config.hpp:L106-L106](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::isAddedAppId`](#sym-src-model-config-hpp-cconfig-isaddedappid) | `method` | `+` public | [src/model/config.hpp:L281-L281](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::loadSettings`](#sym-src-model-config-hpp-cconfig-loadsettings) | `method` | `+` public | [src/model/config.hpp:L109-L109](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::removeAdditionalAppId`](#sym-src-model-config-hpp-cconfig-removeadditionalappid) | `method` | `+` public | [src/model/config.hpp:L283-L283](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::setError`](#sym-src-model-config-hpp-cconfig-seterror) | `method` | `+` public | [src/model/config.hpp:L108-L108](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::shouldExcludeAppId`](#sym-src-model-config-hpp-cconfig-shouldexcludeappid) | `method` | `+` public | [src/model/config.hpp:L288-L288](#file-src-model-config-hpp) | `CConfig` |
+| [`CConfig::updateApiAuth`](#sym-src-model-config-hpp-cconfig-updateapiauth) | `method` | `+` public | [src/model/config.hpp:L286-L286](#file-src-model-config-hpp) | `CConfig` |
+| [`scanLuaPluginsAndUpdateConfig`](#sym-src-model-config-hpp-scanluapluginsandupdateconfig) | `function` | `+` public | [src/model/config.hpp:L298-L298](#file-src-model-config-hpp) | *(root)* |
+| [`dummyTicket`](#sym-src-model-depotkeys-cpp-dummyticket) | `function` | `+` public | [src/model/depotkeys.cpp:L516-L516](#file-src-model-depotkeys-cpp) | *(root)* |
+| [`file`](#sym-src-model-depotkeys-cpp-file) | `function` | `+` public | [src/model/depotkeys.cpp:L395-L395](#file-src-model-depotkeys-cpp) | *(root)* |
+| [`lock`](#sym-src-model-depotkeys-cpp-lock) | `function` | `+` public | [src/model/depotkeys.cpp:L422-L422](#file-src-model-depotkeys-cpp) | *(root)* |
+| [`findAndGetAppAccessToken`](#sym-src-model-depotkeys-hpp-findandgetappaccesstoken) | `function` | `+` public | [src/model/depotkeys.hpp:L53-L53](#file-src-model-depotkeys-hpp) | *(root)* |
+| [`findAndGetDepotKey`](#sym-src-model-depotkeys-hpp-findandgetdepotkey) | `function` | `+` public | [src/model/depotkeys.hpp:L50-L50](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`getAllAppIdsWithKeys`](#sym-src-model-depotkeys-hpp-getallappidswithkeys) | `function` | `+` public | [src/model/depotkeys.hpp:L41-L41](#file-src-model-depotkeys-hpp) | *(root)* |
+| [`getAppAccessTokensJsonPath`](#sym-src-model-depotkeys-hpp-getappaccesstokensjsonpath) | `function` | `+` public | [src/model/depotkeys.hpp:L47-L47](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`getDepotKey`](#sym-src-model-depotkeys-hpp-getdepotkey) | `function` | `+` public | [src/model/depotkeys.hpp:L29-L29](#file-src-model-depotkeys-hpp) | *(root)* |
+| [`getDepotKeysJsonPath`](#sym-src-model-depotkeys-hpp-getdepotkeysjsonpath) | `function` | `+` public | [src/model/depotkeys.hpp:L44-L44](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`getDepotKeysYamlPath`](#sym-src-model-depotkeys-hpp-getdepotkeysyamlpath) | `function` | `+` public | [src/model/depotkeys.hpp:L19-L19](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`getDepotsForApp`](#sym-src-model-depotkeys-hpp-getdepotsforapp) | `function` | `+` public | [src/model/depotkeys.hpp:L38-L38](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`hasKeysForApp`](#sym-src-model-depotkeys-hpp-haskeysforapp) | `function` | `+` public | [src/model/depotkeys.hpp:L35-L35](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`isKeyManagedApp`](#sym-src-model-depotkeys-hpp-iskeymanagedapp) | `function` | `+` public | [src/model/depotkeys.hpp:L32-L32](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`loadDepotKeysYaml`](#sym-src-model-depotkeys-hpp-loaddepotkeysyaml) | `function` | `+` public | [src/model/depotkeys.hpp:L22-L22](#file-src-model-depotkeys-hpp) | *(root)* |
-| [`recvMsg`](#sym-src-model-depotkeys-hpp-recvmsg) | `function` | `+` public | [src/model/depotkeys.hpp:L44-L44](#file-src-model-depotkeys-hpp) | *(root)* |
+| [`recvMsg`](#sym-src-model-depotkeys-hpp-recvmsg) | `function` | `+` public | [src/model/depotkeys.hpp:L56-L56](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`scanLuaPluginsForDepotKeys`](#sym-src-model-depotkeys-hpp-scanluapluginsfordepotkeys) | `function` | `+` public | [src/model/depotkeys.hpp:L26-L26](#file-src-model-depotkeys-hpp) | *(root)* |
 | [`f`](#sym-src-model-lua_parser-cpp-f) | `function` | `+` public | [src/model/lua_parser.cpp:L307-L307](#file-src-model-lua_parser-cpp) | *(root)* |
 | [`ss`](#sym-src-model-lua_parser-cpp-ss) | `function` | `+` public | [src/model/lua_parser.cpp:L94-L94](#file-src-model-lua_parser-cpp) | *(root)* |
 | [`parse`](#sym-src-model-lua_parser-hpp-parse) | `function` | `+` public | [src/model/lua_parser.hpp:L67-L67](#file-src-model-lua_parser-hpp) | *(root)* |
 | [`parseFile`](#sym-src-model-lua_parser-hpp-parsefile) | `function` | `+` public | [src/model/lua_parser.hpp:L73-L73](#file-src-model-lua_parser-hpp) | *(root)* |
-| [`lock`](#sym-src-model-manifestcode-cpp-lock) | `function` | `+` public | [src/model/manifestcode.cpp:L485-L485](#file-src-model-manifestcode-cpp) | *(root)* |
+| [`lock`](#sym-src-model-manifestcode-cpp-lock) | `function` | `+` public | [src/model/manifestcode.cpp:L610-L610](#file-src-model-manifestcode-cpp) | *(root)* |
 | [`ByteSizeLong`](#sym-src-model-manifestcode-hpp-bytesizelong) | `function` | `+` public | [src/model/manifestcode.hpp:L59-L59](#file-src-model-manifestcode-hpp) | *(root)* |
 | [`ParseFromArray`](#sym-src-model-manifestcode-hpp-parsefromarray) | `function` | `+` public | [src/model/manifestcode.hpp:L58-L58](#file-src-model-manifestcode-hpp) | *(root)* |
 | [`SerializeToArray`](#sym-src-model-manifestcode-hpp-serializetoarray) | `function` | `+` public | [src/model/manifestcode.hpp:L60-L60](#file-src-model-manifestcode-hpp) | *(root)* |
@@ -935,12 +1141,15 @@ SLSsteam_n_ACCELA/
 | [`LegacyMigration::buildPaths`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-buildpaths) | `method` | `+` public | [src/model/migrations/legacy_migration.hpp:L28-L28](#file-src-model-migrations-legacy_migration-hpp) | `LegacyMigration` |
 | [`LegacyMigration::migrate`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-migrate) | `method` | `+` public | [src/model/migrations/legacy_migration.hpp:L25-L25](#file-src-model-migrations-legacy_migration-hpp) | `LegacyMigration` |
 | [`LegacyMigration::migrateIfNeeded`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-migrateifneeded) | `method` | `+` public | [src/model/migrations/legacy_migration.hpp:L19-L19](#file-src-model-migrations-legacy_migration-hpp) | `LegacyMigration` |
-| [`it`](#sym-src-model-paths-cpp-it) | `function` | `+` public | [src/model/paths.cpp:L139-L139](#file-src-model-paths-cpp) | *(root)* |
-| [`clearAllCache`](#sym-src-model-paths-hpp-clearallcache) | `function` | `+` public | [src/model/paths.hpp:L50-L50](#file-src-model-paths-hpp) | *(root)* |
-| [`clearAppCache`](#sym-src-model-paths-hpp-clearappcache) | `function` | `+` public | [src/model/paths.hpp:L44-L44](#file-src-model-paths-hpp) | *(root)* |
-| [`depotcacheDir`](#sym-src-model-paths-hpp-depotcachedir) | `function` | `+` public | [src/model/paths.hpp:L38-L38](#file-src-model-paths-hpp) | *(root)* |
-| [`findSteamRoot`](#sym-src-model-paths-hpp-findsteamroot) | `function` | `+` public | [src/model/paths.hpp:L22-L22](#file-src-model-paths-hpp) | *(root)* |
-| [`stplugDir`](#sym-src-model-paths-hpp-stplugdir) | `function` | `+` public | [src/model/paths.hpp:L30-L30](#file-src-model-paths-hpp) | *(root)* |
+| [`it`](#sym-src-model-paths-cpp-it) | `function` | `+` public | [src/model/paths.cpp:L145-L145](#file-src-model-paths-cpp) | *(root)* |
+| [`vdfFile`](#sym-src-model-paths-cpp-vdffile) | `function` | `+` public | [src/model/paths.cpp:L206-L206](#file-src-model-paths-cpp) | *(root)* |
+| [`clearAllCache`](#sym-src-model-paths-hpp-clearallcache) | `function` | `+` public | [src/model/paths.hpp:L51-L51](#file-src-model-paths-hpp) | *(root)* |
+| [`clearAppCache`](#sym-src-model-paths-hpp-clearappcache) | `function` | `+` public | [src/model/paths.hpp:L45-L45](#file-src-model-paths-hpp) | *(root)* |
+| [`depotcacheDir`](#sym-src-model-paths-hpp-depotcachedir) | `function` | `+` public | [src/model/paths.hpp:L39-L39](#file-src-model-paths-hpp) | *(root)* |
+| [`findAppLibraryFolder`](#sym-src-model-paths-hpp-findapplibraryfolder) | `function` | `+` public | [src/model/paths.hpp:L64-L64](#file-src-model-paths-hpp) | *(root)* |
+| [`findLibraryFolders`](#sym-src-model-paths-hpp-findlibraryfolders) | `function` | `+` public | [src/model/paths.hpp:L58-L58](#file-src-model-paths-hpp) | *(root)* |
+| [`findSteamRoot`](#sym-src-model-paths-hpp-findsteamroot) | `function` | `+` public | [src/model/paths.hpp:L23-L23](#file-src-model-paths-hpp) | *(root)* |
+| [`stplugDir`](#sym-src-model-paths-hpp-stplugdir) | `function` | `+` public | [src/model/paths.hpp:L31-L31](#file-src-model-paths-hpp) | *(root)* |
 | [`sendAndRecv`](#sym-src-model-sdk-capijob-hpp-sendandrecv) | `function` | `+` public | [src/model/sdk/CAPIJob.hpp:L15-L15](#file-src-model-sdk-capijob-hpp) | *(root)* |
 | [`recvPkt`](#sym-src-model-sdk-ccminterface-hpp-recvpkt) | `function` | `+` public | [src/model/sdk/CCMInterface.hpp:L16-L16](#file-src-model-sdk-ccminterface-hpp) | *(root)* |
 | [`recvPktHk`](#sym-src-model-sdk-ccminterface-hpp-recvpkthk) | `function` | `+` public | [src/model/sdk/CCMInterface.hpp:L17-L17](#file-src-model-sdk-ccminterface-hpp) | *(root)* |
@@ -1005,14 +1214,14 @@ SLSsteam_n_ACCELA/
 | [`getReviewersForGame`](#sym-src-presenter-achievements-hpp-getreviewersforgame) | `function` | `+` public | [src/presenter/achievements.hpp:L19-L19](#file-src-presenter-achievements-hpp) | *(root)* |
 | [`sendAndRecvGetUserStats`](#sym-src-presenter-achievements-hpp-sendandrecvgetuserstats) | `function` | `+` public | [src/presenter/achievements.hpp:L40-L40](#file-src-presenter-achievements-hpp) | *(root)* |
 | [`tryGetUserStats`](#sym-src-presenter-achievements-hpp-trygetuserstats) | `function` | `+` public | [src/presenter/achievements.hpp:L38-L38](#file-src-presenter-achievements-hpp) | *(root)* |
-| [`Steam::Plat_Alloc`](#sym-src-presenter-apps-cpp-steam-plat_alloc) | `function` | `+` public | [src/presenter/apps.cpp:L733-L733](#file-src-presenter-apps-cpp) | *(root)* |
-| [`file`](#sym-src-presenter-apps-cpp-file) | `function` | `+` public | [src/presenter/apps.cpp:L196-L196](#file-src-presenter-apps-cpp) | *(root)* |
-| [`getSteamLibraryPaths`](#sym-src-presenter-apps-cpp-getsteamlibrarypaths) | `function` | `+` public | [src/presenter/apps.cpp:L207-L207](#file-src-presenter-apps-cpp) | *(root)* |
-| [`lock`](#sym-src-presenter-apps-cpp-lock) | `function` | `+` public | [src/presenter/apps.cpp:L1033-L1033](#file-src-presenter-apps-cpp) | *(root)* |
-| [`manifest`](#sym-src-presenter-apps-cpp-manifest) | `function` | `+` public | [src/presenter/apps.cpp:L557-L557](#file-src-presenter-apps-cpp) | *(root)* |
-| [`out`](#sym-src-presenter-apps-cpp-out) | `function` | `+` public | [src/presenter/apps.cpp:L289-L289](#file-src-presenter-apps-cpp) | *(root)* |
-| [`ss`](#sym-src-presenter-apps-cpp-ss) | `function` | `+` public | [src/presenter/apps.cpp:L94-L94](#file-src-presenter-apps-cpp) | *(root)* |
-| [`vdf`](#sym-src-presenter-apps-cpp-vdf) | `function` | `+` public | [src/presenter/apps.cpp:L421-L421](#file-src-presenter-apps-cpp) | *(root)* |
+| [`Steam::Plat_Alloc`](#sym-src-presenter-apps-cpp-steam-plat_alloc) | `function` | `+` public | [src/presenter/apps.cpp:L735-L735](#file-src-presenter-apps-cpp) | *(root)* |
+| [`file`](#sym-src-presenter-apps-cpp-file) | `function` | `+` public | [src/presenter/apps.cpp:L198-L198](#file-src-presenter-apps-cpp) | *(root)* |
+| [`getSteamLibraryPaths`](#sym-src-presenter-apps-cpp-getsteamlibrarypaths) | `function` | `+` public | [src/presenter/apps.cpp:L209-L209](#file-src-presenter-apps-cpp) | *(root)* |
+| [`lock`](#sym-src-presenter-apps-cpp-lock) | `function` | `+` public | [src/presenter/apps.cpp:L1051-L1051](#file-src-presenter-apps-cpp) | *(root)* |
+| [`manifest`](#sym-src-presenter-apps-cpp-manifest) | `function` | `+` public | [src/presenter/apps.cpp:L559-L559](#file-src-presenter-apps-cpp) | *(root)* |
+| [`out`](#sym-src-presenter-apps-cpp-out) | `function` | `+` public | [src/presenter/apps.cpp:L291-L291](#file-src-presenter-apps-cpp) | *(root)* |
+| [`ss`](#sym-src-presenter-apps-cpp-ss) | `function` | `+` public | [src/presenter/apps.cpp:L96-L96](#file-src-presenter-apps-cpp) | *(root)* |
+| [`vdf`](#sym-src-presenter-apps-cpp-vdf) | `function` | `+` public | [src/presenter/apps.cpp:L423-L423](#file-src-presenter-apps-cpp) | *(root)* |
 | [`buildDepotDependency`](#sym-src-presenter-apps-hpp-builddepotdependency) | `function` | `+` public | [src/presenter/apps.hpp:L24-L24](#file-src-presenter-apps-hpp) | *(root)* |
 | [`checkAppOwnership`](#sym-src-presenter-apps-hpp-checkappownership) | `function` | `+` public | [src/presenter/apps.hpp:L25-L25](#file-src-presenter-apps-hpp) | *(root)* |
 | [`deleteGameFiles`](#sym-src-presenter-apps-hpp-deletegamefiles) | `function` | `+` public | [src/presenter/apps.hpp:L41-L41](#file-src-presenter-apps-hpp) | *(root)* |
@@ -1045,6 +1254,63 @@ SLSsteam_n_ACCELA/
 | [`vf`](#sym-src-presenter-autoupdate-cpp-vf) | `function` | `+` public | [src/presenter/autoupdate.cpp:L263-L263](#file-src-presenter-autoupdate-cpp) | *(root)* |
 | [`checkAndPrompt`](#sym-src-presenter-autoupdate-hpp-checkandprompt) | `function` | `+` public | [src/presenter/autoupdate.hpp:L7-L7](#file-src-presenter-autoupdate-hpp) | *(root)* |
 | [`checkAndPromptSync`](#sym-src-presenter-autoupdate-hpp-checkandpromptsync) | `function` | `+` public | [src/presenter/autoupdate.hpp:L10-L10](#file-src-presenter-autoupdate-hpp) | *(root)* |
+| [`lock`](#sym-src-presenter-cloud_manager-cpp-lock) | `function` | `+` public | [src/presenter/cloud_manager.cpp:L41-L41](#file-src-presenter-cloud_manager-cpp) | *(root)* |
+| [`CheckAuthStatus`](#sym-src-presenter-cloud_manager-hpp-checkauthstatus) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L27-L27](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`GetBackupDir`](#sym-src-presenter-cloud_manager-hpp-getbackupdir) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L42-L42](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`GetCliPath`](#sym-src-presenter-cloud_manager-hpp-getclipath) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L41-L41](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`GetStorageDir`](#sym-src-presenter-cloud_manager-hpp-getstoragedir) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L43-L43](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`GetStorageUsageBytes`](#sym-src-presenter-cloud_manager-hpp-getstorageusagebytes) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L29-L29](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`Instance`](#sym-src-presenter-cloud_manager-hpp-instance) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L25-L25](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`ListBackups`](#sym-src-presenter-cloud_manager-hpp-listbackups) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L28-L28](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`SetBackupDirForTest`](#sym-src-presenter-cloud_manager-hpp-setbackupdirfortest) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L32-L32](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`SetCliPathForTest`](#sym-src-presenter-cloud_manager-hpp-setclipathfortest) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L31-L31](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`SetStorageDirForTest`](#sym-src-presenter-cloud_manager-hpp-setstoragedirfortest) | `function` | `+` public | [src/presenter/cloud_manager.hpp:L33-L33](#file-src-presenter-cloud_manager-hpp) | *(root)* |
+| [`commFile`](#sym-src-presenter-cloud_pending_ops-cpp-commfile) | `function` | `+` public | [src/presenter/cloud_pending_ops.cpp:L501-L501](#file-src-presenter-cloud_pending_ops-cpp) | *(root)* |
+| [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs) | `function` | `+` public | [src/presenter/cloud_pending_ops.cpp:L416-L416](#file-src-presenter-cloud_pending_ops-cpp) | *(root)* |
+| [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock) | `function` | `+` public | [src/presenter/cloud_pending_ops.cpp:L409-L409](#file-src-presenter-cloud_pending_ops-cpp) | *(root)* |
+| [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs) | `function` | `+` public | [src/presenter/cloud_pending_ops.cpp:L689-L689](#file-src-presenter-cloud_pending_ops-cpp) | *(root)* |
+| [`rootOfs`](#sym-src-presenter-cloud_pending_ops-cpp-rootofs) | `function` | `+` public | [src/presenter/cloud_pending_ops.cpp:L700-L700](#file-src-presenter-cloud_pending_ops-cpp) | *(root)* |
+| [`AssertSteamIdle`](#sym-src-presenter-cloud_pending_ops-hpp-assertsteamidle) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L76-L76](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`CPendingOpsExecutor`](#sym-src-presenter-cloud_pending_ops-hpp-cpendingopsexecutor) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L74-L74](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`ClearQueueForTest`](#sym-src-presenter-cloud_pending_ops-hpp-clearqueuefortest) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L57-L57](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`CreatePreOpBackup`](#sym-src-presenter-cloud_pending_ops-hpp-createpreopbackup) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L86-L86](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`Enqueue`](#sym-src-presenter-cloud_pending_ops-hpp-enqueue) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L49-L49](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`ExecuteAllPending`](#sym-src-presenter-cloud_pending_ops-hpp-executeallpending) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L77-L77](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`ExecuteOperation`](#sym-src-presenter-cloud_pending_ops-hpp-executeoperation) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L78-L78](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`GetQueueFilePath`](#sym-src-presenter-cloud_pending_ops-hpp-getqueuefilepath) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L65-L65](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`HasPendingOperations`](#sym-src-presenter-cloud_pending_ops-hpp-haspendingoperations) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L51-L51](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`Instance`](#sym-src-presenter-cloud_pending_ops-hpp-instance) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L47-L47](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`LoadAll`](#sym-src-presenter-cloud_pending_ops-hpp-loadall) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L50-L50](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`PendingOpStatusToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingopstatustostring) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L99-L99](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`PendingOpTypeToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingoptypetostring) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L97-L97](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`PerformGranularReset`](#sym-src-presenter-cloud_pending_ops-hpp-performgranularreset) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L87-L87](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`PerformRestore`](#sym-src-presenter-cloud_pending_ops-hpp-performrestore) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L88-L88](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`PruneCompleted`](#sym-src-presenter-cloud_pending_ops-hpp-prunecompleted) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L53-L53](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`RollbackFromBackup`](#sym-src-presenter-cloud_pending_ops-hpp-rollbackfrombackup) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L89-L89](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`SetBackupDirForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setbackupdirfortest) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L82-L82](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`SetProcPathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setprocpathfortest) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L81-L81](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`SetQueueFilePathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setqueuefilepathfortest) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L56-L56](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`SetSimulateFailureForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setsimulatefailurefortest) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L83-L83](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`StringToPendingOpStatus`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingopstatus) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L100-L100](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`StringToPendingOpType`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingoptype) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L98-L98](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`UpdateStatus`](#sym-src-presenter-cloud_pending_ops-hpp-updatestatus) | `function` | `+` public | [src/presenter/cloud_pending_ops.hpp:L52-L52](#file-src-presenter-cloud_pending_ops-hpp) | *(root)* |
+| [`disableFile`](#sym-src-presenter-cloudredirect-cpp-disablefile) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L289-L289](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`flag`](#sym-src-presenter-cloudredirect-cpp-flag) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L267-L267](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L403-L403](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`lock`](#sym-src-presenter-cloudredirect-cpp-lock) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L186-L186](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`maps`](#sym-src-presenter-cloudredirect-cpp-maps) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L203-L203](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`osRelease`](#sym-src-presenter-cloudredirect-cpp-osrelease) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L109-L109](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`stream`](#sym-src-presenter-cloudredirect-cpp-stream) | `function` | `+` public | [src/presenter/cloudredirect.cpp:L21-L21](#file-src-presenter-cloudredirect-cpp) | *(root)* |
+| [`DetectPlatformTier`](#sym-src-presenter-cloudredirect-hpp-detectplatformtier) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L45-L45](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`DetectStandaloneInstallation`](#sym-src-presenter-cloudredirect-hpp-detectstandaloneinstallation) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L48-L48](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`EnsureLocalOnlyConfig`](#sym-src-presenter-cloudredirect-hpp-ensurelocalonlyconfig) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L52-L52](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`GetTokenPath`](#sym-src-presenter-cloudredirect-hpp-gettokenpath) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L53-L53](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`Instance`](#sym-src-presenter-cloudredirect-hpp-instance) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L43-L43](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`IsEnabled`](#sym-src-presenter-cloudredirect-hpp-isenabled) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L47-L47](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`ResolvePaths`](#sym-src-presenter-cloudredirect-hpp-resolvepaths) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L61-L61](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`RevertSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-revertslssteamconfig) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L51-L51](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`SetEnabledState`](#sym-src-presenter-cloudredirect-hpp-setenabledstate) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L49-L49](#file-src-presenter-cloudredirect-hpp) | *(root)* |
+| [`SyncSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-syncslssteamconfig) | `function` | `+` public | [src/presenter/cloudredirect.hpp:L50-L50](#file-src-presenter-cloudredirect-hpp) | *(root)* |
 | [`checkAppOwnership`](#sym-src-presenter-dlc-hpp-checkappownership) | `function` | `+` public | [src/presenter/dlc.hpp:L13-L13](#file-src-presenter-dlc-hpp) | *(root)* |
 | [`getDlcCount`](#sym-src-presenter-dlc-hpp-getdlccount) | `function` | `+` public | [src/presenter/dlc.hpp:L18-L18](#file-src-presenter-dlc-hpp) | *(root)* |
 | [`getDlcDataByIndex`](#sym-src-presenter-dlc-hpp-getdlcdatabyindex) | `function` | `+` public | [src/presenter/dlc.hpp:L19-L19](#file-src-presenter-dlc-hpp) | *(root)* |
@@ -1090,10 +1356,10 @@ SLSsteam_n_ACCELA/
 | [`setUser`](#sym-src-presenter-licenses-hpp-setuser) | `function` | `+` public | [src/presenter/licenses.hpp:L12-L12](#file-src-presenter-licenses-hpp) | *(root)* |
 | [`tryInitPackage0`](#sym-src-presenter-licenses-hpp-tryinitpackage0) | `function` | `+` public | [src/presenter/licenses.hpp:L16-L16](#file-src-presenter-licenses-hpp) | *(root)* |
 | [`wasInjected`](#sym-src-presenter-licenses-hpp-wasinjected) | `function` | `+` public | [src/presenter/licenses.hpp:L28-L28](#file-src-presenter-licenses-hpp) | *(root)* |
-| [`guard`](#sym-src-presenter-luadownload-cpp-guard) | `function` | `+` public | [src/presenter/luadownload.cpp:L142-L142](#file-src-presenter-luadownload-cpp) | *(root)* |
-| [`ifs`](#sym-src-presenter-luadownload-cpp-ifs) | `function` | `+` public | [src/presenter/luadownload.cpp:L635-L635](#file-src-presenter-luadownload-cpp) | *(root)* |
-| [`luaOut`](#sym-src-presenter-luadownload-cpp-luaout) | `function` | `+` public | [src/presenter/luadownload.cpp:L721-L721](#file-src-presenter-luadownload-cpp) | *(root)* |
-| [`pIn`](#sym-src-presenter-luadownload-cpp-pin) | `function` | `+` public | [src/presenter/luadownload.cpp:L878-L878](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`guard`](#sym-src-presenter-luadownload-cpp-guard) | `function` | `+` public | [src/presenter/luadownload.cpp:L143-L143](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`ifs`](#sym-src-presenter-luadownload-cpp-ifs) | `function` | `+` public | [src/presenter/luadownload.cpp:L636-L636](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`luaOut`](#sym-src-presenter-luadownload-cpp-luaout) | `function` | `+` public | [src/presenter/luadownload.cpp:L722-L722](#file-src-presenter-luadownload-cpp) | *(root)* |
+| [`pIn`](#sym-src-presenter-luadownload-cpp-pin) | `function` | `+` public | [src/presenter/luadownload.cpp:L873-L873](#file-src-presenter-luadownload-cpp) | *(root)* |
 | [`findSteamRoot`](#sym-src-presenter-luadownload-hpp-findsteamroot) | `function` | `+` public | [src/presenter/luadownload.hpp:L21-L21](#file-src-presenter-luadownload-hpp) | *(root)* |
 | [`buf`](#sym-src-presenter-luagenerator-cpp-buf) | `function` | `+` public | [src/presenter/luagenerator.cpp:L49-L49](#file-src-presenter-luagenerator-cpp) | *(root)* |
 | [`generateForApp`](#sym-src-presenter-luagenerator-hpp-generateforapp) | `function` | `+` public | [src/presenter/luagenerator.hpp:L12-L12](#file-src-presenter-luagenerator-hpp) | *(root)* |
@@ -1116,16 +1382,22 @@ SLSsteam_n_ACCELA/
 | [`runFrame`](#sym-src-presenter-nativeinstall-hpp-runframe) | `function` | `+` public | [src/presenter/nativeinstall.hpp:L39-L39](#file-src-presenter-nativeinstall-hpp) | *(root)* |
 | [`save`](#sym-src-presenter-nativeinstall-hpp-save) | `function` | `+` public | [src/presenter/nativeinstall.hpp:L44-L44](#file-src-presenter-nativeinstall-hpp) | *(root)* |
 | [`takeCachedInstall`](#sym-src-presenter-nativeinstall-hpp-takecachedinstall) | `function` | `+` public | [src/presenter/nativeinstall.hpp:L36-L36](#file-src-presenter-nativeinstall-hpp) | *(root)* |
+| [`ifs`](#sym-src-presenter-process_lock-cpp-ifs) | `function` | `+` public | [src/presenter/process_lock.cpp:L29-L29](#file-src-presenter-process_lock-cpp) | *(root)* |
+| [`lock`](#sym-src-presenter-process_lock-cpp-lock) | `function` | `+` public | [src/presenter/process_lock.cpp:L210-L210](#file-src-presenter-process_lock-cpp) | *(root)* |
+| [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot) | `function` | `+` public | [src/presenter/process_lock.cpp:L215-L215](#file-src-presenter-process_lock-cpp) | *(root)* |
+| [`clearAllHookedRunningApps`](#sym-src-presenter-process_lock-hpp-clearallhookedrunningapps) | `function` | `+` public | [src/presenter/process_lock.hpp:L20-L20](#file-src-presenter-process_lock-hpp) | *(root)* |
+| [`setAppRunningFromHook`](#sym-src-presenter-process_lock-hpp-setapprunningfromhook) | `function` | `+` public | [src/presenter/process_lock.hpp:L15-L15](#file-src-presenter-process_lock-hpp) | *(root)* |
 | [`file`](#sym-src-presenter-removelua-cpp-file) | `function` | `+` public | [src/presenter/removelua.cpp:L48-L48](#file-src-presenter-removelua-cpp) | *(root)* |
 | [`libPath`](#sym-src-presenter-removelua-cpp-libpath) | `function` | `+` public | [src/presenter/removelua.cpp:L25-L25](#file-src-presenter-removelua-cpp) | *(root)* |
 | [`injectRemoveLuaScript`](#sym-src-presenter-removelua-hpp-injectremoveluascript) | `function` | `+` public | [src/presenter/removelua.hpp:L9-L9](#file-src-presenter-removelua-hpp) | *(root)* |
-| [`ManualFile`](#sym-src-presenter-storeinject-cpp-manualfile) | `struct` | `+` public | [src/presenter/storeinject.cpp:L88-L88](#file-src-presenter-storeinject-cpp) | *(root)* |
-| [`g_shouldStop`](#sym-src-presenter-storeinject-cpp-g_shouldstop) | `function` | `+` public | [src/presenter/storeinject.cpp:L84-L84](#file-src-presenter-storeinject-cpp) | *(root)* |
-| [`if`](#sym-src-presenter-storeinject-cpp-if) | `function` | `+` public | [src/presenter/storeinject.cpp:L438-L438](#file-src-presenter-storeinject-cpp) | *(root)* |
-| [`pf`](#sym-src-presenter-storeinject-cpp-pf) | `function` | `+` public | [src/presenter/storeinject.cpp:L866-L866](#file-src-presenter-storeinject-cpp) | *(root)* |
-| [`stream`](#sym-src-presenter-storeinject-cpp-stream) | `function` | `+` public | [src/presenter/storeinject.cpp:L55-L55](#file-src-presenter-storeinject-cpp) | *(root)* |
-| [`urlDecode`](#sym-src-presenter-storeinject-cpp-urldecode) | `function` | `+` public | [src/presenter/storeinject.cpp:L34-L34](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`ManualFile`](#sym-src-presenter-storeinject-cpp-manualfile) | `struct` | `+` public | [src/presenter/storeinject.cpp:L241-L241](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`g_shouldStop`](#sym-src-presenter-storeinject-cpp-g_shouldstop) | `function` | `+` public | [src/presenter/storeinject.cpp:L94-L94](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`if`](#sym-src-presenter-storeinject-cpp-if) | `function` | `+` public | [src/presenter/storeinject.cpp:L591-L591](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`pf`](#sym-src-presenter-storeinject-cpp-pf) | `function` | `+` public | [src/presenter/storeinject.cpp:L1306-L1306](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`stream`](#sym-src-presenter-storeinject-cpp-stream) | `function` | `+` public | [src/presenter/storeinject.cpp:L64-L64](#file-src-presenter-storeinject-cpp) | *(root)* |
+| [`urlDecode`](#sym-src-presenter-storeinject-cpp-urldecode) | `function` | `+` public | [src/presenter/storeinject.cpp:L43-L43](#file-src-presenter-storeinject-cpp) | *(root)* |
 | [`init`](#sym-src-presenter-storeinject-hpp-init) | `function` | `+` public | [src/presenter/storeinject.hpp:L12-L12](#file-src-presenter-storeinject-hpp) | *(root)* |
+| [`setNaviAuthTokenForTest`](#sym-src-presenter-storeinject-hpp-setnaviauthtokenfortest) | `function` | `+` public | [src/presenter/storeinject.hpp:L27-L27](#file-src-presenter-storeinject-hpp) | *(root)* |
 | [`shutdown`](#sym-src-presenter-storeinject-hpp-shutdown) | `function` | `+` public | [src/presenter/storeinject.hpp:L17-L17](#file-src-presenter-storeinject-hpp) | *(root)* |
 | [`ifs`](#sym-src-presenter-ticket-cpp-ifs) | `function` | `+` public | [src/presenter/ticket.cpp:L167-L167](#file-src-presenter-ticket-cpp) | *(root)* |
 | [`getCachedEncryptedTicket`](#sym-src-presenter-ticket-hpp-getcachedencryptedticket) | `function` | `+` public | [src/presenter/ticket.hpp:L40-L40](#file-src-presenter-ticket-hpp) | *(root)* |
@@ -1167,6 +1439,7 @@ SLSsteam_n_ACCELA/
 | [`injectDepotSelectionUI`](#sym-src-view-cdpinject-hpp-injectdepotselectionui) | `function` | `+` public | [src/view/cdpinject.hpp:L64-L64](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`injectJS`](#sym-src-view-cdpinject-hpp-injectjs) | `function` | `+` public | [src/view/cdpinject.hpp:L38-L38](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `function` | `+` public | [src/view/cdpinject.hpp:L59-L59](#file-src-view-cdpinject-hpp) | *(root)* |
+| [`injectSyncOverlayModal`](#sym-src-view-cdpinject-hpp-injectsyncoverlaymodal) | `function` | `+` public | [src/view/cdpinject.hpp:L88-L88](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `function` | `+` public | [src/view/cdpinject.hpp:L44-L44](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `function` | `+` public | [src/view/cdpinject.hpp:L78-L78](#file-src-view-cdpinject-hpp) | *(root)* |
 | [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect) | `function` | `+` public | [src/view/cdpinject.hpp:L30-L30](#file-src-view-cdpinject-hpp) | *(root)* |
@@ -1177,16 +1450,36 @@ SLSsteam_n_ACCELA/
 | [`waitForSteamClient`](#sym-src-view-cefsizefix-cpp-waitforsteamclient) | `function` | `+` public | [src/view/cefsizefix.cpp:L171-L171](#file-src-view-cefsizefix-cpp) | *(root)* |
 | [`injectSizeFixScript`](#sym-src-view-cefsizefix-hpp-injectsizefixscript) | `function` | `+` public | [src/view/cefsizefix.hpp:L18-L18](#file-src-view-cefsizefix-hpp) | *(root)* |
 | [`removeSizeFixScript`](#sym-src-view-cefsizefix-hpp-removesizefixscript) | `function` | `+` public | [src/view/cefsizefix.hpp:L24-L24](#file-src-view-cefsizefix-hpp) | *(root)* |
-| [`inFile`](#sym-src-view-storeinject_view-cpp-infile) | `function` | `+` public | [src/view/storeinject_view.cpp:L37-L37](#file-src-view-storeinject_view-cpp) | *(root)* |
-| [`CheckViewModel`](#sym-src-view-storeinject_view-hpp-checkviewmodel) | `struct` | `+` public | [src/view/storeinject_view.hpp:L57-L57](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`DepotEntryViewModel`](#sym-src-view-storeinject_view-hpp-depotentryviewmodel) | `struct` | `+` public | [src/view/storeinject_view.hpp:L79-L79](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`findSteamUIIndexHtml`](#sym-src-view-storeinject_view-hpp-findsteamuiindexhtml) | `function` | `+` public | [src/view/storeinject_view.hpp:L30-L30](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`removeStoreInjectScript`](#sym-src-view-storeinject_view-hpp-removestoreinjectscript) | `function` | `+` public | [src/view/storeinject_view.hpp:L35-L35](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`renderApiKeysJson`](#sym-src-view-storeinject_view-hpp-renderapikeysjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L55-L55](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`renderCheckJson`](#sym-src-view-storeinject_view-hpp-rendercheckjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L73-L73](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`renderErrorJson`](#sym-src-view-storeinject_view-hpp-rendererrorjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L45-L45](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`renderLuaAppsJson`](#sym-src-view-storeinject_view-hpp-renderluaappsjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L50-L50](#file-src-view-storeinject_view-hpp) | *(root)* |
-| [`renderSuccessJson`](#sym-src-view-storeinject_view-hpp-rendersuccessjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L40-L40](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`parseBoolField`](#sym-src-view-cloud_view-hpp-parseboolfield) | `function` | `+` public | [src/view/cloud_view.hpp:L26-L26](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`parseConfirmReset`](#sym-src-view-cloud_view-hpp-parseconfirmreset) | `function` | `+` public | [src/view/cloud_view.hpp:L28-L28](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`parseStringField`](#sym-src-view-cloud_view-hpp-parsestringfield) | `function` | `+` public | [src/view/cloud_view.hpp:L27-L27](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderAppStatusJson`](#sym-src-view-cloud_view-hpp-renderappstatusjson) | `function` | `+` public | [src/view/cloud_view.hpp:L18-L18](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderAppToggleJson`](#sym-src-view-cloud_view-hpp-renderapptogglejson) | `function` | `+` public | [src/view/cloud_view.hpp:L19-L19](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderBackupSuccessJson`](#sym-src-view-cloud_view-hpp-renderbackupsuccessjson) | `function` | `+` public | [src/view/cloud_view.hpp:L20-L20](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderErrorJson`](#sym-src-view-cloud_view-hpp-rendererrorjson) | `function` | `+` public | [src/view/cloud_view.hpp:L24-L24](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderPendingOperationAcceptedJson`](#sym-src-view-cloud_view-hpp-renderpendingoperationacceptedjson) | `function` | `+` public | [src/view/cloud_view.hpp:L21-L21](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderPendingOpsJson`](#sym-src-view-cloud_view-hpp-renderpendingopsjson) | `function` | `+` public | [src/view/cloud_view.hpp:L22-L22](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderProviderStatusJson`](#sym-src-view-cloud_view-hpp-renderproviderstatusjson) | `function` | `+` public | [src/view/cloud_view.hpp:L17-L17](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderStatusJson`](#sym-src-view-cloud_view-hpp-renderstatusjson) | `function` | `+` public | [src/view/cloud_view.hpp:L16-L16](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`renderSuccessJson`](#sym-src-view-cloud_view-hpp-rendersuccessjson) | `function` | `+` public | [src/view/cloud_view.hpp:L23-L23](#file-src-view-cloud_view-hpp) | *(root)* |
+| [`dn`](#sym-src-view-storeinject_view-cpp-dn) | `function` | `+` public | [src/view/storeinject_view.cpp:L474-L474](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`inFile`](#sym-src-view-storeinject_view-cpp-infile) | `function` | `+` public | [src/view/storeinject_view.cpp:L40-L40](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`m`](#sym-src-view-storeinject_view-cpp-m) | `function` | `+` public | [src/view/storeinject_view.cpp:L694-L694](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`p`](#sym-src-view-storeinject_view-cpp-p) | `function` | `+` public | [src/view/storeinject_view.cpp:L771-L771](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`s`](#sym-src-view-storeinject_view-cpp-s) | `function` | `+` public | [src/view/storeinject_view.cpp:L666-L666](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`seq`](#sym-src-view-storeinject_view-cpp-seq) | `function` | `+` public | [src/view/storeinject_view.cpp:L677-L677](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`sub`](#sym-src-view-storeinject_view-cpp-sub) | `function` | `+` public | [src/view/storeinject_view.cpp:L449-L449](#file-src-view-storeinject_view-cpp) | *(root)* |
+| [`CheckViewModel`](#sym-src-view-storeinject_view-hpp-checkviewmodel) | `struct` | `+` public | [src/view/storeinject_view.hpp:L58-L58](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`DepotEntryViewModel`](#sym-src-view-storeinject_view-hpp-depotentryviewmodel) | `struct` | `+` public | [src/view/storeinject_view.hpp:L80-L80](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`applyFullConfigJson`](#sym-src-view-storeinject_view-hpp-applyfullconfigjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L106-L106](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`findSteamUIIndexHtml`](#sym-src-view-storeinject_view-hpp-findsteamuiindexhtml) | `function` | `+` public | [src/view/storeinject_view.hpp:L31-L31](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`removeStoreInjectScript`](#sym-src-view-storeinject_view-hpp-removestoreinjectscript) | `function` | `+` public | [src/view/storeinject_view.hpp:L36-L36](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`renderApiKeysJson`](#sym-src-view-storeinject_view-hpp-renderapikeysjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L56-L56](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`renderCheckJson`](#sym-src-view-storeinject_view-hpp-rendercheckjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L74-L74](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`renderErrorJson`](#sym-src-view-storeinject_view-hpp-rendererrorjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L46-L46](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`renderFullConfigJson`](#sym-src-view-storeinject_view-hpp-renderfullconfigjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L101-L101](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`renderLuaAppsJson`](#sym-src-view-storeinject_view-hpp-renderluaappsjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L51-L51](#file-src-view-storeinject_view-hpp) | *(root)* |
+| [`renderSuccessJson`](#sym-src-view-storeinject_view-hpp-rendersuccessjson) | `function` | `+` public | [src/view/storeinject_view.hpp:L41-L41](#file-src-view-storeinject_view-hpp) | *(root)* |
 | [`fake_home`](#sym-tests-conftest-py-fake_home) | `function` | `+` public | [tests/conftest.py:L42-L66](#file-tests-conftest-py) | *(root)* |
 | [`pytest_addoption`](#sym-tests-conftest-py-pytest_addoption) | `function` | `+` public | [tests/conftest.py:L16-L22](#file-tests-conftest-py) | *(root)* |
 | [`pytest_collection_modifyitems`](#sym-tests-conftest-py-pytest_collection_modifyitems) | `function` | `+` public | [tests/conftest.py:L32-L38](#file-tests-conftest-py) | *(root)* |
@@ -1209,6 +1502,28 @@ SLSsteam_n_ACCELA/
 | [`cmd_nav`](#sym-tests-inspect_store_ui-py-cmd_nav) | `function` | `+` public | [tests/inspect_store_ui.py:L190-L234](#file-tests-inspect_store_ui-py) | *(root)* |
 | [`cmd_targets`](#sym-tests-inspect_store_ui-py-cmd_targets) | `function` | `+` public | [tests/inspect_store_ui.py:L168-L187](#file-tests-inspect_store_ui-py) | *(root)* |
 | [`main`](#sym-tests-inspect_store_ui-py-main) | `function` | `+` public | [tests/inspect_store_ui.py:L455-L501](#file-tests-inspect_store_ui-py) | *(root)* |
+| [`MockCloudRelayRequestHandler`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler) | `class` | `+` public | [tests/integration/mock_cloud_relay_server.py:L17-L430](#file-tests-integration-mock_cloud_relay_server-py) | *(root)* |
+| [`MockCloudRelayRequestHandler.do_GET`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_get) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L267-L345](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayRequestHandler.do_MKCOL`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_mkcol) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L380-L388](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayRequestHandler.do_PATCH`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_patch) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L208-L265](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayRequestHandler.do_POST`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_post) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L86-L206](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayRequestHandler.do_PROPFIND`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_propfind) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L347-L378](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayRequestHandler.do_PUT`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_put) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L390-L430](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayRequestHandler.log_message`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-log_message) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L22-L25](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayRequestHandler` |
+| [`MockCloudRelayServer`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver) | `class` | `+` public | [tests/integration/mock_cloud_relay_server.py:L433-L534](#file-tests-integration-mock_cloud_relay_server-py) | *(root)* |
+| [`MockCloudRelayServer.__enter__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__enter__) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L529-L531](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.__exit__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__exit__) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L533-L534](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.__init__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__init__) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L439-L460](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.clear_storage`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-clear_storage) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L523-L527](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.get_all_stored_blobs`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-get_all_stored_blobs) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L480-L493](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.get_all_stored_blobs_dict`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-get_all_stored_blobs_dict) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L495-L505](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.server_url`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-server_url) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L476-L478](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.set_auth_expired`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_auth_expired) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L515-L517](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.set_quota_exceeded`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_quota_exceeded) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L519-L521](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.set_quota_limit`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_quota_limit) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L507-L509](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.set_quota_used`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_quota_used) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L511-L513](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.start`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L462-L466](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.stop`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-stop) | `method` | `+` public | [tests/integration/mock_cloud_relay_server.py:L468-L474](#file-tests-integration-mock_cloud_relay_server-py) | `MockCloudRelayServer` |
 | [`test_dry_run_modes`](#sym-tests-integration-test_installer-py-test_dry_run_modes) | `function` | `+` public | [tests/integration/test_installer.py:L12-L34](#file-tests-integration-test_installer-py) | *(root)* |
 | [`test_flatpak_steam_detection`](#sym-tests-integration-test_installer-py-test_flatpak_steam_detection) | `function` | `+` public | [tests/integration/test_installer.py:L139-L165](#file-tests-integration-test_installer-py) | *(root)* |
 | [`test_install_update_uninstall_lifecycle`](#sym-tests-integration-test_installer-py-test_install_update_uninstall_lifecycle) | `function` | `+` public | [tests/integration/test_installer.py:L37-L77](#file-tests-integration-test_installer-py) | *(root)* |
@@ -1281,14 +1596,25 @@ SLSsteam_n_ACCELA/
 | [`test_private_symbols_filtering`](#sym-tests-test_project_map-py-test_private_symbols_filtering) | `function` | `+` public | [tests/test_project_map.py:L492-L518](#file-tests-test_project_map-py) | *(root)* |
 | [`test_route_decorator_detection`](#sym-tests-test_project_map-py-test_route_decorator_detection) | `function` | `+` public | [tests/test_project_map.py:L472-L489](#file-tests-test_project_map-py) | *(root)* |
 | [`test_uncertain_dynamic_references`](#sym-tests-test_project_map-py-test_uncertain_dynamic_references) | `function` | `+` public | [tests/test_project_map.py:L440-L469](#file-tests-test_project_map-py) | *(root)* |
+| [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs) | `function` | `+` public | [tests/unit/test_cloud_manager.cpp:L59-L59](#file-tests-unit-test_cloud_manager-cpp) | *(root)* |
+| [`payload1500`](#sym-tests-unit-test_cloud_manager-cpp-payload1500) | `function` | `+` public | [tests/unit/test_cloud_manager.cpp:L122-L122](#file-tests-unit-test_cloud_manager-cpp) | *(root)* |
+| [`payload500`](#sym-tests-unit-test_cloud_manager-cpp-payload500) | `function` | `+` public | [tests/unit/test_cloud_manager.cpp:L121-L121](#file-tests-unit-test_cloud_manager-cpp) | *(root)* |
+| [`ifs`](#sym-tests-unit-test_cloud_oauth-cpp-ifs) | `function` | `+` public | [tests/unit/test_cloud_oauth.cpp:L110-L110](#file-tests-unit-test_cloud_oauth-cpp) | *(root)* |
+| [`cnIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-cnifs) | `function` | `+` public | [tests/unit/test_cloud_pending_ops.cpp:L191-L191](#file-tests-unit-test_cloud_pending_ops-cpp) | *(root)* |
+| [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor) | `function` | `+` public | [tests/unit/test_cloud_pending_ops.cpp:L220-L220](#file-tests-unit-test_cloud_pending_ops-cpp) | *(root)* |
+| [`ifs`](#sym-tests-unit-test_cloud_pending_ops-cpp-ifs) | `function` | `+` public | [tests/unit/test_cloud_pending_ops.cpp:L237-L237](#file-tests-unit-test_cloud_pending_ops-cpp) | *(root)* |
+| [`lcIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-lcifs) | `function` | `+` public | [tests/unit/test_cloud_pending_ops.cpp:L198-L198](#file-tests-unit-test_cloud_pending_ops-cpp) | *(root)* |
+| [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs) | `function` | `+` public | [tests/unit/test_cloudredirect_bridge.cpp:L280-L280](#file-tests-unit-test_cloudredirect_bridge-cpp) | *(root)* |
+| [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2) | `function` | `+` public | [tests/unit/test_cloudredirect_bridge.cpp:L239-L239](#file-tests-unit-test_cloudredirect_bridge-cpp) | *(root)* |
 | [`f`](#sym-tests-unit-test_config-cpp-f) | `function` | `+` public | [tests/unit/test_config.cpp:L215-L215](#file-tests-unit-test_config-cpp) | *(root)* |
 | [`sf`](#sym-tests-unit-test_config-cpp-sf) | `function` | `+` public | [tests/unit/test_config.cpp:L203-L203](#file-tests-unit-test_config-cpp) | *(root)* |
 | [`in`](#sym-tests-unit-test_depotkeys-cpp-in) | `function` | `+` public | [tests/unit/test_depotkeys.cpp:L226-L226](#file-tests-unit-test_depotkeys-cpp) | *(root)* |
-| [`out`](#sym-tests-unit-test_depotkeys-cpp-out) | `function` | `+` public | [tests/unit/test_depotkeys.cpp:L256-L256](#file-tests-unit-test_depotkeys-cpp) | *(root)* |
-| [`f`](#sym-tests-unit-test_manifest_and_native-cpp-f) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L381-L381](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
-| [`out`](#sym-tests-unit-test_manifest_and_native-cpp-out) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L111-L111](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
-| [`pf`](#sym-tests-unit-test_manifest_and_native-cpp-pf) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L232-L232](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
+| [`out`](#sym-tests-unit-test_depotkeys-cpp-out) | `function` | `+` public | [tests/unit/test_depotkeys.cpp:L279-L279](#file-tests-unit-test_depotkeys-cpp) | *(root)* |
+| [`f`](#sym-tests-unit-test_manifest_and_native-cpp-f) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L424-L424](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
+| [`out`](#sym-tests-unit-test_manifest_and_native-cpp-out) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L154-L154](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
+| [`pf`](#sym-tests-unit-test_manifest_and_native-cpp-pf) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L275-L275](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
 | [`respBuf`](#sym-tests-unit-test_manifest_and_native-cpp-respbuf) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L70-L70](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
+| [`unsetenv`](#sym-tests-unit-test_manifest_and_native-cpp-unsetenv) | `function` | `+` public | [tests/unit/test_manifest_and_native.cpp:L129-L129](#file-tests-unit-test_manifest_and_native-cpp) | *(root)* |
 | [`dummyTmp`](#sym-tests-unit-test_migration-cpp-dummytmp) | `function` | `+` public | [tests/unit/test_migration.cpp:L516-L516](#file-tests-unit-test_migration-cpp) | *(root)* |
 | [`f`](#sym-tests-unit-test_migration-cpp-f) | `function` | `+` public | [tests/unit/test_migration.cpp:L616-L616](#file-tests-unit-test_migration-cpp) | *(root)* |
 | [`in`](#sym-tests-unit-test_migration-cpp-in) | `function` | `+` public | [tests/unit/test_migration.cpp:L441-L441](#file-tests-unit-test_migration-cpp) | *(root)* |
@@ -1332,6 +1658,82 @@ SLSsteam_n_ACCELA/
 | [`unsetenv`](#sym-tests-unit-test_vdf_and_lua-cpp-unsetenv) | `function` | `+` public | [tests/unit/test_vdf_and_lua.cpp:L317-L317](#file-tests-unit-test_vdf_and_lua-cpp) | *(root)* |
 | [`f`](#sym-tests-unit-test_zip_and_atomic-cpp-f) | `function` | `+` public | [tests/unit/test_zip_and_atomic.cpp:L156-L156](#file-tests-unit-test_zip_and_atomic-cpp) | *(root)* |
 | [`pf`](#sym-tests-unit-test_zip_and_atomic-cpp-pf) | `function` | `+` public | [tests/unit/test_zip_and_atomic.cpp:L77-L77](#file-tests-unit-test_zip_and_atomic-cpp) | *(root)* |
+| [`AnnotatorDaemon`](#sym-tools-cef-annotator-annotator-py-annotatordaemon) | `class` | `+` public | [tools/cef-annotator/annotator.py:L448-L702](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`AnnotatorDaemon.__init__`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-__init__) | `method` | `+` public | [tools/cef-annotator/annotator.py:L450-L455](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `method` | `+` public | [tools/cef-annotator/annotator.py:L573-L675](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `method` | `+` public | [tools/cef-annotator/annotator.py:L488-L521](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`AnnotatorDaemon.process_incoming_events`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events) | `method` | `+` public | [tools/cef-annotator/annotator.py:L523-L571](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | `method` | `+` public | [tools/cef-annotator/annotator.py:L677-L694](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`AnnotatorDaemon.select_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-select_targets) | `method` | `+` public | [tools/cef-annotator/annotator.py:L457-L486](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`AnnotatorDaemon.stop`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-stop) | `method` | `+` public | [tools/cef-annotator/annotator.py:L696-L702](#file-tools-cef-annotator-annotator-py) | `AnnotatorDaemon` |
+| [`TargetSession`](#sym-tools-cef-annotator-annotator-py-targetsession) | `class` | `+` public | [tools/cef-annotator/annotator.py:L122-L445](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`TargetSession.__init__`](#sym-tools-cef-annotator-annotator-py-targetsession-__init__) | `method` | `+` public | [tools/cef-annotator/annotator.py:L124-L148](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.attach_and_inject`](#sym-tools-cef-annotator-annotator-py-targetsession-attach_and_inject) | `method` | `+` public | [tools/cef-annotator/annotator.py:L175-L297](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.capture_element_screenshot`](#sym-tools-cef-annotator-annotator-py-targetsession-capture_element_screenshot) | `method` | `+` public | [tools/cef-annotator/annotator.py:L354-L399](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.cleanup`](#sym-tools-cef-annotator-annotator-py-targetsession-cleanup) | `method` | `+` public | [tools/cef-annotator/annotator.py:L401-L445](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.connect`](#sym-tools-cef-annotator-annotator-py-targetsession-connect) | `method` | `+` public | [tools/cef-annotator/annotator.py:L150-L152](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | `method` | `+` public | [tools/cef-annotator/annotator.py:L154-L173](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.send_heartbeat`](#sym-tools-cef-annotator-annotator-py-targetsession-send_heartbeat) | `method` | `+` public | [tools/cef-annotator/annotator.py:L326-L338](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.toggle_overlay`](#sym-tools-cef-annotator-annotator-py-targetsession-toggle_overlay) | `method` | `+` public | [tools/cef-annotator/annotator.py:L340-L352](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.update_pins`](#sym-tools-cef-annotator-annotator-py-targetsession-update_pins) | `method` | `+` public | [tools/cef-annotator/annotator.py:L299-L312](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`TargetSession.update_route_hint`](#sym-tools-cef-annotator-annotator-py-targetsession-update_route_hint) | `method` | `+` public | [tools/cef-annotator/annotator.py:L314-L324](#file-tools-cef-annotator-annotator-py) | `TargetSession` |
+| [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear) | `function` | `+` public | [tools/cef-annotator/annotator.py:L840-L853](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done) | `function` | `+` public | [tools/cef-annotator/annotator.py:L821-L838](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`cmd_list`](#sym-tools-cef-annotator-annotator-py-cmd_list) | `function` | `+` public | [tools/cef-annotator/annotator.py:L795-L819](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`cmd_run`](#sym-tools-cef-annotator-annotator-py-cmd_run) | `function` | `+` public | [tools/cef-annotator/annotator.py:L740-L749](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`cmd_run.sig_handler`](#sym-tools-cef-annotator-annotator-py-cmd_run-sig_handler) | `nested_function` | `+` public | [tools/cef-annotator/annotator.py:L744-L745](#file-tools-cef-annotator-annotator-py) | `cmd_run` |
+| [`cmd_status`](#sym-tools-cef-annotator-annotator-py-cmd_status) | `function` | `+` public | [tools/cef-annotator/annotator.py:L855-L885](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`cmd_toggle`](#sym-tools-cef-annotator-annotator-py-cmd_toggle) | `function` | `+` public | [tools/cef-annotator/annotator.py:L751-L793](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server) | `function` | `+` public | [tools/cef-annotator/annotator.py:L110-L120](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`ensure_vibe_server`](#sym-tools-cef-annotator-annotator-py-ensure_vibe_server) | `function` | `+` public | [tools/cef-annotator/annotator.py:L706-L738](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`extract_shell_route_hint`](#sym-tools-cef-annotator-annotator-py-extract_shell_route_hint) | `function` | `+` public | [tools/cef-annotator/annotator.py:L46-L54](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`generate_random_token`](#sym-tools-cef-annotator-annotator-py-generate_random_token) | `function` | `+` public | [tools/cef-annotator/annotator.py:L31-L32](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | `function` | `+` public | [tools/cef-annotator/annotator.py:L56-L64](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`main`](#sym-tools-cef-annotator-annotator-py-main) | `function` | `+` public | [tools/cef-annotator/annotator.py:L887-L918](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`post_to_vibe_server`](#sym-tools-cef-annotator-annotator-py-post_to_vibe_server) | `function` | `+` public | [tools/cef-annotator/annotator.py:L78-L108](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets) | `function` | `+` public | [tools/cef-annotator/annotator.py:L34-L44](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations) | `function` | `+` public | [tools/cef-annotator/annotator.py:L66-L76](#file-tools-cef-annotator-annotator-py) | *(root)* |
+| [`applyStyle`](#sym-tools-cef-annotator-overlay-js-applystyle) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1613-L1613](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`attachCaptureListeners`](#sym-tools-cef-annotator-overlay-js-attachcapturelisteners) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2079-L2079](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`checkHeartbeat`](#sym-tools-cef-annotator-overlay-js-checkheartbeat) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2288-L2288](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`closePopup`](#sym-tools-cef-annotator-overlay-js-closepopup) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2134-L2134](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`deleteAllAnnotations`](#sym-tools-cef-annotator-overlay-js-deleteallannotations) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1989-L1989](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`endDrag`](#sym-tools-cef-annotator-overlay-js-enddrag) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1532-L1532](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`endResize`](#sym-tools-cef-annotator-overlay-js-endresize) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1587-L1587](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`fineTuneDown`](#sym-tools-cef-annotator-overlay-js-finetunedown) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1978-L1978](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`fineTuneUp`](#sym-tools-cef-annotator-overlay-js-finetuneup) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1966-L1966](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getAncestorChain`](#sym-tools-cef-annotator-overlay-js-getancestorchain) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1738-L1738](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getElementContext`](#sym-tools-cef-annotator-overlay-js-getelementcontext) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1774-L1774](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getNthOfTypePath`](#sym-tools-cef-annotator-overlay-js-getnthoftypepath) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1699-L1699](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getReactInfo`](#sym-tools-cef-annotator-overlay-js-getreactinfo) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1753-L1753](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getReadableClassSelector`](#sym-tools-cef-annotator-overlay-js-getreadableclassselector) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1685-L1685](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getStableAttributes`](#sym-tools-cef-annotator-overlay-js-getstableattributes) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1673-L1673](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`getXPath`](#sym-tools-cef-annotator-overlay-js-getxpath) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1718-L1718](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`initDOM`](#sym-tools-cef-annotator-overlay-js-initdom) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2474-L2474](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`matchesCurrentPage`](#sym-tools-cef-annotator-overlay-js-matchescurrentpage) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2208-L2208](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onCaptureEvent`](#sym-tools-cef-annotator-overlay-js-oncaptureevent) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2049-L2049](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onDragMove`](#sym-tools-cef-annotator-overlay-js-ondragmove) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1515-L1515](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onKeyDown`](#sym-tools-cef-annotator-overlay-js-onkeydown) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2309-L2309](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onPointerMove`](#sym-tools-cef-annotator-overlay-js-onpointermove) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2032-L2032](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onResizeMove`](#sym-tools-cef-annotator-overlay-js-onresizemove) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1563-L1563](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onSaveClicked`](#sym-tools-cef-annotator-overlay-js-onsaveclicked) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2144-L2144](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onToolbarPointerDown`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerdown) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2373-L2373](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onToolbarPointerMove`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointermove) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2390-L2390](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`onToolbarPointerUp`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerup) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2414-L2414](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`openPopup`](#sym-tools-cef-annotator-overlay-js-openpopup) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2098-L2098](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`populateElementValues`](#sym-tools-cef-annotator-overlay-js-populateelementvalues) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1838-L1838](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`removeCaptureListeners`](#sym-tools-cef-annotator-overlay-js-removecapturelisteners) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2088-L2088](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`renderPins`](#sym-tools-cef-annotator-overlay-js-renderpins) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2245-L2245](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`resolveElementForAnnotation`](#sym-tools-cef-annotator-overlay-js-resolveelementforannotation) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2222-L2222](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`revertAllChanges`](#sym-tools-cef-annotator-overlay-js-revertallchanges) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1662-L1662](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`schedulePinsReposition`](#sym-tools-cef-annotator-overlay-js-schedulepinsreposition) | `function` | `+` public | [tools/cef-annotator/overlay.js:L2279-L2279](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`setAnnotateMode`](#sym-tools-cef-annotator-overlay-js-setannotatemode) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1929-L1929](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`startDrag`](#sym-tools-cef-annotator-overlay-js-startdrag) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1503-L1503](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`startResize`](#sym-tools-cef-annotator-overlay-js-startresize) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1549-L1549](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`updateActionButtonText`](#sym-tools-cef-annotator-overlay-js-updateactionbuttontext) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1644-L1644](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`updateChangeDots`](#sym-tools-cef-annotator-overlay-js-updatechangedots) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1634-L1634](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`updateHoverBoxForElement`](#sym-tools-cef-annotator-overlay-js-updatehoverboxforelement) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1950-L1950](#file-tools-cef-annotator-overlay-js) | *(root)* |
+| [`updateInlineCssEditor`](#sym-tools-cef-annotator-overlay-js-updateinlinecsseditor) | `function` | `+` public | [tools/cef-annotator/overlay.js:L1629-L1629](#file-tools-cef-annotator-overlay-js) | *(root)* |
 | [`unpack_steamstub_elf`](#sym-tools-steamstub-unpack-steamstub_elf_unpack-py-unpack_steamstub_elf) | `function` | `+` public | [tools/steamstub-unpack/steamstub_elf_unpack.py:L22-L100](#file-tools-steamstub-unpack-steamstub_elf_unpack-py) | *(root)* |
 | [`XkbGetKeyboard`](#sym-tools-steamstub-unpack-xkb_fix-c-xkbgetkeyboard) | `function` | `+` public | [tools/steamstub-unpack/xkb_fix.c:L30-L30](#file-tools-steamstub-unpack-xkb_fix-c) | *(root)* |
 | [`init_shim`](#sym-tools-steamstub-unpack-xkb_fix-c-init_shim) | `function` | `+` public | [tools/steamstub-unpack/xkb_fix.c:L75-L75](#file-tools-steamstub-unpack-xkb_fix-c) | *(root)* |
@@ -1343,6 +1745,24 @@ SLSsteam_n_ACCELA/
 
 ```mermaid
 graph TD
+    __enter__["MockCloudRelayServer.__enter__"] --> start["MockCloudRelayServer.start"]
+    __exit__["MockCloudRelayServer.__exit__"] --> stop["MockCloudRelayServer.stop"]
+    __init__["TargetSession.__init__"] --> generate_random_token["generate_random_token"]
+    attach_and_inject["TargetSession.attach_and_inject"] --> send_cmd["TargetSession.send_cmd"]
+    capture_element_screenshot["TargetSession.capture_element_screenshot"] --> send_cmd["TargetSession.send_cmd"]
+    cleanup["TargetSession.cleanup"] --> send_cmd["TargetSession.send_cmd"]
+    cmd_clear["cmd_clear"] --> delete_from_vibe_server["delete_from_vibe_server"]
+    cmd_clear["cmd_clear"] --> load_local_annotations["load_local_annotations"]
+    cmd_clear["cmd_clear"] --> save_local_annotations["save_local_annotations"]
+    cmd_done["cmd_done"] --> delete_from_vibe_server["delete_from_vibe_server"]
+    cmd_done["cmd_done"] --> load_local_annotations["load_local_annotations"]
+    cmd_done["cmd_done"] --> save_local_annotations["save_local_annotations"]
+    cmd_list["cmd_list"] --> load_local_annotations["load_local_annotations"]
+    cmd_run["cmd_run"] --> annotatordaemon["AnnotatorDaemon"]
+    cmd_run["cmd_run"] --> ensure_vibe_server["ensure_vibe_server"]
+    cmd_status["cmd_status"] --> load_local_annotations["load_local_annotations"]
+    cmd_status["cmd_status"] --> probe_json_targets["probe_json_targets"]
+    cmd_toggle["cmd_toggle"] --> probe_json_targets["probe_json_targets"]
     do_generate["main.do_generate"] --> print_summary["print_summary"]
     do_generate["main.do_generate"] --> run_project_map["run_project_map"]
     find_target["SteamCEFInspector.find_target"] --> get_targets["SteamCEFInspector.get_targets"]
@@ -1352,27 +1772,9 @@ graph TD
     generate_markdown["generate_markdown"] --> format_visibility_badge["format_visibility_badge"]
     generate_markdown["generate_markdown"] --> slugify_anchor["slugify_anchor"]
     get_file_mtimes["watch_and_regenerate.get_file_mtimes"] --> scan_project_files["scan_project_files"]
-    main["main"] --> audit_class_vtable["audit_class_vtable"]
-    main["main"] --> compute_sha256["compute_sha256"]
-    main["main"] --> do_generate["main.do_generate"]
-    main["main"] --> extract_client_version["extract_client_version"]
-    main["main"] --> find_binary["find_binary"]
-    main["main"] --> get_steamclient_path["get_steamclient_path"]
-    main["main"] --> parse_args_to_config["parse_args_to_config"]
-    main["main"] --> steamcefinspector["SteamCEFInspector"]
-    main["main"] --> watch_and_regenerate["watch_and_regenerate"]
-    parse["CppAdapter.parse"] --> fileinfo["FileInfo"]
-    parse["JsTsAdapter.parse"] --> fileinfo["FileInfo"]
-    parse["PythonAdapter.parse"] --> fileinfo["FileInfo"]
-    parse_args_to_config["parse_args_to_config"] --> build_parser["build_parser"]
-    parse_args_to_config["parse_args_to_config"] --> parseconfig["ParseConfig"]
-    run_project_map["run_project_map"] --> build_directory_tree["build_directory_tree"]
-    run_project_map["run_project_map"] --> fileinfo["FileInfo"]
-    run_project_map["run_project_map"] --> generate_json["generate_json"]
-    run_project_map["run_project_map"] --> generate_markdown["generate_markdown"]
-    run_project_map["run_project_map"] --> get_adapter_for_file["get_adapter_for_file"]
-    run_project_map["run_project_map"] --> projectmap["ProjectMap"]
-    run_project_map["run_project_map"] --> resolve_references["resolve_references"]
+    handle_binding_called["AnnotatorDaemon.handle_binding_called"] --> delete_from_vibe_server["delete_from_vibe_server"]
+    handle_binding_called["AnnotatorDaemon.handle_binding_called"] --> load_local_annotations["load_local_annotations"]
+    handle_binding_called["AnnotatorDaemon.handle_binding_called"] --> post_to_vibe_server["post_to_vibe_server"]
 ```
 
 ### Cross-Reference Table
@@ -1386,24 +1788,35 @@ graph TD
 | [`main`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-main) | `--> direct` | [`audit_class_vtable`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-audit_class_vtable) | - |
 | [`main`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-main) | `--> direct` | [`find_binary`](#sym-agents-skills-steam-version-update-scripts-audit_vftable-py-find_binary) | - |
 | [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton) | `--> direct` | [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton) | - |
+| [`backupAppCloudSave`](#sym-res-inject-scripts-app-details-script-js-backupappcloudsave) | `--> direct` | [`backupAppCloudSave`](#sym-res-inject-scripts-app-details-script-js-backupappcloudsave) | - |
 | [`checkAndCreateButton`](#sym-res-inject-scripts-app-details-script-js-checkandcreatebutton) | `--> direct` | [`checkAndCreateButton`](#sym-res-inject-scripts-app-details-script-js-checkandcreatebutton) | - |
 | [`createRemoveButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton) | `--> direct` | [`createRemoveButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton) | - |
 | [`createRemoveButton.makeSteamButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-makesteambutton) | `--> direct` | [`createRemoveButton.makeSteamButton`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-makesteambutton) | - |
 | [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate) | `--> direct` | [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate) | - |
 | [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate) | `--> direct` | [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate) | - |
+| [`createRemoveButton.updateRowCloudUI`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-updaterowcloudui) | `--> direct` | [`createRemoveButton.updateRowCloudUI`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-updaterowcloudui) | - |
 | [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons) | `--> direct` | [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons) | - |
 | [`extractAppId`](#sym-res-inject-scripts-app-details-script-js-extractappid) | `--> direct` | [`extractAppId`](#sym-res-inject-scripts-app-details-script-js-extractappid) | - |
+| [`fetchAppCloudStatus`](#sym-res-inject-scripts-app-details-script-js-fetchappcloudstatus) | `--> direct` | [`fetchAppCloudStatus`](#sym-res-inject-scripts-app-details-script-js-fetchappcloudstatus) | - |
 | [`log`](#sym-res-inject-scripts-app-details-script-js-log) | `--> direct` | [`log`](#sym-res-inject-scripts-app-details-script-js-log) | - |
 | [`openChangeProviderModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal) | `--> direct` | [`openChangeProviderModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal) | - |
 | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
 | [`openNaviModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal) | `--> direct` | [`openNaviModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal) | - |
 | [`openNaviModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
+| [`openNaviModal.updateModalCloudUI`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-updatemodalcloudui) | `--> direct` | [`openNaviModal.updateModalCloudUI`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-updatemodalcloudui) | - |
 | [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal) | `--> direct` | [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal) | - |
+| [`openResetModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal) | `--> direct` | [`openResetModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal) | - |
+| [`openResetModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
+| [`openResetModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal-closemodal) | `-.-> uncertain (dynamic)` | [`remove`](#sym-src-presenter-hooks-hpp-remove) | - |
+| [`openRestoreModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal) | `--> direct` | [`openRestoreModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal) | - |
+| [`openRestoreModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
+| [`openRestoreModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal-closemodal) | `-.-> uncertain (dynamic)` | [`remove`](#sym-src-presenter-hooks-hpp-remove) | - |
 | [`openSlsConfig`](#sym-res-inject-scripts-app-details-script-js-openslsconfig) | `--> direct` | [`openSlsConfig`](#sym-res-inject-scripts-app-details-script-js-openslsconfig) | - |
 | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | `--> direct` | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | - |
 | [`openSlsConfig.updateCrackBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatecrackbtn) | `--> direct` | [`openSlsConfig.updateCrackBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatecrackbtn) | - |
 | [`openSlsConfig.updateFixBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatefixbtn) | `--> direct` | [`openSlsConfig.updateFixBtn`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-updatefixbtn) | - |
 | [`registerSteamFocusNode`](#sym-res-inject-scripts-app-details-script-js-registersteamfocusnode) | `--> direct` | [`registerSteamFocusNode`](#sym-res-inject-scripts-app-details-script-js-registersteamfocusnode) | - |
+| [`toggleAppCloudRedirect`](#sym-res-inject-scripts-app-details-script-js-toggleappcloudredirect) | `--> direct` | [`toggleAppCloudRedirect`](#sym-res-inject-scripts-app-details-script-js-toggleappcloudredirect) | - |
 | [`trapSteamGamepadModal`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal) | `--> direct` | [`trapSteamGamepadModal`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal) | - |
 | [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cancelcatcher) | `--> direct` | [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cancelcatcher) | - |
 | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup) | `--> direct` | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup) | - |
@@ -1411,6 +1824,40 @@ graph TD
 | [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-okcatcher) | `--> direct` | [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-okcatcher) | - |
 | [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-updatefocus) | `--> direct` | [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-updatefocus) | - |
 | [`syncAutoCollection`](#sym-res-inject-scripts-auto-collection-js-syncautocollection) | `--> direct` | [`syncAutoCollection`](#sym-res-inject-scripts-auto-collection-js-syncautocollection) | - |
+| [`backupAppSave`](#sym-res-inject-scripts-cloud_manager-js-backupappsave) | `--> direct` | [`backupAppSave`](#sym-res-inject-scripts-cloud_manager-js-backupappsave) | - |
+| [`executeResetAppSave`](#sym-res-inject-scripts-cloud_manager-js-executeresetappsave) | `--> direct` | [`executeResetAppSave`](#sym-res-inject-scripts-cloud_manager-js-executeresetappsave) | - |
+| [`fetchAppStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchappstatus) | `--> direct` | [`fetchAppStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchappstatus) | - |
+| [`fetchPendingOps`](#sym-res-inject-scripts-cloud_manager-js-fetchpendingops) | `--> direct` | [`fetchPendingOps`](#sym-res-inject-scripts-cloud_manager-js-fetchpendingops) | - |
+| [`fetchProviderStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchproviderstatus) | `--> direct` | [`fetchProviderStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchproviderstatus) | - |
+| [`fetchStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchstatus) | `--> direct` | [`fetchStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchstatus) | - |
+| [`init`](#sym-res-inject-scripts-cloud_manager-js-init) | `--> direct` | [`init`](#sym-res-inject-scripts-cloud_manager-js-init) | - |
+| [`isOriginCompliant`](#sym-res-inject-scripts-cloud_manager-js-isorigincompliant) | `--> direct` | [`isOriginCompliant`](#sym-res-inject-scripts-cloud_manager-js-isorigincompliant) | - |
+| [`openRestoreModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal) | `--> direct` | [`openRestoreModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal) | - |
+| [`openRestoreModal.closeModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
+| [`openSettingsModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal) | `--> direct` | [`openSettingsModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal) | - |
+| [`openSettingsModal.closeModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
+| [`openSettingsModal.refreshMasterUI`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshmasterui) | `--> direct` | [`openSettingsModal.refreshMasterUI`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshmasterui) | - |
+| [`openSettingsModal.refreshProviderAuth`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshproviderauth) | `--> direct` | [`openSettingsModal.refreshProviderAuth`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshproviderauth) | - |
+| [`poll`](#sym-res-inject-scripts-cloud_manager-js-poll) | `--> direct` | [`poll`](#sym-res-inject-scripts-cloud_manager-js-poll) | - |
+| [`resetAppSave`](#sym-res-inject-scripts-cloud_manager-js-resetappsave) | `--> direct` | [`resetAppSave`](#sym-res-inject-scripts-cloud_manager-js-resetappsave) | - |
+| [`resetAppSave.closeModal`](#sym-res-inject-scripts-cloud_manager-js-resetappsave-closemodal) | `-.-> uncertain (dynamic)` | [`openChangeProviderModal.closeModal`](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal) | - |
+| [`restartSteam`](#sym-res-inject-scripts-cloud_manager-js-restartsteam) | `--> direct` | [`restartSteam`](#sym-res-inject-scripts-cloud_manager-js-restartsteam) | - |
+| [`restoreAppSave`](#sym-res-inject-scripts-cloud_manager-js-restoreappsave) | `--> direct` | [`restoreAppSave`](#sym-res-inject-scripts-cloud_manager-js-restoreappsave) | - |
+| [`secureFetch`](#sym-res-inject-scripts-cloud_manager-js-securefetch) | `--> direct` | [`secureFetch`](#sym-res-inject-scripts-cloud_manager-js-securefetch) | - |
+| [`signInProvider`](#sym-res-inject-scripts-cloud_manager-js-signinprovider) | `--> direct` | [`signInProvider`](#sym-res-inject-scripts-cloud_manager-js-signinprovider) | - |
+| [`signOutProvider`](#sym-res-inject-scripts-cloud_manager-js-signoutprovider) | `--> direct` | [`signOutProvider`](#sym-res-inject-scripts-cloud_manager-js-signoutprovider) | - |
+| [`startPolling`](#sym-res-inject-scripts-cloud_manager-js-startpolling) | `--> direct` | [`startPolling`](#sym-res-inject-scripts-cloud_manager-js-startpolling) | - |
+| [`stopPolling`](#sym-res-inject-scripts-cloud_manager-js-stoppolling) | `--> direct` | [`stopPolling`](#sym-res-inject-scripts-cloud_manager-js-stoppolling) | - |
+| [`toggleAppRedirect`](#sym-res-inject-scripts-cloud_manager-js-toggleappredirect) | `--> direct` | [`toggleAppRedirect`](#sym-res-inject-scripts-cloud_manager-js-toggleappredirect) | - |
+| [`toggleMaster`](#sym-res-inject-scripts-cloud_manager-js-togglemaster) | `--> direct` | [`toggleMaster`](#sym-res-inject-scripts-cloud_manager-js-togglemaster) | - |
+| [`trapSteamGamepadModal`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal) | `--> direct` | [`trapSteamGamepadModal`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal) | - |
+| [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cancelcatcher) | `--> direct` | [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cancelcatcher) | - |
+| [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cleanup) | `--> direct` | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cleanup) | - |
+| [`trapSteamGamepadModal.gamepadCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-gamepadcatcher) | `--> direct` | [`trapSteamGamepadModal.gamepadCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-gamepadcatcher) | - |
+| [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-okcatcher) | `--> direct` | [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-okcatcher) | - |
+| [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-updatefocus) | `--> direct` | [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-updatefocus) | - |
+| [`updatePendingBanner`](#sym-res-inject-scripts-cloud_manager-js-updatependingbanner) | `--> direct` | [`updatePendingBanner`](#sym-res-inject-scripts-cloud_manager-js-updatependingbanner) | - |
+| [`validateTargetUrl`](#sym-res-inject-scripts-cloud_manager-js-validatetargeturl) | `--> direct` | [`validateTargetUrl`](#sym-res-inject-scripts-cloud_manager-js-validatetargeturl) | - |
 | [`buildOsBadge`](#sym-res-inject-scripts-depot-selection-script-js-buildosbadge) | `--> direct` | [`buildOsBadge`](#sym-res-inject-scripts-depot-selection-script-js-buildosbadge) | - |
 | [`buildOsBadgeElement`](#sym-res-inject-scripts-depot-selection-script-js-buildosbadgeelement) | `--> direct` | [`buildOsBadgeElement`](#sym-res-inject-scripts-depot-selection-script-js-buildosbadgeelement) | - |
 | [`closeAndCancel`](#sym-res-inject-scripts-depot-selection-script-js-closeandcancel) | `--> direct` | [`closeAndCancel`](#sym-res-inject-scripts-depot-selection-script-js-closeandcancel) | - |
@@ -1429,9 +1876,12 @@ graph TD
 | [`updateButtonState`](#sym-res-inject-scripts-depot-selection-script-js-updatebuttonstate) | `--> direct` | [`updateButtonState`](#sym-res-inject-scripts-depot-selection-script-js-updatebuttonstate) | - |
 | [`addSlsTab`](#sym-res-inject-scripts-import-lua-script-js-addslstab) | `--> direct` | [`addSlsTab`](#sym-res-inject-scripts-import-lua-script-js-addslstab) | - |
 | [`debouncedAddButtons`](#sym-res-inject-scripts-import-lua-script-js-debouncedaddbuttons) | `--> direct` | [`debouncedAddButtons`](#sym-res-inject-scripts-import-lua-script-js-debouncedaddbuttons) | - |
+| [`ensureCustomTabStyles`](#sym-res-inject-scripts-import-lua-script-js-ensurecustomtabstyles) | `--> direct` | [`ensureCustomTabStyles`](#sym-res-inject-scripts-import-lua-script-js-ensurecustomtabstyles) | - |
+| [`escapeHtml`](#sym-res-inject-scripts-import-lua-script-js-escapehtml) | `--> direct` | [`escapeHtml`](#sym-res-inject-scripts-import-lua-script-js-escapehtml) | - |
 | [`findSuperNavContainer`](#sym-res-inject-scripts-import-lua-script-js-findsupernavcontainer) | `--> direct` | [`findSuperNavContainer`](#sym-res-inject-scripts-import-lua-script-js-findsupernavcontainer) | - |
 | [`getSteamHistory`](#sym-res-inject-scripts-import-lua-script-js-getsteamhistory) | `--> direct` | [`getSteamHistory`](#sym-res-inject-scripts-import-lua-script-js-getsteamhistory) | - |
 | [`getTopBarHeight`](#sym-res-inject-scripts-import-lua-script-js-gettopbarheight) | `--> direct` | [`getTopBarHeight`](#sym-res-inject-scripts-import-lua-script-js-gettopbarheight) | - |
+| [`hideConfigPage`](#sym-res-inject-scripts-import-lua-script-js-hideconfigpage) | `--> direct` | [`hideConfigPage`](#sym-res-inject-scripts-import-lua-script-js-hideconfigpage) | - |
 | [`hideSlsPage`](#sym-res-inject-scripts-import-lua-script-js-hideslspage) | `--> direct` | [`hideSlsPage`](#sym-res-inject-scripts-import-lua-script-js-hideslspage) | - |
 | [`initManualInstallPage`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage) | `--> direct` | [`initManualInstallPage`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage) | - |
 | [`initManualInstallPage.classifyFile`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-classifyfile) | `--> direct` | [`initManualInstallPage.classifyFile`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-classifyfile) | - |
@@ -1451,11 +1901,64 @@ graph TD
 | [`initSlsTabAndPage`](#sym-res-inject-scripts-import-lua-script-js-initslstabandpage) | `--> direct` | [`initSlsTabAndPage`](#sym-res-inject-scripts-import-lua-script-js-initslstabandpage) | - |
 | [`loadJSZip`](#sym-res-inject-scripts-import-lua-script-js-loadjszip) | `--> direct` | [`loadJSZip`](#sym-res-inject-scripts-import-lua-script-js-loadjszip) | - |
 | [`log`](#sym-res-inject-scripts-import-lua-script-js-log) | `--> direct` | [`log`](#sym-res-inject-scripts-import-lua-script-js-log) | - |
+| [`renderConfigPage`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage) | `--> direct` | [`renderConfigPage`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage) | - |
+| [`renderConfigPage.activateTab`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-activatetab) | `--> direct` | [`renderConfigPage.activateTab`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-activatetab) | - |
+| [`renderConfigPage.checkDirty`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-checkdirty) | `--> direct` | [`renderConfigPage.checkDirty`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-checkdirty) | - |
+| [`renderConfigPage.collectAndSaveConfig`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig) | `--> direct` | [`renderConfigPage.collectAndSaveConfig`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig) | - |
+| [`renderConfigPage.collectAndSaveConfig.getCheckbox`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getcheckbox) | `-.-> uncertain (dynamic)` | [`renderConfigPage.serializeCurrentForm.getVal.getCheckbox`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox) | - |
+| [`renderConfigPage.collectAndSaveConfig.getInt`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getint) | `--> direct` | [`renderConfigPage.collectAndSaveConfig.getInt`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getint) | - |
+| [`renderConfigPage.collectAndSaveConfig.getProviderNames`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getprovidernames) | `--> direct` | [`renderConfigPage.collectAndSaveConfig.getProviderNames`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getprovidernames) | - |
+| [`renderConfigPage.collectAndSaveConfig.getVal`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getval) | `-.-> uncertain (dynamic)` | [`renderConfigPage.serializeCurrentForm.getVal`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval) | - |
+| [`renderConfigPage.collectAndSaveConfig.parseKvMap`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsekvmap) | `--> direct` | [`renderConfigPage.collectAndSaveConfig.parseKvMap`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsekvmap) | - |
+| [`renderConfigPage.collectAndSaveConfig.parseStringArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsestringarray) | `--> direct` | [`renderConfigPage.collectAndSaveConfig.parseStringArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsestringarray) | - |
+| [`renderConfigPage.collectAndSaveConfig.parseUintArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parseuintarray) | `--> direct` | [`renderConfigPage.collectAndSaveConfig.parseUintArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parseuintarray) | - |
+| [`renderConfigPage.formatArrayForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatarrayforeditor) | `--> direct` | [`renderConfigPage.formatArrayForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatarrayforeditor) | - |
+| [`renderConfigPage.formatKvForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatkvforeditor) | `--> direct` | [`renderConfigPage.formatKvForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatkvforeditor) | - |
+| [`renderConfigPage.handleKeyDown`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-handlekeydown) | `--> direct` | [`renderConfigPage.handleKeyDown`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-handlekeydown) | - |
+| [`renderConfigPage.makeApiKeyRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makeapikeyrow) | `--> direct` | [`renderConfigPage.makeApiKeyRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makeapikeyrow) | - |
+| [`renderConfigPage.makeCard`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makecard) | `--> direct` | [`renderConfigPage.makeCard`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makecard) | - |
+| [`renderConfigPage.makeSettingRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makesettingrow) | `--> direct` | [`renderConfigPage.makeSettingRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makesettingrow) | - |
+| [`renderConfigPage.makeTextareaItem`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketextareaitem) | `--> direct` | [`renderConfigPage.makeTextareaItem`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketextareaitem) | - |
+| [`renderConfigPage.makeToggle`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketoggle) | `--> direct` | [`renderConfigPage.makeToggle`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketoggle) | - |
+| [`renderConfigPage.markClean`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-markclean) | `--> direct` | [`renderConfigPage.markClean`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-markclean) | - |
+| [`renderConfigPage.serializeCurrentForm`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform) | `--> direct` | [`renderConfigPage.serializeCurrentForm`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform) | - |
+| [`renderConfigPage.serializeCurrentForm.getVal`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval) | `-.-> uncertain (dynamic)` | [`renderConfigPage.serializeCurrentForm.getVal`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval) | - |
+| [`renderConfigPage.serializeCurrentForm.getVal.getCheckbox`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox) | `-.-> uncertain (dynamic)` | [`renderConfigPage.serializeCurrentForm.getVal.getCheckbox`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox) | - |
+| [`renderConfigPage.showStatusBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-showstatusbanner) | `--> direct` | [`renderConfigPage.showStatusBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-showstatusbanner) | - |
+| [`renderConfigPage.updateActivePresetChip`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateactivepresetchip) | `--> direct` | [`renderConfigPage.updateActivePresetChip`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateactivepresetchip) | - |
+| [`renderConfigPage.updateGDriveAuthUi`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updategdriveauthui) | `--> direct` | [`renderConfigPage.updateGDriveAuthUi`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updategdriveauthui) | - |
+| [`renderConfigPage.updateProgressiveDisclosure`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure) | `--> direct` | [`renderConfigPage.updateProgressiveDisclosure`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure) | - |
+| [`renderConfigPage.updateProgressiveDisclosure.updateFilterRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure-updatefilterrow) | `--> direct` | [`renderConfigPage.updateProgressiveDisclosure.updateFilterRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure-updatefilterrow) | - |
+| [`renderConfigPage.updateReadinessBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner) | `--> direct` | [`renderConfigPage.updateReadinessBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner) | - |
+| [`renderConfigPage.updateReadinessBanner.setStepState`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner-setstepstate) | `--> direct` | [`renderConfigPage.updateReadinessBanner.setStepState`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner-setstepstate) | - |
 | [`setActiveTabStyle`](#sym-res-inject-scripts-import-lua-script-js-setactivetabstyle) | `--> direct` | [`setActiveTabStyle`](#sym-res-inject-scripts-import-lua-script-js-setactivetabstyle) | - |
+| [`showConfigPage`](#sym-res-inject-scripts-import-lua-script-js-showconfigpage) | `--> direct` | [`showConfigPage`](#sym-res-inject-scripts-import-lua-script-js-showconfigpage) | - |
 | [`showSlsPage`](#sym-res-inject-scripts-import-lua-script-js-showslspage) | `--> direct` | [`showSlsPage`](#sym-res-inject-scripts-import-lua-script-js-showslspage) | - |
 | [`fetchAppSize`](#sym-res-inject-scripts-navi_inject-js-fetchappsize) | `--> direct` | [`fetchAppSize`](#sym-res-inject-scripts-navi_inject-js-fetchappsize) | - |
 | [`getUnlockedAppIds`](#sym-res-inject-scripts-navi_inject-js-getunlockedappids) | `--> direct` | [`getUnlockedAppIds`](#sym-res-inject-scripts-navi_inject-js-getunlockedappids) | - |
 | [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | `--> direct` | [`needsSizeInjection`](#sym-res-inject-scripts-navi_inject-js-needssizeinjection) | - |
+| [`setupCloudManager`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager) | `--> direct` | [`setupCloudManager`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager) | - |
+| [`setupCloudManager.backupAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-backupappsave) | `--> direct` | [`setupCloudManager.backupAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-backupappsave) | - |
+| [`setupCloudManager.executeResetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-executeresetappsave) | `--> direct` | [`setupCloudManager.executeResetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-executeresetappsave) | - |
+| [`setupCloudManager.fetchAppStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchappstatus) | `--> direct` | [`setupCloudManager.fetchAppStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchappstatus) | - |
+| [`setupCloudManager.fetchPendingOps`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchpendingops) | `--> direct` | [`setupCloudManager.fetchPendingOps`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchpendingops) | - |
+| [`setupCloudManager.fetchProviderStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchproviderstatus) | `--> direct` | [`setupCloudManager.fetchProviderStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchproviderstatus) | - |
+| [`setupCloudManager.fetchStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchstatus) | `--> direct` | [`setupCloudManager.fetchStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchstatus) | - |
+| [`setupCloudManager.init`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-init) | `--> direct` | [`setupCloudManager.init`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-init) | - |
+| [`setupCloudManager.isOriginCompliant`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-isorigincompliant) | `--> direct` | [`setupCloudManager.isOriginCompliant`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-isorigincompliant) | - |
+| [`setupCloudManager.poll`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-poll) | `--> direct` | [`setupCloudManager.poll`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-poll) | - |
+| [`setupCloudManager.resetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-resetappsave) | `--> direct` | [`setupCloudManager.resetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-resetappsave) | - |
+| [`setupCloudManager.restartSteam`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restartsteam) | `--> direct` | [`setupCloudManager.restartSteam`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restartsteam) | - |
+| [`setupCloudManager.restoreAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restoreappsave) | `--> direct` | [`setupCloudManager.restoreAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restoreappsave) | - |
+| [`setupCloudManager.secureFetch`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-securefetch) | `--> direct` | [`setupCloudManager.secureFetch`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-securefetch) | - |
+| [`setupCloudManager.signInProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signinprovider) | `--> direct` | [`setupCloudManager.signInProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signinprovider) | - |
+| [`setupCloudManager.signOutProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signoutprovider) | `--> direct` | [`setupCloudManager.signOutProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signoutprovider) | - |
+| [`setupCloudManager.startPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-startpolling) | `--> direct` | [`setupCloudManager.startPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-startpolling) | - |
+| [`setupCloudManager.stopPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-stoppolling) | `--> direct` | [`setupCloudManager.stopPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-stoppolling) | - |
+| [`setupCloudManager.toggleAppRedirect`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-toggleappredirect) | `--> direct` | [`setupCloudManager.toggleAppRedirect`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-toggleappredirect) | - |
+| [`setupCloudManager.toggleMaster`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-togglemaster) | `--> direct` | [`setupCloudManager.toggleMaster`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-togglemaster) | - |
+| [`setupCloudManager.updatePendingBanner`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-updatependingbanner) | `--> direct` | [`setupCloudManager.updatePendingBanner`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-updatependingbanner) | - |
+| [`setupCloudManager.validateTargetUrl`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-validatetargeturl) | `--> direct` | [`setupCloudManager.validateTargetUrl`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-validatetargeturl) | - |
 | [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | `--> direct` | [`waitForSteamClient`](#sym-res-inject-scripts-navi_inject-js-waitforsteamclient) | - |
 | [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons) | `--> direct` | [`addButtons`](#sym-res-inject-scripts-store-page-script-js-addbuttons) | - |
 | [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership) | `--> direct` | [`applyLuaLibraryOwnership`](#sym-res-inject-scripts-store-page-script-js-applylualibraryownership) | - |
@@ -1534,6 +2037,7 @@ graph TD
 | [`generate_json`](#sym-scripts-project_map-json_generator-py-generate_json) | `-.-> uncertain (dynamic)` | [`ParameterInfo.to_dict`](#sym-scripts-project_map-models-py-parameterinfo-to_dict) | `ProjectMap`, `str` |
 | [`generate_markdown`](#sym-scripts-project_map-markdown_generator-py-generate_markdown) | `--> direct` | [`format_visibility_badge`](#sym-scripts-project_map-markdown_generator-py-format_visibility_badge) | `ProjectMap`, `str` |
 | [`generate_markdown`](#sym-scripts-project_map-markdown_generator-py-generate_markdown) | `--> direct` | [`slugify_anchor`](#sym-scripts-project_map-markdown_generator-py-slugify_anchor) | `ProjectMap`, `str` |
+| [`slugify_anchor`](#sym-scripts-project_map-markdown_generator-py-slugify_anchor) | `-.-> uncertain (dynamic)` | [`sub`](#sym-src-view-storeinject_view-cpp-sub) | `str` |
 | [`FileInfo.to_dict`](#sym-scripts-project_map-models-py-fileinfo-to_dict) | `-.-> uncertain (dynamic)` | [`ParameterInfo.to_dict`](#sym-scripts-project_map-models-py-parameterinfo-to_dict) | `Any`, `Dict`, `str` |
 | [`ProjectMap.to_dict`](#sym-scripts-project_map-models-py-projectmap-to_dict) | `-.-> uncertain (dynamic)` | [`ParameterInfo.to_dict`](#sym-scripts-project_map-models-py-parameterinfo-to_dict) | `Any`, `Dict`, `str` |
 | [`SymbolInfo.to_dict`](#sym-scripts-project_map-models-py-symbolinfo-to_dict) | `-.-> uncertain (dynamic)` | [`ParameterInfo.to_dict`](#sym-scripts-project_map-models-py-parameterinfo-to_dict) | `Any`, `Dict`, `str` |
@@ -1555,7 +2059,26 @@ graph TD
 | [`guard`](#sym-src-core-atomic_file-hpp-guard) | `--> direct` | [`guard`](#sym-src-core-atomic_file-hpp-guard) | `TempFileGuard` |
 | [`ofs`](#sym-src-core-atomic_file-hpp-ofs) | `--> direct` | [`ofs`](#sym-src-core-atomic_file-hpp-ofs) | `std::ofstream` |
 | [`p`](#sym-src-core-atomic_file-hpp-p) | `--> direct` | [`p`](#sym-src-core-atomic_file-hpp-p) | `fs::path` |
+| [`lock`](#sym-src-core-cloud_oauth-cpp-lock) | `--> direct` | [`lock`](#sym-src-core-cloud_oauth-cpp-lock) | `std::lock_guard<std::mutex>` |
+| [`CancelAuthFlow`](#sym-src-core-cloud_oauth-hpp-cancelauthflow) | `--> direct` | [`CancelAuthFlow`](#sym-src-core-cloud_oauth-hpp-cancelauthflow) | `OAuthProvider`, `void` |
+| [`ComputeCodeChallenge`](#sym-src-core-cloud_oauth-hpp-computecodechallenge) | `--> direct` | [`ComputeCodeChallenge`](#sym-src-core-cloud_oauth-hpp-computecodechallenge) | `const std::string&`, `std::string` |
+| [`GenerateCodeVerifier`](#sym-src-core-cloud_oauth-hpp-generatecodeverifier) | `--> direct` | [`GenerateCodeVerifier`](#sym-src-core-cloud_oauth-hpp-generatecodeverifier) | `std::string` |
+| [`GenerateRandomState`](#sym-src-core-cloud_oauth-hpp-generaterandomstate) | `--> direct` | [`GenerateRandomState`](#sym-src-core-cloud_oauth-hpp-generaterandomstate) | `std::string` |
+| [`GetProviderPort`](#sym-src-core-cloud_oauth-hpp-getproviderport) | `--> direct` | [`GetProviderPort`](#sym-src-core-cloud_oauth-hpp-getproviderport) | `OAuthProvider`, `uint16_t` |
+| [`GetProviderTokenFilename`](#sym-src-core-cloud_oauth-hpp-getprovidertokenfilename) | `--> direct` | [`GetProviderTokenFilename`](#sym-src-core-cloud_oauth-hpp-getprovidertokenfilename) | `OAuthProvider`, `std::string` |
+| [`GetTokenFilePath`](#sym-src-core-cloud_oauth-hpp-gettokenfilepath) | `--> direct` | [`GetTokenFilePath`](#sym-src-core-cloud_oauth-hpp-gettokenfilepath) | `OAuthProvider`, `fs::path` |
+| [`Instance`](#sym-src-core-cloud_oauth-hpp-instance) | `--> direct` | [`Instance`](#sym-src-core-cloud_oauth-hpp-instance) | `COAuthEngine&` |
+| [`IsAuthInFlight`](#sym-src-core-cloud_oauth-hpp-isauthinflight) | `--> direct` | [`IsAuthInFlight`](#sym-src-core-cloud_oauth-hpp-isauthinflight) | `OAuthProvider`, `bool` |
+| [`OAuthProviderToString`](#sym-src-core-cloud_oauth-hpp-oauthprovidertostring) | `--> direct` | [`OAuthProviderToString`](#sym-src-core-cloud_oauth-hpp-oauthprovidertostring) | `OAuthProvider`, `std::string` |
+| [`SetTokenDirForTest`](#sym-src-core-cloud_oauth-hpp-settokendirfortest) | `--> direct` | [`SetTokenDirForTest`](#sym-src-core-cloud_oauth-hpp-settokendirfortest) | `const fs::path&`, `void` |
+| [`SignOut`](#sym-src-core-cloud_oauth-hpp-signout) | `--> direct` | [`SignOut`](#sym-src-core-cloud_oauth-hpp-signout) | `OAuthProvider`, `bool` |
+| [`StartAuthFlow`](#sym-src-core-cloud_oauth-hpp-startauthflow) | `--> direct` | [`StartAuthFlow`](#sym-src-core-cloud_oauth-hpp-startauthflow) | `OAuthProvider`, `std::string`, `std::string&` |
+| [`StringToOAuthProvider`](#sym-src-core-cloud_oauth-hpp-stringtooauthprovider) | `--> direct` | [`StringToOAuthProvider`](#sym-src-core-cloud_oauth-hpp-stringtooauthprovider) | `OAuthProvider`, `const std::string&` |
+| [`WriteTokenFile`](#sym-src-core-cloud_oauth-hpp-writetokenfile) | `--> direct` | [`WriteTokenFile`](#sym-src-core-cloud_oauth-hpp-writetokenfile) | `OAuthProvider`, `bool`, `const std::string&` |
+| [`lock`](#sym-src-core-curl-cpp-lock) | `--> direct` | [`lock`](#sym-src-core-curl-cpp-lock) | `std::lock_guard<std::mutex>` |
 | [`getString`](#sym-src-core-curl-hpp-getstring) | `--> direct` | [`getString`](#sym-src-core-curl-hpp-getstring) | `const char*`, `int`, `std::string&` |
+| [`request`](#sym-src-core-curl-hpp-request) | `--> direct` | [`request`](#sym-src-core-curl-hpp-request) | `HttpResponse_t&`, `bool`, `const HttpRequest_t&` |
+| [`setHttpTransportOverride`](#sym-src-core-curl-hpp-sethttptransportoverride) | `--> direct` | [`setHttpTransportOverride`](#sym-src-core-curl-hpp-sethttptransportoverride) | `HttpTransportFunc_t`, `void` |
 | [`cleanUp`](#sym-src-core-decompiler-hpp-cleanup) | `--> direct` | [`cleanUp`](#sym-src-core-decompiler-hpp-cleanup) | `void` |
 | [`collectStrings`](#sym-src-core-decompiler-hpp-collectstrings) | `--> direct` | [`collectStrings`](#sym-src-core-decompiler-hpp-collectstrings) | `const Elf_Shdr&`, `const lm_module_t&`, `void` |
 | [`collectVFTables`](#sym-src-core-decompiler-hpp-collectvftables) | `--> direct` | [`collectVFTables`](#sym-src-core-decompiler-hpp-collectvftables) | `bool`, `const Elf_Shdr&`, `const lm_module_t&` |
@@ -1612,10 +2135,12 @@ graph TD
 | [`resolved`](#sym-src-core-vftableinfo-hpp-resolved) | `--> direct` | [`resolved`](#sym-src-core-vftableinfo-hpp-resolved) | `bool` |
 | [`extract`](#sym-src-core-zip-hpp-extract) | `--> direct` | [`extract`](#sym-src-core-zip-hpp-extract) | `bool`, `const std::string&` |
 | [`isValid`](#sym-src-core-zip-hpp-isvalid) | `--> direct` | [`isValid`](#sym-src-core-zip-hpp-isvalid) | `bool`, `const std::string&` |
+| [`serializeBinaryKV`](#sym-src-model-achievement_merger-hpp-serializebinarykv) | `--> direct` | [`serializeBinaryKV`](#sym-src-model-achievement_merger-hpp-serializebinarykv) | `const BinaryKVNode&`, `std::vector<uint8_t>` |
 | [`GetAppSize`](#sym-src-model-appsizes-hpp-getappsize) | `--> direct` | [`GetAppSize`](#sym-src-model-appsizes-hpp-getappsize) | `std::string`, `uint32_t` |
 | [`file`](#sym-src-model-config-cpp-file) | `--> direct` | [`file`](#sym-src-model-config-cpp-file) | `std::ifstream` |
 | [`inFile`](#sym-src-model-config-cpp-infile) | `--> direct` | [`inFile`](#sym-src-model-config-cpp-infile) | `std::ifstream` |
 | [`s`](#sym-src-model-config-cpp-s) | `--> direct` | [`s`](#sym-src-model-config-cpp-s) | `std::string` |
+| [`CConfig::IsAppCloudRedirected`](#sym-src-model-config-hpp-cconfig-isappcloudredirected) | `--> direct` | [`CConfig::IsAppCloudRedirected`](#sym-src-model-config-hpp-cconfig-isappcloudredirected) | `AppId_t`, `bool` |
 | [`CConfig::addAdditionalAppId`](#sym-src-model-config-hpp-cconfig-addadditionalappid) | `--> direct` | [`CConfig::addAdditionalAppId`](#sym-src-model-config-hpp-cconfig-addadditionalappid) | `bool`, `const AppId_t` |
 | [`CConfig::createFile`](#sym-src-model-config-hpp-cconfig-createfile) | `--> direct` | [`CConfig::createFile`](#sym-src-model-config-hpp-cconfig-createfile) | `bool` |
 | [`CConfig::getDenuvoGameOwner`](#sym-src-model-config-hpp-cconfig-getdenuvogameowner) | `--> direct` | [`CConfig::getDenuvoGameOwner`](#sym-src-model-config-hpp-cconfig-getdenuvogameowner) | `CSteamId`, `const AppId_t` |
@@ -1633,8 +2158,12 @@ graph TD
 | [`dummyTicket`](#sym-src-model-depotkeys-cpp-dummyticket) | `--> direct` | [`dummyTicket`](#sym-src-model-depotkeys-cpp-dummyticket) | `std::string` |
 | [`file`](#sym-src-model-depotkeys-cpp-file) | `--> direct` | [`file`](#sym-src-model-depotkeys-cpp-file) | `std::ifstream` |
 | [`lock`](#sym-src-model-depotkeys-cpp-lock) | `--> direct` | [`lock`](#sym-src-model-depotkeys-cpp-lock) | `std::lock_guard<std::mutex>` |
+| [`findAndGetAppAccessToken`](#sym-src-model-depotkeys-hpp-findandgetappaccesstoken) | `--> direct` | [`findAndGetAppAccessToken`](#sym-src-model-depotkeys-hpp-findandgetappaccesstoken) | `std::string`, `uint32_t` |
+| [`findAndGetDepotKey`](#sym-src-model-depotkeys-hpp-findandgetdepotkey) | `--> direct` | [`findAndGetDepotKey`](#sym-src-model-depotkeys-hpp-findandgetdepotkey) | `std::string`, `uint32_t` |
 | [`getAllAppIdsWithKeys`](#sym-src-model-depotkeys-hpp-getallappidswithkeys) | `--> direct` | [`getAllAppIdsWithKeys`](#sym-src-model-depotkeys-hpp-getallappidswithkeys) | `std::unordered_set<uint32_t>` |
+| [`getAppAccessTokensJsonPath`](#sym-src-model-depotkeys-hpp-getappaccesstokensjsonpath) | `--> direct` | [`getAppAccessTokensJsonPath`](#sym-src-model-depotkeys-hpp-getappaccesstokensjsonpath) | `std::string` |
 | [`getDepotKey`](#sym-src-model-depotkeys-hpp-getdepotkey) | `--> direct` | [`getDepotKey`](#sym-src-model-depotkeys-hpp-getdepotkey) | `std::string`, `uint32_t` |
+| [`getDepotKeysJsonPath`](#sym-src-model-depotkeys-hpp-getdepotkeysjsonpath) | `--> direct` | [`getDepotKeysJsonPath`](#sym-src-model-depotkeys-hpp-getdepotkeysjsonpath) | `std::string` |
 | [`getDepotKeysYamlPath`](#sym-src-model-depotkeys-hpp-getdepotkeysyamlpath) | `--> direct` | [`getDepotKeysYamlPath`](#sym-src-model-depotkeys-hpp-getdepotkeysyamlpath) | `std::string` |
 | [`getDepotsForApp`](#sym-src-model-depotkeys-hpp-getdepotsforapp) | `--> direct` | [`getDepotsForApp`](#sym-src-model-depotkeys-hpp-getdepotsforapp) | `std::unordered_set<uint32_t>`, `uint32_t` |
 | [`hasKeysForApp`](#sym-src-model-depotkeys-hpp-haskeysforapp) | `--> direct` | [`hasKeysForApp`](#sym-src-model-depotkeys-hpp-haskeysforapp) | `bool`, `uint32_t` |
@@ -1681,9 +2210,12 @@ graph TD
 | [`LegacyMigration::migrate`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-migrate) | `--> direct` | [`LegacyMigration::migrate`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-migrate) | `bool`, `const std::string&` |
 | [`LegacyMigration::migrateIfNeeded`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-migrateifneeded) | `--> direct` | [`LegacyMigration::migrateIfNeeded`](#sym-src-model-migrations-legacy_migration-hpp-legacymigration-migrateifneeded) | `bool` |
 | [`it`](#sym-src-model-paths-cpp-it) | `--> direct` | [`it`](#sym-src-model-paths-cpp-it) | `fs::directory_iterator` |
+| [`vdfFile`](#sym-src-model-paths-cpp-vdffile) | `--> direct` | [`vdfFile`](#sym-src-model-paths-cpp-vdffile) | `std::ifstream` |
 | [`clearAllCache`](#sym-src-model-paths-hpp-clearallcache) | `--> direct` | [`clearAllCache`](#sym-src-model-paths-hpp-clearallcache) | `bool` |
 | [`clearAppCache`](#sym-src-model-paths-hpp-clearappcache) | `--> direct` | [`clearAppCache`](#sym-src-model-paths-hpp-clearappcache) | `bool`, `uint32_t` |
 | [`depotcacheDir`](#sym-src-model-paths-hpp-depotcachedir) | `--> direct` | [`depotcacheDir`](#sym-src-model-paths-hpp-depotcachedir) | `std::string` |
+| [`findAppLibraryFolder`](#sym-src-model-paths-hpp-findapplibraryfolder) | `--> direct` | [`findAppLibraryFolder`](#sym-src-model-paths-hpp-findapplibraryfolder) | `const std::string&`, `std::string`, `uint32_t` |
+| [`findLibraryFolders`](#sym-src-model-paths-hpp-findlibraryfolders) | `--> direct` | [`findLibraryFolders`](#sym-src-model-paths-hpp-findlibraryfolders) | `const std::string&`, `std::vector<std::string>` |
 | [`findSteamRoot`](#sym-src-model-paths-hpp-findsteamroot) | `--> direct` | [`findSteamRoot`](#sym-src-model-paths-hpp-findsteamroot) | `std::string` |
 | [`stplugDir`](#sym-src-model-paths-hpp-stplugdir) | `--> direct` | [`stplugDir`](#sym-src-model-paths-hpp-stplugdir) | `std::string` |
 | [`sendAndRecv`](#sym-src-model-sdk-capijob-hpp-sendandrecv) | `--> direct` | [`sendAndRecv`](#sym-src-model-sdk-capijob-hpp-sendandrecv) | `CProtoBufMsgBase*`, `const EMsg`, `const uint32_t`, `uint32_t` |
@@ -1786,6 +2318,63 @@ graph TD
 | [`vf`](#sym-src-presenter-autoupdate-cpp-vf) | `--> direct` | [`vf`](#sym-src-presenter-autoupdate-cpp-vf) | `std::ifstream` |
 | [`checkAndPrompt`](#sym-src-presenter-autoupdate-hpp-checkandprompt) | `--> direct` | [`checkAndPrompt`](#sym-src-presenter-autoupdate-hpp-checkandprompt) | `void` |
 | [`checkAndPromptSync`](#sym-src-presenter-autoupdate-hpp-checkandpromptsync) | `--> direct` | [`checkAndPromptSync`](#sym-src-presenter-autoupdate-hpp-checkandpromptsync) | `void` |
+| [`lock`](#sym-src-presenter-cloud_manager-cpp-lock) | `--> direct` | [`lock`](#sym-src-presenter-cloud_manager-cpp-lock) | `std::lock_guard<std::mutex>` |
+| [`CheckAuthStatus`](#sym-src-presenter-cloud_manager-hpp-checkauthstatus) | `--> direct` | [`CheckAuthStatus`](#sym-src-presenter-cloud_manager-hpp-checkauthstatus) | `ProviderAuthStatus_t`, `const std::string&` |
+| [`GetBackupDir`](#sym-src-presenter-cloud_manager-hpp-getbackupdir) | `--> direct` | [`GetBackupDir`](#sym-src-presenter-cloud_manager-hpp-getbackupdir) | `fs::path` |
+| [`GetCliPath`](#sym-src-presenter-cloud_manager-hpp-getclipath) | `--> direct` | [`GetCliPath`](#sym-src-presenter-cloud_manager-hpp-getclipath) | `fs::path` |
+| [`GetStorageDir`](#sym-src-presenter-cloud_manager-hpp-getstoragedir) | `--> direct` | [`GetStorageDir`](#sym-src-presenter-cloud_manager-hpp-getstoragedir) | `fs::path` |
+| [`GetStorageUsageBytes`](#sym-src-presenter-cloud_manager-hpp-getstorageusagebytes) | `--> direct` | [`GetStorageUsageBytes`](#sym-src-presenter-cloud_manager-hpp-getstorageusagebytes) | `AppId_t`, `uint64_t` |
+| [`Instance`](#sym-src-presenter-cloud_manager-hpp-instance) | `--> direct` | [`Instance`](#sym-src-presenter-cloud_manager-hpp-instance) | `CCloudManager&` |
+| [`ListBackups`](#sym-src-presenter-cloud_manager-hpp-listbackups) | `--> direct` | [`ListBackups`](#sym-src-presenter-cloud_manager-hpp-listbackups) | `AppId_t`, `std::vector<std::string>` |
+| [`SetBackupDirForTest`](#sym-src-presenter-cloud_manager-hpp-setbackupdirfortest) | `--> direct` | [`SetBackupDirForTest`](#sym-src-presenter-cloud_manager-hpp-setbackupdirfortest) | `const fs::path&`, `void` |
+| [`SetCliPathForTest`](#sym-src-presenter-cloud_manager-hpp-setclipathfortest) | `--> direct` | [`SetCliPathForTest`](#sym-src-presenter-cloud_manager-hpp-setclipathfortest) | `const fs::path&`, `void` |
+| [`SetStorageDirForTest`](#sym-src-presenter-cloud_manager-hpp-setstoragedirfortest) | `--> direct` | [`SetStorageDirForTest`](#sym-src-presenter-cloud_manager-hpp-setstoragedirfortest) | `const fs::path&`, `void` |
+| [`commFile`](#sym-src-presenter-cloud_pending_ops-cpp-commfile) | `--> direct` | [`commFile`](#sym-src-presenter-cloud_pending_ops-cpp-commfile) | `std::ifstream` |
+| [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs) | `--> direct` | [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs) | `std::ifstream` |
+| [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock) | `--> direct` | [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock) | `std::lock_guard<std::mutex>` |
+| [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs) | `--> direct` | [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs) | `std::ofstream` |
+| [`rootOfs`](#sym-src-presenter-cloud_pending_ops-cpp-rootofs) | `--> direct` | [`rootOfs`](#sym-src-presenter-cloud_pending_ops-cpp-rootofs) | `std::ofstream` |
+| [`AssertSteamIdle`](#sym-src-presenter-cloud_pending_ops-hpp-assertsteamidle) | `--> direct` | [`AssertSteamIdle`](#sym-src-presenter-cloud_pending_ops-hpp-assertsteamidle) | `bool` |
+| [`CPendingOpsExecutor`](#sym-src-presenter-cloud_pending_ops-hpp-cpendingopsexecutor) | `--> direct` | [`CPendingOpsExecutor`](#sym-src-presenter-cloud_pending_ops-hpp-cpendingopsexecutor) | `explicit`, `fs::path` |
+| [`ClearQueueForTest`](#sym-src-presenter-cloud_pending_ops-hpp-clearqueuefortest) | `--> direct` | [`ClearQueueForTest`](#sym-src-presenter-cloud_pending_ops-hpp-clearqueuefortest) | `void` |
+| [`CreatePreOpBackup`](#sym-src-presenter-cloud_pending_ops-hpp-createpreopbackup) | `--> direct` | [`CreatePreOpBackup`](#sym-src-presenter-cloud_pending_ops-hpp-createpreopbackup) | `bool`, `const PendingOperation_t&`, `fs::path&` |
+| [`Enqueue`](#sym-src-presenter-cloud_pending_ops-hpp-enqueue) | `--> direct` | [`Enqueue`](#sym-src-presenter-cloud_pending_ops-hpp-enqueue) | `bool`, `const PendingOperation_t&` |
+| [`ExecuteAllPending`](#sym-src-presenter-cloud_pending_ops-hpp-executeallpending) | `--> direct` | [`ExecuteAllPending`](#sym-src-presenter-cloud_pending_ops-hpp-executeallpending) | `int` |
+| [`ExecuteOperation`](#sym-src-presenter-cloud_pending_ops-hpp-executeoperation) | `--> direct` | [`ExecuteOperation`](#sym-src-presenter-cloud_pending_ops-hpp-executeoperation) | `PendingOperation_t&`, `bool` |
+| [`GetQueueFilePath`](#sym-src-presenter-cloud_pending_ops-hpp-getqueuefilepath) | `--> direct` | [`GetQueueFilePath`](#sym-src-presenter-cloud_pending_ops-hpp-getqueuefilepath) | `fs::path` |
+| [`HasPendingOperations`](#sym-src-presenter-cloud_pending_ops-hpp-haspendingoperations) | `--> direct` | [`HasPendingOperations`](#sym-src-presenter-cloud_pending_ops-hpp-haspendingoperations) | `bool` |
+| [`Instance`](#sym-src-presenter-cloud_pending_ops-hpp-instance) | `--> direct` | [`Instance`](#sym-src-presenter-cloud_pending_ops-hpp-instance) | `CPendingOpsQueue&` |
+| [`LoadAll`](#sym-src-presenter-cloud_pending_ops-hpp-loadall) | `--> direct` | [`LoadAll`](#sym-src-presenter-cloud_pending_ops-hpp-loadall) | `std::vector<PendingOperation_t>` |
+| [`PendingOpStatusToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingopstatustostring) | `--> direct` | [`PendingOpStatusToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingopstatustostring) | `PendingOpStatus`, `std::string` |
+| [`PendingOpTypeToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingoptypetostring) | `--> direct` | [`PendingOpTypeToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingoptypetostring) | `PendingOpType`, `std::string` |
+| [`PerformGranularReset`](#sym-src-presenter-cloud_pending_ops-hpp-performgranularreset) | `--> direct` | [`PerformGranularReset`](#sym-src-presenter-cloud_pending_ops-hpp-performgranularreset) | `bool`, `const PendingOperation_t&` |
+| [`PerformRestore`](#sym-src-presenter-cloud_pending_ops-hpp-performrestore) | `--> direct` | [`PerformRestore`](#sym-src-presenter-cloud_pending_ops-hpp-performrestore) | `bool`, `const PendingOperation_t&` |
+| [`PruneCompleted`](#sym-src-presenter-cloud_pending_ops-hpp-prunecompleted) | `--> direct` | [`PruneCompleted`](#sym-src-presenter-cloud_pending_ops-hpp-prunecompleted) | `bool`, `uint64_t` |
+| [`RollbackFromBackup`](#sym-src-presenter-cloud_pending_ops-hpp-rollbackfrombackup) | `--> direct` | [`RollbackFromBackup`](#sym-src-presenter-cloud_pending_ops-hpp-rollbackfrombackup) | `bool`, `const PendingOperation_t&` |
+| [`SetBackupDirForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setbackupdirfortest) | `--> direct` | [`SetBackupDirForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setbackupdirfortest) | `const fs::path&`, `void` |
+| [`SetProcPathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setprocpathfortest) | `--> direct` | [`SetProcPathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setprocpathfortest) | `const fs::path&`, `void` |
+| [`SetQueueFilePathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setqueuefilepathfortest) | `--> direct` | [`SetQueueFilePathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setqueuefilepathfortest) | `const fs::path&`, `void` |
+| [`SetSimulateFailureForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setsimulatefailurefortest) | `--> direct` | [`SetSimulateFailureForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setsimulatefailurefortest) | `bool`, `void` |
+| [`StringToPendingOpStatus`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingopstatus) | `--> direct` | [`StringToPendingOpStatus`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingopstatus) | `PendingOpStatus`, `const std::string&` |
+| [`StringToPendingOpType`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingoptype) | `--> direct` | [`StringToPendingOpType`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingoptype) | `PendingOpType`, `const std::string&` |
+| [`UpdateStatus`](#sym-src-presenter-cloud_pending_ops-hpp-updatestatus) | `--> direct` | [`UpdateStatus`](#sym-src-presenter-cloud_pending_ops-hpp-updatestatus) | `PendingOpStatus`, `bool`, `const std::string&` |
+| [`disableFile`](#sym-src-presenter-cloudredirect-cpp-disablefile) | `--> direct` | [`disableFile`](#sym-src-presenter-cloudredirect-cpp-disablefile) | `std::ios::out |`, `std::ofstream` |
+| [`flag`](#sym-src-presenter-cloudredirect-cpp-flag) | `--> direct` | [`flag`](#sym-src-presenter-cloudredirect-cpp-flag) | `std::ios::out |`, `std::ofstream` |
+| [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs) | `--> direct` | [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs) | `std::ifstream` |
+| [`lock`](#sym-src-presenter-cloudredirect-cpp-lock) | `--> direct` | [`lock`](#sym-src-presenter-cloudredirect-cpp-lock) | `std::lock_guard<std::mutex>` |
+| [`maps`](#sym-src-presenter-cloudredirect-cpp-maps) | `--> direct` | [`maps`](#sym-src-presenter-cloudredirect-cpp-maps) | `std::ifstream` |
+| [`osRelease`](#sym-src-presenter-cloudredirect-cpp-osrelease) | `--> direct` | [`osRelease`](#sym-src-presenter-cloudredirect-cpp-osrelease) | `std::ifstream` |
+| [`stream`](#sym-src-presenter-cloudredirect-cpp-stream) | `--> direct` | [`stream`](#sym-src-presenter-cloudredirect-cpp-stream) | `std::istringstream` |
+| [`DetectPlatformTier`](#sym-src-presenter-cloudredirect-hpp-detectplatformtier) | `--> direct` | [`DetectPlatformTier`](#sym-src-presenter-cloudredirect-hpp-detectplatformtier) | `PlatformTier` |
+| [`DetectStandaloneInstallation`](#sym-src-presenter-cloudredirect-hpp-detectstandaloneinstallation) | `--> direct` | [`DetectStandaloneInstallation`](#sym-src-presenter-cloudredirect-hpp-detectstandaloneinstallation) | `bool` |
+| [`EnsureLocalOnlyConfig`](#sym-src-presenter-cloudredirect-hpp-ensurelocalonlyconfig) | `--> direct` | [`EnsureLocalOnlyConfig`](#sym-src-presenter-cloudredirect-hpp-ensurelocalonlyconfig) | `bool` |
+| [`GetTokenPath`](#sym-src-presenter-cloudredirect-hpp-gettokenpath) | `--> direct` | [`GetTokenPath`](#sym-src-presenter-cloudredirect-hpp-gettokenpath) | `const std::string&`, `std::filesystem::path` |
+| [`Instance`](#sym-src-presenter-cloudredirect-hpp-instance) | `--> direct` | [`Instance`](#sym-src-presenter-cloudredirect-hpp-instance) | `CCloudRedirectBridge&` |
+| [`IsEnabled`](#sym-src-presenter-cloudredirect-hpp-isenabled) | `--> direct` | [`IsEnabled`](#sym-src-presenter-cloudredirect-hpp-isenabled) | `bool` |
+| [`ResolvePaths`](#sym-src-presenter-cloudredirect-hpp-resolvepaths) | `--> direct` | [`ResolvePaths`](#sym-src-presenter-cloudredirect-hpp-resolvepaths) | `ResolvedPaths_t` |
+| [`RevertSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-revertslssteamconfig) | `--> direct` | [`RevertSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-revertslssteamconfig) | `bool`, `const std::unordered_set<AppId_t>&` |
+| [`SetEnabledState`](#sym-src-presenter-cloudredirect-hpp-setenabledstate) | `--> direct` | [`SetEnabledState`](#sym-src-presenter-cloudredirect-hpp-setenabledstate) | `bool` |
+| [`SyncSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-syncslssteamconfig) | `--> direct` | [`SyncSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-syncslssteamconfig) | `bool`, `const std::unordered_set<AppId_t>&` |
 | [`checkAppOwnership`](#sym-src-presenter-dlc-hpp-checkappownership) | `--> direct` | [`checkAppOwnership`](#sym-src-presenter-dlc-hpp-checkappownership) | `AppOwnershipInfo_t*`, `bool`, `const AppId_t` |
 | [`getDlcCount`](#sym-src-presenter-dlc-hpp-getdlccount) | `--> direct` | [`getDlcCount`](#sym-src-presenter-dlc-hpp-getdlccount) | `const AppId_t`, `uint32_t` |
 | [`getDlcDataByIndex`](#sym-src-presenter-dlc-hpp-getdlcdatabyindex) | `--> direct` | [`getDlcDataByIndex`](#sym-src-presenter-dlc-hpp-getdlcdatabyindex) | `AppId_t*`, `bool`, `bool*`, `char*` |
@@ -1857,6 +2446,11 @@ graph TD
 | [`runFrame`](#sym-src-presenter-nativeinstall-hpp-runframe) | `--> direct` | [`runFrame`](#sym-src-presenter-nativeinstall-hpp-runframe) | `InstallAppFn`, `void` |
 | [`save`](#sym-src-presenter-nativeinstall-hpp-save) | `--> direct` | [`save`](#sym-src-presenter-nativeinstall-hpp-save) | `void` |
 | [`takeCachedInstall`](#sym-src-presenter-nativeinstall-hpp-takecachedinstall) | `--> direct` | [`takeCachedInstall`](#sym-src-presenter-nativeinstall-hpp-takecachedinstall) | `QueuedInstall&`, `bool`, `uint32_t` |
+| [`ifs`](#sym-src-presenter-process_lock-cpp-ifs) | `--> direct` | [`ifs`](#sym-src-presenter-process_lock-cpp-ifs) | `std::ifstream` |
+| [`lock`](#sym-src-presenter-process_lock-cpp-lock) | `--> direct` | [`lock`](#sym-src-presenter-process_lock-cpp-lock) | `std::lock_guard<std::mutex>` |
+| [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot) | `--> direct` | [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot) | `fs::path` |
+| [`clearAllHookedRunningApps`](#sym-src-presenter-process_lock-hpp-clearallhookedrunningapps) | `--> direct` | [`clearAllHookedRunningApps`](#sym-src-presenter-process_lock-hpp-clearallhookedrunningapps) | `void` |
+| [`setAppRunningFromHook`](#sym-src-presenter-process_lock-hpp-setapprunningfromhook) | `--> direct` | [`setAppRunningFromHook`](#sym-src-presenter-process_lock-hpp-setapprunningfromhook) | `bool`, `uint32_t`, `void` |
 | [`file`](#sym-src-presenter-removelua-cpp-file) | `--> direct` | [`file`](#sym-src-presenter-removelua-cpp-file) | `std::ifstream` |
 | [`libPath`](#sym-src-presenter-removelua-cpp-libpath) | `--> direct` | [`libPath`](#sym-src-presenter-removelua-cpp-libpath) | `std::filesystem::path` |
 | [`injectRemoveLuaScript`](#sym-src-presenter-removelua-hpp-injectremoveluascript) | `--> direct` | [`injectRemoveLuaScript`](#sym-src-presenter-removelua-hpp-injectremoveluascript) | `bool` |
@@ -1865,6 +2459,7 @@ graph TD
 | [`stream`](#sym-src-presenter-storeinject-cpp-stream) | `--> direct` | [`stream`](#sym-src-presenter-storeinject-cpp-stream) | `std::stringstream` |
 | [`urlDecode`](#sym-src-presenter-storeinject-cpp-urldecode) | `--> direct` | [`urlDecode`](#sym-src-presenter-storeinject-cpp-urldecode) | `const std::string&`, `std::string` |
 | [`init`](#sym-src-presenter-storeinject-hpp-init) | `--> direct` | [`init`](#sym-src-presenter-storeinject-hpp-init) | `void` |
+| [`setNaviAuthTokenForTest`](#sym-src-presenter-storeinject-hpp-setnaviauthtokenfortest) | `--> direct` | [`setNaviAuthTokenForTest`](#sym-src-presenter-storeinject-hpp-setnaviauthtokenfortest) | `const std::string&`, `void` |
 | [`shutdown`](#sym-src-presenter-storeinject-hpp-shutdown) | `--> direct` | [`shutdown`](#sym-src-presenter-storeinject-hpp-shutdown) | `void` |
 | [`ifs`](#sym-src-presenter-ticket-cpp-ifs) | `--> direct` | [`ifs`](#sym-src-presenter-ticket-cpp-ifs) | `std::ifstream` |
 | [`getCachedEncryptedTicket`](#sym-src-presenter-ticket-hpp-getcachedencryptedticket) | `--> direct` | [`getCachedEncryptedTicket`](#sym-src-presenter-ticket-hpp-getcachedencryptedticket) | `SavedTicket*`, `const AppId_t` |
@@ -1905,6 +2500,7 @@ graph TD
 | [`injectDepotSelectionUI`](#sym-src-view-cdpinject-hpp-injectdepotselectionui) | `--> direct` | [`injectDepotSelectionUI`](#sym-src-view-cdpinject-hpp-injectdepotselectionui) | `uint32_t`, `void` |
 | [`injectJS`](#sym-src-view-cdpinject-hpp-injectjs) | `--> direct` | [`injectJS`](#sym-src-view-cdpinject-hpp-injectjs) | `bool`, `const std::string&` |
 | [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `--> direct` | [`injectStorePages`](#sym-src-view-cdpinject-hpp-injectstorepages) | `void` |
+| [`injectSyncOverlayModal`](#sym-src-view-cdpinject-hpp-injectsyncoverlaymodal) | `--> direct` | [`injectSyncOverlayModal`](#sym-src-view-cdpinject-hpp-injectsyncoverlaymodal) | `void` |
 | [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `--> direct` | [`isScriptInjected`](#sym-src-view-cdpinject-hpp-isscriptinjected) | `bool`, `const std::string&` |
 | [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `--> direct` | [`notifyAppRemoved`](#sym-src-view-cdpinject-hpp-notifyappremoved) | `uint32_t`, `void` |
 | [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect) | `--> direct` | [`tcpConnect`](#sym-src-view-cdpinject-hpp-tcpconnect) | `const char*`, `int` |
@@ -1915,12 +2511,32 @@ graph TD
 | [`waitForSteamClient`](#sym-src-view-cefsizefix-cpp-waitforsteamclient) | `--> direct` | [`waitForSteamClient`](#sym-src-view-cefsizefix-cpp-waitforsteamclient) | `function` |
 | [`injectSizeFixScript`](#sym-src-view-cefsizefix-hpp-injectsizefixscript) | `--> direct` | [`injectSizeFixScript`](#sym-src-view-cefsizefix-hpp-injectsizefixscript) | `bool` |
 | [`removeSizeFixScript`](#sym-src-view-cefsizefix-hpp-removesizefixscript) | `--> direct` | [`removeSizeFixScript`](#sym-src-view-cefsizefix-hpp-removesizefixscript) | `void` |
+| [`parseBoolField`](#sym-src-view-cloud_view-hpp-parseboolfield) | `--> direct` | [`parseBoolField`](#sym-src-view-cloud_view-hpp-parseboolfield) | `bool`, `const std::string&` |
+| [`parseConfirmReset`](#sym-src-view-cloud_view-hpp-parseconfirmreset) | `--> direct` | [`parseConfirmReset`](#sym-src-view-cloud_view-hpp-parseconfirmreset) | `bool`, `const std::string&` |
+| [`parseStringField`](#sym-src-view-cloud_view-hpp-parsestringfield) | `--> direct` | [`parseStringField`](#sym-src-view-cloud_view-hpp-parsestringfield) | `const std::string&`, `std::string` |
+| [`renderAppStatusJson`](#sym-src-view-cloud_view-hpp-renderappstatusjson) | `--> direct` | [`renderAppStatusJson`](#sym-src-view-cloud_view-hpp-renderappstatusjson) | `AppId_t`, `bool`, `const std::vector<std::string>&`, `std::string` |
+| [`renderAppToggleJson`](#sym-src-view-cloud_view-hpp-renderapptogglejson) | `--> direct` | [`renderAppToggleJson`](#sym-src-view-cloud_view-hpp-renderapptogglejson) | `AppId_t`, `bool`, `std::string` |
+| [`renderBackupSuccessJson`](#sym-src-view-cloud_view-hpp-renderbackupsuccessjson) | `--> direct` | [`renderBackupSuccessJson`](#sym-src-view-cloud_view-hpp-renderbackupsuccessjson) | `AppId_t`, `const std::string&`, `std::string` |
+| [`renderErrorJson`](#sym-src-view-cloud_view-hpp-rendererrorjson) | `--> direct` | [`renderErrorJson`](#sym-src-view-cloud_view-hpp-rendererrorjson) | `const std::string&`, `std::string` |
+| [`renderPendingOperationAcceptedJson`](#sym-src-view-cloud_view-hpp-renderpendingoperationacceptedjson) | `--> direct` | [`renderPendingOperationAcceptedJson`](#sym-src-view-cloud_view-hpp-renderpendingoperationacceptedjson) | `const std::string&`, `std::string` |
+| [`renderPendingOpsJson`](#sym-src-view-cloud_view-hpp-renderpendingopsjson) | `--> direct` | [`renderPendingOpsJson`](#sym-src-view-cloud_view-hpp-renderpendingopsjson) | `const std::vector<CloudRedirect::PendingOperation_t>&`, `std::string` |
+| [`renderProviderStatusJson`](#sym-src-view-cloud_view-hpp-renderproviderstatusjson) | `--> direct` | [`renderProviderStatusJson`](#sym-src-view-cloud_view-hpp-renderproviderstatusjson) | `const CloudRedirect::ProviderAuthStatus_t&`, `std::string` |
+| [`renderStatusJson`](#sym-src-view-cloud_view-hpp-renderstatusjson) | `--> direct` | [`renderStatusJson`](#sym-src-view-cloud_view-hpp-renderstatusjson) | `bool`, `const std::string&`, `size_t`, `std::string` |
+| [`renderSuccessJson`](#sym-src-view-cloud_view-hpp-rendersuccessjson) | `--> direct` | [`renderSuccessJson`](#sym-src-view-cloud_view-hpp-rendersuccessjson) | `const std::string&`, `std::string` |
+| [`dn`](#sym-src-view-storeinject_view-cpp-dn) | `--> direct` | [`dn`](#sym-src-view-storeinject_view-cpp-dn) | `YAML::Node` |
 | [`inFile`](#sym-src-view-storeinject_view-cpp-infile) | `--> direct` | [`inFile`](#sym-src-view-storeinject_view-cpp-infile) | `std::ifstream` |
+| [`m`](#sym-src-view-storeinject_view-cpp-m) | `--> direct` | [`m`](#sym-src-view-storeinject_view-cpp-m) | `YAML::Node` |
+| [`p`](#sym-src-view-storeinject_view-cpp-p) | `--> direct` | [`p`](#sym-src-view-storeinject_view-cpp-p) | `std::filesystem::path` |
+| [`s`](#sym-src-view-storeinject_view-cpp-s) | `--> direct` | [`s`](#sym-src-view-storeinject_view-cpp-s) | `YAML::Node` |
+| [`seq`](#sym-src-view-storeinject_view-cpp-seq) | `--> direct` | [`seq`](#sym-src-view-storeinject_view-cpp-seq) | `YAML::Node` |
+| [`sub`](#sym-src-view-storeinject_view-cpp-sub) | `--> direct` | [`sub`](#sym-src-view-storeinject_view-cpp-sub) | `YAML::Node` |
+| [`applyFullConfigJson`](#sym-src-view-storeinject_view-hpp-applyfullconfigjson) | `--> direct` | [`applyFullConfigJson`](#sym-src-view-storeinject_view-hpp-applyfullconfigjson) | `bool`, `const std::string&`, `std::string&` |
 | [`findSteamUIIndexHtml`](#sym-src-view-storeinject_view-hpp-findsteamuiindexhtml) | `--> direct` | [`findSteamUIIndexHtml`](#sym-src-view-storeinject_view-hpp-findsteamuiindexhtml) | `std::filesystem::path` |
 | [`removeStoreInjectScript`](#sym-src-view-storeinject_view-hpp-removestoreinjectscript) | `--> direct` | [`removeStoreInjectScript`](#sym-src-view-storeinject_view-hpp-removestoreinjectscript) | `void` |
 | [`renderApiKeysJson`](#sym-src-view-storeinject_view-hpp-renderapikeysjson) | `--> direct` | [`renderApiKeysJson`](#sym-src-view-storeinject_view-hpp-renderapikeysjson) | `const std::string&`, `std::string` |
 | [`renderCheckJson`](#sym-src-view-storeinject_view-hpp-rendercheckjson) | `--> direct` | [`renderCheckJson`](#sym-src-view-storeinject_view-hpp-rendercheckjson) | `const CheckViewModel&`, `std::string` |
 | [`renderErrorJson`](#sym-src-view-storeinject_view-hpp-rendererrorjson) | `--> direct` | [`renderErrorJson`](#sym-src-view-storeinject_view-hpp-rendererrorjson) | `const std::string&`, `std::string` |
+| [`renderFullConfigJson`](#sym-src-view-storeinject_view-hpp-renderfullconfigjson) | `--> direct` | [`renderFullConfigJson`](#sym-src-view-storeinject_view-hpp-renderfullconfigjson) | `const std::string&`, `std::string` |
 | [`renderLuaAppsJson`](#sym-src-view-storeinject_view-hpp-renderluaappsjson) | `--> direct` | [`renderLuaAppsJson`](#sym-src-view-storeinject_view-hpp-renderluaappsjson) | `const std::set<uint32_t>&`, `std::string` |
 | [`renderSuccessJson`](#sym-src-view-storeinject_view-hpp-rendersuccessjson) | `--> direct` | [`renderSuccessJson`](#sym-src-view-storeinject_view-hpp-rendersuccessjson) | `const std::string&`, `std::string` |
 | [`SteamCEFInspector.evaluate`](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate) | `-.-> uncertain (dynamic)` | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | - |
@@ -1941,6 +2557,13 @@ graph TD
 | [`cmd_targets`](#sym-tests-inspect_store_ui-py-cmd_targets) | `-.-> uncertain (dynamic)` | [`SteamCEFInspector.get_targets`](#sym-tests-inspect_store_ui-py-steamcefinspector-get_targets) | - |
 | [`cmd_targets`](#sym-tests-inspect_store_ui-py-cmd_targets) | `-.-> uncertain (dynamic)` | [`SteamCEFInspector.is_reachable`](#sym-tests-inspect_store_ui-py-steamcefinspector-is_reachable) | - |
 | [`main`](#sym-tests-inspect_store_ui-py-main) | `--> direct` | [`SteamCEFInspector`](#sym-tests-inspect_store_ui-py-steamcefinspector) | - |
+| [`MockCloudRelayRequestHandler.log_message`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-log_message) | `-.-> uncertain (dynamic)` | [`MockCloudRelayRequestHandler.log_message`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-log_message) | `Any`, `str` |
+| [`MockCloudRelayServer.__enter__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__enter__) | `--> direct` | [`MockCloudRelayServer.start`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start) | `MockCloudRelayServer` |
+| [`MockCloudRelayServer.__exit__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__exit__) | `--> direct` | [`MockCloudRelayServer.stop`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-stop) | `Any` |
+| [`MockCloudRelayServer.__init__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__init__) | `-.-> uncertain (dynamic)` | [`SteamCEFInspector.__init__`](#sym-tests-inspect_store_ui-py-steamcefinspector-__init__) | `bool`, `int` |
+| [`MockCloudRelayServer.start`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start) | `--> direct` | [`MockCloudRelayServer.server_url`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-server_url) | `str` |
+| [`MockCloudRelayServer.start`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start) | `-.-> uncertain (dynamic)` | [`start`](#sym-src-core-filewatcher-hpp-start) | `str` |
+| [`MockCloudRelayServer.stop`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-stop) | `-.-> uncertain (dynamic)` | [`shutdown`](#sym-src-presenter-storeinject-hpp-shutdown) | - |
 | [`test_dry_run_modes`](#sym-tests-integration-test_installer-py-test_dry_run_modes) | `--> direct` | [`run_installer`](#sym-tests-conftest-py-run_installer) | - |
 | [`test_flatpak_steam_detection`](#sym-tests-integration-test_installer-py-test_flatpak_steam_detection) | `--> direct` | [`run_installer`](#sym-tests-conftest-py-run_installer) | - |
 | [`test_install_update_uninstall_lifecycle`](#sym-tests-integration-test_installer-py-test_install_update_uninstall_lifecycle) | `--> direct` | [`run_installer`](#sym-tests-conftest-py-run_installer) | - |
@@ -1968,8 +2591,10 @@ graph TD
 | [`SteamCDPClient.find_target_by_url_substring`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_url_substring) | `--> direct` | [`SteamCDPClient.get_targets`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-get_targets) | - |
 | [`SteamUIFlowTest.is_app_installed_in_steam`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_app_installed_in_steam) | `-.-> uncertain (dynamic)` | [`SteamCEFInspector.evaluate`](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate) | - |
 | [`SteamUIFlowTest.is_app_installed_in_steam`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_app_installed_in_steam) | `-.-> uncertain (dynamic)` | [`SteamCDPClient.find_target_by_title`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title) | - |
+| [`SteamUIFlowTest.is_steam_running`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_steam_running) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
 | [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `-.-> uncertain (dynamic)` | [`SteamCEFInspector.evaluate`](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate) | - |
 | [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `-.-> uncertain (dynamic)` | [`SteamCDPClient.find_target_by_title`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title) | - |
+| [`SteamUIFlowTest.navigate_url`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-navigate_url) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
 | [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `--> direct` | [`SteamCDPClient`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient) | - |
 | [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `--> direct` | [`SteamUIFlowTest.backup_files`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-backup_files) | - |
 | [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass) | `--> direct` | [`SteamUIFlowTest.is_steam_running`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-is_steam_running) | - |
@@ -2072,6 +2697,12 @@ graph TD
 | [`SteamUIFlowTest.test_15_search_state_reset`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_15_search_state_reset) | `--> direct` | [`log_step`](#sym-tests-integration-test_steam_ui_flow-py-log_step) | - |
 | [`SteamUIFlowTest.test_15_search_state_reset`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_15_search_state_reset) | `-.-> uncertain (dynamic)` | [`SteamCEFInspector.evaluate`](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate) | - |
 | [`SteamUIFlowTest.test_15_search_state_reset`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_15_search_state_reset) | `-.-> uncertain (dynamic)` | [`SteamCDPClient.find_target_by_title`](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title) | - |
+| [`main`](#sym-tests-integration-test_steam_ui_flow-py-main) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
+| [`test_steam_ui_flow`](#sym-tests-integration-test_steam_ui_flow-py-test_steam_ui_flow) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
+| [`test_node_execution_simulation`](#sym-tests-integration-test_store_script-py-test_node_execution_simulation) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
+| [`test_store_page_script_syntax`](#sym-tests-integration-test_store_script-py-test_store_page_script_syntax) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
+| [`test_testing_mode_decorates_all_items`](#sym-tests-integration-test_store_script-py-test_testing_mode_decorates_all_items) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
+| [`test_testing_mode_toggle_off`](#sym-tests-integration-test_store_script-py-test_testing_mode_toggle_off) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
 | [`test_call_graph_and_cross_references`](#sym-tests-test_project_map-py-test_call_graph_and_cross_references) | `--> direct` | [`run_project_map`](#sym-scripts-project_map-engine-py-run_project_map) | `Path` |
 | [`test_call_graph_and_cross_references`](#sym-tests-test_project_map-py-test_call_graph_and_cross_references) | `--> direct` | [`ParseConfig`](#sym-scripts-project_map-models-py-parseconfig) | `Path` |
 | [`test_classes_and_inheritance`](#sym-tests-test_project_map-py-test_classes_and_inheritance) | `--> direct` | [`run_project_map`](#sym-scripts-project_map-engine-py-run_project_map) | `Path` |
@@ -2094,6 +2725,16 @@ graph TD
 | [`test_route_decorator_detection`](#sym-tests-test_project_map-py-test_route_decorator_detection) | `--> direct` | [`ParseConfig`](#sym-scripts-project_map-models-py-parseconfig) | `Path` |
 | [`test_uncertain_dynamic_references`](#sym-tests-test_project_map-py-test_uncertain_dynamic_references) | `--> direct` | [`run_project_map`](#sym-scripts-project_map-engine-py-run_project_map) | `Path` |
 | [`test_uncertain_dynamic_references`](#sym-tests-test_project_map-py-test_uncertain_dynamic_references) | `--> direct` | [`ParseConfig`](#sym-scripts-project_map-models-py-parseconfig) | `Path` |
+| [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs) | `--> direct` | [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs) | `std::ofstream` |
+| [`payload1500`](#sym-tests-unit-test_cloud_manager-cpp-payload1500) | `--> direct` | [`payload1500`](#sym-tests-unit-test_cloud_manager-cpp-payload1500) | `std::string` |
+| [`payload500`](#sym-tests-unit-test_cloud_manager-cpp-payload500) | `--> direct` | [`payload500`](#sym-tests-unit-test_cloud_manager-cpp-payload500) | `std::string` |
+| [`ifs`](#sym-tests-unit-test_cloud_oauth-cpp-ifs) | `--> direct` | [`ifs`](#sym-tests-unit-test_cloud_oauth-cpp-ifs) | `std::ifstream` |
+| [`cnIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-cnifs) | `--> direct` | [`cnIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-cnifs) | `std::ifstream`, `storageApp /` |
+| [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor) | `--> direct` | [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor) | `CPendingOpsExecutor` |
+| [`ifs`](#sym-tests-unit-test_cloud_pending_ops-cpp-ifs) | `--> direct` | [`ifs`](#sym-tests-unit-test_cloud_pending_ops-cpp-ifs) | `std::ifstream`, `storageApp /` |
+| [`lcIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-lcifs) | `--> direct` | [`lcIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-lcifs) | `std::ifstream`, `userdataApp /` |
+| [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs) | `--> direct` | [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs) | `std::ifstream` |
+| [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2) | `--> direct` | [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2) | `std::ifstream` |
 | [`f`](#sym-tests-unit-test_config-cpp-f) | `--> direct` | [`f`](#sym-tests-unit-test_config-cpp-f) | `std::ifstream` |
 | [`sf`](#sym-tests-unit-test_config-cpp-sf) | `--> direct` | [`sf`](#sym-tests-unit-test_config-cpp-sf) | `std::ifstream` |
 | [`in`](#sym-tests-unit-test_depotkeys-cpp-in) | `--> direct` | [`in`](#sym-tests-unit-test_depotkeys-cpp-in) | `std::ifstream` |
@@ -2102,6 +2743,7 @@ graph TD
 | [`out`](#sym-tests-unit-test_manifest_and_native-cpp-out) | `--> direct` | [`out`](#sym-tests-unit-test_manifest_and_native-cpp-out) | `std::ofstream` |
 | [`pf`](#sym-tests-unit-test_manifest_and_native-cpp-pf) | `--> direct` | [`pf`](#sym-tests-unit-test_manifest_and_native-cpp-pf) | `std::ifstream` |
 | [`respBuf`](#sym-tests-unit-test_manifest_and_native-cpp-respbuf) | `--> direct` | [`respBuf`](#sym-tests-unit-test_manifest_and_native-cpp-respbuf) | `std::vector<uint8_t>` |
+| [`unsetenv`](#sym-tests-unit-test_manifest_and_native-cpp-unsetenv) | `--> direct` | [`unsetenv`](#sym-tests-unit-test_manifest_and_native-cpp-unsetenv) | `else` |
 | [`dummyTmp`](#sym-tests-unit-test_migration-cpp-dummytmp) | `--> direct` | [`dummyTmp`](#sym-tests-unit-test_migration-cpp-dummytmp) | `std::ofstream`, `testDir +` |
 | [`f`](#sym-tests-unit-test_migration-cpp-f) | `--> direct` | [`f`](#sym-tests-unit-test_migration-cpp-f) | `commonDir +`, `std::ifstream` |
 | [`in`](#sym-tests-unit-test_migration-cpp-in) | `--> direct` | [`in`](#sym-tests-unit-test_migration-cpp-in) | `paths.targetConfigDir +`, `std::ifstream` |
@@ -2145,6 +2787,95 @@ graph TD
 | [`unsetenv`](#sym-tests-unit-test_vdf_and_lua-cpp-unsetenv) | `--> direct` | [`unsetenv`](#sym-tests-unit-test_vdf_and_lua-cpp-unsetenv) | `else` |
 | [`f`](#sym-tests-unit-test_zip_and_atomic-cpp-f) | `--> direct` | [`f`](#sym-tests-unit-test_zip_and_atomic-cpp-f) | `std::ifstream` |
 | [`pf`](#sym-tests-unit-test_zip_and_atomic-cpp-pf) | `--> direct` | [`pf`](#sym-tests-unit-test_zip_and_atomic-cpp-pf) | `std::ifstream` |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `--> direct` | [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server) | - |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `--> direct` | [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | - |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `--> direct` | [`post_to_vibe_server`](#sym-tools-cef-annotator-annotator-py-post_to_vibe_server) | - |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `--> direct` | [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations) | - |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `-.-> uncertain (dynamic)` | [`TargetSession.capture_element_screenshot`](#sym-tools-cef-annotator-annotator-py-targetsession-capture_element_screenshot) | - |
+| [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | `-.-> uncertain (dynamic)` | [`TargetSession.update_pins`](#sym-tools-cef-annotator-annotator-py-targetsession-update_pins) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `--> direct` | [`AnnotatorDaemon.select_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-select_targets) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `--> direct` | [`TargetSession`](#sym-tools-cef-annotator-annotator-py-targetsession) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `--> direct` | [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `--> direct` | [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `-.-> uncertain (dynamic)` | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `-.-> uncertain (dynamic)` | [`TargetSession.attach_and_inject`](#sym-tools-cef-annotator-annotator-py-targetsession-attach_and_inject) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `-.-> uncertain (dynamic)` | [`TargetSession.connect`](#sym-tools-cef-annotator-annotator-py-targetsession-connect) | - |
+| [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | `-.-> uncertain (dynamic)` | [`TargetSession.update_route_hint`](#sym-tools-cef-annotator-annotator-py-targetsession-update_route_hint) | - |
+| [`AnnotatorDaemon.process_incoming_events`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events) | `--> direct` | [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called) | - |
+| [`AnnotatorDaemon.process_incoming_events`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events) | `-.-> uncertain (dynamic)` | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup) | - |
+| [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | `--> direct` | [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets) | - |
+| [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | `--> direct` | [`AnnotatorDaemon.process_incoming_events`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events) | - |
+| [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | `--> direct` | [`AnnotatorDaemon.stop`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-stop) | - |
+| [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | `-.-> uncertain (dynamic)` | [`TargetSession.send_heartbeat`](#sym-tools-cef-annotator-annotator-py-targetsession-send_heartbeat) | - |
+| [`AnnotatorDaemon.select_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-select_targets) | `--> direct` | [`extract_shell_route_hint`](#sym-tools-cef-annotator-annotator-py-extract_shell_route_hint) | - |
+| [`AnnotatorDaemon.stop`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-stop) | `-.-> uncertain (dynamic)` | [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup) | - |
+| [`TargetSession.__init__`](#sym-tools-cef-annotator-annotator-py-targetsession-__init__) | `--> direct` | [`generate_random_token`](#sym-tools-cef-annotator-annotator-py-generate_random_token) | - |
+| [`TargetSession.attach_and_inject`](#sym-tools-cef-annotator-annotator-py-targetsession-attach_and_inject) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`TargetSession.capture_element_screenshot`](#sym-tools-cef-annotator-annotator-py-targetsession-capture_element_screenshot) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`TargetSession.cleanup`](#sym-tools-cef-annotator-annotator-py-targetsession-cleanup) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`TargetSession.cleanup`](#sym-tools-cef-annotator-annotator-py-targetsession-cleanup) | `-.-> uncertain (dynamic)` | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | - |
+| [`TargetSession.send_heartbeat`](#sym-tools-cef-annotator-annotator-py-targetsession-send_heartbeat) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`TargetSession.toggle_overlay`](#sym-tools-cef-annotator-annotator-py-targetsession-toggle_overlay) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`TargetSession.update_pins`](#sym-tools-cef-annotator-annotator-py-targetsession-update_pins) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`TargetSession.update_route_hint`](#sym-tools-cef-annotator-annotator-py-targetsession-update_route_hint) | `--> direct` | [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd) | - |
+| [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear) | `--> direct` | [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server) | - |
+| [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear) | `--> direct` | [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | - |
+| [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear) | `--> direct` | [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations) | - |
+| [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done) | `--> direct` | [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server) | - |
+| [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done) | `--> direct` | [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | - |
+| [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done) | `--> direct` | [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations) | - |
+| [`cmd_list`](#sym-tools-cef-annotator-annotator-py-cmd_list) | `--> direct` | [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | - |
+| [`cmd_run`](#sym-tools-cef-annotator-annotator-py-cmd_run) | `--> direct` | [`AnnotatorDaemon`](#sym-tools-cef-annotator-annotator-py-annotatordaemon) | - |
+| [`cmd_run`](#sym-tools-cef-annotator-annotator-py-cmd_run) | `--> direct` | [`ensure_vibe_server`](#sym-tools-cef-annotator-annotator-py-ensure_vibe_server) | - |
+| [`cmd_run`](#sym-tools-cef-annotator-annotator-py-cmd_run) | `-.-> uncertain (dynamic)` | [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run) | - |
+| [`cmd_status`](#sym-tools-cef-annotator-annotator-py-cmd_status) | `--> direct` | [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | - |
+| [`cmd_status`](#sym-tools-cef-annotator-annotator-py-cmd_status) | `--> direct` | [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets) | - |
+| [`cmd_toggle`](#sym-tools-cef-annotator-annotator-py-cmd_toggle) | `--> direct` | [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets) | - |
+| [`cmd_toggle`](#sym-tools-cef-annotator-annotator-py-cmd_toggle) | `-.-> uncertain (dynamic)` | [`openSlsConfig.close`](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close) | - |
+| [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations) | `-.-> uncertain (dynamic)` | [`load`](#sym-src-presenter-nativeinstall-hpp-load) | - |
+| [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations) | `-.-> uncertain (dynamic)` | [`dump`](#sym-src-core-vftableinfo-hpp-dump) | - |
+| [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations) | `-.-> uncertain (dynamic)` | [`remove`](#sym-src-presenter-hooks-hpp-remove) | - |
+| [`applyStyle`](#sym-tools-cef-annotator-overlay-js-applystyle) | `--> direct` | [`applyStyle`](#sym-tools-cef-annotator-overlay-js-applystyle) | - |
+| [`attachCaptureListeners`](#sym-tools-cef-annotator-overlay-js-attachcapturelisteners) | `--> direct` | [`attachCaptureListeners`](#sym-tools-cef-annotator-overlay-js-attachcapturelisteners) | - |
+| [`checkHeartbeat`](#sym-tools-cef-annotator-overlay-js-checkheartbeat) | `--> direct` | [`checkHeartbeat`](#sym-tools-cef-annotator-overlay-js-checkheartbeat) | - |
+| [`closePopup`](#sym-tools-cef-annotator-overlay-js-closepopup) | `--> direct` | [`closePopup`](#sym-tools-cef-annotator-overlay-js-closepopup) | - |
+| [`deleteAllAnnotations`](#sym-tools-cef-annotator-overlay-js-deleteallannotations) | `--> direct` | [`deleteAllAnnotations`](#sym-tools-cef-annotator-overlay-js-deleteallannotations) | - |
+| [`endDrag`](#sym-tools-cef-annotator-overlay-js-enddrag) | `--> direct` | [`endDrag`](#sym-tools-cef-annotator-overlay-js-enddrag) | - |
+| [`endResize`](#sym-tools-cef-annotator-overlay-js-endresize) | `--> direct` | [`endResize`](#sym-tools-cef-annotator-overlay-js-endresize) | - |
+| [`fineTuneDown`](#sym-tools-cef-annotator-overlay-js-finetunedown) | `--> direct` | [`fineTuneDown`](#sym-tools-cef-annotator-overlay-js-finetunedown) | - |
+| [`fineTuneUp`](#sym-tools-cef-annotator-overlay-js-finetuneup) | `--> direct` | [`fineTuneUp`](#sym-tools-cef-annotator-overlay-js-finetuneup) | - |
+| [`getAncestorChain`](#sym-tools-cef-annotator-overlay-js-getancestorchain) | `--> direct` | [`getAncestorChain`](#sym-tools-cef-annotator-overlay-js-getancestorchain) | - |
+| [`getElementContext`](#sym-tools-cef-annotator-overlay-js-getelementcontext) | `--> direct` | [`getElementContext`](#sym-tools-cef-annotator-overlay-js-getelementcontext) | - |
+| [`getNthOfTypePath`](#sym-tools-cef-annotator-overlay-js-getnthoftypepath) | `--> direct` | [`getNthOfTypePath`](#sym-tools-cef-annotator-overlay-js-getnthoftypepath) | - |
+| [`getReactInfo`](#sym-tools-cef-annotator-overlay-js-getreactinfo) | `--> direct` | [`getReactInfo`](#sym-tools-cef-annotator-overlay-js-getreactinfo) | - |
+| [`getReadableClassSelector`](#sym-tools-cef-annotator-overlay-js-getreadableclassselector) | `--> direct` | [`getReadableClassSelector`](#sym-tools-cef-annotator-overlay-js-getreadableclassselector) | - |
+| [`getStableAttributes`](#sym-tools-cef-annotator-overlay-js-getstableattributes) | `--> direct` | [`getStableAttributes`](#sym-tools-cef-annotator-overlay-js-getstableattributes) | - |
+| [`getXPath`](#sym-tools-cef-annotator-overlay-js-getxpath) | `--> direct` | [`getXPath`](#sym-tools-cef-annotator-overlay-js-getxpath) | - |
+| [`initDOM`](#sym-tools-cef-annotator-overlay-js-initdom) | `--> direct` | [`initDOM`](#sym-tools-cef-annotator-overlay-js-initdom) | - |
+| [`matchesCurrentPage`](#sym-tools-cef-annotator-overlay-js-matchescurrentpage) | `--> direct` | [`matchesCurrentPage`](#sym-tools-cef-annotator-overlay-js-matchescurrentpage) | - |
+| [`onCaptureEvent`](#sym-tools-cef-annotator-overlay-js-oncaptureevent) | `--> direct` | [`onCaptureEvent`](#sym-tools-cef-annotator-overlay-js-oncaptureevent) | - |
+| [`onDragMove`](#sym-tools-cef-annotator-overlay-js-ondragmove) | `--> direct` | [`onDragMove`](#sym-tools-cef-annotator-overlay-js-ondragmove) | - |
+| [`onKeyDown`](#sym-tools-cef-annotator-overlay-js-onkeydown) | `--> direct` | [`onKeyDown`](#sym-tools-cef-annotator-overlay-js-onkeydown) | - |
+| [`onPointerMove`](#sym-tools-cef-annotator-overlay-js-onpointermove) | `--> direct` | [`onPointerMove`](#sym-tools-cef-annotator-overlay-js-onpointermove) | - |
+| [`onResizeMove`](#sym-tools-cef-annotator-overlay-js-onresizemove) | `--> direct` | [`onResizeMove`](#sym-tools-cef-annotator-overlay-js-onresizemove) | - |
+| [`onSaveClicked`](#sym-tools-cef-annotator-overlay-js-onsaveclicked) | `--> direct` | [`onSaveClicked`](#sym-tools-cef-annotator-overlay-js-onsaveclicked) | - |
+| [`onToolbarPointerDown`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerdown) | `--> direct` | [`onToolbarPointerDown`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerdown) | - |
+| [`onToolbarPointerMove`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointermove) | `--> direct` | [`onToolbarPointerMove`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointermove) | - |
+| [`onToolbarPointerUp`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerup) | `--> direct` | [`onToolbarPointerUp`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerup) | - |
+| [`openPopup`](#sym-tools-cef-annotator-overlay-js-openpopup) | `--> direct` | [`openPopup`](#sym-tools-cef-annotator-overlay-js-openpopup) | - |
+| [`populateElementValues`](#sym-tools-cef-annotator-overlay-js-populateelementvalues) | `--> direct` | [`populateElementValues`](#sym-tools-cef-annotator-overlay-js-populateelementvalues) | - |
+| [`removeCaptureListeners`](#sym-tools-cef-annotator-overlay-js-removecapturelisteners) | `--> direct` | [`removeCaptureListeners`](#sym-tools-cef-annotator-overlay-js-removecapturelisteners) | - |
+| [`renderPins`](#sym-tools-cef-annotator-overlay-js-renderpins) | `--> direct` | [`renderPins`](#sym-tools-cef-annotator-overlay-js-renderpins) | - |
+| [`resolveElementForAnnotation`](#sym-tools-cef-annotator-overlay-js-resolveelementforannotation) | `--> direct` | [`resolveElementForAnnotation`](#sym-tools-cef-annotator-overlay-js-resolveelementforannotation) | - |
+| [`revertAllChanges`](#sym-tools-cef-annotator-overlay-js-revertallchanges) | `--> direct` | [`revertAllChanges`](#sym-tools-cef-annotator-overlay-js-revertallchanges) | - |
+| [`schedulePinsReposition`](#sym-tools-cef-annotator-overlay-js-schedulepinsreposition) | `--> direct` | [`schedulePinsReposition`](#sym-tools-cef-annotator-overlay-js-schedulepinsreposition) | - |
+| [`setAnnotateMode`](#sym-tools-cef-annotator-overlay-js-setannotatemode) | `--> direct` | [`setAnnotateMode`](#sym-tools-cef-annotator-overlay-js-setannotatemode) | - |
+| [`startDrag`](#sym-tools-cef-annotator-overlay-js-startdrag) | `--> direct` | [`startDrag`](#sym-tools-cef-annotator-overlay-js-startdrag) | - |
+| [`startResize`](#sym-tools-cef-annotator-overlay-js-startresize) | `--> direct` | [`startResize`](#sym-tools-cef-annotator-overlay-js-startresize) | - |
+| [`updateActionButtonText`](#sym-tools-cef-annotator-overlay-js-updateactionbuttontext) | `--> direct` | [`updateActionButtonText`](#sym-tools-cef-annotator-overlay-js-updateactionbuttontext) | - |
+| [`updateChangeDots`](#sym-tools-cef-annotator-overlay-js-updatechangedots) | `--> direct` | [`updateChangeDots`](#sym-tools-cef-annotator-overlay-js-updatechangedots) | - |
+| [`updateHoverBoxForElement`](#sym-tools-cef-annotator-overlay-js-updatehoverboxforelement) | `--> direct` | [`updateHoverBoxForElement`](#sym-tools-cef-annotator-overlay-js-updatehoverboxforelement) | - |
+| [`updateInlineCssEditor`](#sym-tools-cef-annotator-overlay-js-updateinlinecsseditor) | `--> direct` | [`updateInlineCssEditor`](#sym-tools-cef-annotator-overlay-js-updateinlinecsseditor) | - |
 | [`XkbGetKeyboard`](#sym-tools-steamstub-unpack-xkb_fix-c-xkbgetkeyboard) | `--> direct` | [`XkbGetKeyboard`](#sym-tools-steamstub-unpack-xkb_fix-c-xkbgetkeyboard) | `Display`, `XkbDescPtr`, `unsigned int` |
 | [`init_shim`](#sym-tools-steamstub-unpack-xkb_fix-c-init_shim) | `--> direct` | [`init_shim`](#sym-tools-steamstub-unpack-xkb_fix-c-init_shim) | `void` |
 | [`ioctl`](#sym-tools-steamstub-unpack-xkb_fix-c-ioctl) | `--> direct` | [`ioctl`](#sym-tools-steamstub-unpack-xkb_fix-c-ioctl) | `int`, `unsigned long` |
@@ -2242,8 +2973,8 @@ graph TD
 
 ### <a id="file-res-inject-scripts-app-details-script-js"></a>File: `res/inject-scripts/app-details-script.js`
 
-- **Module:** `app-details-script` | **Language:** `javascript` | **Lines:** 873 (`L1-L873`)
-- **Structure:** 873 lines, 0 classes/interfaces, 12 functions/methods
+- **Module:** `app-details-script` | **Language:** `javascript` | **Lines:** 1239 (`L1-L1239`)
+- **Structure:** 1239 lines, 0 classes/interfaces, 17 functions/methods
 
 #### <a id="sym-res-inject-scripts-app-details-script-js-log"></a>`log` (function)
 
@@ -2455,12 +3186,96 @@ graph TD
 - **Calls:** [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal)
 - **Called By:** [`openRemoveConfirmModal`](#sym-res-inject-scripts-app-details-script-js-openremoveconfirmmodal)
 
+#### <a id="sym-res-inject-scripts-app-details-script-js-fetchappcloudstatus"></a>`fetchAppCloudStatus` (function)
+
+- **Qualified Name:** `fetchAppCloudStatus`
+- **Signature:** `function fetchAppCloudStatus(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L518-L518`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`fetchAppCloudStatus`](#sym-res-inject-scripts-app-details-script-js-fetchappcloudstatus)
+- **Called By:** [`fetchAppCloudStatus`](#sym-res-inject-scripts-app-details-script-js-fetchappcloudstatus)
+
+#### <a id="sym-res-inject-scripts-app-details-script-js-toggleappcloudredirect"></a>`toggleAppCloudRedirect` (function)
+
+- **Qualified Name:** `toggleAppCloudRedirect`
+- **Signature:** `function toggleAppCloudRedirect(appId, redirect)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L527-L527`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `redirect` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`toggleAppCloudRedirect`](#sym-res-inject-scripts-app-details-script-js-toggleappcloudredirect)
+- **Called By:** [`toggleAppCloudRedirect`](#sym-res-inject-scripts-app-details-script-js-toggleappcloudredirect)
+
+#### <a id="sym-res-inject-scripts-app-details-script-js-backupappcloudsave"></a>`backupAppCloudSave` (function)
+
+- **Qualified Name:** `backupAppCloudSave`
+- **Signature:** `function backupAppCloudSave(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L541-L541`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`backupAppCloudSave`](#sym-res-inject-scripts-app-details-script-js-backupappcloudsave)
+- **Called By:** [`backupAppCloudSave`](#sym-res-inject-scripts-app-details-script-js-backupappcloudsave)
+
+#### <a id="sym-res-inject-scripts-app-details-script-js-openrestoremodal"></a>`openRestoreModal` (function)
+
+- **Qualified Name:** `openRestoreModal`
+- **Signature:** `function openRestoreModal(appId, onCompleted)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L551-L551`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `onCompleted` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openRestoreModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal)
+- **Called By:** [`openRestoreModal`](#sym-res-inject-scripts-app-details-script-js-openrestoremodal)
+
+##### <a id="sym-res-inject-scripts-app-details-script-js-openrestoremodal-closemodal"></a>`closeModal` (nested_function)
+
+- **Qualified Name:** `openRestoreModal.closeModal`
+- **Signature:** `function closeModal()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L580-L580`](#file-res-inject-scripts-app-details-script-js)
+- **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal), [`remove` (dynamic)](#sym-src-presenter-hooks-hpp-remove)
+
+#### <a id="sym-res-inject-scripts-app-details-script-js-openresetmodal"></a>`openResetModal` (function)
+
+- **Qualified Name:** `openResetModal`
+- **Signature:** `function openResetModal(appId, onCompleted)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L649-L649`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `onCompleted` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openResetModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal)
+- **Called By:** [`openResetModal`](#sym-res-inject-scripts-app-details-script-js-openresetmodal)
+
+##### <a id="sym-res-inject-scripts-app-details-script-js-openresetmodal-closemodal"></a>`closeModal` (nested_function)
+
+- **Qualified Name:** `openResetModal.closeModal`
+- **Signature:** `function closeModal()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L686-L686`](#file-res-inject-scripts-app-details-script-js)
+- **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal), [`remove` (dynamic)](#sym-src-presenter-hooks-hpp-remove)
+
 #### <a id="sym-res-inject-scripts-app-details-script-js-opennavimodal"></a>`openNaviModal` (function)
 
 - **Qualified Name:** `openNaviModal`
 - **Signature:** `function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L518-L518`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L726-L726`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2478,19 +3293,32 @@ graph TD
 - **Qualified Name:** `openNaviModal.closeModal`
 - **Signature:** `function closeModal(cb)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L574-L574`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L794-L794`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
   | `cb` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal)
 
+##### <a id="sym-res-inject-scripts-app-details-script-js-opennavimodal-updatemodalcloudui"></a>`updateModalCloudUI` (nested_function)
+
+- **Qualified Name:** `openNaviModal.updateModalCloudUI`
+- **Signature:** `function updateModalCloudUI(active)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L833-L833`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `active` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openNaviModal.updateModalCloudUI`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-updatemodalcloudui)
+- **Called By:** [`openNaviModal.updateModalCloudUI`](#sym-res-inject-scripts-app-details-script-js-opennavimodal-updatemodalcloudui)
+
 #### <a id="sym-res-inject-scripts-app-details-script-js-createremovebutton"></a>`createRemoveButton` (function)
 
 - **Qualified Name:** `createRemoveButton`
 - **Signature:** `function createRemoveButton(manageContainer, appid, isPending, onlineFixInstalled, autoCrackInstalled, provider)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L625-L625`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L907-L907`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2508,7 +3336,7 @@ graph TD
 - **Qualified Name:** `createRemoveButton.makeSteamButton`
 - **Signature:** `function makeSteamButton(className, text, extraAttrs)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L648-L648`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L930-L930`](#file-res-inject-scripts-app-details-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2523,7 +3351,7 @@ graph TD
 - **Qualified Name:** `createRemoveButton.setDeckRestartState`
 - **Signature:** `function setDeckRestartState()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L699-L699`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L981-L981`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate)
 - **Called By:** [`createRemoveButton.setDeckRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setdeckrestartstate)
 
@@ -2532,16 +3360,29 @@ graph TD
 - **Qualified Name:** `createRemoveButton.setRestartState`
 - **Signature:** `function setRestartState()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L754-L754`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L1036-L1036`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate)
 - **Called By:** [`createRemoveButton.setRestartState`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-setrestartstate)
+
+##### <a id="sym-res-inject-scripts-app-details-script-js-createremovebutton-updaterowcloudui"></a>`updateRowCloudUI` (nested_function)
+
+- **Qualified Name:** `createRemoveButton.updateRowCloudUI`
+- **Signature:** `function updateRowCloudUI(active)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L1091-L1091`](#file-res-inject-scripts-app-details-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `active` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`createRemoveButton.updateRowCloudUI`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-updaterowcloudui)
+- **Called By:** [`createRemoveButton.updateRowCloudUI`](#sym-res-inject-scripts-app-details-script-js-createremovebutton-updaterowcloudui)
 
 #### <a id="sym-res-inject-scripts-app-details-script-js-addremoveluabutton"></a>`addRemoveLuaButton` (function)
 
 - **Qualified Name:** `addRemoveLuaButton`
 - **Signature:** `function addRemoveLuaButton()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L822-L822`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L1188-L1188`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton)
 - **Called By:** [`addRemoveLuaButton`](#sym-res-inject-scripts-app-details-script-js-addremoveluabutton)
 
@@ -2550,7 +3391,7 @@ graph TD
 - **Qualified Name:** `debouncedAddButtons`
 - **Signature:** `function debouncedAddButtons()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/app-details-script.js:L851-L851`](#file-res-inject-scripts-app-details-script-js)
+- **Source Location:** [`res/inject-scripts/app-details-script.js:L1217-L1217`](#file-res-inject-scripts-app-details-script-js)
 - **Calls:** [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons)
 - **Called By:** [`debouncedAddButtons`](#sym-res-inject-scripts-app-details-script-js-debouncedaddbuttons)
 
@@ -2568,6 +3409,414 @@ graph TD
 - **Source Location:** [`res/inject-scripts/auto-collection.js:L8-L8`](#file-res-inject-scripts-auto-collection-js)
 - **Calls:** [`syncAutoCollection`](#sym-res-inject-scripts-auto-collection-js-syncautocollection)
 - **Called By:** [`syncAutoCollection`](#sym-res-inject-scripts-auto-collection-js-syncautocollection)
+
+### <a id="file-res-inject-scripts-cloud_manager-js"></a>File: `res/inject-scripts/cloud_manager.js`
+
+- **Module:** `cloud_manager` | **Language:** `javascript` | **Lines:** 825 (`L1-L825`)
+- **Summary:** Navi Cloud Manager Implements Phase 5 CEF Manager UI & Security Guardrails:
+- **Structure:** 825 lines, 0 classes/interfaces, 24 functions/methods
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-isorigincompliant"></a>`isOriginCompliant` (function)
+
+- **Qualified Name:** `isOriginCompliant`
+- **Signature:** `function isOriginCompliant()`
+- **Visibility:** `+` public
+- **Docstring:** *Check that the current window execution context is a trusted Steam CEF origin.*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L35-L35`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`isOriginCompliant`](#sym-res-inject-scripts-cloud_manager-js-isorigincompliant)
+- **Called By:** [`isOriginCompliant`](#sym-res-inject-scripts-cloud_manager-js-isorigincompliant)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-validatetargeturl"></a>`validateTargetUrl` (function)
+
+- **Qualified Name:** `validateTargetUrl`
+- **Signature:** `function validateTargetUrl(pathOrUrl)`
+- **Visibility:** `+` public
+- **Docstring:** *Ensure the target URL is strictly directed to the local backend port 9001.*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L66-L66`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `pathOrUrl` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`validateTargetUrl`](#sym-res-inject-scripts-cloud_manager-js-validatetargeturl)
+- **Called By:** [`validateTargetUrl`](#sym-res-inject-scripts-cloud_manager-js-validatetargeturl)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-securefetch"></a>`secureFetch` (function)
+
+- **Qualified Name:** `secureFetch`
+- **Signature:** `function secureFetch(pathOrUrl, options)`
+- **Visibility:** `+` public
+- **Docstring:** *Secure fetch wrapper: - Enforces origin compliance*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L88-L88`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `pathOrUrl` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `options` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`secureFetch`](#sym-res-inject-scripts-cloud_manager-js-securefetch)
+- **Called By:** [`secureFetch`](#sym-res-inject-scripts-cloud_manager-js-securefetch)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal"></a>`trapSteamGamepadModal` (function)
+
+- **Qualified Name:** `trapSteamGamepadModal`
+- **Signature:** `function trapSteamGamepadModal(overlay, buttons)`
+- **Visibility:** `+` public
+- **Docstring:** *Steam Gamepad modal focus trapper*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L115-L115`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `overlay` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `buttons` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`trapSteamGamepadModal`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal)
+- **Called By:** [`trapSteamGamepadModal`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-updatefocus"></a>`updateFocus` (nested_function)
+
+- **Qualified Name:** `trapSteamGamepadModal.updateFocus`
+- **Signature:** `function updateFocus()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L117-L117`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-updatefocus)
+- **Called By:** [`trapSteamGamepadModal.updateFocus`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-updatefocus)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cleanup"></a>`cleanup` (nested_function)
+
+- **Qualified Name:** `trapSteamGamepadModal.cleanup`
+- **Signature:** `function cleanup()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L133-L133`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cleanup)
+- **Called By:** [`trapSteamGamepadModal.cleanup`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cleanup)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-gamepadcatcher"></a>`gamepadCatcher` (nested_function)
+
+- **Qualified Name:** `trapSteamGamepadModal.gamepadCatcher`
+- **Signature:** `function gamepadCatcher(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L138-L138`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`trapSteamGamepadModal.gamepadCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-gamepadcatcher)
+- **Called By:** [`trapSteamGamepadModal.gamepadCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-gamepadcatcher)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-okcatcher"></a>`okCatcher` (nested_function)
+
+- **Qualified Name:** `trapSteamGamepadModal.okCatcher`
+- **Signature:** `function okCatcher(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L152-L152`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-okcatcher)
+- **Called By:** [`trapSteamGamepadModal.okCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-okcatcher)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cancelcatcher"></a>`cancelCatcher` (nested_function)
+
+- **Qualified Name:** `trapSteamGamepadModal.cancelCatcher`
+- **Signature:** `function cancelCatcher(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L157-L157`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cancelcatcher)
+- **Called By:** [`trapSteamGamepadModal.cancelCatcher`](#sym-res-inject-scripts-cloud_manager-js-trapsteamgamepadmodal-cancelcatcher)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-updatependingbanner"></a>`updatePendingBanner` (function)
+
+- **Qualified Name:** `updatePendingBanner`
+- **Signature:** `function updatePendingBanner(hasPending)`
+- **Visibility:** `+` public
+- **Docstring:** *Render or update the persistent warning banner at the top of the viewport when pending operations exist.*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L172-L172`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `hasPending` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`updatePendingBanner`](#sym-res-inject-scripts-cloud_manager-js-updatependingbanner)
+- **Called By:** [`updatePendingBanner`](#sym-res-inject-scripts-cloud_manager-js-updatependingbanner)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-fetchstatus"></a>`fetchStatus` (function)
+
+- **Qualified Name:** `fetchStatus`
+- **Signature:** `function fetchStatus()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L244-L244`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`fetchStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchstatus)
+- **Called By:** [`fetchStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchstatus)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-fetchpendingops"></a>`fetchPendingOps` (function)
+
+- **Qualified Name:** `fetchPendingOps`
+- **Signature:** `function fetchPendingOps()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L256-L256`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`fetchPendingOps`](#sym-res-inject-scripts-cloud_manager-js-fetchpendingops)
+- **Called By:** [`fetchPendingOps`](#sym-res-inject-scripts-cloud_manager-js-fetchpendingops)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-togglemaster"></a>`toggleMaster` (function)
+
+- **Qualified Name:** `toggleMaster`
+- **Signature:** `function toggleMaster(enable)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L277-L277`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `enable` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`toggleMaster`](#sym-res-inject-scripts-cloud_manager-js-togglemaster)
+- **Called By:** [`toggleMaster`](#sym-res-inject-scripts-cloud_manager-js-togglemaster)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-fetchproviderstatus"></a>`fetchProviderStatus` (function)
+
+- **Qualified Name:** `fetchProviderStatus`
+- **Signature:** `function fetchProviderStatus(provider)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L299-L299`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`fetchProviderStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchproviderstatus)
+- **Called By:** [`fetchProviderStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchproviderstatus)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-signinprovider"></a>`signInProvider` (function)
+
+- **Qualified Name:** `signInProvider`
+- **Signature:** `function signInProvider(provider)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L305-L305`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`signInProvider`](#sym-res-inject-scripts-cloud_manager-js-signinprovider)
+- **Called By:** [`signInProvider`](#sym-res-inject-scripts-cloud_manager-js-signinprovider)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-signoutprovider"></a>`signOutProvider` (function)
+
+- **Qualified Name:** `signOutProvider`
+- **Signature:** `function signOutProvider(provider)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L320-L320`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`signOutProvider`](#sym-res-inject-scripts-cloud_manager-js-signoutprovider)
+- **Called By:** [`signOutProvider`](#sym-res-inject-scripts-cloud_manager-js-signoutprovider)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-restartsteam"></a>`restartSteam` (function)
+
+- **Qualified Name:** `restartSteam`
+- **Signature:** `function restartSteam()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L329-L329`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`restartSteam`](#sym-res-inject-scripts-cloud_manager-js-restartsteam)
+- **Called By:** [`restartSteam`](#sym-res-inject-scripts-cloud_manager-js-restartsteam)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-fetchappstatus"></a>`fetchAppStatus` (function)
+
+- **Qualified Name:** `fetchAppStatus`
+- **Signature:** `function fetchAppStatus(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L333-L333`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`fetchAppStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchappstatus)
+- **Called By:** [`fetchAppStatus`](#sym-res-inject-scripts-cloud_manager-js-fetchappstatus)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-toggleappredirect"></a>`toggleAppRedirect` (function)
+
+- **Qualified Name:** `toggleAppRedirect`
+- **Signature:** `function toggleAppRedirect(appId, redirect)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L338-L338`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `redirect` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`toggleAppRedirect`](#sym-res-inject-scripts-cloud_manager-js-toggleappredirect)
+- **Called By:** [`toggleAppRedirect`](#sym-res-inject-scripts-cloud_manager-js-toggleappredirect)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-backupappsave"></a>`backupAppSave` (function)
+
+- **Qualified Name:** `backupAppSave`
+- **Signature:** `function backupAppSave(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L346-L346`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`backupAppSave`](#sym-res-inject-scripts-cloud_manager-js-backupappsave)
+- **Called By:** [`backupAppSave`](#sym-res-inject-scripts-cloud_manager-js-backupappsave)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-restoreappsave"></a>`restoreAppSave` (function)
+
+- **Qualified Name:** `restoreAppSave`
+- **Signature:** `function restoreAppSave(appId, backupFile)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L353-L353`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `backupFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`restoreAppSave`](#sym-res-inject-scripts-cloud_manager-js-restoreappsave)
+- **Called By:** [`restoreAppSave`](#sym-res-inject-scripts-cloud_manager-js-restoreappsave)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-executeresetappsave"></a>`executeResetAppSave` (function)
+
+- **Qualified Name:** `executeResetAppSave`
+- **Signature:** `function executeResetAppSave(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L365-L365`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`executeResetAppSave`](#sym-res-inject-scripts-cloud_manager-js-executeresetappsave)
+- **Called By:** [`executeResetAppSave`](#sym-res-inject-scripts-cloud_manager-js-executeresetappsave)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-resetappsave"></a>`resetAppSave` (function)
+
+- **Qualified Name:** `resetAppSave`
+- **Signature:** `function resetAppSave(appId, onCompleted)`
+- **Visibility:** `+` public
+- **Docstring:** *Typed Confirmation Modal for Reset Cloud Save*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L380-L380`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `onCompleted` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`resetAppSave`](#sym-res-inject-scripts-cloud_manager-js-resetappsave)
+- **Called By:** [`resetAppSave`](#sym-res-inject-scripts-cloud_manager-js-resetappsave)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-resetappsave-closemodal"></a>`closeModal` (nested_function)
+
+- **Qualified Name:** `resetAppSave.closeModal`
+- **Signature:** `function closeModal()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L426-L426`](#file-res-inject-scripts-cloud_manager-js)
+- **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-openrestoremodal"></a>`openRestoreModal` (function)
+
+- **Qualified Name:** `openRestoreModal`
+- **Signature:** `function openRestoreModal(appId, onCompleted)`
+- **Visibility:** `+` public
+- **Docstring:** *Modal listing available backups with Restore button*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L471-L471`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `onCompleted` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openRestoreModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal)
+- **Called By:** [`openRestoreModal`](#sym-res-inject-scripts-cloud_manager-js-openrestoremodal)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-openrestoremodal-closemodal"></a>`closeModal` (nested_function)
+
+- **Qualified Name:** `openRestoreModal.closeModal`
+- **Signature:** `function closeModal()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L504-L504`](#file-res-inject-scripts-cloud_manager-js)
+- **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-opensettingsmodal"></a>`openSettingsModal` (function)
+
+- **Qualified Name:** `openSettingsModal`
+- **Signature:** `function openSettingsModal()`
+- **Visibility:** `+` public
+- **Docstring:** *Global Settings & Provider Authentication Modal*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L581-L581`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`openSettingsModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal)
+- **Called By:** [`openSettingsModal`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-closemodal"></a>`closeModal` (nested_function)
+
+- **Qualified Name:** `openSettingsModal.closeModal`
+- **Signature:** `function closeModal()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L653-L653`](#file-res-inject-scripts-cloud_manager-js)
+- **Uncertain / Dynamic Calls:** [`openChangeProviderModal.closeModal` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openchangeprovidermodal-closemodal)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshmasterui"></a>`refreshMasterUI` (nested_function)
+
+- **Qualified Name:** `openSettingsModal.refreshMasterUI`
+- **Signature:** `function refreshMasterUI(enabled)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L660-L660`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `enabled` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openSettingsModal.refreshMasterUI`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshmasterui)
+- **Called By:** [`openSettingsModal.refreshMasterUI`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshmasterui)
+
+##### <a id="sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshproviderauth"></a>`refreshProviderAuth` (nested_function)
+
+- **Qualified Name:** `openSettingsModal.refreshProviderAuth`
+- **Signature:** `function refreshProviderAuth(p)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L681-L681`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `p` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openSettingsModal.refreshProviderAuth`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshproviderauth)
+- **Called By:** [`openSettingsModal.refreshProviderAuth`](#sym-res-inject-scripts-cloud_manager-js-opensettingsmodal-refreshproviderauth)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-poll"></a>`poll` (function)
+
+- **Qualified Name:** `poll`
+- **Signature:** `function poll()`
+- **Visibility:** `+` public
+- **Docstring:** *Polling tick*
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L770-L770`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`poll`](#sym-res-inject-scripts-cloud_manager-js-poll)
+- **Called By:** [`poll`](#sym-res-inject-scripts-cloud_manager-js-poll)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-startpolling"></a>`startPolling` (function)
+
+- **Qualified Name:** `startPolling`
+- **Signature:** `function startPolling(intervalMs)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L777-L777`](#file-res-inject-scripts-cloud_manager-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `intervalMs` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`startPolling`](#sym-res-inject-scripts-cloud_manager-js-startpolling)
+- **Called By:** [`startPolling`](#sym-res-inject-scripts-cloud_manager-js-startpolling)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-stoppolling"></a>`stopPolling` (function)
+
+- **Qualified Name:** `stopPolling`
+- **Signature:** `function stopPolling()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L783-L783`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`stopPolling`](#sym-res-inject-scripts-cloud_manager-js-stoppolling)
+- **Called By:** [`stopPolling`](#sym-res-inject-scripts-cloud_manager-js-stoppolling)
+
+#### <a id="sym-res-inject-scripts-cloud_manager-js-init"></a>`init` (function)
+
+- **Qualified Name:** `init`
+- **Signature:** `function init()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/cloud_manager.js:L790-L790`](#file-res-inject-scripts-cloud_manager-js)
+- **Calls:** [`init`](#sym-res-inject-scripts-cloud_manager-js-init)
+- **Called By:** [`init`](#sym-res-inject-scripts-cloud_manager-js-init)
 
 ### <a id="file-res-inject-scripts-depot-selection-script-js"></a>File: `res/inject-scripts/depot-selection-script.js`
 
@@ -2769,8 +4018,8 @@ graph TD
 
 ### <a id="file-res-inject-scripts-import-lua-script-js"></a>File: `res/inject-scripts/import-lua-script.js`
 
-- **Module:** `import-lua-script` | **Language:** `javascript` | **Lines:** 1199 (`L1-L1199`)
-- **Structure:** 1199 lines, 0 classes/interfaces, 13 functions/methods
+- **Module:** `import-lua-script` | **Language:** `javascript` | **Lines:** 2592 (`L1-L2592`)
+- **Structure:** 2592 lines, 0 classes/interfaces, 28 functions/methods
 
 #### <a id="sym-res-inject-scripts-import-lua-script-js-log"></a>`log` (function)
 
@@ -2834,12 +4083,34 @@ graph TD
 - **Calls:** [`getSteamHistory`](#sym-res-inject-scripts-import-lua-script-js-getsteamhistory)
 - **Called By:** [`getSteamHistory`](#sym-res-inject-scripts-import-lua-script-js-getsteamhistory)
 
+#### <a id="sym-res-inject-scripts-import-lua-script-js-escapehtml"></a>`escapeHtml` (function)
+
+- **Qualified Name:** `escapeHtml`
+- **Signature:** `function escapeHtml(str)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L128-L128`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `str` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`escapeHtml`](#sym-res-inject-scripts-import-lua-script-js-escapehtml)
+- **Called By:** [`escapeHtml`](#sym-res-inject-scripts-import-lua-script-js-escapehtml)
+
+#### <a id="sym-res-inject-scripts-import-lua-script-js-ensurecustomtabstyles"></a>`ensureCustomTabStyles` (function)
+
+- **Qualified Name:** `ensureCustomTabStyles`
+- **Signature:** `function ensureCustomTabStyles()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L138-L138`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`ensureCustomTabStyles`](#sym-res-inject-scripts-import-lua-script-js-ensurecustomtabstyles)
+- **Called By:** [`ensureCustomTabStyles`](#sym-res-inject-scripts-import-lua-script-js-ensurecustomtabstyles)
+
 #### <a id="sym-res-inject-scripts-import-lua-script-js-showslspage"></a>`showSlsPage` (function)
 
 - **Qualified Name:** `showSlsPage`
 - **Signature:** `function showSlsPage()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L126-L126`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L192-L192`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`showSlsPage`](#sym-res-inject-scripts-import-lua-script-js-showslspage)
 - **Called By:** [`showSlsPage`](#sym-res-inject-scripts-import-lua-script-js-showslspage)
 
@@ -2848,16 +4119,420 @@ graph TD
 - **Qualified Name:** `hideSlsPage`
 - **Signature:** `function hideSlsPage()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L221-L221`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L274-L274`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`hideSlsPage`](#sym-res-inject-scripts-import-lua-script-js-hideslspage)
 - **Called By:** [`hideSlsPage`](#sym-res-inject-scripts-import-lua-script-js-hideslspage)
+
+#### <a id="sym-res-inject-scripts-import-lua-script-js-hideconfigpage"></a>`hideConfigPage` (function)
+
+- **Qualified Name:** `hideConfigPage`
+- **Signature:** `function hideConfigPage()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L285-L285`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`hideConfigPage`](#sym-res-inject-scripts-import-lua-script-js-hideconfigpage)
+- **Called By:** [`hideConfigPage`](#sym-res-inject-scripts-import-lua-script-js-hideconfigpage)
+
+#### <a id="sym-res-inject-scripts-import-lua-script-js-showconfigpage"></a>`showConfigPage` (function)
+
+- **Qualified Name:** `showConfigPage`
+- **Signature:** `function showConfigPage()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L304-L304`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`showConfigPage`](#sym-res-inject-scripts-import-lua-script-js-showconfigpage)
+- **Called By:** [`showConfigPage`](#sym-res-inject-scripts-import-lua-script-js-showconfigpage)
+
+#### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage"></a>`renderConfigPage` (function)
+
+- **Qualified Name:** `renderConfigPage`
+- **Signature:** `function renderConfigPage(container, cfg, sync)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L367-L367`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `container` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `cfg` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `sync` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage)
+- **Called By:** [`renderConfigPage`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makecard"></a>`makeCard` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.makeCard`
+- **Signature:** `function makeCard(title, subtitle, contentHtml)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L384-L384`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `title` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `subtitle` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `contentHtml` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.makeCard`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makecard)
+- **Called By:** [`renderConfigPage.makeCard`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makecard)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makesettingrow"></a>`makeSettingRow` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.makeSettingRow`
+- **Signature:** `function makeSettingRow(label, desc, controlHtml, searchTerms)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L392-L392`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `label` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `desc` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `controlHtml` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `searchTerms` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.makeSettingRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makesettingrow)
+- **Called By:** [`renderConfigPage.makeSettingRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makesettingrow)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketoggle"></a>`makeToggle` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.makeToggle`
+- **Signature:** `function makeToggle(id, checked)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L404-L404`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `checked` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.makeToggle`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketoggle)
+- **Called By:** [`renderConfigPage.makeToggle`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketoggle)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatarrayforeditor"></a>`formatArrayForEditor` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.formatArrayForEditor`
+- **Signature:** `function formatArrayForEditor(arr)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L411-L411`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `arr` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.formatArrayForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatarrayforeditor)
+- **Called By:** [`renderConfigPage.formatArrayForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatarrayforeditor)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatkvforeditor"></a>`formatKvForEditor` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.formatKvForEditor`
+- **Signature:** `function formatKvForEditor(m)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L415-L415`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.formatKvForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatkvforeditor)
+- **Called By:** [`renderConfigPage.formatKvForEditor`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-formatkvforeditor)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makeapikeyrow"></a>`makeApiKeyRow` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.makeApiKeyRow`
+- **Signature:** `function makeApiKeyRow(keyName, label, desc, currentVal)`
+- **Visibility:** `+` public
+- **Docstring:** *SECTION 2: Provider API Keys*
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L609-L609`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `keyName` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `label` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `desc` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `currentVal` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.makeApiKeyRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makeapikeyrow)
+- **Called By:** [`renderConfigPage.makeApiKeyRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-makeapikeyrow)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketextareaitem"></a>`makeTextareaItem` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.makeTextareaItem`
+- **Signature:** `function makeTextareaItem(id, label, desc, content, placeholder, rows)`
+- **Visibility:** `+` public
+- **Docstring:** *SECTION 5: App Lists, DLC & Depot Overrides*
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L678-L678`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `label` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `desc` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `content` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `placeholder` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `rows` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.makeTextareaItem`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketextareaitem)
+- **Called By:** [`renderConfigPage.makeTextareaItem`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-maketextareaitem)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-showstatusbanner"></a>`showStatusBanner` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.showStatusBanner`
+- **Signature:** `function showStatusBanner(msg, color)`
+- **Visibility:** `+` public
+- **Docstring:** *BIND EVENT LISTENERS*
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L833-L833`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `msg` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `color` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.showStatusBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-showstatusbanner)
+- **Called By:** [`renderConfigPage.showStatusBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-showstatusbanner)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-activatetab"></a>`activateTab` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.activateTab`
+- **Signature:** `function activateTab()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L850-L850`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.activateTab`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-activatetab)
+- **Called By:** [`renderConfigPage.activateTab`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-activatetab)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure"></a>`updateProgressiveDisclosure` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.updateProgressiveDisclosure`
+- **Signature:** `function updateProgressiveDisclosure()`
+- **Visibility:** `+` public
+- **Docstring:** *3. Progressive Disclosure & Dynamic Visibility*
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L911-L911`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.updateProgressiveDisclosure`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure)
+- **Called By:** [`renderConfigPage.updateProgressiveDisclosure`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure-updatefilterrow"></a>`updateFilterRow` (function)
+
+- **Qualified Name:** `renderConfigPage.updateProgressiveDisclosure.updateFilterRow`
+- **Signature:** `function updateFilterRow(toggleId, badgeId, rowId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L934-L934`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `toggleId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `badgeId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `rowId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.updateProgressiveDisclosure.updateFilterRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure-updatefilterrow)
+- **Called By:** [`renderConfigPage.updateProgressiveDisclosure.updateFilterRow`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateprogressivedisclosure-updatefilterrow)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updategdriveauthui"></a>`updateGDriveAuthUi` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.updateGDriveAuthUi`
+- **Signature:** `function updateGDriveAuthUi(isAuthed)`
+- **Visibility:** `+` public
+- **Docstring:** *4. Guided Journey & Live Readiness Banner*
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L951-L951`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `isAuthed` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.updateGDriveAuthUi`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updategdriveauthui)
+- **Called By:** [`renderConfigPage.updateGDriveAuthUi`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updategdriveauthui)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner"></a>`updateReadinessBanner` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.updateReadinessBanner`
+- **Signature:** `function updateReadinessBanner()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L971-L971`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.updateReadinessBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner)
+- **Called By:** [`renderConfigPage.updateReadinessBanner`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner-setstepstate"></a>`setStepState` (function)
+
+- **Qualified Name:** `renderConfigPage.updateReadinessBanner.setStepState`
+- **Signature:** `function setStepState(el, state)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1011-L1011`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `state` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.updateReadinessBanner.setStepState`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner-setstepstate)
+- **Called By:** [`renderConfigPage.updateReadinessBanner.setStepState`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updatereadinessbanner-setstepstate)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateactivepresetchip"></a>`updateActivePresetChip` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.updateActivePresetChip`
+- **Signature:** `function updateActivePresetChip(mask)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1154-L1154`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `mask` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.updateActivePresetChip`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateactivepresetchip)
+- **Called By:** [`renderConfigPage.updateActivePresetChip`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-updateactivepresetchip)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform"></a>`serializeCurrentForm` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.serializeCurrentForm`
+- **Signature:** `function serializeCurrentForm()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1265-L1265`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.serializeCurrentForm`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform)
+- **Called By:** [`renderConfigPage.serializeCurrentForm`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval"></a>`getVal` (function)
+
+- **Qualified Name:** `renderConfigPage.serializeCurrentForm.getVal`
+- **Signature:** `function getVal(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1266-L1266`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Uncertain / Dynamic Calls:** [`renderConfigPage.serializeCurrentForm.getVal` (dynamic)](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox"></a>`getCheckbox` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.serializeCurrentForm.getVal.getCheckbox`
+- **Signature:** `function getCheckbox(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1267-L1267`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Uncertain / Dynamic Calls:** [`renderConfigPage.serializeCurrentForm.getVal.getCheckbox` (dynamic)](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-checkdirty"></a>`checkDirty` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.checkDirty`
+- **Signature:** `function checkDirty()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1331-L1331`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.checkDirty`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-checkdirty)
+- **Called By:** [`renderConfigPage.checkDirty`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-checkdirty)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-markclean"></a>`markClean` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.markClean`
+- **Signature:** `function markClean()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1350-L1350`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.markClean`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-markclean)
+- **Called By:** [`renderConfigPage.markClean`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-markclean)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig"></a>`collectAndSaveConfig` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig`
+- **Signature:** `function collectAndSaveConfig(callback, silent)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1367-L1367`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `callback` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `silent` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.collectAndSaveConfig`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig)
+- **Called By:** [`renderConfigPage.collectAndSaveConfig`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getval"></a>`getVal` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.getVal`
+- **Signature:** `function getVal(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1372-L1372`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Uncertain / Dynamic Calls:** [`renderConfigPage.serializeCurrentForm.getVal` (dynamic)](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getint"></a>`getInt` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.getInt`
+- **Signature:** `function getInt(id, def)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1376-L1376`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `def` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.collectAndSaveConfig.getInt`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getint)
+- **Called By:** [`renderConfigPage.collectAndSaveConfig.getInt`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getint)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getcheckbox"></a>`getCheckbox` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.getCheckbox`
+- **Signature:** `function getCheckbox(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1380-L1380`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Uncertain / Dynamic Calls:** [`renderConfigPage.serializeCurrentForm.getVal.getCheckbox` (dynamic)](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-serializecurrentform-getval-getcheckbox)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parseuintarray"></a>`parseUintArray` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.parseUintArray`
+- **Signature:** `function parseUintArray(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1384-L1384`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.collectAndSaveConfig.parseUintArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parseuintarray)
+- **Called By:** [`renderConfigPage.collectAndSaveConfig.parseUintArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parseuintarray)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsestringarray"></a>`parseStringArray` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.parseStringArray`
+- **Signature:** `function parseStringArray(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1397-L1397`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.collectAndSaveConfig.parseStringArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsestringarray)
+- **Called By:** [`renderConfigPage.collectAndSaveConfig.parseStringArray`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsestringarray)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsekvmap"></a>`parseKvMap` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.parseKvMap`
+- **Signature:** `function parseKvMap(id)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1408-L1408`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.collectAndSaveConfig.parseKvMap`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsekvmap)
+- **Called By:** [`renderConfigPage.collectAndSaveConfig.parseKvMap`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-parsekvmap)
+
+###### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getprovidernames"></a>`getProviderNames` (function)
+
+- **Qualified Name:** `renderConfigPage.collectAndSaveConfig.getProviderNames`
+- **Signature:** `function getProviderNames()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1429-L1429`](#file-res-inject-scripts-import-lua-script-js)
+- **Calls:** [`renderConfigPage.collectAndSaveConfig.getProviderNames`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getprovidernames)
+- **Called By:** [`renderConfigPage.collectAndSaveConfig.getProviderNames`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-collectandsaveconfig-getprovidernames)
+
+##### <a id="sym-res-inject-scripts-import-lua-script-js-renderconfigpage-handlekeydown"></a>`handleKeyDown` (nested_function)
+
+- **Qualified Name:** `renderConfigPage.handleKeyDown`
+- **Signature:** `function handleKeyDown(e)`
+- **Visibility:** `+` public
+- **Docstring:** *11. Global Keyboard Shortcuts*
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1544-L1544`](#file-res-inject-scripts-import-lua-script-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderConfigPage.handleKeyDown`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-handlekeydown)
+- **Called By:** [`renderConfigPage.handleKeyDown`](#sym-res-inject-scripts-import-lua-script-js-renderconfigpage-handlekeydown)
 
 #### <a id="sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage"></a>`initManualInstallPage` (function)
 
 - **Qualified Name:** `initManualInstallPage`
 - **Signature:** `function initManualInstallPage()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L232-L232`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1582-L1582`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initManualInstallPage`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage)
 - **Called By:** [`initManualInstallPage`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage)
 
@@ -2866,7 +4541,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.loadLuaFilesCache`
 - **Signature:** `function loadLuaFilesCache(files, callback)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L281-L281`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1631-L1631`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2881,7 +4556,7 @@ graph TD
 - **Signature:** `function extractZipFiles(zipFile)`
 - **Visibility:** `+` public
 - **Docstring:** *Extract zip files into individual File objects*
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L313-L313`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1663-L1663`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2894,7 +4569,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.handleFiles`
 - **Signature:** `function handleFiles(files)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L335-L335`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1685-L1685`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2908,7 +4583,7 @@ graph TD
 - **Signature:** `function addFiles(filesToAdd)`
 - **Visibility:** `+` public
 - **Docstring:** *Process regular files immediately*
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L351-L351`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1701-L1701`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2921,7 +4596,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.fetchAppMetadata`
 - **Signature:** `function fetchAppMetadata(appid)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L434-L434`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1784-L1784`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2934,7 +4609,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.getAppIdFromFileName`
 - **Signature:** `function getAppIdFromFileName(fileName)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L462-L462`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1812-L1812`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2947,7 +4622,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.classifyFile`
 - **Signature:** `function classifyFile(file, parentAppId)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L476-L476`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1826-L1826`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2961,7 +4636,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.initCheckedFiles`
 - **Signature:** `function initCheckedFiles()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L537-L537`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1887-L1887`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initManualInstallPage.initCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-initcheckedfiles)
 - **Called By:** [`initManualInstallPage.initCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-initcheckedfiles)
 
@@ -2970,7 +4645,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.getCheckedOSCount`
 - **Signature:** `function getCheckedOSCount()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L546-L546`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1896-L1896`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initManualInstallPage.getCheckedOSCount`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getcheckedoscount)
 - **Called By:** [`initManualInstallPage.getCheckedOSCount`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-getcheckedoscount)
 
@@ -2979,7 +4654,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.findRelatedLuaFile`
 - **Signature:** `function findRelatedLuaFile(file, luaFiles)`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L558-L558`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1908-L1908`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -2994,7 +4669,7 @@ graph TD
 - **Signature:** `function getAppIdFromLuaContent(luaContent)`
 - **Visibility:** `+` public
 - **Docstring:** *Extract AppID from lua file contents by parsing addappid(XXXX) calls*
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L596-L596`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1946-L1946`](#file-res-inject-scripts-import-lua-script-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -3008,7 +4683,7 @@ graph TD
 - **Signature:** `function detectAppIdFromCheckedFiles()`
 - **Visibility:** `+` public
 - **Docstring:** *Find the best AppID from all checked lua files*
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L603-L603`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1953-L1953`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initManualInstallPage.detectAppIdFromCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-detectappidfromcheckedfiles)
 - **Called By:** [`initManualInstallPage.detectAppIdFromCheckedFiles`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-detectappidfromcheckedfiles)
 
@@ -3018,7 +4693,7 @@ graph TD
 - **Signature:** `function updateSubmitButton()`
 - **Visibility:** `+` public
 - **Docstring:** *Update the submit button state based on current checked files*
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L627-L627`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1977-L1977`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initManualInstallPage.updateSubmitButton`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatesubmitbutton)
 - **Called By:** [`initManualInstallPage.updateSubmitButton`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatesubmitbutton)
 
@@ -3027,7 +4702,7 @@ graph TD
 - **Qualified Name:** `initManualInstallPage.updateFileList`
 - **Signature:** `function updateFileList()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L647-L647`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1997-L1997`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initManualInstallPage.updateFileList`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatefilelist)
 - **Called By:** [`initManualInstallPage.updateFileList`](#sym-res-inject-scripts-import-lua-script-js-initmanualinstallpage-updatefilelist)
 
@@ -3036,7 +4711,7 @@ graph TD
 - **Qualified Name:** `addSlsTab`
 - **Signature:** `function addSlsTab()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1108-L1108`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L2458-L2458`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`addSlsTab`](#sym-res-inject-scripts-import-lua-script-js-addslstab)
 - **Called By:** [`addSlsTab`](#sym-res-inject-scripts-import-lua-script-js-addslstab)
 
@@ -3045,7 +4720,7 @@ graph TD
 - **Qualified Name:** `initSlsTabAndPage`
 - **Signature:** `function initSlsTabAndPage()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1163-L1163`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L2549-L2549`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`initSlsTabAndPage`](#sym-res-inject-scripts-import-lua-script-js-initslstabandpage)
 - **Called By:** [`initSlsTabAndPage`](#sym-res-inject-scripts-import-lua-script-js-initslstabandpage)
 
@@ -3054,15 +4729,274 @@ graph TD
 - **Qualified Name:** `debouncedAddButtons`
 - **Signature:** `function debouncedAddButtons()`
 - **Visibility:** `+` public
-- **Source Location:** [`res/inject-scripts/import-lua-script.js:L1188-L1188`](#file-res-inject-scripts-import-lua-script-js)
+- **Source Location:** [`res/inject-scripts/import-lua-script.js:L2581-L2581`](#file-res-inject-scripts-import-lua-script-js)
 - **Calls:** [`debouncedAddButtons`](#sym-res-inject-scripts-import-lua-script-js-debouncedaddbuttons)
 - **Called By:** [`debouncedAddButtons`](#sym-res-inject-scripts-import-lua-script-js-debouncedaddbuttons)
 
 ### <a id="file-res-inject-scripts-navi_inject-js"></a>File: `res/inject-scripts/navi_inject.js`
 
-- **Module:** `navi_inject` | **Language:** `javascript` | **Lines:** 190 (`L1-L190`)
+- **Module:** `navi_inject` | **Language:** `javascript` | **Lines:** 543 (`L1-L543`)
 - **Summary:** Navi CEF Injection Script This script monkey-patches SteamClient.Apps.RegisterForAppDetails
-- **Structure:** 190 lines, 0 classes/interfaces, 4 functions/methods
+- **Structure:** 543 lines, 0 classes/interfaces, 5 functions/methods
+
+#### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager"></a>`setupCloudManager` (function)
+
+- **Qualified Name:** `setupCloudManager`
+- **Signature:** `function setupCloudManager()`
+- **Visibility:** `+` public
+- **Docstring:** *------------------------------------------------------------------------- Navi Cloud Manager Integration (Phase 5)*
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L22-L22`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager)
+- **Called By:** [`setupCloudManager`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-isorigincompliant"></a>`isOriginCompliant` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.isOriginCompliant`
+- **Signature:** `function isOriginCompliant()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L40-L40`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.isOriginCompliant`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-isorigincompliant)
+- **Called By:** [`setupCloudManager.isOriginCompliant`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-isorigincompliant)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-validatetargeturl"></a>`validateTargetUrl` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.validateTargetUrl`
+- **Signature:** `function validateTargetUrl(pathOrUrl)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L68-L68`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `pathOrUrl` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.validateTargetUrl`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-validatetargeturl)
+- **Called By:** [`setupCloudManager.validateTargetUrl`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-validatetargeturl)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-securefetch"></a>`secureFetch` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.secureFetch`
+- **Signature:** `function secureFetch(pathOrUrl, options)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L83-L83`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `pathOrUrl` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `options` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.secureFetch`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-securefetch)
+- **Called By:** [`setupCloudManager.secureFetch`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-securefetch)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-updatependingbanner"></a>`updatePendingBanner` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.updatePendingBanner`
+- **Signature:** `function updatePendingBanner(hasPending)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L107-L107`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `hasPending` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.updatePendingBanner`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-updatependingbanner)
+- **Called By:** [`setupCloudManager.updatePendingBanner`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-updatependingbanner)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchstatus"></a>`fetchStatus` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.fetchStatus`
+- **Signature:** `function fetchStatus()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L170-L170`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.fetchStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchstatus)
+- **Called By:** [`setupCloudManager.fetchStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchstatus)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchpendingops"></a>`fetchPendingOps` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.fetchPendingOps`
+- **Signature:** `function fetchPendingOps()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L182-L182`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.fetchPendingOps`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchpendingops)
+- **Called By:** [`setupCloudManager.fetchPendingOps`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchpendingops)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-togglemaster"></a>`toggleMaster` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.toggleMaster`
+- **Signature:** `function toggleMaster(enable)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L203-L203`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `enable` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.toggleMaster`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-togglemaster)
+- **Called By:** [`setupCloudManager.toggleMaster`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-togglemaster)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchproviderstatus"></a>`fetchProviderStatus` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.fetchProviderStatus`
+- **Signature:** `function fetchProviderStatus(provider)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L225-L225`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.fetchProviderStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchproviderstatus)
+- **Called By:** [`setupCloudManager.fetchProviderStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchproviderstatus)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signinprovider"></a>`signInProvider` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.signInProvider`
+- **Signature:** `function signInProvider(provider)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L231-L231`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.signInProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signinprovider)
+- **Called By:** [`setupCloudManager.signInProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signinprovider)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signoutprovider"></a>`signOutProvider` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.signOutProvider`
+- **Signature:** `function signOutProvider(provider)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L246-L246`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.signOutProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signoutprovider)
+- **Called By:** [`setupCloudManager.signOutProvider`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-signoutprovider)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restartsteam"></a>`restartSteam` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.restartSteam`
+- **Signature:** `function restartSteam()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L255-L255`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.restartSteam`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restartsteam)
+- **Called By:** [`setupCloudManager.restartSteam`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restartsteam)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchappstatus"></a>`fetchAppStatus` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.fetchAppStatus`
+- **Signature:** `function fetchAppStatus(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L259-L259`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.fetchAppStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchappstatus)
+- **Called By:** [`setupCloudManager.fetchAppStatus`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-fetchappstatus)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-toggleappredirect"></a>`toggleAppRedirect` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.toggleAppRedirect`
+- **Signature:** `function toggleAppRedirect(appId, redirect)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L264-L264`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `redirect` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.toggleAppRedirect`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-toggleappredirect)
+- **Called By:** [`setupCloudManager.toggleAppRedirect`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-toggleappredirect)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-backupappsave"></a>`backupAppSave` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.backupAppSave`
+- **Signature:** `function backupAppSave(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L272-L272`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.backupAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-backupappsave)
+- **Called By:** [`setupCloudManager.backupAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-backupappsave)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restoreappsave"></a>`restoreAppSave` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.restoreAppSave`
+- **Signature:** `function restoreAppSave(appId, backupFile)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L279-L279`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `backupFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.restoreAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restoreappsave)
+- **Called By:** [`setupCloudManager.restoreAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-restoreappsave)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-executeresetappsave"></a>`executeResetAppSave` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.executeResetAppSave`
+- **Signature:** `function executeResetAppSave(appId)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L291-L291`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.executeResetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-executeresetappsave)
+- **Called By:** [`setupCloudManager.executeResetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-executeresetappsave)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-resetappsave"></a>`resetAppSave` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.resetAppSave`
+- **Signature:** `function resetAppSave(appId, onCompleted)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L303-L303`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `onCompleted` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.resetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-resetappsave)
+- **Called By:** [`setupCloudManager.resetAppSave`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-resetappsave)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-poll"></a>`poll` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.poll`
+- **Signature:** `function poll()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L314-L314`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.poll`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-poll)
+- **Called By:** [`setupCloudManager.poll`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-poll)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-startpolling"></a>`startPolling` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.startPolling`
+- **Signature:** `function startPolling(intervalMs)`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L321-L321`](#file-res-inject-scripts-navi_inject-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `intervalMs` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setupCloudManager.startPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-startpolling)
+- **Called By:** [`setupCloudManager.startPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-startpolling)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-stoppolling"></a>`stopPolling` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.stopPolling`
+- **Signature:** `function stopPolling()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L327-L327`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.stopPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-stoppolling)
+- **Called By:** [`setupCloudManager.stopPolling`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-stoppolling)
+
+##### <a id="sym-res-inject-scripts-navi_inject-js-setupcloudmanager-init"></a>`init` (nested_function)
+
+- **Qualified Name:** `setupCloudManager.init`
+- **Signature:** `function init()`
+- **Visibility:** `+` public
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L334-L334`](#file-res-inject-scripts-navi_inject-js)
+- **Calls:** [`setupCloudManager.init`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-init)
+- **Called By:** [`setupCloudManager.init`](#sym-res-inject-scripts-navi_inject-js-setupcloudmanager-init)
 
 #### <a id="sym-res-inject-scripts-navi_inject-js-fetchappsize"></a>`fetchAppSize` (function)
 
@@ -3070,7 +5004,7 @@ graph TD
 - **Signature:** `function fetchAppSize(appId)`
 - **Visibility:** `+` public
 - **Docstring:** *Fetch the real install size for an app from the Steam CDN metadata. Uses the steamcmd.net API as a reliable public source for depot sizes.*
-- **Source Location:** [`res/inject-scripts/navi_inject.js:L28-L28`](#file-res-inject-scripts-navi_inject-js)
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L379-L379`](#file-res-inject-scripts-navi_inject-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -3084,7 +5018,7 @@ graph TD
 - **Signature:** `function getUnlockedAppIds()`
 - **Visibility:** `+` public
 - **Docstring:** *Read the Navi config to get the list of unlocked app IDs. Falls back to detecting apps with lDiskSpaceRequiredBytes==0 at runtime.*
-- **Source Location:** [`res/inject-scripts/navi_inject.js:L88-L88`](#file-res-inject-scripts-navi_inject-js)
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L439-L439`](#file-res-inject-scripts-navi_inject-js)
 - **Calls:** [`getUnlockedAppIds`](#sym-res-inject-scripts-navi_inject-js-getunlockedappids)
 - **Called By:** [`getUnlockedAppIds`](#sym-res-inject-scripts-navi_inject-js-getunlockedappids)
 
@@ -3094,7 +5028,7 @@ graph TD
 - **Signature:** `function needsSizeInjection(details)`
 - **Visibility:** `+` public
 - **Docstring:** *Check if an app details object looks like a Navi-unlocked game that needs size injection.*
-- **Source Location:** [`res/inject-scripts/navi_inject.js:L100-L100`](#file-res-inject-scripts-navi_inject-js)
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L451-L451`](#file-res-inject-scripts-navi_inject-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -3108,7 +5042,7 @@ graph TD
 - **Signature:** `function waitForSteamClient(callback)`
 - **Visibility:** `+` public
 - **Docstring:** *Wait for SteamClient to be available*
-- **Source Location:** [`res/inject-scripts/navi_inject.js:L109-L109`](#file-res-inject-scripts-navi_inject-js)
+- **Source Location:** [`res/inject-scripts/navi_inject.js:L460-L460`](#file-res-inject-scripts-navi_inject-js)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -4131,6 +6065,7 @@ graph TD
   | :--- | :--- | :--- | :--- | :--- |
   | `raw_str` | `str` | *(none)* | Yes | `positional_or_keyword` |
 - **Called By:** [`generate_markdown`](#sym-scripts-project_map-markdown_generator-py-generate_markdown)
+- **Uncertain / Dynamic Calls:** [`sub` (dynamic)](#sym-src-view-storeinject_view-cpp-sub)
 
 #### <a id="sym-scripts-project_map-markdown_generator-py-format_visibility_badge"></a>`format_visibility_badge` (function)
 
@@ -4695,20 +6630,380 @@ graph TD
 - **Calls:** [`dstPath`](#sym-src-core-atomic_file-hpp-dstpath)
 - **Called By:** [`dstPath`](#sym-src-core-atomic_file-hpp-dstpath)
 
+### <a id="file-src-core-cloud_oauth-cpp"></a>File: `src/core/cloud_oauth.cpp`
+
+- **Module:** `cloud_oauth` | **Language:** `cpp` | **Lines:** 319 (`L1-L319`)
+- **Structure:** 319 lines, 0 classes/structs, 6 functions/methods
+- **Internal Imports:** `cloud_oauth.hpp`, `cloudredirect.hpp`
+- **External Dependencies:** `arpa/inet.h`, `fcntl.h`, `netinet/in.h`, `openssl/rand.h`, `openssl/sha.h`, `sys/socket.h`, `sys/stat.h`, `unistd.h`, `algorithm`, `array`, `iomanip`, `sstream`
+
+#### <a id="sym-src-core-cloud_oauth-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/cloud_oauth.cpp:L231-L231`](#file-src-core-cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+
+#### <a id="sym-src-core-cloud_oauth-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/cloud_oauth.cpp:L231-L231`](#file-src-core-cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+
+#### <a id="sym-src-core-cloud_oauth-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/cloud_oauth.cpp:L231-L231`](#file-src-core-cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+
+#### <a id="sym-src-core-cloud_oauth-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/cloud_oauth.cpp:L231-L231`](#file-src-core-cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+
+#### <a id="sym-src-core-cloud_oauth-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/cloud_oauth.cpp:L231-L231`](#file-src-core-cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+
+#### <a id="sym-src-core-cloud_oauth-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/cloud_oauth.cpp:L231-L231`](#file-src-core-cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-cloud_oauth-cpp-lock)
+
+### <a id="file-src-core-cloud_oauth-hpp"></a>File: `src/core/cloud_oauth.hpp`
+
+- **Module:** `cloud_oauth` | **Language:** `cpp` | **Lines:** 71 (`L1-L71`)
+- **Structure:** 71 lines, 0 classes/structs, 15 functions/methods
+- **External Dependencies:** `chrono`, `cstdint`, `filesystem`, `memory`, `mutex`, `string`
+
+#### <a id="sym-src-core-cloud_oauth-hpp-instance"></a>`Instance` (function)
+
+- **Qualified Name:** `Instance`
+- **Signature:** `COAuthEngine& Instance()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `COAuthEngine&`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L35-L35`](#file-src-core-cloud_oauth-hpp)
+- **Calls:** [`Instance`](#sym-src-core-cloud_oauth-hpp-instance)
+- **Called By:** [`Instance`](#sym-src-core-cloud_oauth-hpp-instance)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-startauthflow"></a>`StartAuthFlow` (function)
+
+- **Qualified Name:** `StartAuthFlow`
+- **Signature:** `std::string StartAuthFlow(OAuthProvider provider, std::string& outError)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L40-L40`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+  | `outError` | `std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`StartAuthFlow`](#sym-src-core-cloud_oauth-hpp-startauthflow)
+- **Called By:** [`StartAuthFlow`](#sym-src-core-cloud_oauth-hpp-startauthflow)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-isauthinflight"></a>`IsAuthInFlight` (function)
+
+- **Qualified Name:** `IsAuthInFlight`
+- **Signature:** `bool IsAuthInFlight(OAuthProvider provider) const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `bool`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L41-L41`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`IsAuthInFlight`](#sym-src-core-cloud_oauth-hpp-isauthinflight)
+- **Called By:** [`IsAuthInFlight`](#sym-src-core-cloud_oauth-hpp-isauthinflight)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-cancelauthflow"></a>`CancelAuthFlow` (function)
+
+- **Qualified Name:** `CancelAuthFlow`
+- **Signature:** `void CancelAuthFlow(OAuthProvider provider)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L42-L42`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`CancelAuthFlow`](#sym-src-core-cloud_oauth-hpp-cancelauthflow)
+- **Called By:** [`CancelAuthFlow`](#sym-src-core-cloud_oauth-hpp-cancelauthflow)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-signout"></a>`SignOut` (function)
+
+- **Qualified Name:** `SignOut`
+- **Signature:** `bool SignOut(OAuthProvider provider)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L43-L43`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SignOut`](#sym-src-core-cloud_oauth-hpp-signout)
+- **Called By:** [`SignOut`](#sym-src-core-cloud_oauth-hpp-signout)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-generaterandomstate"></a>`GenerateRandomState` (function)
+
+- **Qualified Name:** `GenerateRandomState`
+- **Signature:** `std::string GenerateRandomState()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `std::string`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L45-L45`](#file-src-core-cloud_oauth-hpp)
+- **Calls:** [`GenerateRandomState`](#sym-src-core-cloud_oauth-hpp-generaterandomstate)
+- **Called By:** [`GenerateRandomState`](#sym-src-core-cloud_oauth-hpp-generaterandomstate)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-generatecodeverifier"></a>`GenerateCodeVerifier` (function)
+
+- **Qualified Name:** `GenerateCodeVerifier`
+- **Signature:** `std::string GenerateCodeVerifier()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `std::string`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L46-L46`](#file-src-core-cloud_oauth-hpp)
+- **Calls:** [`GenerateCodeVerifier`](#sym-src-core-cloud_oauth-hpp-generatecodeverifier)
+- **Called By:** [`GenerateCodeVerifier`](#sym-src-core-cloud_oauth-hpp-generatecodeverifier)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-computecodechallenge"></a>`ComputeCodeChallenge` (function)
+
+- **Qualified Name:** `ComputeCodeChallenge`
+- **Signature:** `std::string ComputeCodeChallenge(const std::string& verifier)`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `std::string`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L47-L47`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `verifier` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ComputeCodeChallenge`](#sym-src-core-cloud_oauth-hpp-computecodechallenge)
+- **Called By:** [`ComputeCodeChallenge`](#sym-src-core-cloud_oauth-hpp-computecodechallenge)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-getproviderport"></a>`GetProviderPort` (function)
+
+- **Qualified Name:** `GetProviderPort`
+- **Signature:** `uint16_t GetProviderPort(OAuthProvider provider)`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `uint16_t`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L48-L48`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`GetProviderPort`](#sym-src-core-cloud_oauth-hpp-getproviderport)
+- **Called By:** [`GetProviderPort`](#sym-src-core-cloud_oauth-hpp-getproviderport)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-getprovidertokenfilename"></a>`GetProviderTokenFilename` (function)
+
+- **Qualified Name:** `GetProviderTokenFilename`
+- **Signature:** `std::string GetProviderTokenFilename(OAuthProvider provider)`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `std::string`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L49-L49`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`GetProviderTokenFilename`](#sym-src-core-cloud_oauth-hpp-getprovidertokenfilename)
+- **Called By:** [`GetProviderTokenFilename`](#sym-src-core-cloud_oauth-hpp-getprovidertokenfilename)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-gettokenfilepath"></a>`GetTokenFilePath` (function)
+
+- **Qualified Name:** `GetTokenFilePath`
+- **Signature:** `fs::path GetTokenFilePath(OAuthProvider provider) const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L51-L51`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`GetTokenFilePath`](#sym-src-core-cloud_oauth-hpp-gettokenfilepath)
+- **Called By:** [`GetTokenFilePath`](#sym-src-core-cloud_oauth-hpp-gettokenfilepath)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-writetokenfile"></a>`WriteTokenFile` (function)
+
+- **Qualified Name:** `WriteTokenFile`
+- **Signature:** `bool WriteTokenFile(OAuthProvider provider, const std::string& tokenJson)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L52-L52`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+  | `tokenJson` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`WriteTokenFile`](#sym-src-core-cloud_oauth-hpp-writetokenfile)
+- **Called By:** [`WriteTokenFile`](#sym-src-core-cloud_oauth-hpp-writetokenfile)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-settokendirfortest"></a>`SetTokenDirForTest` (function)
+
+- **Qualified Name:** `SetTokenDirForTest`
+- **Signature:** `void SetTokenDirForTest(const fs::path& dir)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L54-L54`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `dir` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetTokenDirForTest`](#sym-src-core-cloud_oauth-hpp-settokendirfortest)
+- **Called By:** [`SetTokenDirForTest`](#sym-src-core-cloud_oauth-hpp-settokendirfortest)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-stringtooauthprovider"></a>`StringToOAuthProvider` (function)
+
+- **Qualified Name:** `StringToOAuthProvider`
+- **Signature:** `OAuthProvider StringToOAuthProvider(const std::string& str)`
+- **Visibility:** `+` public
+- **Return Type:** `OAuthProvider`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L67-L67`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `str` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`StringToOAuthProvider`](#sym-src-core-cloud_oauth-hpp-stringtooauthprovider)
+- **Called By:** [`StringToOAuthProvider`](#sym-src-core-cloud_oauth-hpp-stringtooauthprovider)
+
+#### <a id="sym-src-core-cloud_oauth-hpp-oauthprovidertostring"></a>`OAuthProviderToString` (function)
+
+- **Qualified Name:** `OAuthProviderToString`
+- **Signature:** `std::string OAuthProviderToString(OAuthProvider provider)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/core/cloud_oauth.hpp:L68-L68`](#file-src-core-cloud_oauth-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `OAuthProvider` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`OAuthProviderToString`](#sym-src-core-cloud_oauth-hpp-oauthprovidertostring)
+- **Called By:** [`OAuthProviderToString`](#sym-src-core-cloud_oauth-hpp-oauthprovidertostring)
+
 ### <a id="file-src-core-curl-cpp"></a>File: `src/core/curl.cpp`
 
-- **Module:** `curl` | **Language:** `cpp` | **Lines:** 110 (`L1-L110`)
-- **Structure:** 110 lines, 0 classes/structs, 0 functions/methods
+- **Module:** `curl` | **Language:** `cpp` | **Lines:** 456 (`L1-L456`)
+- **Structure:** 456 lines, 0 classes/structs, 2 functions/methods
 - **Internal Imports:** `curl.hpp`
-- **External Dependencies:** `cstdio`, `cstdlib`, `sstream`, `sys/types.h`, `sys/wait.h`, `unistd.h`
+- **External Dependencies:** `algorithm`, `cctype`, `cstdio`, `cstdlib`, `cstring`, `fcntl.h`, `mutex`, `poll.h`, `signal.h`, `sstream`, `sys/types.h`, `sys/wait.h`, `unistd.h`
 
-*No declarations in this file.*
+#### <a id="sym-src-core-curl-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_transportMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/curl.cpp:L34-L34`](#file-src-core-curl-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_transportMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-curl-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-curl-cpp-lock)
+
+#### <a id="sym-src-core-curl-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_transportMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/core/curl.cpp:L34-L34`](#file-src-core-curl-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_transportMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-core-curl-cpp-lock)
+- **Called By:** [`lock`](#sym-src-core-curl-cpp-lock)
 
 ### <a id="file-src-core-curl-hpp"></a>File: `src/core/curl.hpp`
 
-- **Module:** `curl` | **Language:** `cpp` | **Lines:** 9 (`L1-L9`)
-- **Structure:** 9 lines, 0 classes/structs, 1 functions/methods
-- **External Dependencies:** `string`
+- **Module:** `curl` | **Language:** `cpp` | **Lines:** 36 (`L1-L36`)
+- **Structure:** 36 lines, 0 classes/structs, 3 functions/methods
+- **External Dependencies:** `cstdint`, `functional`, `string`, `unordered_map`, `utility`, `vector`
+
+#### <a id="sym-src-core-curl-hpp-sethttptransportoverride"></a>`setHttpTransportOverride` (function)
+
+- **Qualified Name:** `setHttpTransportOverride`
+- **Signature:** `void setHttpTransportOverride(HttpTransportFunc_t fn)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/core/curl.hpp:L31-L31`](#file-src-core-curl-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `fn` | `HttpTransportFunc_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setHttpTransportOverride`](#sym-src-core-curl-hpp-sethttptransportoverride)
+- **Called By:** [`setHttpTransportOverride`](#sym-src-core-curl-hpp-sethttptransportoverride)
+
+#### <a id="sym-src-core-curl-hpp-request"></a>`request` (function)
+
+- **Qualified Name:** `request`
+- **Signature:** `bool request(const HttpRequest_t& req, HttpResponse_t& outResp)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/core/curl.hpp:L33-L33`](#file-src-core-curl-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `req` | `const HttpRequest_t&` | *(none)* | Yes | `positional_or_keyword` |
+  | `outResp` | `HttpResponse_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`request`](#sym-src-core-curl-hpp-request)
+- **Called By:** [`request`](#sym-src-core-curl-hpp-request)
 
 #### <a id="sym-src-core-curl-hpp-getstring"></a>`getString` (function)
 
@@ -4716,7 +7011,7 @@ graph TD
 - **Signature:** `int getString(const char* url, std::string& out)`
 - **Visibility:** `+` public
 - **Return Type:** `int`
-- **Source Location:** [`src/core/curl.hpp:L8-L8`](#file-src-core-curl-hpp)
+- **Source Location:** [`src/core/curl.hpp:L35-L35`](#file-src-core-curl-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5759,6 +8054,37 @@ graph TD
 - **Calls:** [`extract`](#sym-src-core-zip-hpp-extract)
 - **Called By:** [`extract`](#sym-src-core-zip-hpp-extract)
 
+### <a id="file-src-model-achievement_merger-cpp"></a>File: `src/model/achievement_merger.cpp`
+
+- **Module:** `achievement_merger` | **Language:** `cpp` | **Lines:** 425 (`L1-L425`)
+- **Structure:** 425 lines, 0 classes/structs, 0 functions/methods
+- **Internal Imports:** `achievement_merger.hpp`, `yaml-cpp/yaml.h`
+- **External Dependencies:** `algorithm`, `climits`, `cstring`, `memory`, `string_view`, `unordered_set`
+
+*No declarations in this file.*
+
+### <a id="file-src-model-achievement_merger-hpp"></a>File: `src/model/achievement_merger.hpp`
+
+- **Module:** `achievement_merger` | **Language:** `cpp` | **Lines:** 66 (`L1-L66`)
+- **Structure:** 66 lines, 0 classes/structs, 1 functions/methods
+- **Internal Imports:** `sdk/binarykv.hpp`
+- **External Dependencies:** `cstdint`, `string`, `unordered_map`, `vector`
+
+#### <a id="sym-src-model-achievement_merger-hpp-serializebinarykv"></a>`serializeBinaryKV` (function)
+
+- **Qualified Name:** `serializeBinaryKV`
+- **Signature:** `std::vector<uint8_t> serializeBinaryKV(const BinaryKVNode& root)`
+- **Visibility:** `+` public
+- **Return Type:** `std::vector<uint8_t>`
+- **Docstring:** *Serializes a BinaryKVNode tree into Valve Binary KeyValues format: type byte + null-terminated name + value/children + 0x08 End byte, plus trailing 0x08 root terminator.*
+- **Source Location:** [`src/model/achievement_merger.hpp:L44-L44`](#file-src-model-achievement_merger-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `root` | `const BinaryKVNode&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`serializeBinaryKV`](#sym-src-model-achievement_merger-hpp-serializebinarykv)
+- **Called By:** [`serializeBinaryKV`](#sym-src-model-achievement_merger-hpp-serializebinarykv)
+
 ### <a id="file-src-model-appsizes-hpp"></a>File: `src/model/appsizes.hpp`
 
 - **Module:** `appsizes` | **Language:** `cpp` | **Lines:** 5 (`L1-L5`)
@@ -5781,8 +8107,8 @@ graph TD
 
 ### <a id="file-src-model-config-cpp"></a>File: `src/model/config.cpp`
 
-- **Module:** `config` | **Language:** `cpp` | **Lines:** 994 (`L1-L994`)
-- **Structure:** 994 lines, 0 classes/structs, 5 functions/methods
+- **Module:** `config` | **Language:** `cpp` | **Lines:** 1023 (`L1-L1023`)
+- **Structure:** 1023 lines, 0 classes/structs, 5 functions/methods
 - **Internal Imports:** `config.hpp`, `config_default.hpp`, `config_migration.hpp`, `cache_migration.hpp`, `depotkeys.hpp`, `licenses.hpp`, `filewatcher.hpp`, `log.hpp`, `utils.hpp`, `atomic_file.hpp`, `yaml-cpp/yaml.h`
 - **External Dependencies:** `cstdint`, `cstdlib`, `filesystem`, `fstream`, `regex`, `sstream`, `string`, `unordered_set`, `sys/inotify.h`, `vector`
 
@@ -5806,7 +8132,7 @@ graph TD
 - **Signature:** `std::ifstream inFile(configPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/model/config.cpp:L770-L770`](#file-src-model-config-cpp)
+- **Source Location:** [`src/model/config.cpp:L799-L799`](#file-src-model-config-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5820,7 +8146,7 @@ graph TD
 - **Signature:** `std::ifstream inFile(configPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/model/config.cpp:L770-L770`](#file-src-model-config-cpp)
+- **Source Location:** [`src/model/config.cpp:L799-L799`](#file-src-model-config-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5834,7 +8160,7 @@ graph TD
 - **Signature:** `std::ifstream inFile(configPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/model/config.cpp:L770-L770`](#file-src-model-config-cpp)
+- **Source Location:** [`src/model/config.cpp:L799-L799`](#file-src-model-config-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5849,7 +8175,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
 - **Docstring:** *Read file content*
-- **Source Location:** [`src/model/config.cpp:L884-L884`](#file-src-model-config-cpp)
+- **Source Location:** [`src/model/config.cpp:L913-L913`](#file-src-model-config-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5859,8 +8185,8 @@ graph TD
 
 ### <a id="file-src-model-config-hpp"></a>File: `src/model/config.hpp`
 
-- **Module:** `config` | **Language:** `cpp` | **Lines:** 291 (`L1-L291`)
-- **Structure:** 291 lines, 1 classes/structs, 14 functions/methods
+- **Module:** `config` | **Language:** `cpp` | **Lines:** 298 (`L1-L298`)
+- **Structure:** 298 lines, 1 classes/structs, 15 functions/methods
 - **Internal Imports:** `sdk/sdk.hpp`, `mtvar.hpp`, `log.hpp`, `yaml-cpp/exceptions.h`, `yaml-cpp/node/node.h`, `yaml-cpp/yaml.h`
 - **External Dependencies:** `cstdint`, `mutex`, `pthread.h`, `string`, `type_traits`, `unordered_map`, `unordered_set`
 
@@ -5878,7 +8204,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `const`
 - **Return Type:** `std::string`
-- **Source Location:** [`src/model/config.hpp:L96-L96`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L102-L102`](#file-src-model-config-hpp)
 - **Calls:** [`CConfig::getDir`](#sym-src-model-config-hpp-cconfig-getdir)
 - **Called By:** [`CConfig::getDir`](#sym-src-model-config-hpp-cconfig-getdir)
 
@@ -5889,7 +8215,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `const`
 - **Return Type:** `std::string`
-- **Source Location:** [`src/model/config.hpp:L97-L97`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L103-L103`](#file-src-model-config-hpp)
 - **Calls:** [`CConfig::getPath`](#sym-src-model-config-hpp-cconfig-getpath)
 - **Called By:** [`CConfig::getPath`](#sym-src-model-config-hpp-cconfig-getpath)
 
@@ -5899,7 +8225,7 @@ graph TD
 - **Signature:** `std::string getPluginDir()`
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
-- **Source Location:** [`src/model/config.hpp:L98-L98`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L104-L104`](#file-src-model-config-hpp)
 - **Calls:** [`CConfig::getPluginDir`](#sym-src-model-config-hpp-cconfig-getplugindir)
 - **Called By:** [`CConfig::getPluginDir`](#sym-src-model-config-hpp-cconfig-getplugindir)
 
@@ -5910,7 +8236,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `const`
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L99-L99`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L105-L105`](#file-src-model-config-hpp)
 - **Calls:** [`CConfig::createFile`](#sym-src-model-config-hpp-cconfig-createfile)
 - **Called By:** [`CConfig::createFile`](#sym-src-model-config-hpp-cconfig-createfile)
 
@@ -5920,7 +8246,7 @@ graph TD
 - **Signature:** `bool init()`
 - **Visibility:** `+` public
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L100-L100`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L106-L106`](#file-src-model-config-hpp)
 - **Calls:** [`CConfig::init`](#sym-src-model-config-hpp-cconfig-init)
 - **Called By:** [`CConfig::init`](#sym-src-model-config-hpp-cconfig-init)
 
@@ -5930,7 +8256,7 @@ graph TD
 - **Signature:** `void setError(const ELoadError err, const char* keyName)`
 - **Visibility:** `+` public
 - **Return Type:** `void`
-- **Source Location:** [`src/model/config.hpp:L102-L102`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L108-L108`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5945,7 +8271,7 @@ graph TD
 - **Signature:** `bool loadSettings(const bool firstLoad = false)`
 - **Visibility:** `+` public
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L103-L103`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L109-L109`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5959,7 +8285,7 @@ graph TD
 - **Signature:** `bool isAddedAppId(const AppId_t appId)`
 - **Visibility:** `+` public
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L275-L275`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L281-L281`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5973,7 +8299,7 @@ graph TD
 - **Signature:** `bool addAdditionalAppId(const AppId_t appId)`
 - **Visibility:** `+` public
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L276-L276`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L282-L282`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -5987,7 +8313,7 @@ graph TD
 - **Signature:** `bool removeAdditionalAppId(uint32_t appId)`
 - **Visibility:** `+` public
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L277-L277`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L283-L283`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6002,7 +8328,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `bool`
 - **Docstring:** *Write auth to config.yaml*
-- **Source Location:** [`src/model/config.hpp:L280-L280`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L286-L286`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6018,7 +8344,7 @@ graph TD
 - **Signature:** `bool shouldExcludeAppId(const AppId_t appId, const bool ignoreAdditionalApps = false)`
 - **Visibility:** `+` public
 - **Return Type:** `bool`
-- **Source Location:** [`src/model/config.hpp:L282-L282`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L288-L288`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6033,13 +8359,28 @@ graph TD
 - **Signature:** `CSteamId getDenuvoGameOwner(const AppId_t appId)`
 - **Visibility:** `+` public
 - **Return Type:** `CSteamId`
-- **Source Location:** [`src/model/config.hpp:L283-L283`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L289-L289`](#file-src-model-config-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
   | `appId` | `const AppId_t` | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`CConfig::getDenuvoGameOwner`](#sym-src-model-config-hpp-cconfig-getdenuvogameowner)
 - **Called By:** [`CConfig::getDenuvoGameOwner`](#sym-src-model-config-hpp-cconfig-getdenuvogameowner)
+
+##### <a id="sym-src-model-config-hpp-cconfig-isappcloudredirected"></a>`IsAppCloudRedirected` (method)
+
+- **Qualified Name:** `CConfig::IsAppCloudRedirected`
+- **Signature:** `bool IsAppCloudRedirected(AppId_t appId) const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `bool`
+- **Source Location:** [`src/model/config.hpp:L290-L290`](#file-src-model-config-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `AppId_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`CConfig::IsAppCloudRedirected`](#sym-src-model-config-hpp-cconfig-isappcloudredirected)
+- **Called By:** [`CConfig::IsAppCloudRedirected`](#sym-src-model-config-hpp-cconfig-isappcloudredirected)
 
 #### <a id="sym-src-model-config-hpp-scanluapluginsandupdateconfig"></a>`scanLuaPluginsAndUpdateConfig` (function)
 
@@ -6048,15 +8389,15 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Free function: scan $SteamRoot/config/stplug-in/ for *.lua files and inject any new AppIDs into the AdditionalApps list in config.yaml.*
-- **Source Location:** [`src/model/config.hpp:L291-L291`](#file-src-model-config-hpp)
+- **Source Location:** [`src/model/config.hpp:L298-L298`](#file-src-model-config-hpp)
 - **Calls:** [`scanLuaPluginsAndUpdateConfig`](#sym-src-model-config-hpp-scanluapluginsandupdateconfig)
 - **Called By:** [`scanLuaPluginsAndUpdateConfig`](#sym-src-model-config-hpp-scanluapluginsandupdateconfig)
 
 ### <a id="file-src-model-depotkeys-cpp"></a>File: `src/model/depotkeys.cpp`
 
-- **Module:** `depotkeys` | **Language:** `cpp` | **Lines:** 393 (`L1-L393`)
-- **Structure:** 393 lines, 0 classes/structs, 9 functions/methods
-- **Internal Imports:** `depotkeys.hpp`, `luagenerator.hpp`, `config.hpp`, `globals.hpp`, `log.hpp`, `CNetPacket.hpp`, `protobufs/steammessages_clientserver_2.pb.h`, `yaml-cpp/yaml.h`
+- **Module:** `depotkeys` | **Language:** `cpp` | **Lines:** 550 (`L1-L550`)
+- **Structure:** 550 lines, 0 classes/structs, 13 functions/methods
+- **Internal Imports:** `depotkeys.hpp`, `luagenerator.hpp`, `atomic_file.hpp`, `config.hpp`, `curl.hpp`, `globals.hpp`, `log.hpp`, `utils.hpp`, `CNetPacket.hpp`, `protobufs/steammessages_clientserver_2.pb.h`, `yaml-cpp/yaml.h`
 - **External Dependencies:** `filesystem`, `fstream`, `mutex`, `regex`, `sstream`
 
 #### <a id="sym-src-model-depotkeys-cpp-file"></a>`file` (function)
@@ -6065,7 +8406,35 @@ graph TD
 - **Signature:** `std::ifstream file(luaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/model/depotkeys.cpp:L246-L246`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L395-L395`](#file-src-model-depotkeys-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `luaPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`file`](#sym-src-model-depotkeys-cpp-file)
+- **Called By:** [`file`](#sym-src-model-depotkeys-cpp-file)
+
+#### <a id="sym-src-model-depotkeys-cpp-file"></a>`file` (function)
+
+- **Qualified Name:** `file`
+- **Signature:** `std::ifstream file(luaPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/model/depotkeys.cpp:L395-L395`](#file-src-model-depotkeys-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `luaPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`file`](#sym-src-model-depotkeys-cpp-file)
+- **Called By:** [`file`](#sym-src-model-depotkeys-cpp-file)
+
+#### <a id="sym-src-model-depotkeys-cpp-file"></a>`file` (function)
+
+- **Qualified Name:** `file`
+- **Signature:** `std::ifstream file(luaPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/model/depotkeys.cpp:L395-L395`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6079,7 +8448,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6093,7 +8462,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6107,7 +8476,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6121,7 +8490,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6135,7 +8504,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6149,7 +8518,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6163,7 +8532,35 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/depotkeys.cpp:L273-L273`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `g_depotKeysMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-model-depotkeys-cpp-lock)
+- **Called By:** [`lock`](#sym-src-model-depotkeys-cpp-lock)
+
+#### <a id="sym-src-model-depotkeys-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `g_depotKeysMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-model-depotkeys-cpp-lock)
+- **Called By:** [`lock`](#sym-src-model-depotkeys-cpp-lock)
+
+#### <a id="sym-src-model-depotkeys-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(g_depotKeysMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/model/depotkeys.cpp:L422-L422`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6178,7 +8575,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Set a 50-byte dummy ticket that is structurally valid so Steam doesn't fail parsing*
-- **Source Location:** [`src/model/depotkeys.cpp:L359-L359`](#file-src-model-depotkeys-cpp)
+- **Source Location:** [`src/model/depotkeys.cpp:L516-L516`](#file-src-model-depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6189,8 +8586,8 @@ graph TD
 
 ### <a id="file-src-model-depotkeys-hpp"></a>File: `src/model/depotkeys.hpp`
 
-- **Module:** `depotkeys` | **Language:** `cpp` | **Lines:** 46 (`L1-L46`)
-- **Structure:** 46 lines, 0 classes/structs, 9 functions/methods
+- **Module:** `depotkeys` | **Language:** `cpp` | **Lines:** 58 (`L1-L58`)
+- **Structure:** 58 lines, 0 classes/structs, 13 functions/methods
 - **External Dependencies:** `cstdint`, `string`, `unordered_map`, `unordered_set`
 
 #### <a id="sym-src-model-depotkeys-hpp-getdepotkeysyamlpath"></a>`getDepotKeysYamlPath` (function)
@@ -6297,6 +8694,58 @@ graph TD
 - **Calls:** [`getAllAppIdsWithKeys`](#sym-src-model-depotkeys-hpp-getallappidswithkeys)
 - **Called By:** [`getAllAppIdsWithKeys`](#sym-src-model-depotkeys-hpp-getallappidswithkeys)
 
+#### <a id="sym-src-model-depotkeys-hpp-getdepotkeysjsonpath"></a>`getDepotKeysJsonPath` (function)
+
+- **Qualified Name:** `getDepotKeysJsonPath`
+- **Signature:** `std::string getDepotKeysJsonPath()`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Docstring:** *Path to ~/.config/navi/depotkeys.json*
+- **Source Location:** [`src/model/depotkeys.hpp:L44-L44`](#file-src-model-depotkeys-hpp)
+- **Calls:** [`getDepotKeysJsonPath`](#sym-src-model-depotkeys-hpp-getdepotkeysjsonpath)
+- **Called By:** [`getDepotKeysJsonPath`](#sym-src-model-depotkeys-hpp-getdepotkeysjsonpath)
+
+#### <a id="sym-src-model-depotkeys-hpp-getappaccesstokensjsonpath"></a>`getAppAccessTokensJsonPath` (function)
+
+- **Qualified Name:** `getAppAccessTokensJsonPath`
+- **Signature:** `std::string getAppAccessTokensJsonPath()`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Docstring:** *Path to ~/.config/navi/appaccesstokens.json*
+- **Source Location:** [`src/model/depotkeys.hpp:L47-L47`](#file-src-model-depotkeys-hpp)
+- **Calls:** [`getAppAccessTokensJsonPath`](#sym-src-model-depotkeys-hpp-getappaccesstokensjsonpath)
+- **Called By:** [`getAppAccessTokensJsonPath`](#sym-src-model-depotkeys-hpp-getappaccesstokensjsonpath)
+
+#### <a id="sym-src-model-depotkeys-hpp-findandgetdepotkey"></a>`findAndGetDepotKey` (function)
+
+- **Qualified Name:** `findAndGetDepotKey`
+- **Signature:** `std::string findAndGetDepotKey(uint32_t depotId)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Docstring:** *Find and get a depot decryption key from memory, YAML, or Archive.org ManifestHub depotkeys.json*
+- **Source Location:** [`src/model/depotkeys.hpp:L50-L50`](#file-src-model-depotkeys-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `depotId` | `uint32_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`findAndGetDepotKey`](#sym-src-model-depotkeys-hpp-findandgetdepotkey)
+- **Called By:** [`findAndGetDepotKey`](#sym-src-model-depotkeys-hpp-findandgetdepotkey)
+
+#### <a id="sym-src-model-depotkeys-hpp-findandgetappaccesstoken"></a>`findAndGetAppAccessToken` (function)
+
+- **Qualified Name:** `findAndGetAppAccessToken`
+- **Signature:** `std::string findAndGetAppAccessToken(uint32_t appId)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Docstring:** *Find and get an app access token from Archive.org ManifestHub appaccesstokens.json*
+- **Source Location:** [`src/model/depotkeys.hpp:L53-L53`](#file-src-model-depotkeys-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `uint32_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`findAndGetAppAccessToken`](#sym-src-model-depotkeys-hpp-findandgetappaccesstoken)
+- **Called By:** [`findAndGetAppAccessToken`](#sym-src-model-depotkeys-hpp-findandgetappaccesstoken)
+
 #### <a id="sym-src-model-depotkeys-hpp-recvmsg"></a>`recvMsg` (function)
 
 - **Qualified Name:** `recvMsg`
@@ -6304,7 +8753,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Handle incoming protobuf messages — intercept failed depot decryption key responses*
-- **Source Location:** [`src/model/depotkeys.hpp:L44-L44`](#file-src-model-depotkeys-hpp)
+- **Source Location:** [`src/model/depotkeys.hpp:L56-L56`](#file-src-model-depotkeys-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6385,10 +8834,10 @@ graph TD
 
 ### <a id="file-src-model-manifestcode-cpp"></a>File: `src/model/manifestcode.cpp`
 
-- **Module:** `manifestcode` | **Language:** `cpp` | **Lines:** 515 (`L1-L515`)
-- **Structure:** 515 lines, 0 classes/structs, 2 functions/methods
-- **Internal Imports:** `manifestcode.hpp`, `log.hpp`, `CNetPacket.hpp`, `paths.hpp`, `atomic_file.hpp`, `config.hpp`
-- **External Dependencies:** `curl/curl.h`, `charconv`, `chrono`, `filesystem`, `fstream`, `iostream`
+- **Module:** `manifestcode` | **Language:** `cpp` | **Lines:** 652 (`L1-L652`)
+- **Structure:** 652 lines, 0 classes/structs, 3 functions/methods
+- **Internal Imports:** `manifestcode.hpp`, `log.hpp`, `CNetPacket.hpp`, `paths.hpp`, `atomic_file.hpp`, `config.hpp`, `curl.hpp`
+- **External Dependencies:** `charconv`, `chrono`, `filesystem`, `fstream`, `iostream`
 
 #### <a id="sym-src-model-manifestcode-cpp-lock"></a>`lock` (function)
 
@@ -6396,7 +8845,7 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(s_codeMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/manifestcode.cpp:L485-L485`](#file-src-model-manifestcode-cpp)
+- **Source Location:** [`src/model/manifestcode.cpp:L610-L610`](#file-src-model-manifestcode-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -6410,7 +8859,21 @@ graph TD
 - **Signature:** `std::lock_guard<std::mutex> lock(s_codeMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard<std::mutex>`
-- **Source Location:** [`src/model/manifestcode.cpp:L485-L485`](#file-src-model-manifestcode-cpp)
+- **Source Location:** [`src/model/manifestcode.cpp:L610-L610`](#file-src-model-manifestcode-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_codeMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-model-manifestcode-cpp-lock)
+- **Called By:** [`lock`](#sym-src-model-manifestcode-cpp-lock)
+
+#### <a id="sym-src-model-manifestcode-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_codeMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/model/manifestcode.cpp:L610-L610`](#file-src-model-manifestcode-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -7013,10 +9476,10 @@ graph TD
 
 ### <a id="file-src-model-paths-cpp"></a>File: `src/model/paths.cpp`
 
-- **Module:** `paths` | **Language:** `cpp` | **Lines:** 154 (`L1-L154`)
-- **Structure:** 154 lines, 0 classes/structs, 2 functions/methods
-- **Internal Imports:** `paths.hpp`
-- **External Dependencies:** `cstdlib`, `filesystem`, `vector`, `system_error`
+- **Module:** `paths` | **Language:** `cpp` | **Lines:** 251 (`L1-L251`)
+- **Structure:** 251 lines, 0 classes/structs, 3 functions/methods
+- **Internal Imports:** `paths.hpp`, `vdf.hpp`
+- **External Dependencies:** `cstdlib`, `cstring`, `filesystem`, `fstream`, `functional`, `regex`, `system_error`, `unordered_set`, `vector`
 
 #### <a id="sym-src-model-paths-cpp-it"></a>`it` (function)
 
@@ -7024,7 +9487,7 @@ graph TD
 - **Signature:** `fs::directory_iterator it("/tmp", ec)`
 - **Visibility:** `+` public
 - **Return Type:** `fs::directory_iterator`
-- **Source Location:** [`src/model/paths.cpp:L139-L139`](#file-src-model-paths-cpp)
+- **Source Location:** [`src/model/paths.cpp:L145-L145`](#file-src-model-paths-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -7039,7 +9502,7 @@ graph TD
 - **Signature:** `fs::directory_iterator it("/tmp", ec)`
 - **Visibility:** `+` public
 - **Return Type:** `fs::directory_iterator`
-- **Source Location:** [`src/model/paths.cpp:L139-L139`](#file-src-model-paths-cpp)
+- **Source Location:** [`src/model/paths.cpp:L145-L145`](#file-src-model-paths-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -7047,12 +9510,27 @@ graph TD
   | `ec` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`it`](#sym-src-model-paths-cpp-it)
 - **Called By:** [`it`](#sym-src-model-paths-cpp-it)
+
+#### <a id="sym-src-model-paths-cpp-vdffile"></a>`vdfFile` (function)
+
+- **Qualified Name:** `vdfFile`
+- **Signature:** `std::ifstream vdfFile(vdfPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Docstring:** *Fallback line regex scan for standard VDF "path" entries*
+- **Source Location:** [`src/model/paths.cpp:L206-L206`](#file-src-model-paths-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `vdfPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`vdfFile`](#sym-src-model-paths-cpp-vdffile)
+- **Called By:** [`vdfFile`](#sym-src-model-paths-cpp-vdffile)
 
 ### <a id="file-src-model-paths-hpp"></a>File: `src/model/paths.hpp`
 
-- **Module:** `paths` | **Language:** `cpp` | **Lines:** 52 (`L1-L52`)
-- **Structure:** 52 lines, 0 classes/structs, 5 functions/methods
-- **External Dependencies:** `cstdint`, `string`
+- **Module:** `paths` | **Language:** `cpp` | **Lines:** 66 (`L1-L66`)
+- **Structure:** 66 lines, 0 classes/structs, 7 functions/methods
+- **External Dependencies:** `cstdint`, `string`, `vector`
 
 #### <a id="sym-src-model-paths-hpp-findsteamroot"></a>`findSteamRoot` (function)
 
@@ -7061,7 +9539,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Return the Steam root directory (the folder that contains "steamapps/"), or an empty string if Steam could not be found.*
-- **Source Location:** [`src/model/paths.hpp:L22-L22`](#file-src-model-paths-hpp)
+- **Source Location:** [`src/model/paths.hpp:L23-L23`](#file-src-model-paths-hpp)
 - **Calls:** [`findSteamRoot`](#sym-src-model-paths-hpp-findsteamroot)
 - **Called By:** [`findSteamRoot`](#sym-src-model-paths-hpp-findsteamroot)
 
@@ -7072,7 +9550,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Return the path to Steam's Lua plugin directory: <steam_root>/config/stplug-in*
-- **Source Location:** [`src/model/paths.hpp:L30-L30`](#file-src-model-paths-hpp)
+- **Source Location:** [`src/model/paths.hpp:L31-L31`](#file-src-model-paths-hpp)
 - **Calls:** [`stplugDir`](#sym-src-model-paths-hpp-stplugdir)
 - **Called By:** [`stplugDir`](#sym-src-model-paths-hpp-stplugdir)
 
@@ -7083,7 +9561,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Return the path to Steam's depot manifest cache: <steam_root>/config/depotcache*
-- **Source Location:** [`src/model/paths.hpp:L38-L38`](#file-src-model-paths-hpp)
+- **Source Location:** [`src/model/paths.hpp:L39-L39`](#file-src-model-paths-hpp)
 - **Calls:** [`depotcacheDir`](#sym-src-model-paths-hpp-depotcachedir)
 - **Called By:** [`depotcacheDir`](#sym-src-model-paths-hpp-depotcachedir)
 
@@ -7094,7 +9572,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `bool`
 - **Docstring:** *Clear download and session caches for a specific AppID. Never touches .lua files, .provider files, or manifests/ / depotcache/.*
-- **Source Location:** [`src/model/paths.hpp:L44-L44`](#file-src-model-paths-hpp)
+- **Source Location:** [`src/model/paths.hpp:L45-L45`](#file-src-model-paths-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -7109,9 +9587,40 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `bool`
 - **Docstring:** *Clear all download and session caches across all apps. Preserves manifests/ subdirectory and installed .lua files.*
-- **Source Location:** [`src/model/paths.hpp:L50-L50`](#file-src-model-paths-hpp)
+- **Source Location:** [`src/model/paths.hpp:L51-L51`](#file-src-model-paths-hpp)
 - **Calls:** [`clearAllCache`](#sym-src-model-paths-hpp-clearallcache)
 - **Called By:** [`clearAllCache`](#sym-src-model-paths-hpp-clearallcache)
+
+#### <a id="sym-src-model-paths-hpp-findlibraryfolders"></a>`findLibraryFolders` (function)
+
+- **Qualified Name:** `findLibraryFolders`
+- **Signature:** `std::vector<std::string> findLibraryFolders(const std::string& steamRootOverride = "")`
+- **Visibility:** `+` public
+- **Return Type:** `std::vector<std::string>`
+- **Docstring:** *Parses <steam_root>/steamapps/libraryfolders.vdf or <steam_root>/config/libraryfolders.vdf for all "path" entries. Always includes <steam_root> first if valid.*
+- **Source Location:** [`src/model/paths.hpp:L58-L58`](#file-src-model-paths-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `steamRootOverride` | `const std::string&` | `""` | No | `positional_or_keyword` |
+- **Calls:** [`findLibraryFolders`](#sym-src-model-paths-hpp-findlibraryfolders)
+- **Called By:** [`findLibraryFolders`](#sym-src-model-paths-hpp-findlibraryfolders)
+
+#### <a id="sym-src-model-paths-hpp-findapplibraryfolder"></a>`findAppLibraryFolder` (function)
+
+- **Qualified Name:** `findAppLibraryFolder`
+- **Signature:** `std::string findAppLibraryFolder(uint32_t appId, const std::string& steamRootOverride = "")`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Docstring:** *Checks which library folder contains steamapps/appmanifest_<appId>.acf, falling back to the primary <steam_root>.*
+- **Source Location:** [`src/model/paths.hpp:L64-L64`](#file-src-model-paths-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `uint32_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `steamRootOverride` | `const std::string&` | `""` | No | `positional_or_keyword` |
+- **Calls:** [`findAppLibraryFolder`](#sym-src-model-paths-hpp-findapplibraryfolder)
+- **Called By:** [`findAppLibraryFolder`](#sym-src-model-paths-hpp-findapplibraryfolder)
 
 ### <a id="file-src-model-sdk-capijob-cpp"></a>File: `src/model/sdk/CAPIJob.cpp`
 
@@ -8325,10 +10834,10 @@ graph TD
 
 ### <a id="file-src-presenter-apps-cpp"></a>File: `src/presenter/apps.cpp`
 
-- **Module:** `apps` | **Language:** `cpp` | **Lines:** 1417 (`L1-L1417`)
-- **Structure:** 1417 lines, 0 classes/structs, 12 functions/methods
-- **Internal Imports:** `apps.hpp`, `config.hpp`, `globals.hpp`, `utils.hpp`, `atomic_file.hpp`, `fakeappid.hpp`, `nativeinstall.hpp`, `licenses.hpp`, `depotkeys.hpp`
-- **External Dependencies:** `fstream`, `sstream`, `filesystem`, `cmath`, `cstdint`, `cstdlib`, `cstring`, `mutex`, `string`
+- **Module:** `apps` | **Language:** `cpp` | **Lines:** 1440 (`L1-L1440`)
+- **Structure:** 1440 lines, 0 classes/structs, 12 functions/methods
+- **Internal Imports:** `apps.hpp`, `config.hpp`, `globals.hpp`, `utils.hpp`, `atomic_file.hpp`, `fakeappid.hpp`, `nativeinstall.hpp`, `licenses.hpp`, `depotkeys.hpp`, `manifestcode.hpp`
+- **External Dependencies:** `fstream`, `sstream`, `filesystem`, `cmath`, `cstdint`, `cstdlib`, `cstring`, `mutex`, `string`, `thread`
 
 #### <a id="sym-src-presenter-apps-cpp-ss"></a>`ss` (function)
 
@@ -8336,7 +10845,7 @@ graph TD
 - **Signature:** `std::stringstream ss(arrayStr)`
 - **Visibility:** `+` public
 - **Return Type:** `std::stringstream`
-- **Source Location:** [`src/presenter/apps.cpp:L94-L94`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L96-L96`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8350,7 +10859,7 @@ graph TD
 - **Signature:** `std::ifstream file(path)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/apps.cpp:L196-L196`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L198-L198`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8364,7 +10873,7 @@ graph TD
 - **Signature:** `std::ifstream file(path)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/apps.cpp:L196-L196`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L198-L198`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8378,7 +10887,7 @@ graph TD
 - **Signature:** `std::ifstream file(path)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/apps.cpp:L196-L196`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L198-L198`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8392,7 +10901,7 @@ graph TD
 - **Signature:** `std::ifstream file(path)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/apps.cpp:L196-L196`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L198-L198`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8408,7 +10917,7 @@ graph TD
 - **Modifiers / Decorators:** `static`
 - **Return Type:** `std::vector<std::filesystem::path>`
 - **Docstring:** *Forward declaration — defined below, after the VDF parse helpers.*
-- **Source Location:** [`src/presenter/apps.cpp:L207-L207`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L209-L209`](#file-src-presenter-apps-cpp)
 - **Calls:** [`getSteamLibraryPaths`](#sym-src-presenter-apps-cpp-getsteamlibrarypaths)
 - **Called By:** [`getSteamLibraryPaths`](#sym-src-presenter-apps-cpp-getsteamlibrarypaths)
 
@@ -8418,7 +10927,7 @@ graph TD
 - **Signature:** `std::ofstream out(tmpPath, std::ios::trunc)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/apps.cpp:L289-L289`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L291-L291`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8433,7 +10942,7 @@ graph TD
 - **Signature:** `std::ifstream vdf(vdfPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/apps.cpp:L421-L421`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L423-L423`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8448,7 +10957,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
 - **Docstring:** *Parse the ACF manifest for install state fields: StateFlags  – bitmask: bit 1=invalid, bit 2=installed, bit 32=missing*
-- **Source Location:** [`src/presenter/apps.cpp:L557-L557`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L559-L559`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8463,7 +10972,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
 - **Docstring:** *Parse the ACF manifest for install state fields: StateFlags  – bitmask: bit 1=invalid, bit 2=installed, bit 32=missing*
-- **Source Location:** [`src/presenter/apps.cpp:L557-L557`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L559-L559`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8477,7 +10986,7 @@ graph TD
 - **Signature:** `: Steam::Plat_Alloc(bytes)`
 - **Visibility:** `+` public
 - **Return Type:** `:`
-- **Source Location:** [`src/presenter/apps.cpp:L733-L733`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L735-L735`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8491,7 +11000,7 @@ graph TD
 - **Signature:** `std::lock_guard lock(pendingLicenseChangesMutex)`
 - **Visibility:** `+` public
 - **Return Type:** `std::lock_guard`
-- **Source Location:** [`src/presenter/apps.cpp:L1033-L1033`](#file-src-presenter-apps-cpp)
+- **Source Location:** [`src/presenter/apps.cpp:L1051-L1051`](#file-src-presenter-apps-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -8977,6 +11486,971 @@ graph TD
 - **Source Location:** [`src/presenter/autoupdate.hpp:L10-L10`](#file-src-presenter-autoupdate-hpp)
 - **Calls:** [`checkAndPromptSync`](#sym-src-presenter-autoupdate-hpp-checkandpromptsync)
 - **Called By:** [`checkAndPromptSync`](#sym-src-presenter-autoupdate-hpp-checkandpromptsync)
+
+### <a id="file-src-presenter-cloud_manager-cpp"></a>File: `src/presenter/cloud_manager.cpp`
+
+- **Module:** `cloud_manager` | **Language:** `cpp` | **Lines:** 328 (`L1-L328`)
+- **Structure:** 328 lines, 0 classes/structs, 3 functions/methods
+- **Internal Imports:** `cloud_manager.hpp`, `cloudredirect.hpp`, `paths.hpp`
+- **External Dependencies:** `algorithm`, `cctype`, `chrono`, `cstdlib`, `cstring`, `fstream`, `sstream`, `sys/poll.h`, `sys/wait.h`, `unistd.h`
+
+#### <a id="sym-src-presenter-cloud_manager-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_manager.cpp:L41-L41`](#file-src-presenter-cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_manager-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_manager-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_manager-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_manager.cpp:L41-L41`](#file-src-presenter-cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_manager-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_manager-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_manager-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_manager.cpp:L41-L41`](#file-src-presenter-cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_manager-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_manager-cpp-lock)
+
+### <a id="file-src-presenter-cloud_manager-hpp"></a>File: `src/presenter/cloud_manager.hpp`
+
+- **Module:** `cloud_manager` | **Language:** `cpp` | **Lines:** 52 (`L1-L52`)
+- **Structure:** 52 lines, 0 classes/structs, 10 functions/methods
+- **Internal Imports:** `sdk/sdk.hpp`
+- **External Dependencies:** `string`, `vector`, `filesystem`, `mutex`
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-instance"></a>`Instance` (function)
+
+- **Qualified Name:** `Instance`
+- **Signature:** `CCloudManager& Instance()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `CCloudManager&`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L25-L25`](#file-src-presenter-cloud_manager-hpp)
+- **Calls:** [`Instance`](#sym-src-presenter-cloud_manager-hpp-instance)
+- **Called By:** [`Instance`](#sym-src-presenter-cloud_manager-hpp-instance)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-checkauthstatus"></a>`CheckAuthStatus` (function)
+
+- **Qualified Name:** `CheckAuthStatus`
+- **Signature:** `ProviderAuthStatus_t CheckAuthStatus(const std::string& provider)`
+- **Visibility:** `+` public
+- **Return Type:** `ProviderAuthStatus_t`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L27-L27`](#file-src-presenter-cloud_manager-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`CheckAuthStatus`](#sym-src-presenter-cloud_manager-hpp-checkauthstatus)
+- **Called By:** [`CheckAuthStatus`](#sym-src-presenter-cloud_manager-hpp-checkauthstatus)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-listbackups"></a>`ListBackups` (function)
+
+- **Qualified Name:** `ListBackups`
+- **Signature:** `std::vector<std::string> ListBackups(AppId_t appId)`
+- **Visibility:** `+` public
+- **Return Type:** `std::vector<std::string>`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L28-L28`](#file-src-presenter-cloud_manager-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `AppId_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ListBackups`](#sym-src-presenter-cloud_manager-hpp-listbackups)
+- **Called By:** [`ListBackups`](#sym-src-presenter-cloud_manager-hpp-listbackups)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-getstorageusagebytes"></a>`GetStorageUsageBytes` (function)
+
+- **Qualified Name:** `GetStorageUsageBytes`
+- **Signature:** `uint64_t GetStorageUsageBytes(AppId_t appId)`
+- **Visibility:** `+` public
+- **Return Type:** `uint64_t`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L29-L29`](#file-src-presenter-cloud_manager-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `AppId_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`GetStorageUsageBytes`](#sym-src-presenter-cloud_manager-hpp-getstorageusagebytes)
+- **Called By:** [`GetStorageUsageBytes`](#sym-src-presenter-cloud_manager-hpp-getstorageusagebytes)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-setclipathfortest"></a>`SetCliPathForTest` (function)
+
+- **Qualified Name:** `SetCliPathForTest`
+- **Signature:** `void SetCliPathForTest(const fs::path& path)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L31-L31`](#file-src-presenter-cloud_manager-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `path` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetCliPathForTest`](#sym-src-presenter-cloud_manager-hpp-setclipathfortest)
+- **Called By:** [`SetCliPathForTest`](#sym-src-presenter-cloud_manager-hpp-setclipathfortest)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-setbackupdirfortest"></a>`SetBackupDirForTest` (function)
+
+- **Qualified Name:** `SetBackupDirForTest`
+- **Signature:** `void SetBackupDirForTest(const fs::path& path)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L32-L32`](#file-src-presenter-cloud_manager-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `path` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetBackupDirForTest`](#sym-src-presenter-cloud_manager-hpp-setbackupdirfortest)
+- **Called By:** [`SetBackupDirForTest`](#sym-src-presenter-cloud_manager-hpp-setbackupdirfortest)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-setstoragedirfortest"></a>`SetStorageDirForTest` (function)
+
+- **Qualified Name:** `SetStorageDirForTest`
+- **Signature:** `void SetStorageDirForTest(const fs::path& path)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L33-L33`](#file-src-presenter-cloud_manager-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `path` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetStorageDirForTest`](#sym-src-presenter-cloud_manager-hpp-setstoragedirfortest)
+- **Called By:** [`SetStorageDirForTest`](#sym-src-presenter-cloud_manager-hpp-setstoragedirfortest)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-getclipath"></a>`GetCliPath` (function)
+
+- **Qualified Name:** `GetCliPath`
+- **Signature:** `fs::path GetCliPath() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L41-L41`](#file-src-presenter-cloud_manager-hpp)
+- **Calls:** [`GetCliPath`](#sym-src-presenter-cloud_manager-hpp-getclipath)
+- **Called By:** [`GetCliPath`](#sym-src-presenter-cloud_manager-hpp-getclipath)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-getbackupdir"></a>`GetBackupDir` (function)
+
+- **Qualified Name:** `GetBackupDir`
+- **Signature:** `fs::path GetBackupDir() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L42-L42`](#file-src-presenter-cloud_manager-hpp)
+- **Calls:** [`GetBackupDir`](#sym-src-presenter-cloud_manager-hpp-getbackupdir)
+- **Called By:** [`GetBackupDir`](#sym-src-presenter-cloud_manager-hpp-getbackupdir)
+
+#### <a id="sym-src-presenter-cloud_manager-hpp-getstoragedir"></a>`GetStorageDir` (function)
+
+- **Qualified Name:** `GetStorageDir`
+- **Signature:** `fs::path GetStorageDir() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/presenter/cloud_manager.hpp:L43-L43`](#file-src-presenter-cloud_manager-hpp)
+- **Calls:** [`GetStorageDir`](#sym-src-presenter-cloud_manager-hpp-getstoragedir)
+- **Called By:** [`GetStorageDir`](#sym-src-presenter-cloud_manager-hpp-getstoragedir)
+
+### <a id="file-src-presenter-cloud_pending_ops-cpp"></a>File: `src/presenter/cloud_pending_ops.cpp`
+
+- **Module:** `cloud_pending_ops` | **Language:** `cpp` | **Lines:** 809 (`L1-L809`)
+- **Structure:** 809 lines, 0 classes/structs, 14 functions/methods
+- **Internal Imports:** `cloud_pending_ops.hpp`, `cloudredirect.hpp`, `atomic_file.hpp`, `log.hpp`
+- **External Dependencies:** `algorithm`, `chrono`, `cstdlib`, `cstring`, `fstream`, `sstream`, `sys/stat.h`, `sys/wait.h`, `unistd.h`, `vector`
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L409-L409`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L409-L409`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L409-L409`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L409-L409`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L409-L409`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_mutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L409-L409`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_mutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloud_pending_ops-cpp-lock)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(p)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L416-L416`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `p` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(p)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L416-L416`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `p` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(p)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L416-L416`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `p` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(p)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L416-L416`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `p` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-cloud_pending_ops-cpp-ifs)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-commfile"></a>`commFile` (function)
+
+- **Qualified Name:** `commFile`
+- **Signature:** `std::ifstream commFile(commPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L501-L501`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `commPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`commFile`](#sym-src-presenter-cloud_pending_ops-cpp-commfile)
+- **Called By:** [`commFile`](#sym-src-presenter-cloud_pending_ops-cpp-commfile)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-ofs"></a>`ofs` (function)
+
+- **Qualified Name:** `ofs`
+- **Signature:** `std::ofstream ofs(cnFile, std::ios::trunc)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L689-L689`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `cnFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::trunc` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs)
+- **Called By:** [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-ofs"></a>`ofs` (function)
+
+- **Qualified Name:** `ofs`
+- **Signature:** `std::ofstream ofs(cnFile, std::ios::trunc)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L689-L689`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `cnFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::trunc` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs)
+- **Called By:** [`ofs`](#sym-src-presenter-cloud_pending_ops-cpp-ofs)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-cpp-rootofs"></a>`rootOfs` (function)
+
+- **Qualified Name:** `rootOfs`
+- **Signature:** `std::ofstream rootOfs(storageRootCn, std::ios::trunc)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`src/presenter/cloud_pending_ops.cpp:L700-L700`](#file-src-presenter-cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `storageRootCn` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::trunc` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`rootOfs`](#sym-src-presenter-cloud_pending_ops-cpp-rootofs)
+- **Called By:** [`rootOfs`](#sym-src-presenter-cloud_pending_ops-cpp-rootofs)
+
+### <a id="file-src-presenter-cloud_pending_ops-hpp"></a>File: `src/presenter/cloud_pending_ops.hpp`
+
+- **Module:** `cloud_pending_ops` | **Language:** `cpp` | **Lines:** 103 (`L1-L103`)
+- **Structure:** 103 lines, 0 classes/structs, 24 functions/methods
+- **Internal Imports:** `sdk/sdk.hpp`
+- **External Dependencies:** `cstdint`, `string`, `vector`, `filesystem`, `mutex`
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-instance"></a>`Instance` (function)
+
+- **Qualified Name:** `Instance`
+- **Signature:** `CPendingOpsQueue& Instance()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `CPendingOpsQueue&`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L47-L47`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`Instance`](#sym-src-presenter-cloud_pending_ops-hpp-instance)
+- **Called By:** [`Instance`](#sym-src-presenter-cloud_pending_ops-hpp-instance)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-enqueue"></a>`Enqueue` (function)
+
+- **Qualified Name:** `Enqueue`
+- **Signature:** `bool Enqueue(const PendingOperation_t& op)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L49-L49`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `op` | `const PendingOperation_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`Enqueue`](#sym-src-presenter-cloud_pending_ops-hpp-enqueue)
+- **Called By:** [`Enqueue`](#sym-src-presenter-cloud_pending_ops-hpp-enqueue)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-loadall"></a>`LoadAll` (function)
+
+- **Qualified Name:** `LoadAll`
+- **Signature:** `std::vector<PendingOperation_t> LoadAll() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `std::vector<PendingOperation_t>`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L50-L50`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`LoadAll`](#sym-src-presenter-cloud_pending_ops-hpp-loadall)
+- **Called By:** [`LoadAll`](#sym-src-presenter-cloud_pending_ops-hpp-loadall)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-haspendingoperations"></a>`HasPendingOperations` (function)
+
+- **Qualified Name:** `HasPendingOperations`
+- **Signature:** `bool HasPendingOperations() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L51-L51`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`HasPendingOperations`](#sym-src-presenter-cloud_pending_ops-hpp-haspendingoperations)
+- **Called By:** [`HasPendingOperations`](#sym-src-presenter-cloud_pending_ops-hpp-haspendingoperations)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-updatestatus"></a>`UpdateStatus` (function)
+
+- **Qualified Name:** `UpdateStatus`
+- **Signature:** `bool UpdateStatus(const std::string& opId, PendingOpStatus status, const std::string& error = "")`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L52-L52`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `opId` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `status` | `PendingOpStatus` | *(none)* | Yes | `positional_or_keyword` |
+  | `error` | `const std::string&` | `""` | No | `positional_or_keyword` |
+- **Calls:** [`UpdateStatus`](#sym-src-presenter-cloud_pending_ops-hpp-updatestatus)
+- **Called By:** [`UpdateStatus`](#sym-src-presenter-cloud_pending_ops-hpp-updatestatus)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-prunecompleted"></a>`PruneCompleted` (function)
+
+- **Qualified Name:** `PruneCompleted`
+- **Signature:** `bool PruneCompleted(uint64_t maxAgeSeconds = 86400)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L53-L53`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `maxAgeSeconds` | `uint64_t` | `86400` | No | `positional_or_keyword` |
+- **Calls:** [`PruneCompleted`](#sym-src-presenter-cloud_pending_ops-hpp-prunecompleted)
+- **Called By:** [`PruneCompleted`](#sym-src-presenter-cloud_pending_ops-hpp-prunecompleted)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-setqueuefilepathfortest"></a>`SetQueueFilePathForTest` (function)
+
+- **Qualified Name:** `SetQueueFilePathForTest`
+- **Signature:** `void SetQueueFilePathForTest(const fs::path& path)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Docstring:** *Testability helper*
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L56-L56`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `path` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetQueueFilePathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setqueuefilepathfortest)
+- **Called By:** [`SetQueueFilePathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setqueuefilepathfortest)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-clearqueuefortest"></a>`ClearQueueForTest` (function)
+
+- **Qualified Name:** `ClearQueueForTest`
+- **Signature:** `void ClearQueueForTest()`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L57-L57`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`ClearQueueForTest`](#sym-src-presenter-cloud_pending_ops-hpp-clearqueuefortest)
+- **Called By:** [`ClearQueueForTest`](#sym-src-presenter-cloud_pending_ops-hpp-clearqueuefortest)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-getqueuefilepath"></a>`GetQueueFilePath` (function)
+
+- **Qualified Name:** `GetQueueFilePath`
+- **Signature:** `fs::path GetQueueFilePath() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L65-L65`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`GetQueueFilePath`](#sym-src-presenter-cloud_pending_ops-hpp-getqueuefilepath)
+- **Called By:** [`GetQueueFilePath`](#sym-src-presenter-cloud_pending_ops-hpp-getqueuefilepath)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-cpendingopsexecutor"></a>`CPendingOpsExecutor` (function)
+
+- **Qualified Name:** `CPendingOpsExecutor`
+- **Signature:** `explicit CPendingOpsExecutor(fs::path steamRoot = {})`
+- **Visibility:** `+` public
+- **Return Type:** `explicit`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L74-L74`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `steamRoot` | `fs::path` | `{}` | No | `positional_or_keyword` |
+- **Calls:** [`CPendingOpsExecutor`](#sym-src-presenter-cloud_pending_ops-hpp-cpendingopsexecutor)
+- **Called By:** [`CPendingOpsExecutor`](#sym-src-presenter-cloud_pending_ops-hpp-cpendingopsexecutor)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-assertsteamidle"></a>`AssertSteamIdle` (function)
+
+- **Qualified Name:** `AssertSteamIdle`
+- **Signature:** `bool AssertSteamIdle() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L76-L76`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`AssertSteamIdle`](#sym-src-presenter-cloud_pending_ops-hpp-assertsteamidle)
+- **Called By:** [`AssertSteamIdle`](#sym-src-presenter-cloud_pending_ops-hpp-assertsteamidle)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-executeallpending"></a>`ExecuteAllPending` (function)
+
+- **Qualified Name:** `ExecuteAllPending`
+- **Signature:** `int ExecuteAllPending()`
+- **Visibility:** `+` public
+- **Return Type:** `int`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L77-L77`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Calls:** [`ExecuteAllPending`](#sym-src-presenter-cloud_pending_ops-hpp-executeallpending)
+- **Called By:** [`ExecuteAllPending`](#sym-src-presenter-cloud_pending_ops-hpp-executeallpending)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-executeoperation"></a>`ExecuteOperation` (function)
+
+- **Qualified Name:** `ExecuteOperation`
+- **Signature:** `bool ExecuteOperation(PendingOperation_t& op)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L78-L78`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `op` | `PendingOperation_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ExecuteOperation`](#sym-src-presenter-cloud_pending_ops-hpp-executeoperation)
+- **Called By:** [`ExecuteOperation`](#sym-src-presenter-cloud_pending_ops-hpp-executeoperation)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-setprocpathfortest"></a>`SetProcPathForTest` (function)
+
+- **Qualified Name:** `SetProcPathForTest`
+- **Signature:** `void SetProcPathForTest(const fs::path& path)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Docstring:** *Testability helpers*
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L81-L81`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `path` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetProcPathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setprocpathfortest)
+- **Called By:** [`SetProcPathForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setprocpathfortest)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-setbackupdirfortest"></a>`SetBackupDirForTest` (function)
+
+- **Qualified Name:** `SetBackupDirForTest`
+- **Signature:** `void SetBackupDirForTest(const fs::path& path)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L82-L82`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `path` | `const fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetBackupDirForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setbackupdirfortest)
+- **Called By:** [`SetBackupDirForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setbackupdirfortest)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-setsimulatefailurefortest"></a>`SetSimulateFailureForTest` (function)
+
+- **Qualified Name:** `SetSimulateFailureForTest`
+- **Signature:** `void SetSimulateFailureForTest(bool simFail)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L83-L83`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `simFail` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetSimulateFailureForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setsimulatefailurefortest)
+- **Called By:** [`SetSimulateFailureForTest`](#sym-src-presenter-cloud_pending_ops-hpp-setsimulatefailurefortest)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-createpreopbackup"></a>`CreatePreOpBackup` (function)
+
+- **Qualified Name:** `CreatePreOpBackup`
+- **Signature:** `bool CreatePreOpBackup(const PendingOperation_t& op, fs::path& outBackupFile)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L86-L86`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `op` | `const PendingOperation_t&` | *(none)* | Yes | `positional_or_keyword` |
+  | `outBackupFile` | `fs::path&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`CreatePreOpBackup`](#sym-src-presenter-cloud_pending_ops-hpp-createpreopbackup)
+- **Called By:** [`CreatePreOpBackup`](#sym-src-presenter-cloud_pending_ops-hpp-createpreopbackup)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-performgranularreset"></a>`PerformGranularReset` (function)
+
+- **Qualified Name:** `PerformGranularReset`
+- **Signature:** `bool PerformGranularReset(const PendingOperation_t& op)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L87-L87`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `op` | `const PendingOperation_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`PerformGranularReset`](#sym-src-presenter-cloud_pending_ops-hpp-performgranularreset)
+- **Called By:** [`PerformGranularReset`](#sym-src-presenter-cloud_pending_ops-hpp-performgranularreset)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-performrestore"></a>`PerformRestore` (function)
+
+- **Qualified Name:** `PerformRestore`
+- **Signature:** `bool PerformRestore(const PendingOperation_t& op)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L88-L88`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `op` | `const PendingOperation_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`PerformRestore`](#sym-src-presenter-cloud_pending_ops-hpp-performrestore)
+- **Called By:** [`PerformRestore`](#sym-src-presenter-cloud_pending_ops-hpp-performrestore)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-rollbackfrombackup"></a>`RollbackFromBackup` (function)
+
+- **Qualified Name:** `RollbackFromBackup`
+- **Signature:** `bool RollbackFromBackup(const PendingOperation_t& op)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L89-L89`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `op` | `const PendingOperation_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`RollbackFromBackup`](#sym-src-presenter-cloud_pending_ops-hpp-rollbackfrombackup)
+- **Called By:** [`RollbackFromBackup`](#sym-src-presenter-cloud_pending_ops-hpp-rollbackfrombackup)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-pendingoptypetostring"></a>`PendingOpTypeToString` (function)
+
+- **Qualified Name:** `PendingOpTypeToString`
+- **Signature:** `std::string PendingOpTypeToString(PendingOpType type)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L97-L97`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `type` | `PendingOpType` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`PendingOpTypeToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingoptypetostring)
+- **Called By:** [`PendingOpTypeToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingoptypetostring)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-stringtopendingoptype"></a>`StringToPendingOpType` (function)
+
+- **Qualified Name:** `StringToPendingOpType`
+- **Signature:** `PendingOpType StringToPendingOpType(const std::string& str)`
+- **Visibility:** `+` public
+- **Return Type:** `PendingOpType`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L98-L98`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `str` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`StringToPendingOpType`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingoptype)
+- **Called By:** [`StringToPendingOpType`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingoptype)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-pendingopstatustostring"></a>`PendingOpStatusToString` (function)
+
+- **Qualified Name:** `PendingOpStatusToString`
+- **Signature:** `std::string PendingOpStatusToString(PendingOpStatus status)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L99-L99`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `status` | `PendingOpStatus` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`PendingOpStatusToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingopstatustostring)
+- **Called By:** [`PendingOpStatusToString`](#sym-src-presenter-cloud_pending_ops-hpp-pendingopstatustostring)
+
+#### <a id="sym-src-presenter-cloud_pending_ops-hpp-stringtopendingopstatus"></a>`StringToPendingOpStatus` (function)
+
+- **Qualified Name:** `StringToPendingOpStatus`
+- **Signature:** `PendingOpStatus StringToPendingOpStatus(const std::string& str)`
+- **Visibility:** `+` public
+- **Return Type:** `PendingOpStatus`
+- **Source Location:** [`src/presenter/cloud_pending_ops.hpp:L100-L100`](#file-src-presenter-cloud_pending_ops-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `str` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`StringToPendingOpStatus`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingopstatus)
+- **Called By:** [`StringToPendingOpStatus`](#sym-src-presenter-cloud_pending_ops-hpp-stringtopendingopstatus)
+
+### <a id="file-src-presenter-cloudredirect-cpp"></a>File: `src/presenter/cloudredirect.cpp`
+
+- **Module:** `cloudredirect` | **Language:** `cpp` | **Lines:** 526 (`L1-L526`)
+- **Structure:** 526 lines, 0 classes/structs, 8 functions/methods
+- **Internal Imports:** `cloudredirect.hpp`, `atomic_file.hpp`, `log.hpp`, `paths.hpp`, `yaml-cpp/yaml.h`
+- **External Dependencies:** `algorithm`, `cstdlib`, `cstring`, `fstream`, `regex`, `sstream`, `system_error`, `vector`
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-stream"></a>`stream` (function)
+
+- **Qualified Name:** `stream`
+- **Signature:** `std::istringstream stream(input)`
+- **Visibility:** `+` public
+- **Return Type:** `std::istringstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L21-L21`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `input` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`stream`](#sym-src-presenter-cloudredirect-cpp-stream)
+- **Called By:** [`stream`](#sym-src-presenter-cloudredirect-cpp-stream)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-osrelease"></a>`osRelease` (function)
+
+- **Qualified Name:** `osRelease`
+- **Signature:** `std::ifstream osRelease("/etc/os-release")`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L109-L109`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `"/etc/os-release"` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`osRelease`](#sym-src-presenter-cloudredirect-cpp-osrelease)
+- **Called By:** [`osRelease`](#sym-src-presenter-cloudredirect-cpp-osrelease)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(m_pathsMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L186-L186`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `m_pathsMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-cloudredirect-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-cloudredirect-cpp-lock)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-maps"></a>`maps` (function)
+
+- **Qualified Name:** `maps`
+- **Signature:** `std::ifstream maps("/proc/self/maps")`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L203-L203`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `"/proc/self/maps"` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`maps`](#sym-src-presenter-cloudredirect-cpp-maps)
+- **Called By:** [`maps`](#sym-src-presenter-cloudredirect-cpp-maps)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-flag"></a>`flag` (function)
+
+- **Qualified Name:** `flag`
+- **Signature:** `std::ofstream flag(paths.naviEnabledFlag, std::ios::out | std::ios::app)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L267-L267`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.naviEnabledFlag` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::app` | `std::ios::out |` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`flag`](#sym-src-presenter-cloudredirect-cpp-flag)
+- **Called By:** [`flag`](#sym-src-presenter-cloudredirect-cpp-flag)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-disablefile"></a>`disableFile` (function)
+
+- **Qualified Name:** `disableFile`
+- **Signature:** `std::ofstream disableFile(paths.crKillswitchFile, std::ios::out | std::ios::app)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L289-L289`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.crKillswitchFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::app` | `std::ios::out |` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`disableFile`](#sym-src-presenter-cloudredirect-cpp-disablefile)
+- **Called By:** [`disableFile`](#sym-src-presenter-cloudredirect-cpp-disablefile)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(paths.slsSteamConfig)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L403-L403`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.slsSteamConfig` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs)
+
+#### <a id="sym-src-presenter-cloudredirect-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(paths.slsSteamConfig)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/cloudredirect.cpp:L403-L403`](#file-src-presenter-cloudredirect-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.slsSteamConfig` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-cloudredirect-cpp-ifs)
+
+### <a id="file-src-presenter-cloudredirect-hpp"></a>File: `src/presenter/cloudredirect.hpp`
+
+- **Module:** `cloudredirect` | **Language:** `cpp` | **Lines:** 66 (`L1-L66`)
+- **Structure:** 66 lines, 0 classes/structs, 10 functions/methods
+- **Internal Imports:** `sdk/sdk.hpp`
+- **External Dependencies:** `filesystem`, `mutex`, `string`, `unordered_set`
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-instance"></a>`Instance` (function)
+
+- **Qualified Name:** `Instance`
+- **Signature:** `CCloudRedirectBridge& Instance()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `CCloudRedirectBridge&`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L43-L43`](#file-src-presenter-cloudredirect-hpp)
+- **Calls:** [`Instance`](#sym-src-presenter-cloudredirect-hpp-instance)
+- **Called By:** [`Instance`](#sym-src-presenter-cloudredirect-hpp-instance)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-detectplatformtier"></a>`DetectPlatformTier` (function)
+
+- **Qualified Name:** `DetectPlatformTier`
+- **Signature:** `PlatformTier DetectPlatformTier() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `PlatformTier`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L45-L45`](#file-src-presenter-cloudredirect-hpp)
+- **Calls:** [`DetectPlatformTier`](#sym-src-presenter-cloudredirect-hpp-detectplatformtier)
+- **Called By:** [`DetectPlatformTier`](#sym-src-presenter-cloudredirect-hpp-detectplatformtier)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-isenabled"></a>`IsEnabled` (function)
+
+- **Qualified Name:** `IsEnabled`
+- **Signature:** `bool IsEnabled() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L47-L47`](#file-src-presenter-cloudredirect-hpp)
+- **Calls:** [`IsEnabled`](#sym-src-presenter-cloudredirect-hpp-isenabled)
+- **Called By:** [`IsEnabled`](#sym-src-presenter-cloudredirect-hpp-isenabled)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-detectstandaloneinstallation"></a>`DetectStandaloneInstallation` (function)
+
+- **Qualified Name:** `DetectStandaloneInstallation`
+- **Signature:** `bool DetectStandaloneInstallation() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L48-L48`](#file-src-presenter-cloudredirect-hpp)
+- **Calls:** [`DetectStandaloneInstallation`](#sym-src-presenter-cloudredirect-hpp-detectstandaloneinstallation)
+- **Called By:** [`DetectStandaloneInstallation`](#sym-src-presenter-cloudredirect-hpp-detectstandaloneinstallation)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-setenabledstate"></a>`SetEnabledState` (function)
+
+- **Qualified Name:** `SetEnabledState`
+- **Signature:** `bool SetEnabledState(bool enable)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L49-L49`](#file-src-presenter-cloudredirect-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `enable` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SetEnabledState`](#sym-src-presenter-cloudredirect-hpp-setenabledstate)
+- **Called By:** [`SetEnabledState`](#sym-src-presenter-cloudredirect-hpp-setenabledstate)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-syncslssteamconfig"></a>`SyncSlsSteamConfig` (function)
+
+- **Qualified Name:** `SyncSlsSteamConfig`
+- **Signature:** `bool SyncSlsSteamConfig(const std::unordered_set<AppId_t>& managedApps)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L50-L50`](#file-src-presenter-cloudredirect-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `managedApps` | `const std::unordered_set<AppId_t>&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`SyncSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-syncslssteamconfig)
+- **Called By:** [`SyncSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-syncslssteamconfig)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-revertslssteamconfig"></a>`RevertSlsSteamConfig` (function)
+
+- **Qualified Name:** `RevertSlsSteamConfig`
+- **Signature:** `bool RevertSlsSteamConfig(const std::unordered_set<AppId_t>& managedApps)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L51-L51`](#file-src-presenter-cloudredirect-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `managedApps` | `const std::unordered_set<AppId_t>&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`RevertSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-revertslssteamconfig)
+- **Called By:** [`RevertSlsSteamConfig`](#sym-src-presenter-cloudredirect-hpp-revertslssteamconfig)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-ensurelocalonlyconfig"></a>`EnsureLocalOnlyConfig` (function)
+
+- **Qualified Name:** `EnsureLocalOnlyConfig`
+- **Signature:** `bool EnsureLocalOnlyConfig()`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L52-L52`](#file-src-presenter-cloudredirect-hpp)
+- **Calls:** [`EnsureLocalOnlyConfig`](#sym-src-presenter-cloudredirect-hpp-ensurelocalonlyconfig)
+- **Called By:** [`EnsureLocalOnlyConfig`](#sym-src-presenter-cloudredirect-hpp-ensurelocalonlyconfig)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-gettokenpath"></a>`GetTokenPath` (function)
+
+- **Qualified Name:** `GetTokenPath`
+- **Signature:** `std::filesystem::path GetTokenPath(const std::string& provider) const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `std::filesystem::path`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L53-L53`](#file-src-presenter-cloudredirect-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `provider` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`GetTokenPath`](#sym-src-presenter-cloudredirect-hpp-gettokenpath)
+- **Called By:** [`GetTokenPath`](#sym-src-presenter-cloudredirect-hpp-gettokenpath)
+
+#### <a id="sym-src-presenter-cloudredirect-hpp-resolvepaths"></a>`ResolvePaths` (function)
+
+- **Qualified Name:** `ResolvePaths`
+- **Signature:** `ResolvedPaths_t ResolvePaths() const`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `const`
+- **Return Type:** `ResolvedPaths_t`
+- **Source Location:** [`src/presenter/cloudredirect.hpp:L61-L61`](#file-src-presenter-cloudredirect-hpp)
+- **Calls:** [`ResolvePaths`](#sym-src-presenter-cloudredirect-hpp-resolvepaths)
+- **Called By:** [`ResolvePaths`](#sym-src-presenter-cloudredirect-hpp-resolvepaths)
 
 ### <a id="file-src-presenter-dlc-cpp"></a>File: `src/presenter/dlc.cpp`
 
@@ -9801,9 +13275,9 @@ graph TD
 
 ### <a id="file-src-presenter-luadownload-cpp"></a>File: `src/presenter/luadownload.cpp`
 
-- **Module:** `luadownload` | **Language:** `cpp` | **Lines:** 917 (`L1-L917`)
-- **Structure:** 917 lines, 0 classes/structs, 7 functions/methods
-- **Internal Imports:** `luadownload.hpp`, `cdpinject.hpp`, `config.hpp`, `log.hpp`, `globals.hpp`, `atomic_file.hpp`, `paths.hpp`, `zip.hpp`, `lua_parser.hpp`, `depotkeys.hpp`, `licenses.hpp`
+- **Module:** `luadownload` | **Language:** `cpp` | **Lines:** 912 (`L1-L912`)
+- **Structure:** 912 lines, 0 classes/structs, 7 functions/methods
+- **Internal Imports:** `luadownload.hpp`, `cdpinject.hpp`, `config.hpp`, `log.hpp`, `globals.hpp`, `atomic_file.hpp`, `paths.hpp`, `zip.hpp`, `lua_parser.hpp`, `depotkeys.hpp`, `licenses.hpp`, `manifestcode.hpp`
 - **External Dependencies:** `algorithm`, `cctype`, `cstdio`, `cstdlib`, `cstring`, `filesystem`, `fstream`, `regex`, `sstream`, `string`, `vector`, `curl/curl.h`
 
 #### <a id="sym-src-presenter-luadownload-cpp-guard"></a>`guard` (function)
@@ -9812,7 +13286,7 @@ graph TD
 - **Signature:** `AtomicFile::TempFileGuard guard(tmpPath)`
 - **Visibility:** `+` public
 - **Return Type:** `AtomicFile::TempFileGuard`
-- **Source Location:** [`src/presenter/luadownload.cpp:L142-L142`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L143-L143`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9826,7 +13300,7 @@ graph TD
 - **Signature:** `std::ifstream ifs(zipPath, std::ios::binary)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L635-L635`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L636-L636`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9841,7 +13315,7 @@ graph TD
 - **Signature:** `std::ifstream ifs(zipPath, std::ios::binary)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L635-L635`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L636-L636`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9856,7 +13330,7 @@ graph TD
 - **Signature:** `std::ofstream luaOut(synthLuaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L721-L721`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L722-L722`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9870,7 +13344,7 @@ graph TD
 - **Signature:** `std::ofstream luaOut(synthLuaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L721-L721`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L722-L722`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9884,7 +13358,7 @@ graph TD
 - **Signature:** `std::ofstream luaOut(synthLuaPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L721-L721`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L722-L722`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9898,7 +13372,7 @@ graph TD
 - **Signature:** `std::ifstream pIn(files.providerFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/luadownload.cpp:L878-L878`](#file-src-presenter-luadownload-cpp)
+- **Source Location:** [`src/presenter/luadownload.cpp:L873-L873`](#file-src-presenter-luadownload-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -9978,8 +13452,8 @@ graph TD
 
 ### <a id="file-src-presenter-main-cpp"></a>File: `src/presenter/main.cpp`
 
-- **Module:** `main` | **Language:** `cpp` | **Lines:** 392 (`L1-L392`)
-- **Structure:** 392 lines, 0 classes/structs, 0 functions/methods
+- **Module:** `main` | **Language:** `cpp` | **Lines:** 447 (`L1-L447`)
+- **Structure:** 447 lines, 0 classes/structs, 0 functions/methods
 - **Internal Imports:** `sdk/sdk.hpp`, `api.hpp`, `config.hpp`, `decompiler.hpp`, `globals.hpp`, `hooks.hpp`, `log.hpp`, `patterns.hpp`, `update.hpp`, `utils.hpp`, `cefsizefix.hpp`, `depotkeys.hpp`, `storeinject.hpp`, `apps.hpp`, `removelua.hpp`, `tier0hook.hpp`, `autoupdate.hpp`, `nativeinstall.hpp`, `vftableinfo.hpp`, `legacy_migration.hpp`, `libmem/libmem.h`
 - **External Dependencies:** `curl/curl.h`, `chrono`, `cstdio`, `cstdlib`, `cstring`, `filesystem`, `fstream`, `link.h`, `memory`, `stdexcept`, `string`, `sys/mman.h`, `sys/types.h`, `unistd.h`
 
@@ -10394,6 +13868,147 @@ graph TD
 - **Calls:** [`save`](#sym-src-presenter-nativeinstall-hpp-save)
 - **Called By:** [`save`](#sym-src-presenter-nativeinstall-hpp-save)
 
+### <a id="file-src-presenter-process_lock-cpp"></a>File: `src/presenter/process_lock.cpp`
+
+- **Module:** `process_lock` | **Language:** `cpp` | **Lines:** 297 (`L1-L297`)
+- **Structure:** 297 lines, 0 classes/structs, 7 functions/methods
+- **Internal Imports:** `process_lock.hpp`, `paths.hpp`
+- **External Dependencies:** `algorithm`, `cctype`, `filesystem`, `fstream`, `mutex`, `string`, `system_error`, `unordered_set`, `vector`, `sys/stat.h`, `sys/types.h`, `unistd.h`
+
+#### <a id="sym-src-presenter-process_lock-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(filePath, std::ios::binary)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`src/presenter/process_lock.cpp:L29-L29`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `filePath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `std::ios::binary` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-src-presenter-process_lock-cpp-ifs)
+- **Called By:** [`ifs`](#sym-src-presenter-process_lock-cpp-ifs)
+
+#### <a id="sym-src-presenter-process_lock-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_hookMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/process_lock.cpp:L210-L210`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_hookMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+
+#### <a id="sym-src-presenter-process_lock-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_hookMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/process_lock.cpp:L210-L210`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_hookMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+
+#### <a id="sym-src-presenter-process_lock-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_hookMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/process_lock.cpp:L210-L210`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_hookMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+
+#### <a id="sym-src-presenter-process_lock-cpp-lock"></a>`lock` (function)
+
+- **Qualified Name:** `lock`
+- **Signature:** `std::lock_guard<std::mutex> lock(s_hookMutex)`
+- **Visibility:** `+` public
+- **Return Type:** `std::lock_guard<std::mutex>`
+- **Source Location:** [`src/presenter/process_lock.cpp:L210-L210`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `s_hookMutex` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+- **Called By:** [`lock`](#sym-src-presenter-process_lock-cpp-lock)
+
+#### <a id="sym-src-presenter-process_lock-cpp-procroot"></a>`procRoot` (function)
+
+- **Qualified Name:** `procRoot`
+- **Signature:** `fs::path procRoot(procRootOverride)`
+- **Visibility:** `+` public
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/presenter/process_lock.cpp:L215-L215`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `procRootOverride` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot)
+- **Called By:** [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot)
+
+#### <a id="sym-src-presenter-process_lock-cpp-procroot"></a>`procRoot` (function)
+
+- **Qualified Name:** `procRoot`
+- **Signature:** `fs::path procRoot(procRootOverride)`
+- **Visibility:** `+` public
+- **Return Type:** `fs::path`
+- **Source Location:** [`src/presenter/process_lock.cpp:L215-L215`](#file-src-presenter-process_lock-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `procRootOverride` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot)
+- **Called By:** [`procRoot`](#sym-src-presenter-process_lock-cpp-procroot)
+
+### <a id="file-src-presenter-process_lock-hpp"></a>File: `src/presenter/process_lock.hpp`
+
+- **Module:** `process_lock` | **Language:** `cpp` | **Lines:** 41 (`L1-L41`)
+- **Structure:** 41 lines, 0 classes/structs, 2 functions/methods
+- **External Dependencies:** `cstdint`, `string`, `unordered_set`
+
+#### <a id="sym-src-presenter-process_lock-hpp-setapprunningfromhook"></a>`setAppRunningFromHook` (function)
+
+- **Qualified Name:** `setAppRunningFromHook`
+- **Signature:** `void setAppRunningFromHook(uint32_t appId, bool running)`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `void`
+- **Docstring:** *Thread-safe tracking of running AppIDs reported by hooks.*
+- **Source Location:** [`src/presenter/process_lock.hpp:L15-L15`](#file-src-presenter-process_lock-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `uint32_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `running` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setAppRunningFromHook`](#sym-src-presenter-process_lock-hpp-setapprunningfromhook)
+- **Called By:** [`setAppRunningFromHook`](#sym-src-presenter-process_lock-hpp-setapprunningfromhook)
+
+#### <a id="sym-src-presenter-process_lock-hpp-clearallhookedrunningapps"></a>`clearAllHookedRunningApps` (function)
+
+- **Qualified Name:** `clearAllHookedRunningApps`
+- **Signature:** `void clearAllHookedRunningApps()`
+- **Visibility:** `+` public
+- **Modifiers / Decorators:** `static`
+- **Return Type:** `void`
+- **Docstring:** *Clears all hooked running apps.*
+- **Source Location:** [`src/presenter/process_lock.hpp:L20-L20`](#file-src-presenter-process_lock-hpp)
+- **Calls:** [`clearAllHookedRunningApps`](#sym-src-presenter-process_lock-hpp-clearallhookedrunningapps)
+- **Called By:** [`clearAllHookedRunningApps`](#sym-src-presenter-process_lock-hpp-clearallhookedrunningapps)
+
 ### <a id="file-src-presenter-removelua-cpp"></a>File: `src/presenter/removelua.cpp`
 
 - **Module:** `removelua` | **Language:** `cpp` | **Lines:** 163 (`L1-L163`)
@@ -10448,10 +14063,10 @@ graph TD
 
 ### <a id="file-src-presenter-storeinject-cpp"></a>File: `src/presenter/storeinject.cpp`
 
-- **Module:** `storeinject` | **Language:** `cpp` | **Lines:** 1587 (`L1-L1587`)
-- **Structure:** 1587 lines, 1 classes/structs, 7 functions/methods
-- **Internal Imports:** `storeinject.hpp`, `storeinject_view.hpp`, `cdpinject.hpp`, `luadownload.hpp`, `removelua.hpp`, `apps.hpp`, `nativeinstall.hpp`, `depotkeys.hpp`, `licenses.hpp`, `lua_parser.hpp`, `IClientAppManager.hpp`, `IClientApps.hpp`, `log.hpp`, `config.hpp`, `utils.hpp`, `atomic_file.hpp`, `ticket.hpp`, `paths.hpp`, `base64/base64.hpp`
-- **External Dependencies:** `thread`, `atomic`, `chrono`, `filesystem`, `iostream`, `iomanip`, `sys/wait.h`, `regex`, `fstream`, `cctype`, `set`, `sstream`, `string`, `algorithm`, `set`, `sys/socket.h`, `netinet/in.h`, `arpa/inet.h`, `unistd.h`, `fcntl.h`, `cstring`, `cerrno`
+- **Module:** `storeinject` | **Language:** `cpp` | **Lines:** 2065 (`L1-L2065`)
+- **Structure:** 2065 lines, 1 classes/structs, 7 functions/methods
+- **Internal Imports:** `storeinject.hpp`, `storeinject_view.hpp`, `cdpinject.hpp`, `luadownload.hpp`, `removelua.hpp`, `apps.hpp`, `nativeinstall.hpp`, `depotkeys.hpp`, `licenses.hpp`, `lua_parser.hpp`, `IClientAppManager.hpp`, `IClientApps.hpp`, `log.hpp`, `config.hpp`, `utils.hpp`, `atomic_file.hpp`, `ticket.hpp`, `paths.hpp`, `cloud_oauth.hpp`, `cloud_manager.hpp`, `cloud_pending_ops.hpp`, `cloud_view.hpp`, `cloudredirect.hpp`, `yaml-cpp/yaml.h`, `base64/base64.hpp`
+- **External Dependencies:** `unistd.h`, `openssl/crypto.h`, `openssl/rand.h`, `thread`, `atomic`, `chrono`, `filesystem`, `iostream`, `iomanip`, `sys/wait.h`, `regex`, `fstream`, `cctype`, `set`, `sstream`, `string`, `algorithm`, `set`, `sys/socket.h`, `sys/stat.h`, `netinet/in.h`, `arpa/inet.h`, `unistd.h`, `fcntl.h`, `cstring`, `cerrno`
 
 #### <a id="sym-src-presenter-storeinject-cpp-urldecode"></a>`urlDecode` (function)
 
@@ -10460,7 +14075,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `static`
 - **Return Type:** `std::string`
-- **Source Location:** [`src/presenter/storeinject.cpp:L34-L34`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L43-L43`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10474,7 +14089,7 @@ graph TD
 - **Signature:** `std::stringstream stream(value)`
 - **Visibility:** `+` public
 - **Return Type:** `std::stringstream`
-- **Source Location:** [`src/presenter/storeinject.cpp:L55-L55`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L64-L64`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10489,7 +14104,7 @@ graph TD
 - **Visibility:** `+` public
 - **Modifiers / Decorators:** `static`
 - **Return Type:** `std::atomic<bool>`
-- **Source Location:** [`src/presenter/storeinject.cpp:L84-L84`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L94-L94`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10502,7 +14117,7 @@ graph TD
 - **Qualified Name:** `ManualFile`
 - **Signature:** `struct ManualFile`
 - **Visibility:** `+` public
-- **Source Location:** [`src/presenter/storeinject.cpp:L88-L88`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L241-L241`](#file-src-presenter-storeinject-cpp)
 
 #### <a id="sym-src-presenter-storeinject-cpp-if"></a>`if` (function)
 
@@ -10510,7 +14125,7 @@ graph TD
 - **Signature:** `else if(ext == ".lua")`
 - **Visibility:** `+` public
 - **Return Type:** `else`
-- **Source Location:** [`src/presenter/storeinject.cpp:L438-L438`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L591-L591`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10522,7 +14137,7 @@ graph TD
 - **Signature:** `else if(ext == ".lua")`
 - **Visibility:** `+` public
 - **Return Type:** `else`
-- **Source Location:** [`src/presenter/storeinject.cpp:L438-L438`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L591-L591`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10534,7 +14149,7 @@ graph TD
 - **Signature:** `else if(ext == ".lua")`
 - **Visibility:** `+` public
 - **Return Type:** `else`
-- **Source Location:** [`src/presenter/storeinject.cpp:L438-L438`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L591-L591`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10546,7 +14161,7 @@ graph TD
 - **Signature:** `std::ifstream pf(providerPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/presenter/storeinject.cpp:L866-L866`](#file-src-presenter-storeinject-cpp)
+- **Source Location:** [`src/presenter/storeinject.cpp:L1306-L1306`](#file-src-presenter-storeinject-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -10556,8 +14171,8 @@ graph TD
 
 ### <a id="file-src-presenter-storeinject-hpp"></a>File: `src/presenter/storeinject.hpp`
 
-- **Module:** `storeinject` | **Language:** `cpp` | **Lines:** 18 (`L1-L18`)
-- **Structure:** 18 lines, 0 classes/structs, 2 functions/methods
+- **Module:** `storeinject` | **Language:** `cpp` | **Lines:** 28 (`L1-L28`)
+- **Structure:** 28 lines, 0 classes/structs, 3 functions/methods
 - **External Dependencies:** `string`, `vector`
 
 #### <a id="sym-src-presenter-storeinject-hpp-init"></a>`init` (function)
@@ -10581,6 +14196,21 @@ graph TD
 - **Source Location:** [`src/presenter/storeinject.hpp:L17-L17`](#file-src-presenter-storeinject-hpp)
 - **Calls:** [`shutdown`](#sym-src-presenter-storeinject-hpp-shutdown)
 - **Called By:** [`shutdown`](#sym-src-presenter-storeinject-hpp-shutdown)
+
+#### <a id="sym-src-presenter-storeinject-hpp-setnaviauthtokenfortest"></a>`setNaviAuthTokenForTest` (function)
+
+- **Qualified Name:** `setNaviAuthTokenForTest`
+- **Signature:** `void setNaviAuthTokenForTest(const std::string& token)`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Docstring:** *Sets a test authentication token for unit testing.*
+- **Source Location:** [`src/presenter/storeinject.hpp:L27-L27`](#file-src-presenter-storeinject-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `token` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setNaviAuthTokenForTest`](#sym-src-presenter-storeinject-hpp-setnaviauthtokenfortest)
+- **Called By:** [`setNaviAuthTokenForTest`](#sym-src-presenter-storeinject-hpp-setnaviauthtokenfortest)
 
 ### <a id="file-src-presenter-ticket-cpp"></a>File: `src/presenter/ticket.cpp`
 
@@ -11039,8 +14669,8 @@ graph TD
 
 ### <a id="file-src-view-cdpinject-cpp"></a>File: `src/view/cdpinject.cpp`
 
-- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 1101 (`L1-L1101`)
-- **Structure:** 1101 lines, 0 classes/structs, 4 functions/methods
+- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 1106 (`L1-L1106`)
+- **Structure:** 1106 lines, 0 classes/structs, 4 functions/methods
 - **Internal Imports:** `cdpinject.hpp`, `log.hpp`, `config.hpp`, `atomic_file.hpp`, `apps.hpp`, `base64/base64.hpp`
 - **External Dependencies:** `cstring`, `dlfcn.h`, `filesystem`, `fstream`, `random`, `set`, `sstream`, `string`, `vector`, `sys/socket.h`, `netinet/in.h`, `arpa/inet.h`, `netdb.h`, `unistd.h`, `sys/wait.h`, `signal.h`, `openssl/sha.h`
 
@@ -11105,8 +14735,8 @@ graph TD
 
 ### <a id="file-src-view-cdpinject-hpp"></a>File: `src/view/cdpinject.hpp`
 
-- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 84 (`L1-L84`)
-- **Structure:** 84 lines, 0 classes/structs, 10 functions/methods
+- **Module:** `cdpinject` | **Language:** `cpp` | **Lines:** 90 (`L1-L90`)
+- **Structure:** 90 lines, 0 classes/structs, 11 functions/methods
 - **External Dependencies:** `string`, `vector`, `cstdint`
 
 #### <a id="sym-src-view-cdpinject-hpp-fetchpages"></a>`fetchPages` (function)
@@ -11262,6 +14892,17 @@ graph TD
 - **Calls:** [`ensureCompatTool`](#sym-src-view-cdpinject-hpp-ensurecompattool)
 - **Called By:** [`ensureCompatTool`](#sym-src-view-cdpinject-hpp-ensurecompattool)
 
+#### <a id="sym-src-view-cdpinject-hpp-injectsyncoverlaymodal"></a>`injectSyncOverlayModal` (function)
+
+- **Qualified Name:** `injectSyncOverlayModal`
+- **Signature:** `void injectSyncOverlayModal()`
+- **Visibility:** `+` public
+- **Return Type:** `void`
+- **Docstring:** *Injects and triggers the Navi Cross-Device Sync overlay modal on active Steam CEF contexts.*
+- **Source Location:** [`src/view/cdpinject.hpp:L88-L88`](#file-src-view-cdpinject-hpp)
+- **Calls:** [`injectSyncOverlayModal`](#sym-src-view-cdpinject-hpp-injectsyncoverlaymodal)
+- **Called By:** [`injectSyncOverlayModal`](#sym-src-view-cdpinject-hpp-injectsyncoverlaymodal)
+
 ### <a id="file-src-view-cefsizefix-cpp"></a>File: `src/view/cefsizefix.cpp`
 
 - **Module:** `cefsizefix` | **Language:** `cpp` | **Lines:** 309 (`L1-L309`)
@@ -11381,12 +15022,207 @@ graph TD
 - **Calls:** [`removeSizeFixScript`](#sym-src-view-cefsizefix-hpp-removesizefixscript)
 - **Called By:** [`removeSizeFixScript`](#sym-src-view-cefsizefix-hpp-removesizefixscript)
 
+### <a id="file-src-view-cloud_view-cpp"></a>File: `src/view/cloud_view.cpp`
+
+- **Module:** `cloud_view` | **Language:** `cpp` | **Lines:** 202 (`L1-L202`)
+- **Structure:** 202 lines, 0 classes/structs, 0 functions/methods
+- **Internal Imports:** `cloud_view.hpp`, `cloud_manager.hpp`, `cloud_pending_ops.hpp`
+- **External Dependencies:** `sstream`, `iomanip`, `cctype`
+
+*No declarations in this file.*
+
+### <a id="file-src-view-cloud_view-hpp"></a>File: `src/view/cloud_view.hpp`
+
+- **Module:** `cloud_view` | **Language:** `cpp` | **Lines:** 30 (`L1-L30`)
+- **Structure:** 30 lines, 0 classes/structs, 12 functions/methods
+- **Internal Imports:** `sdk/sdk.hpp`
+- **External Dependencies:** `cstdint`, `string`, `vector`
+
+#### <a id="sym-src-view-cloud_view-hpp-renderstatusjson"></a>`renderStatusJson` (function)
+
+- **Qualified Name:** `renderStatusJson`
+- **Signature:** `std::string renderStatusJson(bool enabled, const std::string& provider, size_t managedAppsCount, size_t pendingOpsCount)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L16-L16`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `enabled` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+  | `provider` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `managedAppsCount` | `size_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `pendingOpsCount` | `size_t` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderStatusJson`](#sym-src-view-cloud_view-hpp-renderstatusjson)
+- **Called By:** [`renderStatusJson`](#sym-src-view-cloud_view-hpp-renderstatusjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-renderproviderstatusjson"></a>`renderProviderStatusJson` (function)
+
+- **Qualified Name:** `renderProviderStatusJson`
+- **Signature:** `std::string renderProviderStatusJson(const CloudRedirect::ProviderAuthStatus_t& status)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L17-L17`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `status` | `const CloudRedirect::ProviderAuthStatus_t&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderProviderStatusJson`](#sym-src-view-cloud_view-hpp-renderproviderstatusjson)
+- **Called By:** [`renderProviderStatusJson`](#sym-src-view-cloud_view-hpp-renderproviderstatusjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-renderappstatusjson"></a>`renderAppStatusJson` (function)
+
+- **Qualified Name:** `renderAppStatusJson`
+- **Signature:** `std::string renderAppStatusJson(AppId_t appId, bool redirected, uint64_t storageBytes, const std::vector<std::string>& backups)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L18-L18`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `AppId_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `redirected` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+  | `storageBytes` | `uint64_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `backups` | `const std::vector<std::string>&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderAppStatusJson`](#sym-src-view-cloud_view-hpp-renderappstatusjson)
+- **Called By:** [`renderAppStatusJson`](#sym-src-view-cloud_view-hpp-renderappstatusjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-renderapptogglejson"></a>`renderAppToggleJson` (function)
+
+- **Qualified Name:** `renderAppToggleJson`
+- **Signature:** `std::string renderAppToggleJson(AppId_t appId, bool redirected)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L19-L19`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `AppId_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `redirected` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderAppToggleJson`](#sym-src-view-cloud_view-hpp-renderapptogglejson)
+- **Called By:** [`renderAppToggleJson`](#sym-src-view-cloud_view-hpp-renderapptogglejson)
+
+#### <a id="sym-src-view-cloud_view-hpp-renderbackupsuccessjson"></a>`renderBackupSuccessJson` (function)
+
+- **Qualified Name:** `renderBackupSuccessJson`
+- **Signature:** `std::string renderBackupSuccessJson(AppId_t appId, const std::string& backupPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L20-L20`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `appId` | `AppId_t` | *(none)* | Yes | `positional_or_keyword` |
+  | `backupPath` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderBackupSuccessJson`](#sym-src-view-cloud_view-hpp-renderbackupsuccessjson)
+- **Called By:** [`renderBackupSuccessJson`](#sym-src-view-cloud_view-hpp-renderbackupsuccessjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-renderpendingoperationacceptedjson"></a>`renderPendingOperationAcceptedJson` (function)
+
+- **Qualified Name:** `renderPendingOperationAcceptedJson`
+- **Signature:** `std::string renderPendingOperationAcceptedJson(const std::string& opId)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L21-L21`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `opId` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderPendingOperationAcceptedJson`](#sym-src-view-cloud_view-hpp-renderpendingoperationacceptedjson)
+- **Called By:** [`renderPendingOperationAcceptedJson`](#sym-src-view-cloud_view-hpp-renderpendingoperationacceptedjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-renderpendingopsjson"></a>`renderPendingOpsJson` (function)
+
+- **Qualified Name:** `renderPendingOpsJson`
+- **Signature:** `std::string renderPendingOpsJson(const std::vector<CloudRedirect::PendingOperation_t>& ops)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L22-L22`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `ops` | `const std::vector<CloudRedirect::PendingOperation_t>&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderPendingOpsJson`](#sym-src-view-cloud_view-hpp-renderpendingopsjson)
+- **Called By:** [`renderPendingOpsJson`](#sym-src-view-cloud_view-hpp-renderpendingopsjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-rendersuccessjson"></a>`renderSuccessJson` (function)
+
+- **Qualified Name:** `renderSuccessJson`
+- **Signature:** `std::string renderSuccessJson(const std::string& message = "")`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L23-L23`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `message` | `const std::string&` | `""` | No | `positional_or_keyword` |
+- **Calls:** [`renderSuccessJson`](#sym-src-view-cloud_view-hpp-rendersuccessjson)
+- **Called By:** [`renderSuccessJson`](#sym-src-view-cloud_view-hpp-rendersuccessjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-rendererrorjson"></a>`renderErrorJson` (function)
+
+- **Qualified Name:** `renderErrorJson`
+- **Signature:** `std::string renderErrorJson(const std::string& message)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L24-L24`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `message` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderErrorJson`](#sym-src-view-cloud_view-hpp-rendererrorjson)
+- **Called By:** [`renderErrorJson`](#sym-src-view-cloud_view-hpp-rendererrorjson)
+
+#### <a id="sym-src-view-cloud_view-hpp-parseboolfield"></a>`parseBoolField` (function)
+
+- **Qualified Name:** `parseBoolField`
+- **Signature:** `bool parseBoolField(const std::string& json, const std::string& key, bool defaultValue = false)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/view/cloud_view.hpp:L26-L26`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `json` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `key` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `defaultValue` | `bool` | `false` | No | `positional_or_keyword` |
+- **Calls:** [`parseBoolField`](#sym-src-view-cloud_view-hpp-parseboolfield)
+- **Called By:** [`parseBoolField`](#sym-src-view-cloud_view-hpp-parseboolfield)
+
+#### <a id="sym-src-view-cloud_view-hpp-parsestringfield"></a>`parseStringField` (function)
+
+- **Qualified Name:** `parseStringField`
+- **Signature:** `std::string parseStringField(const std::string& json, const std::string& key)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`src/view/cloud_view.hpp:L27-L27`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `json` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `key` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`parseStringField`](#sym-src-view-cloud_view-hpp-parsestringfield)
+- **Called By:** [`parseStringField`](#sym-src-view-cloud_view-hpp-parsestringfield)
+
+#### <a id="sym-src-view-cloud_view-hpp-parseconfirmreset"></a>`parseConfirmReset` (function)
+
+- **Qualified Name:** `parseConfirmReset`
+- **Signature:** `bool parseConfirmReset(const std::string& json)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Source Location:** [`src/view/cloud_view.hpp:L28-L28`](#file-src-view-cloud_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `json` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`parseConfirmReset`](#sym-src-view-cloud_view-hpp-parseconfirmreset)
+- **Called By:** [`parseConfirmReset`](#sym-src-view-cloud_view-hpp-parseconfirmreset)
+
 ### <a id="file-src-view-storeinject_view-cpp"></a>File: `src/view/storeinject_view.cpp`
 
-- **Module:** `storeinject_view` | **Language:** `cpp` | **Lines:** 219 (`L1-L219`)
-- **Structure:** 219 lines, 0 classes/structs, 1 functions/methods
-- **Internal Imports:** `storeinject_view.hpp`, `atomic_file.hpp`, `log.hpp`, `depotkeys.hpp`
-- **External Dependencies:** `cstdlib`, `fstream`, `sstream`, `cstring`, `algorithm`
+- **Module:** `storeinject_view` | **Language:** `cpp` | **Lines:** 790 (`L1-L790`)
+- **Structure:** 790 lines, 0 classes/structs, 10 functions/methods
+- **Internal Imports:** `storeinject_view.hpp`, `atomic_file.hpp`, `log.hpp`, `depotkeys.hpp`, `config.hpp`, `yaml-cpp/yaml.h`
+- **External Dependencies:** `cstdlib`, `fstream`, `sstream`, `cstring`, `algorithm`, `sys/stat.h`
 
 #### <a id="sym-src-view-storeinject_view-cpp-infile"></a>`inFile` (function)
 
@@ -11394,7 +15230,7 @@ graph TD
 - **Signature:** `std::ifstream inFile(indexPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`src/view/storeinject_view.cpp:L37-L37`](#file-src-view-storeinject_view-cpp)
+- **Source Location:** [`src/view/storeinject_view.cpp:L40-L40`](#file-src-view-storeinject_view-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11402,12 +15238,138 @@ graph TD
 - **Calls:** [`inFile`](#sym-src-view-storeinject_view-cpp-infile)
 - **Called By:** [`inFile`](#sym-src-view-storeinject_view-cpp-infile)
 
+#### <a id="sym-src-view-storeinject_view-cpp-sub"></a>`sub` (function)
+
+- **Qualified Name:** `sub`
+- **Signature:** `YAML::Node sub(YAML::NodeType::Map)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L449-L449`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Map` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`sub`](#sym-src-view-storeinject_view-cpp-sub)
+- **Called By:** [`sub`](#sym-src-view-storeinject_view-cpp-sub)
+
+#### <a id="sym-src-view-storeinject_view-cpp-dn"></a>`dn` (function)
+
+- **Qualified Name:** `dn`
+- **Signature:** `YAML::Node dn(YAML::NodeType::Map)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L474-L474`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Map` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`dn`](#sym-src-view-storeinject_view-cpp-dn)
+- **Called By:** [`dn`](#sym-src-view-storeinject_view-cpp-dn)
+
+#### <a id="sym-src-view-storeinject_view-cpp-dn"></a>`dn` (function)
+
+- **Qualified Name:** `dn`
+- **Signature:** `YAML::Node dn(YAML::NodeType::Map)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L474-L474`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Map` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`dn`](#sym-src-view-storeinject_view-cpp-dn)
+- **Called By:** [`dn`](#sym-src-view-storeinject_view-cpp-dn)
+
+#### <a id="sym-src-view-storeinject_view-cpp-s"></a>`s` (function)
+
+- **Qualified Name:** `s`
+- **Signature:** `YAML::Node s(YAML::NodeType::Map)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L666-L666`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Map` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`s`](#sym-src-view-storeinject_view-cpp-s)
+- **Called By:** [`s`](#sym-src-view-storeinject_view-cpp-s)
+
+#### <a id="sym-src-view-storeinject_view-cpp-s"></a>`s` (function)
+
+- **Qualified Name:** `s`
+- **Signature:** `YAML::Node s(YAML::NodeType::Map)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L666-L666`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Map` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`s`](#sym-src-view-storeinject_view-cpp-s)
+- **Called By:** [`s`](#sym-src-view-storeinject_view-cpp-s)
+
+#### <a id="sym-src-view-storeinject_view-cpp-seq"></a>`seq` (function)
+
+- **Qualified Name:** `seq`
+- **Signature:** `YAML::Node seq(YAML::NodeType::Sequence)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L677-L677`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Sequence` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`seq`](#sym-src-view-storeinject_view-cpp-seq)
+- **Called By:** [`seq`](#sym-src-view-storeinject_view-cpp-seq)
+
+#### <a id="sym-src-view-storeinject_view-cpp-seq"></a>`seq` (function)
+
+- **Qualified Name:** `seq`
+- **Signature:** `YAML::Node seq(YAML::NodeType::Sequence)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L677-L677`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Sequence` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`seq`](#sym-src-view-storeinject_view-cpp-seq)
+- **Called By:** [`seq`](#sym-src-view-storeinject_view-cpp-seq)
+
+#### <a id="sym-src-view-storeinject_view-cpp-m"></a>`m` (function)
+
+- **Qualified Name:** `m`
+- **Signature:** `YAML::Node m(YAML::NodeType::Map)`
+- **Visibility:** `+` public
+- **Return Type:** `YAML::Node`
+- **Source Location:** [`src/view/storeinject_view.cpp:L694-L694`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `YAML::NodeType::Map` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`m`](#sym-src-view-storeinject_view-cpp-m)
+- **Called By:** [`m`](#sym-src-view-storeinject_view-cpp-m)
+
+#### <a id="sym-src-view-storeinject_view-cpp-p"></a>`p` (function)
+
+- **Qualified Name:** `p`
+- **Signature:** `std::filesystem::path p(configYamlPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::filesystem::path`
+- **Source Location:** [`src/view/storeinject_view.cpp:L771-L771`](#file-src-view-storeinject_view-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `configYamlPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`p`](#sym-src-view-storeinject_view-cpp-p)
+- **Called By:** [`p`](#sym-src-view-storeinject_view-cpp-p)
+
 ### <a id="file-src-view-storeinject_view-hpp"></a>File: `src/view/storeinject_view.hpp`
 
-- **Module:** `storeinject_view` | **Language:** `cpp` | **Lines:** 111 (`L1-L111`)
-- **Structure:** 111 lines, 2 classes/structs, 7 functions/methods
+- **Module:** `storeinject_view` | **Language:** `cpp` | **Lines:** 125 (`L1-L125`)
+- **Structure:** 125 lines, 2 classes/structs, 9 functions/methods
 - **Internal Imports:** `lua_parser.hpp`
-- **External Dependencies:** `string`, `vector`, `set`, `map`, `filesystem`, `cstdint`
+- **External Dependencies:** `string`, `vector`, `set`, `map`, `filesystem`, `cstdint`, `unordered_map`
 
 #### <a id="sym-src-view-storeinject_view-hpp-findsteamuiindexhtml"></a>`findSteamUIIndexHtml` (function)
 
@@ -11416,7 +15378,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::filesystem::path`
 - **Docstring:** *Locate Steam's steamui/index.html.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L30-L30`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L31-L31`](#file-src-view-storeinject_view-hpp)
 - **Calls:** [`findSteamUIIndexHtml`](#sym-src-view-storeinject_view-hpp-findsteamuiindexhtml)
 - **Called By:** [`findSteamUIIndexHtml`](#sym-src-view-storeinject_view-hpp-findsteamuiindexhtml)
 
@@ -11427,7 +15389,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `void`
 - **Docstring:** *Remove injected scripts and markers from index.html.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L35-L35`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L36-L36`](#file-src-view-storeinject_view-hpp)
 - **Calls:** [`removeStoreInjectScript`](#sym-src-view-storeinject_view-hpp-removestoreinjectscript)
 - **Called By:** [`removeStoreInjectScript`](#sym-src-view-storeinject_view-hpp-removestoreinjectscript)
 
@@ -11438,7 +15400,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Render JSON response for successful operations.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L40-L40`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L41-L41`](#file-src-view-storeinject_view-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11453,7 +15415,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Render JSON response for failed operations.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L45-L45`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L46-L46`](#file-src-view-storeinject_view-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11468,7 +15430,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Render JSON response for /lua_apps list of app IDs.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L50-L50`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L51-L51`](#file-src-view-storeinject_view-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11483,7 +15445,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Render JSON response for /api-keys endpoint.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L55-L55`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L56-L56`](#file-src-view-storeinject_view-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11498,7 +15460,7 @@ graph TD
 - **Qualified Name:** `CheckViewModel`
 - **Signature:** `struct CheckViewModel`
 - **Visibility:** `+` public
-- **Source Location:** [`src/view/storeinject_view.hpp:L57-L57`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L58-L58`](#file-src-view-storeinject_view-hpp)
 
 #### <a id="sym-src-view-storeinject_view-hpp-rendercheckjson"></a>`renderCheckJson` (function)
 
@@ -11507,7 +15469,7 @@ graph TD
 - **Visibility:** `+` public
 - **Return Type:** `std::string`
 - **Docstring:** *Render JSON response for /check?id= endpoint.*
-- **Source Location:** [`src/view/storeinject_view.hpp:L73-L73`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L74-L74`](#file-src-view-storeinject_view-hpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -11520,7 +15482,39 @@ graph TD
 - **Qualified Name:** `DepotEntryViewModel`
 - **Signature:** `struct DepotEntryViewModel`
 - **Visibility:** `+` public
-- **Source Location:** [`src/view/storeinject_view.hpp:L79-L79`](#file-src-view-storeinject_view-hpp)
+- **Source Location:** [`src/view/storeinject_view.hpp:L80-L80`](#file-src-view-storeinject_view-hpp)
+
+#### <a id="sym-src-view-storeinject_view-hpp-renderfullconfigjson"></a>`renderFullConfigJson` (function)
+
+- **Qualified Name:** `renderFullConfigJson`
+- **Signature:** `std::string renderFullConfigJson(const std::string& configYamlPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Docstring:** *Render full configuration JSON for config.yaml.*
+- **Source Location:** [`src/view/storeinject_view.hpp:L101-L101`](#file-src-view-storeinject_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `configYamlPath` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`renderFullConfigJson`](#sym-src-view-storeinject_view-hpp-renderfullconfigjson)
+- **Called By:** [`renderFullConfigJson`](#sym-src-view-storeinject_view-hpp-renderfullconfigjson)
+
+#### <a id="sym-src-view-storeinject_view-hpp-applyfullconfigjson"></a>`applyFullConfigJson` (function)
+
+- **Qualified Name:** `applyFullConfigJson`
+- **Signature:** `bool applyFullConfigJson(const std::string& configYamlPath, const std::string& jsonBody, std::string& outErrorMsg)`
+- **Visibility:** `+` public
+- **Return Type:** `bool`
+- **Docstring:** *Apply full configuration JSON to config.yaml and reload settings.*
+- **Source Location:** [`src/view/storeinject_view.hpp:L106-L106`](#file-src-view-storeinject_view-hpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `configYamlPath` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `jsonBody` | `const std::string&` | *(none)* | Yes | `positional_or_keyword` |
+  | `outErrorMsg` | `std::string&` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`applyFullConfigJson`](#sym-src-view-storeinject_view-hpp-applyfullconfigjson)
+- **Called By:** [`applyFullConfigJson`](#sym-src-view-storeinject_view-hpp-applyfullconfigjson)
 
 ### <a id="file-tests-conftest-py"></a>File: `tests/conftest.py`
 
@@ -11814,6 +15808,301 @@ graph TD
 - **Visibility:** `+` public
 - **Source Location:** [`tests/inspect_store_ui.py:L455-L501`](#file-tests-inspect_store_ui-py)
 - **Calls:** [`SteamCEFInspector`](#sym-tests-inspect_store_ui-py-steamcefinspector)
+
+### <a id="file-tests-integration-mock_cloud_relay_server-py"></a>File: `tests/integration/mock_cloud_relay_server.py`
+
+- **Module:** `tests.integration.mock_cloud_relay_server` | **Language:** `python` | **Lines:** 534 (`L1-L534`)
+- **Summary:** Mock Cloud Relay Server for E2E Cross-Device Sync Testing.
+- **Structure:** 534 lines, 2 classes, 20 functions/methods
+- **External Dependencies:** `__future__`, `json`, `re`, `threading`, `urllib.parse`, `http.server`, `typing`
+
+#### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler"></a>`MockCloudRelayRequestHandler` (class)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler`
+- **Signature:** `class MockCloudRelayRequestHandler(BaseHTTPRequestHandler):`
+- **Visibility:** `+` public
+- **Inherits / Implements:** `BaseHTTPRequestHandler`
+- **Docstring:** *HTTP request handler emulating Google Drive v3 and WebDAV APIs.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L17-L430`](#file-tests-integration-mock_cloud_relay_server-py)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-log_message"></a>`log_message` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.log_message`
+- **Signature:** `def log_message(self, format: str, *args: Any) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Docstring:** *Suppress default stdout access logs unless verbose is enabled.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L22-L25`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `format` | `str` | *(none)* | Yes | `positional_or_keyword` |
+  | `args` | `Any` | *(none)* | No | `var_positional` |
+- **Uncertain / Dynamic Calls:** [`MockCloudRelayRequestHandler.log_message` (dynamic)](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-log_message)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_post"></a>`do_POST` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.do_POST`
+- **Signature:** `def do_POST(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L86-L206`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_patch"></a>`do_PATCH` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.do_PATCH`
+- **Signature:** `def do_PATCH(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L208-L265`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_get"></a>`do_GET` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.do_GET`
+- **Signature:** `def do_GET(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L267-L345`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_propfind"></a>`do_PROPFIND` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.do_PROPFIND`
+- **Signature:** `def do_PROPFIND(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Docstring:** *WebDAV PROPFIND quota query returning RFC 4331 quota elements.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L347-L378`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_mkcol"></a>`do_MKCOL` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.do_MKCOL`
+- **Signature:** `def do_MKCOL(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Docstring:** *WebDAV MKCOL directory creation.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L380-L388`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayrequesthandler-do_put"></a>`do_PUT` (method)
+
+- **Qualified Name:** `MockCloudRelayRequestHandler.do_PUT`
+- **Signature:** `def do_PUT(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Docstring:** *WebDAV PUT storing encrypted blobs / manifests with conditional ETag check.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L390-L430`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+#### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver"></a>`MockCloudRelayServer` (class)
+
+- **Qualified Name:** `MockCloudRelayServer`
+- **Signature:** `class MockCloudRelayServer(ThreadingHTTPServer):`
+- **Visibility:** `+` public
+- **Inherits / Implements:** `ThreadingHTTPServer`
+- **Docstring:** *In-memory loopback HTTP server managing both Google Drive v3 and WebDAV (relay endpoints for automated end-to-end testing.)*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L433-L534`](#file-tests-integration-mock_cloud_relay_server-py)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__init__"></a>`__init__` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.__init__`
+- **Signature:** `def __init__(self, port: int = 0, verbose: bool = False) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L439-L460`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `port` | `int` | `0` | No | `positional_or_keyword` |
+  | `verbose` | `bool` | `False` | No | `positional_or_keyword` |
+- **Uncertain / Dynamic Calls:** [`SteamCEFInspector.__init__` (dynamic)](#sym-tests-inspect_store_ui-py-steamcefinspector-__init__)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start"></a>`start` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.start`
+- **Signature:** `def start(self) -> str:`
+- **Visibility:** `+` public
+- **Return Type:** `str`
+- **Docstring:** *Starts the server thread and returns base URL.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L462-L466`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`MockCloudRelayServer.server_url`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-server_url)
+- **Called By:** [`MockCloudRelayServer.__enter__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__enter__)
+- **Uncertain / Dynamic Calls:** [`start` (dynamic)](#sym-src-core-filewatcher-hpp-start)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-stop"></a>`stop` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.stop`
+- **Signature:** `def stop(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Docstring:** *Shuts down and frees the server socket.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L468-L474`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Called By:** [`MockCloudRelayServer.__exit__`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__exit__)
+- **Uncertain / Dynamic Calls:** [`shutdown` (dynamic)](#sym-src-presenter-storeinject-hpp-shutdown)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-server_url"></a>`server_url` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.server_url`
+- **Signature:** `def server_url(self) -> str:`
+- **Visibility:** `+` public
+- **Return Type:** `str`
+- **Docstring:** *Returns the base HTTP URL (e.g. http://127.0.0.1:41234).*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L476-L478`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Called By:** [`MockCloudRelayServer.start`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-get_all_stored_blobs"></a>`get_all_stored_blobs` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.get_all_stored_blobs`
+- **Signature:** `def get_all_stored_blobs(self) -> List[bytes]:`
+- **Visibility:** `+` public
+- **Return Type:** `List[bytes]`
+- **Docstring:** *Returns all raw stored byte payloads across Google Drive and WebDAV, (allowing assertion of NAVIENC1 headers and zero plaintext leakage.)*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L480-L493`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-get_all_stored_blobs_dict"></a>`get_all_stored_blobs_dict` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.get_all_stored_blobs_dict`
+- **Signature:** `def get_all_stored_blobs_dict(self) -> Dict[str, bytes]:`
+- **Visibility:** `+` public
+- **Return Type:** `Dict[str, bytes]`
+- **Docstring:** *Returns a path -> bytes mapping of all stored objects.*
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L495-L505`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_quota_limit"></a>`set_quota_limit` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.set_quota_limit`
+- **Signature:** `def set_quota_limit(self, limit_bytes: int) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L507-L509`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `limit_bytes` | `int` | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_quota_used"></a>`set_quota_used` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.set_quota_used`
+- **Signature:** `def set_quota_used(self, used_bytes: int) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L511-L513`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `used_bytes` | `int` | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_auth_expired"></a>`set_auth_expired` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.set_auth_expired`
+- **Signature:** `def set_auth_expired(self, expired: bool) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L515-L517`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `expired` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-set_quota_exceeded"></a>`set_quota_exceeded` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.set_quota_exceeded`
+- **Signature:** `def set_quota_exceeded(self, exceeded: bool) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L519-L521`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `exceeded` | `bool` | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-clear_storage"></a>`clear_storage` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.clear_storage`
+- **Signature:** `def clear_storage(self) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L523-L527`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__enter__"></a>`__enter__` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.__enter__`
+- **Signature:** `def __enter__(self) -> MockCloudRelayServer:`
+- **Visibility:** `+` public
+- **Return Type:** `MockCloudRelayServer`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L529-L531`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`MockCloudRelayServer.start`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-start)
+
+##### <a id="sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-__exit__"></a>`__exit__` (method)
+
+- **Qualified Name:** `MockCloudRelayServer.__exit__`
+- **Signature:** `def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:`
+- **Visibility:** `+` public
+- **Return Type:** `None`
+- **Source Location:** [`tests/integration/mock_cloud_relay_server.py:L533-L534`](#file-tests-integration-mock_cloud_relay_server-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `exc_type` | `Any` | *(none)* | Yes | `positional_or_keyword` |
+  | `exc_val` | `Any` | *(none)* | Yes | `positional_or_keyword` |
+  | `exc_tb` | `Any` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`MockCloudRelayServer.stop`](#sym-tests-integration-mock_cloud_relay_server-py-mockcloudrelayserver-stop)
 
 ### <a id="file-tests-integration-test_installer-py"></a>File: `tests/integration/test_installer.py`
 
@@ -12185,6 +16474,7 @@ graph TD
   | :--- | :--- | :--- | :--- | :--- |
   | `cls` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Called By:** [`SteamUIFlowTest.setUpClass`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-setupclass)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 ##### <a id="sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-start_steam"></a>`start_steam` (method)
 
@@ -12265,7 +16555,7 @@ graph TD
   | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
   | `url` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Called By:** [`SteamUIFlowTest.test_02_clean_slate_preflight`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_02_clean_slate_preflight), [`SteamUIFlowTest.test_03_store_navigation_and_download_button`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_03_store_navigation_and_download_button), [`SteamUIFlowTest.test_06_library_search_and_click`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_06_library_search_and_click), [`SteamUIFlowTest.test_07_game_detail_view_and_hot_reload`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_07_game_detail_view_and_hot_reload), [`SteamUIFlowTest.test_10_change_provider_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_10_change_provider_flow), [`SteamUIFlowTest.test_11_install_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_11_install_rogue_flow), [`SteamUIFlowTest.test_12_uninstall_rogue_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_12_uninstall_rogue_flow), [`SteamUIFlowTest.test_13_remove_lua_flow`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_13_remove_lua_flow), [`SteamUIFlowTest.test_15_search_state_reset`](#sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_15_search_state_reset)
-- **Uncertain / Dynamic Calls:** [`SteamCEFInspector.evaluate` (dynamic)](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate), [`SteamCDPClient.find_target_by_title` (dynamic)](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title)
+- **Uncertain / Dynamic Calls:** [`SteamCEFInspector.evaluate` (dynamic)](#sym-tests-inspect_store_ui-py-steamcefinspector-evaluate), [`SteamCDPClient.find_target_by_title` (dynamic)](#sym-tests-integration-test_steam_ui_flow-py-steamcdpclient-find_target_by_title), [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 ##### <a id="sym-tests-integration-test_steam_ui_flow-py-steamuiflowtest-test_01_cef_targets_and_process"></a>`test_01_cef_targets_and_process` (method)
 
@@ -12513,6 +16803,7 @@ graph TD
 - **Modifiers / Decorators:** `@pytest.mark.live`
 - **Docstring:** *Live end-to-end integration flow test for Navi against running Steam client.*
 - **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1545-L1552`](#file-tests-integration-test_steam_ui_flow-py)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 #### <a id="sym-tests-integration-test_steam_ui_flow-py-main"></a>`main` (function)
 
@@ -12520,6 +16811,7 @@ graph TD
 - **Signature:** `def main():`
 - **Visibility:** `+` public
 - **Source Location:** [`tests/integration/test_steam_ui_flow.py:L1555-L1589`](#file-tests-integration-test_steam_ui_flow-py)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 ### <a id="file-tests-integration-test_store_script-py"></a>File: `tests/integration/test_store_script.py`
 
@@ -12535,6 +16827,7 @@ graph TD
 - **Visibility:** `+` public
 - **Docstring:** *Verify that store-page-script.js is syntactically valid JavaScript.*
 - **Source Location:** [`tests/integration/test_store_script.py:L14-L22`](#file-tests-integration-test_store_script-py)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 #### <a id="sym-tests-integration-test_store_script-py-test_hiding_functions_completely_removed"></a>`test_hiding_functions_completely_removed` (function)
 
@@ -12559,6 +16852,7 @@ graph TD
 - **Visibility:** `+` public
 - **Docstring:** *Run a simulated Node.js execution environment of the ownership logic (to ensure it populates GDynamicStore, clears legacy session keys,)*
 - **Source Location:** [`tests/integration/test_store_script.py:L78-L178`](#file-tests-integration-test_store_script-py)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 #### <a id="sym-tests-integration-test_store_script-py-test_testing_mode_decorates_all_items"></a>`test_testing_mode_decorates_all_items` (function)
 
@@ -12567,6 +16861,7 @@ graph TD
 - **Visibility:** `+` public
 - **Docstring:** *Verify that when isTesting is true, even unowned items found on the page (are decorated with the 'IN LIBRARY' label and synchronized to GDynamicStore.)*
 - **Source Location:** [`tests/integration/test_store_script.py:L181-L271`](#file-tests-integration-test_store_script-py)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 #### <a id="sym-tests-integration-test_store_script-py-test_testing_mode_toggle_off"></a>`test_testing_mode_toggle_off` (function)
 
@@ -12575,6 +16870,7 @@ graph TD
 - **Visibility:** `+` public
 - **Docstring:** *Verify that when window.__slsIsTesting is false, items not in slsLuaAppIds (are NOT marked as owned.)*
 - **Source Location:** [`tests/integration/test_store_script.py:L274-L339`](#file-tests-integration-test_store_script-py)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
 
 ### <a id="file-tests-test_project_map-py"></a>File: `tests/test_project_map.py`
 
@@ -12767,6 +17063,233 @@ graph TD
   | `tmp_path` | `Path` | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`run_project_map`](#sym-scripts-project_map-engine-py-run_project_map), [`ParseConfig`](#sym-scripts-project_map-models-py-parseconfig)
 
+### <a id="file-tests-unit-test_cloud_manager-cpp"></a>File: `tests/unit/test_cloud_manager.cpp`
+
+- **Module:** `test_cloud_manager` | **Language:** `cpp` | **Lines:** 136 (`L1-L136`)
+- **Structure:** 136 lines, 0 classes/structs, 4 functions/methods
+- **Internal Imports:** `cloud_manager.hpp`
+- **External Dependencies:** `gtest/gtest.h`, `chrono`, `cstdlib`, `filesystem`, `fstream`, `string`, `vector`
+
+#### <a id="sym-tests-unit-test_cloud_manager-cpp-ofs"></a>`ofs` (function)
+
+- **Qualified Name:** `ofs`
+- **Signature:** `std::ofstream ofs(mockCli2)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`tests/unit/test_cloud_manager.cpp:L59-L59`](#file-tests-unit-test_cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `mockCli2` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs)
+- **Called By:** [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs)
+
+#### <a id="sym-tests-unit-test_cloud_manager-cpp-ofs"></a>`ofs` (function)
+
+- **Qualified Name:** `ofs`
+- **Signature:** `std::ofstream ofs(mockCli2)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`tests/unit/test_cloud_manager.cpp:L59-L59`](#file-tests-unit-test_cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `mockCli2` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs)
+- **Called By:** [`ofs`](#sym-tests-unit-test_cloud_manager-cpp-ofs)
+
+#### <a id="sym-tests-unit-test_cloud_manager-cpp-payload500"></a>`payload500` (function)
+
+- **Qualified Name:** `payload500`
+- **Signature:** `std::string payload500(500, 'A')`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`tests/unit/test_cloud_manager.cpp:L121-L121`](#file-tests-unit-test_cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `500` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `'A'` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`payload500`](#sym-tests-unit-test_cloud_manager-cpp-payload500)
+- **Called By:** [`payload500`](#sym-tests-unit-test_cloud_manager-cpp-payload500)
+
+#### <a id="sym-tests-unit-test_cloud_manager-cpp-payload1500"></a>`payload1500` (function)
+
+- **Qualified Name:** `payload1500`
+- **Signature:** `std::string payload1500(1500, 'B')`
+- **Visibility:** `+` public
+- **Return Type:** `std::string`
+- **Source Location:** [`tests/unit/test_cloud_manager.cpp:L122-L122`](#file-tests-unit-test_cloud_manager-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `1500` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `'B'` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`payload1500`](#sym-tests-unit-test_cloud_manager-cpp-payload1500)
+- **Called By:** [`payload1500`](#sym-tests-unit-test_cloud_manager-cpp-payload1500)
+
+### <a id="file-tests-unit-test_cloud_oauth-cpp"></a>File: `tests/unit/test_cloud_oauth.cpp`
+
+- **Module:** `test_cloud_oauth` | **Language:** `cpp` | **Lines:** 174 (`L1-L174`)
+- **Structure:** 174 lines, 0 classes/structs, 1 functions/methods
+- **Internal Imports:** `cloud_oauth.hpp`
+- **External Dependencies:** `gtest/gtest.h`, `arpa/inet.h`, `chrono`, `filesystem`, `fstream`, `netinet/in.h`, `sys/socket.h`, `sys/stat.h`, `unistd.h`
+
+#### <a id="sym-tests-unit-test_cloud_oauth-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(gdrivePath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Docstring:** *Verify content written*
+- **Source Location:** [`tests/unit/test_cloud_oauth.cpp:L110-L110`](#file-tests-unit-test_cloud_oauth-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `gdrivePath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-tests-unit-test_cloud_oauth-cpp-ifs)
+- **Called By:** [`ifs`](#sym-tests-unit-test_cloud_oauth-cpp-ifs)
+
+### <a id="file-tests-unit-test_cloud_pending_ops-cpp"></a>File: `tests/unit/test_cloud_pending_ops.cpp`
+
+- **Module:** `test_cloud_pending_ops` | **Language:** `cpp` | **Lines:** 241 (`L1-L241`)
+- **Structure:** 241 lines, 0 classes/structs, 5 functions/methods
+- **Internal Imports:** `cloud_pending_ops.hpp`, `cloudredirect.hpp`
+- **External Dependencies:** `gtest/gtest.h`, `chrono`, `cstdlib`, `filesystem`, `fstream`, `string`, `vector`
+
+#### <a id="sym-tests-unit-test_cloud_pending_ops-cpp-cnifs"></a>`cnIfs` (function)
+
+- **Qualified Name:** `cnIfs`
+- **Signature:** `std::ifstream cnIfs(storageApp / "cn.dat")`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloud_pending_ops.cpp:L191-L191`](#file-tests-unit-test_cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `"cn.dat"` | `storageApp /` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`cnIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-cnifs)
+- **Called By:** [`cnIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-cnifs)
+
+#### <a id="sym-tests-unit-test_cloud_pending_ops-cpp-lcifs"></a>`lcIfs` (function)
+
+- **Qualified Name:** `lcIfs`
+- **Signature:** `std::ifstream lcIfs(userdataApp / "localconfig.vdf")`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloud_pending_ops.cpp:L198-L198`](#file-tests-unit-test_cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `"localconfig.vdf"` | `userdataApp /` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`lcIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-lcifs)
+- **Called By:** [`lcIfs`](#sym-tests-unit-test_cloud_pending_ops-cpp-lcifs)
+
+#### <a id="sym-tests-unit-test_cloud_pending_ops-cpp-executor"></a>`executor` (function)
+
+- **Qualified Name:** `executor`
+- **Signature:** `CPendingOpsExecutor executor(mockSteam)`
+- **Visibility:** `+` public
+- **Return Type:** `CPendingOpsExecutor`
+- **Source Location:** [`tests/unit/test_cloud_pending_ops.cpp:L220-L220`](#file-tests-unit-test_cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `mockSteam` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor)
+- **Called By:** [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor)
+
+#### <a id="sym-tests-unit-test_cloud_pending_ops-cpp-executor"></a>`executor` (function)
+
+- **Qualified Name:** `executor`
+- **Signature:** `CPendingOpsExecutor executor(mockSteam)`
+- **Visibility:** `+` public
+- **Return Type:** `CPendingOpsExecutor`
+- **Source Location:** [`tests/unit/test_cloud_pending_ops.cpp:L220-L220`](#file-tests-unit-test_cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `mockSteam` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor)
+- **Called By:** [`executor`](#sym-tests-unit-test_cloud_pending_ops-cpp-executor)
+
+#### <a id="sym-tests-unit-test_cloud_pending_ops-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(storageApp / "important_save.dat")`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloud_pending_ops.cpp:L237-L237`](#file-tests-unit-test_cloud_pending_ops-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `"important_save.dat"` | `storageApp /` | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-tests-unit-test_cloud_pending_ops-cpp-ifs)
+- **Called By:** [`ifs`](#sym-tests-unit-test_cloud_pending_ops-cpp-ifs)
+
+### <a id="file-tests-unit-test_cloudredirect_bridge-cpp"></a>File: `tests/unit/test_cloudredirect_bridge.cpp`
+
+- **Module:** `test_cloudredirect_bridge` | **Language:** `cpp` | **Lines:** 341 (`L1-L341`)
+- **Structure:** 341 lines, 0 classes/structs, 4 functions/methods
+- **Internal Imports:** `cloudredirect.hpp`, `config.hpp`, `atomic_file.hpp`
+- **External Dependencies:** `gtest/gtest.h`, `chrono`, `cstdlib`, `filesystem`, `fstream`, `string`, `unordered_set`, `vector`
+
+#### <a id="sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2"></a>`ifs2` (function)
+
+- **Qualified Name:** `ifs2`
+- **Signature:** `std::ifstream ifs2(paths.slsSteamConfig)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloudredirect_bridge.cpp:L239-L239`](#file-tests-unit-test_cloudredirect_bridge-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.slsSteamConfig` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2)
+- **Called By:** [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2)
+
+#### <a id="sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2"></a>`ifs2` (function)
+
+- **Qualified Name:** `ifs2`
+- **Signature:** `std::ifstream ifs2(paths.slsSteamConfig)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloudredirect_bridge.cpp:L239-L239`](#file-tests-unit-test_cloudredirect_bridge-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.slsSteamConfig` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2)
+- **Called By:** [`ifs2`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs2)
+
+#### <a id="sym-tests-unit-test_cloudredirect_bridge-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(paths.crConfigFile)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloudredirect_bridge.cpp:L280-L280`](#file-tests-unit-test_cloudredirect_bridge-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.crConfigFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs)
+- **Called By:** [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs)
+
+#### <a id="sym-tests-unit-test_cloudredirect_bridge-cpp-ifs"></a>`ifs` (function)
+
+- **Qualified Name:** `ifs`
+- **Signature:** `std::ifstream ifs(paths.crConfigFile)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ifstream`
+- **Source Location:** [`tests/unit/test_cloudredirect_bridge.cpp:L280-L280`](#file-tests-unit-test_cloudredirect_bridge-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `paths.crConfigFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs)
+- **Called By:** [`ifs`](#sym-tests-unit-test_cloudredirect_bridge-cpp-ifs)
+
 ### <a id="file-tests-unit-test_config-cpp"></a>File: `tests/unit/test_config.cpp`
 
 - **Module:** `test_config` | **Language:** `cpp` | **Lines:** 240 (`L1-L240`)
@@ -12818,8 +17341,8 @@ graph TD
 
 ### <a id="file-tests-unit-test_depotkeys-cpp"></a>File: `tests/unit/test_depotkeys.cpp`
 
-- **Module:** `test_depotkeys` | **Language:** `cpp` | **Lines:** 263 (`L1-L263`)
-- **Structure:** 263 lines, 0 classes/structs, 5 functions/methods
+- **Module:** `test_depotkeys` | **Language:** `cpp` | **Lines:** 297 (`L1-L297`)
+- **Structure:** 297 lines, 0 classes/structs, 7 functions/methods
 - **Internal Imports:** `binarykv.hpp`, `depotkeys.hpp`, `luagenerator.hpp`, `config.hpp`, `paths.hpp`, `test_stubs.hpp`
 - **External Dependencies:** `gtest/gtest.h`, `filesystem`, `fstream`, `string`, `vector`, `cstring`
 
@@ -12840,63 +17363,91 @@ graph TD
 #### <a id="sym-tests-unit-test_depotkeys-cpp-out"></a>`out` (function)
 
 - **Qualified Name:** `out`
-- **Signature:** `std::ofstream out(keylessLuaPath)`
+- **Signature:** `std::ofstream out(tokensJsonPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_depotkeys.cpp:L256-L256`](#file-tests-unit-test_depotkeys-cpp)
+- **Source Location:** [`tests/unit/test_depotkeys.cpp:L279-L279`](#file-tests-unit-test_depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
-  | `keylessLuaPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `tokensJsonPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 - **Called By:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 
 #### <a id="sym-tests-unit-test_depotkeys-cpp-out"></a>`out` (function)
 
 - **Qualified Name:** `out`
-- **Signature:** `std::ofstream out(keylessLuaPath)`
+- **Signature:** `std::ofstream out(tokensJsonPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_depotkeys.cpp:L256-L256`](#file-tests-unit-test_depotkeys-cpp)
+- **Source Location:** [`tests/unit/test_depotkeys.cpp:L279-L279`](#file-tests-unit-test_depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
-  | `keylessLuaPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `tokensJsonPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 - **Called By:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 
 #### <a id="sym-tests-unit-test_depotkeys-cpp-out"></a>`out` (function)
 
 - **Qualified Name:** `out`
-- **Signature:** `std::ofstream out(keylessLuaPath)`
+- **Signature:** `std::ofstream out(tokensJsonPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_depotkeys.cpp:L256-L256`](#file-tests-unit-test_depotkeys-cpp)
+- **Source Location:** [`tests/unit/test_depotkeys.cpp:L279-L279`](#file-tests-unit-test_depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
-  | `keylessLuaPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `tokensJsonPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 - **Called By:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 
 #### <a id="sym-tests-unit-test_depotkeys-cpp-out"></a>`out` (function)
 
 - **Qualified Name:** `out`
-- **Signature:** `std::ofstream out(keylessLuaPath)`
+- **Signature:** `std::ofstream out(tokensJsonPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_depotkeys.cpp:L256-L256`](#file-tests-unit-test_depotkeys-cpp)
+- **Source Location:** [`tests/unit/test_depotkeys.cpp:L279-L279`](#file-tests-unit-test_depotkeys-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
-  | `keylessLuaPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `tokensJsonPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
+- **Called By:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
+
+#### <a id="sym-tests-unit-test_depotkeys-cpp-out"></a>`out` (function)
+
+- **Qualified Name:** `out`
+- **Signature:** `std::ofstream out(tokensJsonPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`tests/unit/test_depotkeys.cpp:L279-L279`](#file-tests-unit-test_depotkeys-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `tokensJsonPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
+- **Called By:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
+
+#### <a id="sym-tests-unit-test_depotkeys-cpp-out"></a>`out` (function)
+
+- **Qualified Name:** `out`
+- **Signature:** `std::ofstream out(tokensJsonPath)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`tests/unit/test_depotkeys.cpp:L279-L279`](#file-tests-unit-test_depotkeys-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `tokensJsonPath` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 - **Called By:** [`out`](#sym-tests-unit-test_depotkeys-cpp-out)
 
 ### <a id="file-tests-unit-test_manifest_and_native-cpp"></a>File: `tests/unit/test_manifest_and_native.cpp`
 
-- **Module:** `test_manifest_and_native` | **Language:** `cpp` | **Lines:** 396 (`L1-L396`)
-- **Structure:** 396 lines, 0 classes/structs, 9 functions/methods
+- **Module:** `test_manifest_and_native` | **Language:** `cpp` | **Lines:** 439 (`L1-L439`)
+- **Structure:** 439 lines, 0 classes/structs, 12 functions/methods
 - **Internal Imports:** `manifestcode.hpp`, `nativeinstall.hpp`, `apps.hpp`, `autoupdate.hpp`, `config.hpp`, `depotkeys.hpp`
 - **External Dependencies:** `gtest/gtest.h`, `filesystem`, `fstream`, `string`, `vector`, `cstring`, `unordered_set`
 
@@ -12914,13 +17465,27 @@ graph TD
 - **Calls:** [`respBuf`](#sym-tests-unit-test_manifest_and_native-cpp-respbuf)
 - **Called By:** [`respBuf`](#sym-tests-unit-test_manifest_and_native-cpp-respbuf)
 
+#### <a id="sym-tests-unit-test_manifest_and_native-cpp-unsetenv"></a>`unsetenv` (function)
+
+- **Qualified Name:** `unsetenv`
+- **Signature:** `else unsetenv("HOME")`
+- **Visibility:** `+` public
+- **Return Type:** `else`
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L129-L129`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `"HOME"` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`unsetenv`](#sym-tests-unit-test_manifest_and_native-cpp-unsetenv)
+- **Called By:** [`unsetenv`](#sym-tests-unit-test_manifest_and_native-cpp-unsetenv)
+
 #### <a id="sym-tests-unit-test_manifest_and_native-cpp-out"></a>`out` (function)
 
 - **Qualified Name:** `out`
 - **Signature:** `std::ofstream out(keysYamlPath)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L111-L111`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L154-L154`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12934,7 +17499,7 @@ graph TD
 - **Signature:** `std::ifstream pf(provFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L232-L232`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L275-L275`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12948,7 +17513,7 @@ graph TD
 - **Signature:** `std::ifstream pf(provFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ifstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L232-L232`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L275-L275`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12962,7 +17527,7 @@ graph TD
 - **Signature:** `std::ofstream f(verFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L381-L381`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12976,7 +17541,7 @@ graph TD
 - **Signature:** `std::ofstream f(verFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L381-L381`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -12990,7 +17555,7 @@ graph TD
 - **Signature:** `std::ofstream f(verFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L381-L381`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -13004,7 +17569,7 @@ graph TD
 - **Signature:** `std::ofstream f(verFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L381-L381`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -13018,7 +17583,35 @@ graph TD
 - **Signature:** `std::ofstream f(verFile)`
 - **Visibility:** `+` public
 - **Return Type:** `std::ofstream`
-- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L381-L381`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `verFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`f`](#sym-tests-unit-test_manifest_and_native-cpp-f)
+- **Called By:** [`f`](#sym-tests-unit-test_manifest_and_native-cpp-f)
+
+#### <a id="sym-tests-unit-test_manifest_and_native-cpp-f"></a>`f` (function)
+
+- **Qualified Name:** `f`
+- **Signature:** `std::ofstream f(verFile)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `verFile` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`f`](#sym-tests-unit-test_manifest_and_native-cpp-f)
+- **Called By:** [`f`](#sym-tests-unit-test_manifest_and_native-cpp-f)
+
+#### <a id="sym-tests-unit-test_manifest_and_native-cpp-f"></a>`f` (function)
+
+- **Qualified Name:** `f`
+- **Signature:** `std::ofstream f(verFile)`
+- **Visibility:** `+` public
+- **Return Type:** `std::ofstream`
+- **Source Location:** [`tests/unit/test_manifest_and_native.cpp:L424-L424`](#file-tests-unit-test_manifest_and_native-cpp)
 - **Parameters:**
   | Name | Type | Default | Required | Kind |
   | :--- | :--- | :--- | :--- | :--- |
@@ -14375,6 +18968,951 @@ graph TD
   | `target` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
 - **Calls:** [`f`](#sym-tests-unit-test_zip_and_atomic-cpp-f)
 - **Called By:** [`f`](#sym-tests-unit-test_zip_and_atomic-cpp-f)
+
+### <a id="file-tools-cef-annotator-annotator-py"></a>File: `tools/cef-annotator/annotator.py`
+
+- **Module:** `tools.cef-annotator.annotator` | **Language:** `python` | **Lines:** 921 (`L1-L921`)
+- **Summary:** Steam CEF Annotator Daemon & CLI (Manages target discovery, WebSocket lifecycle, isolated/main world injection,)
+- **Structure:** 921 lines, 2 classes, 32 functions/methods
+- **External Dependencies:** `argparse`, `base64`, `json`, `os`, `random`, `re`, `signal`, `string`, `subprocess`, `sys`, `tempfile`, `time`, `urllib.error`, `urllib.request`, `uuid`, `websocket`
+
+#### <a id="sym-tools-cef-annotator-annotator-py-generate_random_token"></a>`generate_random_token` (function)
+
+- **Qualified Name:** `generate_random_token`
+- **Signature:** `def generate_random_token(prefix = '__annot_', length = 8):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L31-L32`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `prefix` | *(any)* | `'__annot_'` | No | `positional_or_keyword` |
+  | `length` | *(any)* | `8` | No | `positional_or_keyword` |
+- **Called By:** [`TargetSession.__init__`](#sym-tools-cef-annotator-annotator-py-targetsession-__init__)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-probe_json_targets"></a>`probe_json_targets` (function)
+
+- **Qualified Name:** `probe_json_targets`
+- **Signature:** `def probe_json_targets():`
+- **Visibility:** `+` public
+- **Docstring:** *Probes IPv4 (127.0.0.1) and IPv6 ([::1]) on port 8080.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L34-L44`](#file-tools-cef-annotator-annotator-py)
+- **Called By:** [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets), [`cmd_status`](#sym-tools-cef-annotator-annotator-py-cmd_status), [`cmd_toggle`](#sym-tools-cef-annotator-annotator-py-cmd_toggle)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-extract_shell_route_hint"></a>`extract_shell_route_hint` (function)
+
+- **Qualified Name:** `extract_shell_route_hint`
+- **Signature:** `def extract_shell_route_hint(targets):`
+- **Visibility:** `+` public
+- **Docstring:** *Finds the shell tracking target to extract route hint (e.g. /library/home).*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L46-L54`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `targets` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Called By:** [`AnnotatorDaemon.select_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-select_targets)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-load_local_annotations"></a>`load_local_annotations` (function)
+
+- **Qualified Name:** `load_local_annotations`
+- **Signature:** `def load_local_annotations():`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L56-L64`](#file-tools-cef-annotator-annotator-py)
+- **Called By:** [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called), [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets), [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear), [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done), [`cmd_list`](#sym-tools-cef-annotator-annotator-py-cmd_list), [`cmd_status`](#sym-tools-cef-annotator-annotator-py-cmd_status)
+- **Uncertain / Dynamic Calls:** [`load` (dynamic)](#sym-src-presenter-nativeinstall-hpp-load)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-save_local_annotations"></a>`save_local_annotations` (function)
+
+- **Qualified Name:** `save_local_annotations`
+- **Signature:** `def save_local_annotations(annotations):`
+- **Visibility:** `+` public
+- **Docstring:** *Atomic write via temporary file and rename.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L66-L76`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `annotations` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Called By:** [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called), [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear), [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done)
+- **Uncertain / Dynamic Calls:** [`dump` (dynamic)](#sym-src-core-vftableinfo-hpp-dump), [`remove` (dynamic)](#sym-src-presenter-hooks-hpp-remove)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-post_to_vibe_server"></a>`post_to_vibe_server` (function)
+
+- **Qualified Name:** `post_to_vibe_server`
+- **Signature:** `def post_to_vibe_server(annotation, screenshot_bytes = None):`
+- **Visibility:** `+` public
+- **Docstring:** *Posts annotation and optional screenshot attachment to Vibe server.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L78-L108`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `annotation` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `screenshot_bytes` | *(any)* | `None` | No | `positional_or_keyword` |
+- **Called By:** [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-delete_from_vibe_server"></a>`delete_from_vibe_server` (function)
+
+- **Qualified Name:** `delete_from_vibe_server`
+- **Signature:** `def delete_from_vibe_server(annot_id):`
+- **Visibility:** `+` public
+- **Docstring:** *Deletes annotation from Vibe server by ID.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L110-L120`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `annot_id` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Called By:** [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called), [`cmd_clear`](#sym-tools-cef-annotator-annotator-py-cmd_clear), [`cmd_done`](#sym-tools-cef-annotator-annotator-py-cmd_done)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-targetsession"></a>`TargetSession` (class)
+
+- **Qualified Name:** `TargetSession`
+- **Signature:** `class TargetSession:`
+- **Visibility:** `+` public
+- **Docstring:** *Manages CDP session on a single target WebSocket.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L122-L445`](#file-tools-cef-annotator-annotator-py)
+- **Called By:** [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-__init__"></a>`__init__` (method)
+
+- **Qualified Name:** `TargetSession.__init__`
+- **Signature:** `def __init__(self, target_info, world_mode, route_hint, initial_annotations):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L124-L148`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `target_info` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `world_mode` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `route_hint` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `initial_annotations` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`generate_random_token`](#sym-tools-cef-annotator-annotator-py-generate_random_token)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-connect"></a>`connect` (method)
+
+- **Qualified Name:** `TargetSession.connect`
+- **Signature:** `def connect(self):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L150-L152`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-send_cmd"></a>`send_cmd` (method)
+
+- **Qualified Name:** `TargetSession.send_cmd`
+- **Signature:** `def send_cmd(self, method, params = None, timeout = 4.0):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L154-L173`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `method` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `params` | *(any)* | `None` | No | `positional_or_keyword` |
+  | `timeout` | *(any)* | `4.0` | No | `positional_or_keyword` |
+- **Called By:** [`TargetSession.attach_and_inject`](#sym-tools-cef-annotator-annotator-py-targetsession-attach_and_inject), [`TargetSession.capture_element_screenshot`](#sym-tools-cef-annotator-annotator-py-targetsession-capture_element_screenshot), [`TargetSession.cleanup`](#sym-tools-cef-annotator-annotator-py-targetsession-cleanup), [`TargetSession.send_heartbeat`](#sym-tools-cef-annotator-annotator-py-targetsession-send_heartbeat), [`TargetSession.toggle_overlay`](#sym-tools-cef-annotator-annotator-py-targetsession-toggle_overlay), [`TargetSession.update_pins`](#sym-tools-cef-annotator-annotator-py-targetsession-update_pins), [`TargetSession.update_route_hint`](#sym-tools-cef-annotator-annotator-py-targetsession-update_route_hint)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-attach_and_inject"></a>`attach_and_inject` (method)
+
+- **Qualified Name:** `TargetSession.attach_and_inject`
+- **Signature:** `def attach_and_inject(self):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L175-L297`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-update_pins"></a>`update_pins` (method)
+
+- **Qualified Name:** `TargetSession.update_pins`
+- **Signature:** `def update_pins(self, all_annotations):`
+- **Visibility:** `+` public
+- **Docstring:** *Pushes updated annotations list to overlay.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L299-L312`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `all_annotations` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-update_route_hint"></a>`update_route_hint` (method)
+
+- **Qualified Name:** `TargetSession.update_route_hint`
+- **Signature:** `def update_route_hint(self, new_route):`
+- **Visibility:** `+` public
+- **Docstring:** *Updates route hint and re-filters pins on the shell.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L314-L324`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `new_route` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-send_heartbeat"></a>`send_heartbeat` (method)
+
+- **Qualified Name:** `TargetSession.send_heartbeat`
+- **Signature:** `def send_heartbeat(self):`
+- **Visibility:** `+` public
+- **Docstring:** *Refreshes overlay heartbeat timestamp.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L326-L338`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-toggle_overlay"></a>`toggle_overlay` (method)
+
+- **Qualified Name:** `TargetSession.toggle_overlay`
+- **Signature:** `def toggle_overlay(self):`
+- **Visibility:** `+` public
+- **Docstring:** *Toggles annotate mode via external API.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L340-L352`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-capture_element_screenshot"></a>`capture_element_screenshot` (method)
+
+- **Qualified Name:** `TargetSession.capture_element_screenshot`
+- **Signature:** `def capture_element_screenshot(self, rect):`
+- **Visibility:** `+` public
+- **Docstring:** *Hides overlay host, captures clip screenshot, and restores overlay.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L354-L399`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `rect` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-targetsession-cleanup"></a>`cleanup` (method)
+
+- **Qualified Name:** `TargetSession.cleanup`
+- **Signature:** `def cleanup(self):`
+- **Visibility:** `+` public
+- **Docstring:** *Removes overlay host, binding, and new-document script.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L401-L445`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`TargetSession.send_cmd`](#sym-tools-cef-annotator-annotator-py-targetsession-send_cmd)
+- **Uncertain / Dynamic Calls:** [`openSlsConfig.close` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon"></a>`AnnotatorDaemon` (class)
+
+- **Qualified Name:** `AnnotatorDaemon`
+- **Signature:** `class AnnotatorDaemon:`
+- **Visibility:** `+` public
+- **Docstring:** *Manages active targets, polling loop, payload validation, and storage.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L448-L702`](#file-tools-cef-annotator-annotator-py)
+- **Called By:** [`cmd_run`](#sym-tools-cef-annotator-annotator-py-cmd_run)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-__init__"></a>`__init__` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.__init__`
+- **Signature:** `def __init__(self, match_pattern = None):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L450-L455`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `match_pattern` | *(any)* | `None` | No | `positional_or_keyword` |
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-select_targets"></a>`select_targets` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.select_targets`
+- **Signature:** `def select_targets(self, targets):`
+- **Visibility:** `+` public
+- **Docstring:** *Filters targets into candidate list with world mode.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L457-L486`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `targets` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`extract_shell_route_hint`](#sym-tools-cef-annotator-annotator-py-extract_shell_route_hint)
+- **Called By:** [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets"></a>`poll_and_sync_targets` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.poll_and_sync_targets`
+- **Signature:** `def poll_and_sync_targets(self):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L488-L521`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`AnnotatorDaemon.select_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-select_targets), [`TargetSession`](#sym-tools-cef-annotator-annotator-py-targetsession), [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations), [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets)
+- **Called By:** [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
+- **Uncertain / Dynamic Calls:** [`trapSteamGamepadModal.cleanup` (dynamic)](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup), [`TargetSession.attach_and_inject` (dynamic)](#sym-tools-cef-annotator-annotator-py-targetsession-attach_and_inject), [`TargetSession.connect` (dynamic)](#sym-tools-cef-annotator-annotator-py-targetsession-connect), [`TargetSession.update_route_hint` (dynamic)](#sym-tools-cef-annotator-annotator-py-targetsession-update_route_hint)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events"></a>`process_incoming_events` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.process_incoming_events`
+- **Signature:** `def process_incoming_events(self):`
+- **Visibility:** `+` public
+- **Docstring:** *Reads non-blocking incoming CDP events on all active WebSockets.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L523-L571`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`AnnotatorDaemon.handle_binding_called`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called)
+- **Called By:** [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
+- **Uncertain / Dynamic Calls:** [`trapSteamGamepadModal.cleanup` (dynamic)](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-handle_binding_called"></a>`handle_binding_called` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.handle_binding_called`
+- **Signature:** `def handle_binding_called(self, session, params):`
+- **Visibility:** `+` public
+- **Docstring:** *Hardened validation and persistence of incoming annotation payload.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L573-L675`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `session` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `params` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server), [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations), [`post_to_vibe_server`](#sym-tools-cef-annotator-annotator-py-post_to_vibe_server), [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations)
+- **Called By:** [`AnnotatorDaemon.process_incoming_events`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events)
+- **Uncertain / Dynamic Calls:** [`TargetSession.capture_element_screenshot` (dynamic)](#sym-tools-cef-annotator-annotator-py-targetsession-capture_element_screenshot), [`TargetSession.update_pins` (dynamic)](#sym-tools-cef-annotator-annotator-py-targetsession-update_pins)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-run"></a>`run` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.run`
+- **Signature:** `def run(self):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L677-L694`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`AnnotatorDaemon.poll_and_sync_targets`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-poll_and_sync_targets), [`AnnotatorDaemon.process_incoming_events`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-process_incoming_events), [`AnnotatorDaemon.stop`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-stop)
+- **Uncertain / Dynamic Calls:** [`TargetSession.send_heartbeat` (dynamic)](#sym-tools-cef-annotator-annotator-py-targetsession-send_heartbeat)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-annotatordaemon-stop"></a>`stop` (method)
+
+- **Qualified Name:** `AnnotatorDaemon.stop`
+- **Signature:** `def stop(self):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L696-L702`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `self` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Called By:** [`AnnotatorDaemon.run`](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
+- **Uncertain / Dynamic Calls:** [`trapSteamGamepadModal.cleanup` (dynamic)](#sym-res-inject-scripts-app-details-script-js-trapsteamgamepadmodal-cleanup)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-ensure_vibe_server"></a>`ensure_vibe_server` (function)
+
+- **Qualified Name:** `ensure_vibe_server`
+- **Signature:** `def ensure_vibe_server():`
+- **Visibility:** `+` public
+- **Docstring:** *Checks if Vibe server is reachable; if not, attempts to auto-start it.*
+- **Source Location:** [`tools/cef-annotator/annotator.py:L706-L738`](#file-tools-cef-annotator-annotator-py)
+- **Called By:** [`cmd_run`](#sym-tools-cef-annotator-annotator-py-cmd_run)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-cmd_run"></a>`cmd_run` (function)
+
+- **Qualified Name:** `cmd_run`
+- **Signature:** `def cmd_run(args):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L740-L749`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `args` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`AnnotatorDaemon`](#sym-tools-cef-annotator-annotator-py-annotatordaemon), [`ensure_vibe_server`](#sym-tools-cef-annotator-annotator-py-ensure_vibe_server)
+- **Uncertain / Dynamic Calls:** [`AnnotatorDaemon.run` (dynamic)](#sym-tools-cef-annotator-annotator-py-annotatordaemon-run)
+
+##### <a id="sym-tools-cef-annotator-annotator-py-cmd_run-sig_handler"></a>`sig_handler` (nested_function)
+
+- **Qualified Name:** `cmd_run.sig_handler`
+- **Signature:** `def sig_handler(sig, frame):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L744-L745`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `sig` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `frame` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+
+#### <a id="sym-tools-cef-annotator-annotator-py-cmd_toggle"></a>`cmd_toggle` (function)
+
+- **Qualified Name:** `cmd_toggle`
+- **Signature:** `def cmd_toggle(args):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L751-L793`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `args` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets)
+- **Uncertain / Dynamic Calls:** [`openSlsConfig.close` (dynamic)](#sym-res-inject-scripts-app-details-script-js-openslsconfig-close)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-cmd_list"></a>`cmd_list` (function)
+
+- **Qualified Name:** `cmd_list`
+- **Signature:** `def cmd_list(args):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L795-L819`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `args` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-cmd_done"></a>`cmd_done` (function)
+
+- **Qualified Name:** `cmd_done`
+- **Signature:** `def cmd_done(args):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L821-L838`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `args` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server), [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations), [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-cmd_clear"></a>`cmd_clear` (function)
+
+- **Qualified Name:** `cmd_clear`
+- **Signature:** `def cmd_clear(args):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L840-L853`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `args` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`delete_from_vibe_server`](#sym-tools-cef-annotator-annotator-py-delete_from_vibe_server), [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations), [`save_local_annotations`](#sym-tools-cef-annotator-annotator-py-save_local_annotations)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-cmd_status"></a>`cmd_status` (function)
+
+- **Qualified Name:** `cmd_status`
+- **Signature:** `def cmd_status(args):`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L855-L885`](#file-tools-cef-annotator-annotator-py)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `args` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`load_local_annotations`](#sym-tools-cef-annotator-annotator-py-load_local_annotations), [`probe_json_targets`](#sym-tools-cef-annotator-annotator-py-probe_json_targets)
+
+#### <a id="sym-tools-cef-annotator-annotator-py-main"></a>`main` (function)
+
+- **Qualified Name:** `main`
+- **Signature:** `def main():`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/annotator.py:L887-L918`](#file-tools-cef-annotator-annotator-py)
+
+### <a id="file-tools-cef-annotator-overlay-js"></a>File: `tools/cef-annotator/overlay.js`
+
+- **Module:** `overlay` | **Language:** `javascript` | **Lines:** 2564 (`L1-L2564`)
+- **Summary:** CEF Annotator Overlay (Injected into Steam CEF / Web targets) Injected into either Main world (Steam shell) or Isolated world (Remote store pages).
+- **Structure:** 2564 lines, 0 classes/interfaces, 41 functions/methods
+
+#### <a id="sym-tools-cef-annotator-overlay-js-startdrag"></a>`startDrag` (function)
+
+- **Qualified Name:** `startDrag`
+- **Signature:** `function startDrag(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1503-L1503`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`startDrag`](#sym-tools-cef-annotator-overlay-js-startdrag)
+- **Called By:** [`startDrag`](#sym-tools-cef-annotator-overlay-js-startdrag)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-ondragmove"></a>`onDragMove` (function)
+
+- **Qualified Name:** `onDragMove`
+- **Signature:** `function onDragMove(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1515-L1515`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onDragMove`](#sym-tools-cef-annotator-overlay-js-ondragmove)
+- **Called By:** [`onDragMove`](#sym-tools-cef-annotator-overlay-js-ondragmove)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-enddrag"></a>`endDrag` (function)
+
+- **Qualified Name:** `endDrag`
+- **Signature:** `function endDrag()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1532-L1532`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`endDrag`](#sym-tools-cef-annotator-overlay-js-enddrag)
+- **Called By:** [`endDrag`](#sym-tools-cef-annotator-overlay-js-enddrag)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-startresize"></a>`startResize` (function)
+
+- **Qualified Name:** `startResize`
+- **Signature:** `function startResize(e, dir)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1549-L1549`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `dir` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`startResize`](#sym-tools-cef-annotator-overlay-js-startresize)
+- **Called By:** [`startResize`](#sym-tools-cef-annotator-overlay-js-startresize)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-onresizemove"></a>`onResizeMove` (function)
+
+- **Qualified Name:** `onResizeMove`
+- **Signature:** `function onResizeMove(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1563-L1563`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onResizeMove`](#sym-tools-cef-annotator-overlay-js-onresizemove)
+- **Called By:** [`onResizeMove`](#sym-tools-cef-annotator-overlay-js-onresizemove)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-endresize"></a>`endResize` (function)
+
+- **Qualified Name:** `endResize`
+- **Signature:** `function endResize(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1587-L1587`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`endResize`](#sym-tools-cef-annotator-overlay-js-endresize)
+- **Called By:** [`endResize`](#sym-tools-cef-annotator-overlay-js-endresize)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-applystyle"></a>`applyStyle` (function)
+
+- **Qualified Name:** `applyStyle`
+- **Signature:** `function applyStyle(prop, val)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Live Style Changes Tracking ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1613-L1613`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `prop` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `val` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`applyStyle`](#sym-tools-cef-annotator-overlay-js-applystyle)
+- **Called By:** [`applyStyle`](#sym-tools-cef-annotator-overlay-js-applystyle)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-updateinlinecsseditor"></a>`updateInlineCssEditor` (function)
+
+- **Qualified Name:** `updateInlineCssEditor`
+- **Signature:** `function updateInlineCssEditor()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1629-L1629`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`updateInlineCssEditor`](#sym-tools-cef-annotator-overlay-js-updateinlinecsseditor)
+- **Called By:** [`updateInlineCssEditor`](#sym-tools-cef-annotator-overlay-js-updateinlinecsseditor)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-updatechangedots"></a>`updateChangeDots` (function)
+
+- **Qualified Name:** `updateChangeDots`
+- **Signature:** `function updateChangeDots()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1634-L1634`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`updateChangeDots`](#sym-tools-cef-annotator-overlay-js-updatechangedots)
+- **Called By:** [`updateChangeDots`](#sym-tools-cef-annotator-overlay-js-updatechangedots)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-updateactionbuttontext"></a>`updateActionButtonText` (function)
+
+- **Qualified Name:** `updateActionButtonText`
+- **Signature:** `function updateActionButtonText()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1644-L1644`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`updateActionButtonText`](#sym-tools-cef-annotator-overlay-js-updateactionbuttontext)
+- **Called By:** [`updateActionButtonText`](#sym-tools-cef-annotator-overlay-js-updateactionbuttontext)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-revertallchanges"></a>`revertAllChanges` (function)
+
+- **Qualified Name:** `revertAllChanges`
+- **Signature:** `function revertAllChanges()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1662-L1662`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`revertAllChanges`](#sym-tools-cef-annotator-overlay-js-revertallchanges)
+- **Called By:** [`revertAllChanges`](#sym-tools-cef-annotator-overlay-js-revertallchanges)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getstableattributes"></a>`getStableAttributes` (function)
+
+- **Qualified Name:** `getStableAttributes`
+- **Signature:** `function getStableAttributes(el)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Selectors & React Helper Functions ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1673-L1673`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`getStableAttributes`](#sym-tools-cef-annotator-overlay-js-getstableattributes)
+- **Called By:** [`getStableAttributes`](#sym-tools-cef-annotator-overlay-js-getstableattributes)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getreadableclassselector"></a>`getReadableClassSelector` (function)
+
+- **Qualified Name:** `getReadableClassSelector`
+- **Signature:** `function getReadableClassSelector(el)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1685-L1685`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`getReadableClassSelector`](#sym-tools-cef-annotator-overlay-js-getreadableclassselector)
+- **Called By:** [`getReadableClassSelector`](#sym-tools-cef-annotator-overlay-js-getreadableclassselector)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getnthoftypepath"></a>`getNthOfTypePath` (function)
+
+- **Qualified Name:** `getNthOfTypePath`
+- **Signature:** `function getNthOfTypePath(el)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1699-L1699`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`getNthOfTypePath`](#sym-tools-cef-annotator-overlay-js-getnthoftypepath)
+- **Called By:** [`getNthOfTypePath`](#sym-tools-cef-annotator-overlay-js-getnthoftypepath)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getxpath"></a>`getXPath` (function)
+
+- **Qualified Name:** `getXPath`
+- **Signature:** `function getXPath(el)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1718-L1718`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`getXPath`](#sym-tools-cef-annotator-overlay-js-getxpath)
+- **Called By:** [`getXPath`](#sym-tools-cef-annotator-overlay-js-getxpath)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getancestorchain"></a>`getAncestorChain` (function)
+
+- **Qualified Name:** `getAncestorChain`
+- **Signature:** `function getAncestorChain(el, depth = 3)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1738-L1738`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+  | `depth` | *(any)* | `3` | No | `positional_or_keyword` |
+- **Calls:** [`getAncestorChain`](#sym-tools-cef-annotator-overlay-js-getancestorchain)
+- **Called By:** [`getAncestorChain`](#sym-tools-cef-annotator-overlay-js-getancestorchain)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getreactinfo"></a>`getReactInfo` (function)
+
+- **Qualified Name:** `getReactInfo`
+- **Signature:** `function getReactInfo(el)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1753-L1753`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`getReactInfo`](#sym-tools-cef-annotator-overlay-js-getreactinfo)
+- **Called By:** [`getReactInfo`](#sym-tools-cef-annotator-overlay-js-getreactinfo)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-getelementcontext"></a>`getElementContext` (function)
+
+- **Qualified Name:** `getElementContext`
+- **Signature:** `function getElementContext(el)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1774-L1774`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`getElementContext`](#sym-tools-cef-annotator-overlay-js-getelementcontext)
+- **Called By:** [`getElementContext`](#sym-tools-cef-annotator-overlay-js-getelementcontext)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-populateelementvalues"></a>`populateElementValues` (function)
+
+- **Qualified Name:** `populateElementValues`
+- **Signature:** `function populateElementValues(el)`
+- **Visibility:** `+` public
+- **Docstring:** *Populate inspector values from element*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1838-L1838`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`populateElementValues`](#sym-tools-cef-annotator-overlay-js-populateelementvalues)
+- **Called By:** [`populateElementValues`](#sym-tools-cef-annotator-overlay-js-populateelementvalues)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-setannotatemode"></a>`setAnnotateMode` (function)
+
+- **Qualified Name:** `setAnnotateMode`
+- **Signature:** `function setAnnotateMode(active)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Mode Management ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1929-L1929`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `active` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`setAnnotateMode`](#sym-tools-cef-annotator-overlay-js-setannotatemode)
+- **Called By:** [`setAnnotateMode`](#sym-tools-cef-annotator-overlay-js-setannotatemode)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-updatehoverboxforelement"></a>`updateHoverBoxForElement` (function)
+
+- **Qualified Name:** `updateHoverBoxForElement`
+- **Signature:** `function updateHoverBoxForElement(el)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Hover Highlight & DOM Fine-Tuning Helpers ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1950-L1950`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`updateHoverBoxForElement`](#sym-tools-cef-annotator-overlay-js-updatehoverboxforelement)
+- **Called By:** [`updateHoverBoxForElement`](#sym-tools-cef-annotator-overlay-js-updatehoverboxforelement)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-finetuneup"></a>`fineTuneUp` (function)
+
+- **Qualified Name:** `fineTuneUp`
+- **Signature:** `function fineTuneUp()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1966-L1966`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`fineTuneUp`](#sym-tools-cef-annotator-overlay-js-finetuneup)
+- **Called By:** [`fineTuneUp`](#sym-tools-cef-annotator-overlay-js-finetuneup)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-finetunedown"></a>`fineTuneDown` (function)
+
+- **Qualified Name:** `fineTuneDown`
+- **Signature:** `function fineTuneDown()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1978-L1978`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`fineTuneDown`](#sym-tools-cef-annotator-overlay-js-finetunedown)
+- **Called By:** [`fineTuneDown`](#sym-tools-cef-annotator-overlay-js-finetunedown)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-deleteallannotations"></a>`deleteAllAnnotations` (function)
+
+- **Qualified Name:** `deleteAllAnnotations`
+- **Signature:** `function deleteAllAnnotations()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L1989-L1989`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`deleteAllAnnotations`](#sym-tools-cef-annotator-overlay-js-deleteallannotations)
+- **Called By:** [`deleteAllAnnotations`](#sym-tools-cef-annotator-overlay-js-deleteallannotations)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-onpointermove"></a>`onPointerMove` (function)
+
+- **Qualified Name:** `onPointerMove`
+- **Signature:** `function onPointerMove(e)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Capture-Phase Event Suppression (Annotate mode only) ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2032-L2032`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onPointerMove`](#sym-tools-cef-annotator-overlay-js-onpointermove)
+- **Called By:** [`onPointerMove`](#sym-tools-cef-annotator-overlay-js-onpointermove)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-oncaptureevent"></a>`onCaptureEvent` (function)
+
+- **Qualified Name:** `onCaptureEvent`
+- **Signature:** `function onCaptureEvent(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2049-L2049`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onCaptureEvent`](#sym-tools-cef-annotator-overlay-js-oncaptureevent)
+- **Called By:** [`onCaptureEvent`](#sym-tools-cef-annotator-overlay-js-oncaptureevent)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-attachcapturelisteners"></a>`attachCaptureListeners` (function)
+
+- **Qualified Name:** `attachCaptureListeners`
+- **Signature:** `function attachCaptureListeners()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2079-L2079`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`attachCaptureListeners`](#sym-tools-cef-annotator-overlay-js-attachcapturelisteners)
+- **Called By:** [`attachCaptureListeners`](#sym-tools-cef-annotator-overlay-js-attachcapturelisteners)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-removecapturelisteners"></a>`removeCaptureListeners` (function)
+
+- **Qualified Name:** `removeCaptureListeners`
+- **Signature:** `function removeCaptureListeners()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2088-L2088`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`removeCaptureListeners`](#sym-tools-cef-annotator-overlay-js-removecapturelisteners)
+- **Called By:** [`removeCaptureListeners`](#sym-tools-cef-annotator-overlay-js-removecapturelisteners)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-openpopup"></a>`openPopup` (function)
+
+- **Qualified Name:** `openPopup`
+- **Signature:** `function openPopup(el)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Popup Dialog Logic ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2098-L2098`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `el` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`openPopup`](#sym-tools-cef-annotator-overlay-js-openpopup)
+- **Called By:** [`openPopup`](#sym-tools-cef-annotator-overlay-js-openpopup)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-closepopup"></a>`closePopup` (function)
+
+- **Qualified Name:** `closePopup`
+- **Signature:** `function closePopup()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2134-L2134`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`closePopup`](#sym-tools-cef-annotator-overlay-js-closepopup)
+- **Called By:** [`closePopup`](#sym-tools-cef-annotator-overlay-js-closepopup)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-onsaveclicked"></a>`onSaveClicked` (function)
+
+- **Qualified Name:** `onSaveClicked`
+- **Signature:** `function onSaveClicked()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2144-L2144`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`onSaveClicked`](#sym-tools-cef-annotator-overlay-js-onsaveclicked)
+- **Called By:** [`onSaveClicked`](#sym-tools-cef-annotator-overlay-js-onsaveclicked)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-matchescurrentpage"></a>`matchesCurrentPage` (function)
+
+- **Qualified Name:** `matchesCurrentPage`
+- **Signature:** `function matchesCurrentPage(annot)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Pins Rendering ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2208-L2208`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `annot` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`matchesCurrentPage`](#sym-tools-cef-annotator-overlay-js-matchescurrentpage)
+- **Called By:** [`matchesCurrentPage`](#sym-tools-cef-annotator-overlay-js-matchescurrentpage)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-resolveelementforannotation"></a>`resolveElementForAnnotation` (function)
+
+- **Qualified Name:** `resolveElementForAnnotation`
+- **Signature:** `function resolveElementForAnnotation(annot)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2222-L2222`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `annot` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`resolveElementForAnnotation`](#sym-tools-cef-annotator-overlay-js-resolveelementforannotation)
+- **Called By:** [`resolveElementForAnnotation`](#sym-tools-cef-annotator-overlay-js-resolveelementforannotation)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-renderpins"></a>`renderPins` (function)
+
+- **Qualified Name:** `renderPins`
+- **Signature:** `function renderPins()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2245-L2245`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`renderPins`](#sym-tools-cef-annotator-overlay-js-renderpins)
+- **Called By:** [`renderPins`](#sym-tools-cef-annotator-overlay-js-renderpins)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-schedulepinsreposition"></a>`schedulePinsReposition` (function)
+
+- **Qualified Name:** `schedulePinsReposition`
+- **Signature:** `function schedulePinsReposition()`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2279-L2279`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`schedulePinsReposition`](#sym-tools-cef-annotator-overlay-js-schedulepinsreposition)
+- **Called By:** [`schedulePinsReposition`](#sym-tools-cef-annotator-overlay-js-schedulepinsreposition)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-checkheartbeat"></a>`checkHeartbeat` (function)
+
+- **Qualified Name:** `checkHeartbeat`
+- **Signature:** `function checkHeartbeat()`
+- **Visibility:** `+` public
+- **Docstring:** *--- Heartbeat & Connection Check ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2288-L2288`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`checkHeartbeat`](#sym-tools-cef-annotator-overlay-js-checkheartbeat)
+- **Called By:** [`checkHeartbeat`](#sym-tools-cef-annotator-overlay-js-checkheartbeat)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-onkeydown"></a>`onKeyDown` (function)
+
+- **Qualified Name:** `onKeyDown`
+- **Signature:** `function onKeyDown(e)`
+- **Visibility:** `+` public
+- **Docstring:** *--- Global Keydown & Event Listeners ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2309-L2309`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onKeyDown`](#sym-tools-cef-annotator-overlay-js-onkeydown)
+- **Called By:** [`onKeyDown`](#sym-tools-cef-annotator-overlay-js-onkeydown)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-ontoolbarpointerdown"></a>`onToolbarPointerDown` (function)
+
+- **Qualified Name:** `onToolbarPointerDown`
+- **Signature:** `function onToolbarPointerDown(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2373-L2373`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onToolbarPointerDown`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerdown)
+- **Called By:** [`onToolbarPointerDown`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerdown)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-ontoolbarpointermove"></a>`onToolbarPointerMove` (function)
+
+- **Qualified Name:** `onToolbarPointerMove`
+- **Signature:** `function onToolbarPointerMove(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2390-L2390`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onToolbarPointerMove`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointermove)
+- **Called By:** [`onToolbarPointerMove`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointermove)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-ontoolbarpointerup"></a>`onToolbarPointerUp` (function)
+
+- **Qualified Name:** `onToolbarPointerUp`
+- **Signature:** `function onToolbarPointerUp(e)`
+- **Visibility:** `+` public
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2414-L2414`](#file-tools-cef-annotator-overlay-js)
+- **Parameters:**
+  | Name | Type | Default | Required | Kind |
+  | :--- | :--- | :--- | :--- | :--- |
+  | `e` | *(any)* | *(none)* | Yes | `positional_or_keyword` |
+- **Calls:** [`onToolbarPointerUp`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerup)
+- **Called By:** [`onToolbarPointerUp`](#sym-tools-cef-annotator-overlay-js-ontoolbarpointerup)
+
+#### <a id="sym-tools-cef-annotator-overlay-js-initdom"></a>`initDOM` (function)
+
+- **Qualified Name:** `initDOM`
+- **Signature:** `function initDOM()`
+- **Visibility:** `+` public
+- **Docstring:** *--- Safely attach Host to Page DOM once available ---*
+- **Source Location:** [`tools/cef-annotator/overlay.js:L2474-L2474`](#file-tools-cef-annotator-overlay-js)
+- **Calls:** [`initDOM`](#sym-tools-cef-annotator-overlay-js-initdom)
+- **Called By:** [`initDOM`](#sym-tools-cef-annotator-overlay-js-initdom)
+
+### <a id="file-tools-cloud_pending-main-cpp"></a>File: `tools/cloud_pending/main.cpp`
+
+- **Module:** `main` | **Language:** `cpp` | **Lines:** 36 (`L1-L36`)
+- **Structure:** 36 lines, 0 classes/structs, 0 functions/methods
+- **Internal Imports:** `cloud_pending_ops.hpp`, `cloudredirect.hpp`, `log.hpp`
+- **External Dependencies:** `iostream`, `cstring`, `memory`
+
+*No declarations in this file.*
 
 ### <a id="file-tools-library-inject-main-cpp"></a>File: `tools/library-inject/main.cpp`
 
