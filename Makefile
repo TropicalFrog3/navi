@@ -158,6 +158,9 @@ coverage: bin/unit_tests_cov
 test-integration:
 	pytest -q tests/integration
 
+test-gate07:
+	./tests/integration/run_gate07_bwrap.sh
+
 test-flow:
 	pytest -q --live tests/integration/test_steam_ui_flow.py
 
@@ -305,6 +308,7 @@ release: rebuild zips
 	check-cloudredirect \
 	test \
 	test-integration \
+	test-gate07 \
 	test-flow \
 	test-e2e \
 	test-all \

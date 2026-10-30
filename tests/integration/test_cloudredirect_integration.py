@@ -6,6 +6,7 @@ Covers:
 2. Idle Helper Execution Tests (bin/navi-cloud-apply-pending, granular reset, rollback on fault).
 3. Backend API Security Tests (Origin allowlist, X-Navi-Auth validation, typed confirmation).
 4. Flatpak Environment Simulation (sandbox vs host path resolution).
+5. Gate 0.7 Bubblewrap Sandbox Tests (7-checkpoint local save round-trip verification).
 """
 
 from __future__ import annotations
@@ -756,3 +757,41 @@ class TestFlatpakEnvironmentSimulation:
         )
         assert res.returncode == 0, f"C++ Flatpak test failed: {res.stderr}\n{res.stdout}"
         assert "PASSED" in res.stdout
+
+
+# ==============================================================================
+# 5. Gate 0.7 Bubblewrap Sandbox Integration Tests
+# ==============================================================================
+
+class TestCloudRedirectGate07:
+    """Hermetic Bubblewrap sandbox verification of Gate 0.7 local save round-trip."""
+
+    def test_gate07_bwrap_roundtrip(self):
+        """Execute 7-checkpoint local save interception round-trip in isolated bwrap sandbox."""
+        if shutil.which("bwrap") is None:
+            pytest.skip("bubblewrap (bwrap) not found in PATH")
+
+        script_path = REPO_ROOT / "tests" / "integration" / "run_gate07_bwrap.sh"
+        assert script_path.is_file(), f"Missing test script: {script_path}"
+
+        res = subprocess.run(
+            [str(script_path)],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+        if res.returncode == 77:
+            pytest.skip(f"Gate 0.7 prerequisites missing: {res.stdout.strip()}")
+
+        assert res.returncode == 0, f"Gate 0.7 failed (code {res.returncode}):\nSTDOUT:\n{res.stdout}\nSTDERR:\n{res.stderr}"
+        assert "[CHECKPOINT 1] PASS" in res.stdout
+        assert "[CHECKPOINT 2] PASS" in res.stdout
+        assert "[CHECKPOINT 3] PASS" in res.stdout
+        assert "[CHECKPOINT 4] PASS" in res.stdout
+        assert "[CHECKPOINT 5] PASS" in res.stdout
+        assert "[CHECKPOINT 6] PASS" in res.stdout
+        assert "[CHECKPOINT 7] PASS" in res.stdout
+        assert "ALL 7 PASS" in res.stdout
+
