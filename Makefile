@@ -155,10 +155,13 @@ coverage: bin/unit_tests_cov
 	./bin/unit_tests_cov
 	PATH="$(HOME)/.local/bin:$(PATH)" gcovr --gcov-ignore-parse-errors=negative_hits.warn_once_per_file -r src obj/cov
 
+test-integration:
+	pytest -q tests/integration
+
 test-flow:
 	pytest -q --live tests/integration/test_steam_ui_flow.py
 
-test-all: test test-flow
+test-all: test
 
 audit-libs:
 	$(MAKE) -j $(JOBS) $(NAVISO) bin/library-inject.so
@@ -301,6 +304,7 @@ release: rebuild zips
 	release \
 	check-cloudredirect \
 	test \
+	test-integration \
 	test-flow \
 	test-e2e \
 	test-all \
