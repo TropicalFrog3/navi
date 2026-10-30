@@ -251,65 +251,6 @@ bool CConfig::loadSettings(bool firstLoad)
 	depotBoxKey = getSetting<std::string>(node, "DepotBoxKey", "");
 	hubcapKey = getSetting<std::string>(node, "HubcapKey", "");
 
-	syncRole = getSetting<std::string>(node, "SyncRole", "disabled");
-	syncTopology = getSetting<std::string>(node, "SyncTopology", "cloud");
-	syncCloudProvider = getSetting<std::string>(node, "SyncCloudProvider", "none");
-	syncWebDavUrl = getSetting<std::string>(node, "SyncWebDavUrl", "");
-	syncWebDavUser = getSetting<std::string>(node, "SyncWebDavUser", "");
-
-	Sync::SyncSelectionFilter_t filter;
-	try
-	{
-		const auto filterNode = node["SyncFilter"];
-		if (filterNode && filterNode.IsMap())
-		{
-			if (filterNode["AllManifestsAndLua"])
-				filter.allManifestsAndLua = filterNode["AllManifestsAndLua"].as<bool>();
-			if (filterNode["ManifestAppIds"] && filterNode["ManifestAppIds"].IsSequence())
-			{
-				for (const auto& item : filterNode["ManifestAppIds"])
-					filter.manifestAppIds.insert(item.as<uint32_t>());
-			}
-
-			if (filterNode["AllConfigs"])
-				filter.allConfigs = filterNode["AllConfigs"].as<bool>();
-			if (filterNode["ConfigKeys"] && filterNode["ConfigKeys"].IsSequence())
-			{
-				for (const auto& item : filterNode["ConfigKeys"])
-					filter.configKeys.insert(item.as<std::string>());
-			}
-
-			if (filterNode["AllCloudSaves"])
-				filter.allCloudSaves = filterNode["AllCloudSaves"].as<bool>();
-			if (filterNode["CloudSaveAppIds"] && filterNode["CloudSaveAppIds"].IsSequence())
-			{
-				for (const auto& item : filterNode["CloudSaveAppIds"])
-					filter.cloudSaveAppIds.insert(item.as<uint32_t>());
-			}
-
-			if (filterNode["AllAchievements"])
-				filter.allAchievements = filterNode["AllAchievements"].as<bool>();
-			if (filterNode["AchievementAppIds"] && filterNode["AchievementAppIds"].IsSequence())
-			{
-				for (const auto& item : filterNode["AchievementAppIds"])
-					filter.achievementAppIds.insert(item.as<uint32_t>());
-			}
-
-			if (filterNode["AllApiKeys"])
-				filter.allApiKeys = filterNode["AllApiKeys"].as<bool>();
-			if (filterNode["ProviderNames"] && filterNode["ProviderNames"].IsSequence())
-			{
-				for (const auto& item : filterNode["ProviderNames"])
-					filter.providerNames.insert(item.as<std::string>());
-			}
-		}
-	}
-	catch (...)
-	{
-		setError(ELoadError::ParsingException, "SyncFilter");
-	}
-	syncFilter = filter;
-
 	const std::lock_guard appsChanged(appsChangedMutex);
 	const auto prevAppIds = addedAppIds.get();
 	const auto _addedAppIds = getList<AppId_t>(node, "AdditionalApps");

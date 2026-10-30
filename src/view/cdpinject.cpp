@@ -1101,29 +1101,6 @@ namespace CDPInject
 
     void injectSyncOverlayModal()
     {
-        auto pages = fetchPages();
-        if (pages.empty())
-        {
-            LOG_INFO("CDPInject::injectSyncOverlayModal: No CDP pages available\n");
-            return;
-        }
-
-        const std::string triggerExpr = "if (window.__naviShowSyncModal) { window.__naviShowSyncModal(); }";
-
-        for (const auto& page : pages)
-        {
-            if (page.webSocketDebuggerUrl.empty()) continue;
-            if (page.title == "Steam Big Picture Mode" ||
-                page.title == "Steam" ||
-                page.title == "SharedJSContext" ||
-                page.title == "SP Overlay" ||
-                page.url.find("steamcommunity.com") != std::string::npos ||
-                page.url.find("store.steampowered.com") != std::string::npos)
-            {
-                LOG_INFO("CDPInject::injectSyncOverlayModal: Triggering modal on page '%s'\n", page.title.c_str());
-                injectJS(page.webSocketDebuggerUrl, triggerExpr);
-            }
-        }
     }
 }
 

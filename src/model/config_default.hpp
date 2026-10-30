@@ -150,23 +150,5 @@ DumpClientInterfaces: no
 ExtendedLogging: no
 RyuuKey: ""
 DepotBoxKey: ""
-HubcapKey: ""
+HubcapKey: "")";
 
-# Cross-Device Synchronization
-SyncRole: "disabled"
-SyncTopology: "cloud"
-SyncCloudProvider: "none"
-SyncWebDavUrl: ""
-SyncWebDavUser: ""
-
-SyncFilter:
-  AllManifestsAndLua: false
-  ManifestAppIds: []
-  AllConfigs: false
-  ConfigKeys: []
-  AllCloudSaves: false
-  CloudSaveAppIds: []
-  AllAchievements: false
-  AchievementAppIds: []
-  AllApiKeys: false
-  ProviderNames: [])";
