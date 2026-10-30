@@ -93,6 +93,10 @@ UNIT_TEST_PROD_SRCS := \
 	src/presenter/apps.cpp \
 	src/presenter/autoupdate.cpp \
 	src/presenter/cloudredirect.cpp \
+	src/core/cloud_oauth.cpp \
+	src/presenter/cloud_manager.cpp \
+	src/presenter/cloud_pending_ops.cpp \
+	src/view/cloud_view.cpp \
 	src/presenter/luagenerator.cpp \
 	src/presenter/nativeinstall.cpp \
 	src/presenter/process_lock.cpp \
@@ -131,6 +135,15 @@ bin/unit_tests: $(UNIT_TEST_OBJS) $(UNIT_TEST_PROD_OBJS) $(GTEST_OBJS)
 bin/unit_tests_cov: $(COV_PROD_OBJS) $(UNIT_TEST_SDK_OBJS) $(UNIT_TEST_OBJS) $(GTEST_OBJS)
 	@mkdir -p bin
 	$(CXX) $(COV_CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -lpthread -ldl -o $@
+	chmod 755 $@
+
+obj/$(FLAGSSHA)/tools/cloud_pending/%.o: tools/cloud_pending/%.cpp
+	@mkdir -p $(dir $@)
+	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+
+bin/navi-cloud-apply-pending: obj/$(FLAGSSHA)/tools/cloud_pending/main.o obj/$(FLAGSSHA)/presenter/cloud_pending_ops.o obj/$(FLAGSSHA)/presenter/cloudredirect.o obj/$(FLAGSSHA)/model/paths.o obj/$(FLAGSSHA)/model/vdf.o obj/$(FLAGSSHA)/core/utils.o obj/$(FLAGSSHA)/core/log.o
+	@mkdir -p bin
+	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libyaml-cpp.a -lssl -lcrypto -lpthread -ldl -o $@
 	chmod 755 $@
 
 test: bin/unit_tests

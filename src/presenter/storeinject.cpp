@@ -16,8 +16,14 @@
 #include "atomic_file.hpp"
 #include "ticket.hpp"
 #include "paths.hpp"
+#include "cloud_oauth.hpp"
+#include "cloud_manager.hpp"
+#include "cloud_pending_ops.hpp"
+#include "cloud_view.hpp"
+#include "cloudredirect.hpp"
 #include <unistd.h>
 #include <openssl/crypto.h>
+#include <openssl/rand.h>
 #include <yaml-cpp/yaml.h>
 
 #include <thread>
@@ -88,6 +94,73 @@ namespace StoreInject
     static std::atomic<bool> g_shouldStop(false);
     static std::atomic<int> g_serverFd{-1};
     static std::atomic<bool> g_shutdownCalled{false};
+    static std::string g_naviAuthToken;
+
+    const std::string& getNaviAuthToken()
+    {
+        if (g_naviAuthToken.empty())
+        {
+            unsigned char raw[32];
+            if (RAND_bytes(raw, sizeof(raw)) == 1)
+            {
+                std::ostringstream ss;
+                ss << std::hex << std::setfill('0');
+                for (size_t i = 0; i < sizeof(raw); ++i)
+                {
+                    ss << std::setw(2) << static_cast<unsigned int>(raw[i]);
+                }
+                g_naviAuthToken = ss.str();
+            }
+        }
+        return g_naviAuthToken;
+    }
+
+    void setNaviAuthTokenForTest(const std::string& token)
+    {
+        g_naviAuthToken = token;
+    }
+
+    static std::string extractHeaderValue(const std::string& request, const std::string& headerName)
+    {
+        std::string needle = headerName + ":";
+        size_t pos = request.find(needle);
+        if (pos == std::string::npos)
+        {
+            std::string lowerReq = request;
+            std::string lowerNeedle = needle;
+            std::transform(lowerReq.begin(), lowerReq.end(), lowerReq.begin(), ::tolower);
+            std::transform(lowerNeedle.begin(), lowerNeedle.end(), lowerNeedle.begin(), ::tolower);
+            pos = lowerReq.find(lowerNeedle);
+        }
+        if (pos == std::string::npos) return "";
+        size_t start = request.find_first_not_of(" \t", pos + needle.size());
+        if (start == std::string::npos) return "";
+        size_t end = request.find_first_of("\r\n", start);
+        if (end == std::string::npos) end = request.size();
+        return request.substr(start, end - start);
+    }
+
+    static bool isOriginAllowed(const std::string& origin)
+    {
+        if (origin.empty()) return true;
+        if (origin == "https://steamloopback.host") return true;
+        if (origin == "http://127.0.0.1:9001") return true;
+        if (origin == "http://localhost:9001") return true;
+        return false;
+    }
+
+    static bool verifyNaviAuthToken(const std::string& request)
+    {
+        std::string token = extractHeaderValue(request, "X-Navi-Auth");
+        if (token.empty())
+        {
+            token = extractHeaderValue(request, "x-navi-auth");
+        }
+        const std::string& expected = getNaviAuthToken();
+        if (token.empty() || expected.empty()) return false;
+        if (token.size() != expected.size()) return false;
+        return CRYPTO_memcmp(token.data(), expected.data(), token.size()) == 0;
+    }
 
     static void sendJsonResponse(int sock, int code, const std::string& statusMsg, const std::string& jsonBody)
     {
@@ -634,6 +707,9 @@ namespace StoreInject
                 page.url.find("store.steampowered.com") == std::string::npos)
                 continue;
 
+            std::string authInjectJs = "if (!window.__naviAuthToken) { window.__naviAuthToken = \"" + getNaviAuthToken() + "\"; }";
+            CDPInject::injectJS(page.webSocketDebuggerUrl, authInjectJs);
+
             std::string encoded = CDPInject::evalString(page.webSocketDebuggerUrl, kDrainExpr);
             if (encoded.empty()) continue;
 
@@ -757,6 +833,290 @@ namespace StoreInject
                             send(new_socket, StoreInjectView::CORS_PREFLIGHT_RESPONSE, strlen(StoreInjectView::CORS_PREFLIGHT_RESPONSE), 0);
                             close(new_socket);
                             handled = true;
+                        }
+                        else if (!isOriginAllowed(extractHeaderValue(request, "Origin")))
+                        {
+                            sendJsonResponse(new_socket, 403, "Forbidden", Navi::CloudView::renderErrorJson("Forbidden: invalid origin"));
+                            handled = true;
+                        }
+                        else if (request.find("/cloud") != std::string::npos)
+                        {
+                            std::string method, uriPath;
+                            size_t firstSpace = request.find(' ');
+                            if (firstSpace != std::string::npos)
+                            {
+                                method = request.substr(0, firstSpace);
+                                size_t secondSpace = request.find(' ', firstSpace + 1);
+                                if (secondSpace != std::string::npos)
+                                {
+                                    uriPath = request.substr(firstSpace + 1, secondSpace - firstSpace - 1);
+                                }
+                            }
+
+                            if (method == "GET" && (uriPath == "/cloud/status" || uriPath.rfind("/cloud/status?", 0) == 0))
+                            {
+                                bool enabled = Navi::CloudRedirect::CCloudRedirectBridge::Instance().IsEnabled();
+                                std::string provider = g_config.cloudSavesProvider.get();
+                                size_t managedAppsCount = g_config.cloudSavesManagedApps.get().size();
+                                size_t pendingCount = 0;
+                                for (const auto& op : Navi::CloudRedirect::CPendingOpsQueue::Instance().LoadAll())
+                                {
+                                    if (op.status == Navi::CloudRedirect::PendingOpStatus::Pending) pendingCount++;
+                                }
+                                std::string resp = Navi::CloudView::renderStatusJson(enabled, provider, managedAppsCount, pendingCount);
+                                sendJsonResponse(new_socket, 200, "OK", resp);
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/toggle")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    bool enable = Navi::CloudView::parseBoolField(body, "enable", false);
+                                    Navi::CloudRedirect::CCloudRedirectBridge::Instance().SetEnabledState(enable);
+                                    g_config.cloudSavesEnabled.set(enable);
+                                    sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderSuccessJson("Cloud saves " + std::string(enable ? "enabled" : "disabled")));
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/provider/status" || uriPath.rfind("/cloud/provider/status?", 0) == 0))
+                            {
+                                std::string provider;
+                                size_t qmark = uriPath.find('?');
+                                if (qmark != std::string::npos)
+                                {
+                                    std::string query = uriPath.substr(qmark + 1);
+                                    size_t ppos = query.find("provider=");
+                                    if (ppos != std::string::npos)
+                                    {
+                                        size_t vend = query.find('&', ppos + 9);
+                                        provider = urlDecode(query.substr(ppos + 9, vend == std::string::npos ? std::string::npos : vend - (ppos + 9)));
+                                    }
+                                }
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                auto st = Navi::CloudRedirect::CCloudManager::Instance().CheckAuthStatus(provider);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderStatusJson(st));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/provider/signin")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    std::string provider = Navi::CloudView::parseStringField(body, "provider");
+                                    if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                    auto provEnum = Navi::CloudRedirect::StringToOAuthProvider(provider);
+                                    std::string outErr;
+                                    std::string authUrl = Navi::CloudRedirect::COAuthEngine::Instance().StartAuthFlow(provEnum, outErr);
+                                    if (authUrl.empty())
+                                    {
+                                        sendJsonResponse(new_socket, 409, "Conflict", Navi::CloudView::renderErrorJson(outErr));
+                                    }
+                                    else
+                                    {
+                                        std::string resp = "{\"authUrl\":\"" + authUrl + "\",\"provider\":\"" + provider + "\"}";
+                                        sendJsonResponse(new_socket, 200, "OK", resp);
+                                    }
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/provider/signout")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    std::string provider = Navi::CloudView::parseStringField(body, "provider");
+                                    if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                    auto provEnum = Navi::CloudRedirect::StringToOAuthProvider(provider);
+                                    Navi::CloudRedirect::COAuthEngine::Instance().SignOut(provEnum);
+                                    sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderSuccessJson("Signed out"));
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "GET" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/status") != std::string::npos)
+                            {
+                                size_t idStart = 12; // length of "/cloud/apps/"
+                                size_t slashEnd = uriPath.find('/', idStart);
+                                AppId_t appId = 0;
+                                try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                bool redirected = g_config.IsAppCloudRedirected(appId);
+                                uint64_t usage = Navi::CloudRedirect::CCloudManager::Instance().GetStorageUsageBytes(appId);
+                                auto backups = Navi::CloudRedirect::CCloudManager::Instance().ListBackups(appId);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderAppStatusJson(appId, redirected, usage, backups));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/toggle") != std::string::npos)
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    size_t idStart = 12;
+                                    size_t slashEnd = uriPath.find('/', idStart);
+                                    AppId_t appId = 0;
+                                    try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    bool redirect = Navi::CloudView::parseBoolField(body, "redirect", false);
+                                    auto apps = g_config.cloudSavesManagedApps.get();
+                                    if (redirect) apps.insert(appId);
+                                    else apps.erase(appId);
+                                    g_config.cloudSavesManagedApps.set(apps);
+                                    Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(apps);
+                                    sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderAppToggleJson(appId, redirect));
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "POST" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/backup") != std::string::npos)
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    size_t idStart = 12;
+                                    size_t slashEnd = uriPath.find('/', idStart);
+                                    AppId_t appId = 0;
+                                    try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                    
+                                    fs::path backupDir = Navi::CloudRedirect::CCloudRedirectBridge::Instance().GetPaths().naviBackupDir / std::to_string(appId);
+                                    std::error_code ec;
+                                    fs::create_directories(backupDir, ec);
+                                    uint64_t ts = static_cast<uint64_t>(std::time(nullptr));
+                                    fs::path backupFile = backupDir / ("manual-" + std::to_string(ts) + ".tar.gz");
+
+                                    fs::path steamRoot = Navi::CloudRedirect::CCloudRedirectBridge::Instance().GetPaths().steamRoot;
+                                    std::vector<std::string> tarArgs = {"tar", "-czf", backupFile.string(), "-P"};
+                                    bool hasFiles = false;
+
+                                    fs::path storageApp = steamRoot / "cloud_redirect" / "storage";
+                                    if (fs::exists(storageApp, ec))
+                                    {
+                                        for (const auto& acct : fs::directory_iterator(storageApp, ec))
+                                        {
+                                            fs::path p = acct.path() / std::to_string(appId);
+                                            if (fs::exists(p, ec)) { tarArgs.push_back(p.string()); hasFiles = true; }
+                                        }
+                                    }
+                                    fs::path userdataRoot = steamRoot / "userdata";
+                                    if (fs::exists(userdataRoot, ec))
+                                    {
+                                        for (const auto& acct : fs::directory_iterator(userdataRoot, ec))
+                                        {
+                                            fs::path remoteDir = acct.path() / std::to_string(appId) / "remote";
+                                            if (fs::exists(remoteDir, ec)) { tarArgs.push_back(remoteDir.string()); hasFiles = true; }
+                                            fs::path rcFile = acct.path() / std::to_string(appId) / "remotecache.vdf";
+                                            if (fs::exists(rcFile, ec)) { tarArgs.push_back(rcFile.string()); hasFiles = true; }
+                                        }
+                                    }
+                                    if (!hasFiles) { tarArgs.push_back("--files-from"); tarArgs.push_back("/dev/null"); }
+
+                                    pid_t pid = fork();
+                                    if (pid == 0)
+                                    {
+                                        std::vector<char*> c_args;
+                                        for (const auto& a : tarArgs) c_args.push_back(const_cast<char*>(a.c_str()));
+                                        c_args.push_back(nullptr);
+                                        execvp(c_args[0], c_args.data());
+                                        _exit(127);
+                                    }
+                                    else if (pid > 0)
+                                    {
+                                        int status = 0;
+                                        waitpid(pid, &status, 0);
+                                    }
+
+                                    sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderBackupSuccessJson(appId, backupFile.string()));
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "POST" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/restore") != std::string::npos)
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    size_t idStart = 12;
+                                    size_t slashEnd = uriPath.find('/', idStart);
+                                    AppId_t appId = 0;
+                                    try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    std::string backupFile = Navi::CloudView::parseStringField(body, "backupFile");
+
+                                    Navi::CloudRedirect::PendingOperation_t op;
+                                    op.appId = appId;
+                                    op.type = Navi::CloudRedirect::PendingOpType::RestoreBackup;
+                                    op.restoreSourcePath = backupFile;
+                                    op.timestamp = static_cast<uint64_t>(std::time(nullptr));
+                                    op.id = "op_" + std::to_string(op.timestamp) + "_" + std::to_string(appId) + "_restore";
+
+                                    Navi::CloudRedirect::CPendingOpsQueue::Instance().Enqueue(op);
+                                    sendJsonResponse(new_socket, 202, "Accepted", Navi::CloudView::renderPendingOperationAcceptedJson(op.id));
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "POST" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/reset") != std::string::npos)
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    size_t idStart = 12;
+                                    size_t slashEnd = uriPath.find('/', idStart);
+                                    AppId_t appId = 0;
+                                    try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                    std::string body = extractHttpPostBody(new_socket, request);
+
+                                    if (!Navi::CloudView::parseConfirmReset(body))
+                                    {
+                                        sendJsonResponse(new_socket, 400, "Bad Request", Navi::CloudView::renderErrorJson("Confirmation required: payload must contain {\"confirm\": \"RESET\"}"));
+                                        handled = true;
+                                    }
+                                    else
+                                    {
+                                        Navi::CloudRedirect::PendingOperation_t op;
+                                        op.appId = appId;
+                                        op.type = Navi::CloudRedirect::PendingOpType::ResetCloudSave;
+                                        op.timestamp = static_cast<uint64_t>(std::time(nullptr));
+                                        op.id = "op_" + std::to_string(op.timestamp) + "_" + std::to_string(appId) + "_reset";
+
+                                        Navi::CloudRedirect::CPendingOpsQueue::Instance().Enqueue(op);
+                                        sendJsonResponse(new_socket, 202, "Accepted", Navi::CloudView::renderPendingOperationAcceptedJson(op.id));
+                                        handled = true;
+                                    }
+                                }
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/pending-ops" || uriPath.rfind("/cloud/pending-ops?", 0) == 0))
+                            {
+                                auto ops = Navi::CloudRedirect::CPendingOpsQueue::Instance().LoadAll();
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderPendingOpsJson(ops));
+                                handled = true;
+                            }
                         }
                         else if (request.find("/set-api-keys") != std::string::npos)
                         {
@@ -1534,6 +1894,7 @@ namespace StoreInject
                                 "sleep 1; "
                                 // Step 4.5: Clean up stale PID and lock files left by SIGKILL
                                 "rm -f ~/.steam/steam.pid ~/.steam/.steam/steam.pid ~/.steam/steam.pipe ~/.local/share/Steam/steam.pid ~/.local/share/Steam/steam.pipe 2>/dev/null; "
+                                "if [ -x ~/.local/share/navi/bin/navi-cloud-apply-pending ]; then ~/.local/share/navi/bin/navi-cloud-apply-pending --process-all 2>/dev/null; fi; "
                                 // Step 5: Relaunch with LD_AUDIT (CDP pipe injection handled by tier0 hook)
                                 "env";
                             if (!ldAuditStr.empty()) {
@@ -1671,6 +2032,7 @@ namespace StoreInject
     {
         g_shutdownCalled = false;
         g_shouldStop = false;
+        getNaviAuthToken();
 
         // Start the callback server immediately as it's just a passive listener
         g_workerThread = std::thread(callbackServer);
