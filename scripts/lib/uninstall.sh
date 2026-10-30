@@ -60,6 +60,79 @@ ask_remove_configs() {
     fi
 }
 
+cleanup_slssteam_cloud_shim() {
+    local sls_cfg="$HOME/.config/SLSsteam/config.yaml"
+    if [ ! -f "$sls_cfg" ]; then
+        return 0
+    fi
+
+    if [ "${DRY_RUN:-0}" -eq 1 ]; then
+        log_dry "Clean Navi cloud shim from $sls_cfg (preserving any remaining user configuration)"
+        return 0
+    fi
+
+    if command -v python3 >/dev/null 2>&1; then
+        python3 - <<'EOF' "$sls_cfg"
+import sys, os
+
+cfg_path = sys.argv[1]
+try:
+    with open(cfg_path, 'r', encoding='utf-8', errors='replace') as f:
+        lines = f.readlines()
+except Exception:
+    sys.exit(0)
+
+new_lines = []
+in_shim = False
+had_shim = False
+
+for line in lines:
+    if "# >>> NAVI CLOUD SHIM" in line:
+        in_shim = True
+        had_shim = True
+        continue
+    if in_shim:
+        if "# <<< NAVI CLOUD SHIM" in line:
+            in_shim = False
+        continue
+    new_lines.append(line)
+
+# Determine if there is remaining user content
+remaining_content = [l for l in new_lines if l.strip()]
+
+if not remaining_content:
+    # File only contained the shim or was empty -> remove it
+    try:
+        os.remove(cfg_path)
+    except OSError:
+        pass
+    sls_dir = os.path.dirname(cfg_path)
+    try:
+        if os.path.isdir(sls_dir) and not os.listdir(sls_dir):
+            os.rmdir(sls_dir)
+    except OSError:
+        pass
+else:
+    # Preserve remaining user content with shim removed
+    try:
+        with open(cfg_path, 'w', encoding='utf-8') as f:
+            f.writelines(new_lines)
+    except Exception:
+        pass
+EOF
+    else
+        local tmp
+        tmp="$(mktemp "${TMPDIR:-/tmp}/slscfg.XXXXXX")"
+        sed '/# >>> NAVI CLOUD SHIM/,/# <<< NAVI CLOUD SHIM/d' "$sls_cfg" > "$tmp" 2>/dev/null || cp "$sls_cfg" "$tmp"
+        if grep -qE '[^[:space:]]' "$tmp" 2>/dev/null; then
+            mv -f "$tmp" "$sls_cfg"
+        else
+            rm -f "$tmp" "$sls_cfg"
+            rmdir "$HOME/.config/SLSsteam" 2>/dev/null || true
+        fi
+    fi
+}
+
 do_uninstall() {
     # 1. Steam running check
     check_steam_running || exit 1
@@ -84,10 +157,14 @@ do_uninstall() {
     # 4. Dry-run preview
     if [ "${DRY_RUN:-0}" -eq 1 ]; then
         log_dry "Remove Navi application files from $HOME/.local/share/navi (strictly preserving manifests)"
+        log_dry "Remove Navi CloudRedirect payload and idle helper (preserving ~/.config/CloudRedirect/ and save data)"
         log_dry "Restore native Steam launchers and remove wrappers in $HOME/.local/bin"
         log_dry "Remove Navi desktop entries and icons"
         log_dry "Reset Flatpak Steam environment overrides"
         log_dry "Clean tracking and log files"
+        if [ -f "$HOME/.config/SLSsteam/config.yaml" ]; then
+            cleanup_slssteam_cloud_shim
+        fi
         if [ "$remove_configs" -eq 1 ]; then
             log_dry "Remove user configuration directories (preserving updates.yaml backups)"
         else
@@ -116,15 +193,27 @@ do_uninstall() {
         fi
     fi
 
-    for dir in \
-        "$HOME/.local/share/CloudRedirect" \
-        "$HOME/.headcrab" \
-        "$HOME/.var/app/com.valvesoftware.Steam/.local/share/navi"; do
-        if [ -d "$dir" ]; then
-            rm -rf "$dir"
-            log_info "Removed directory: $dir"
-        fi
-    done
+    # Remove Navi-owned CloudRedirect payload & idle helper
+    # HARD INVARIANT: NEVER delete or touch $HOME/.config/CloudRedirect/ or user save directories (storage/, userdata/).
+    rm -rf "$HOME/.local/share/navi/cloudredirect"
+    rm -f "$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
+    rm -f "$HOME/.config/navi/cloud_enabled"
+
+    local flatpak_navi="$HOME/.var/app/com.valvesoftware.Steam/.local/share/navi"
+    if [ -d "$flatpak_navi" ]; then
+        rm -rf "$flatpak_navi/cloudredirect"
+        rm -f "$flatpak_navi/bin/navi-cloud-apply-pending"
+        rm -rf "$flatpak_navi"
+        log_info "Removed Flatpak Navi directory: $flatpak_navi"
+    fi
+
+    if [ -d "$HOME/.headcrab" ]; then
+        rm -rf "$HOME/.headcrab"
+        log_info "Removed directory: $HOME/.headcrab"
+    fi
+
+    # Non-destructive SLSsteam configuration handling
+    cleanup_slssteam_cloud_shim
 
     # Run legacy migration cleanups
     if type migration_run_uninstall >/dev/null 2>&1; then

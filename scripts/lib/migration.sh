@@ -55,9 +55,29 @@ clean_legacy_sls_configs() {
                 cp -a "$b" "${LEGACY_SLS_CONFIG_BACKUPS:-$HOME/.config/SLSsteam_backups}/"
             fi
         done
-        rm -rf "$LEGACY_SLS_CONFIG_DIR"
+
+        local sls_cfg="$LEGACY_SLS_CONFIG_DIR/config.yaml"
+        local cr_active=0
+        if [ -f "$sls_cfg" ]; then
+            if [ -f "$HOME/.config/navi/cloud_enabled" ] || \
+               [ -d "$HOME/.config/CloudRedirect" ] || \
+               [ -f "$HOME/.local/share/navi/cloudredirect/cloud_redirect.so" ] || \
+               grep -qE 'NAVI CLOUD SHIM|DisableCloud|AdditionalApps' "$sls_cfg" 2>/dev/null; then
+                cr_active=1
+            fi
+        fi
+
+        if [ "$cr_active" -eq 1 ]; then
+            find "$LEGACY_SLS_CONFIG_DIR" -mindepth 1 -maxdepth 1 ! -name "config.yaml" -exec rm -rf {} + 2>/dev/null || true
+            type log_info >/dev/null 2>&1 && log_info "Preserved $sls_cfg for CloudRedirect."
+        else
+            rm -rf "$LEGACY_SLS_CONFIG_DIR"
+        fi
     fi
-    [ -n "${LEGACY_SLS_CACHE_DIR:-}" ] && [ -d "$LEGACY_SLS_CACHE_DIR" ] && rm -rf "$LEGACY_SLS_CACHE_DIR"
+    if [ -n "${LEGACY_SLS_CACHE_DIR:-}" ] && [ -d "$LEGACY_SLS_CACHE_DIR" ]; then
+        rm -rf "$LEGACY_SLS_CACHE_DIR"
+    fi
+    return 0
 }
 
 clean_legacy_sls_integration() {
@@ -262,7 +282,7 @@ migration_run_uninstall() {
         log_dry "Clean legacy ACCELA binaries, desktop entries, icons, and cache (preserving morrenus_manifests)"
         log_dry "Clean legacy SLSsteam binaries, integration wrappers, and tracking files"
         if [ "$remove_configs" = "1" ]; then
-            log_dry "Clean legacy SLSsteam configs (preserving updates.yaml backups)"
+            log_dry "Clean legacy SLSsteam configs (preserving updates.yaml backups and config.yaml if active for CloudRedirect)"
         fi
         return 0
     fi

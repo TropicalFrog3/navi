@@ -63,7 +63,21 @@ install_safe_wrapper() {
 
     cat > "$wrapper" <<EOF
 #!/bin/sh
-exec env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" "$native_steam" "\$@"
+# Navi Steam wrapper with dynamic CloudRedirect preload and idle pending-ops execution
+CR_PENDING="\$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
+if [ -x "\$CR_PENDING" ]; then
+    "\$CR_PENDING" --process-all 2>/dev/null || true
+fi
+
+CR_SO="\$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
+if [ -f "\$HOME/.config/navi/cloud_enabled" ] && [ ! -f "\$HOME/.config/CloudRedirect/disable" ] && [ -f "\$CR_SO" ]; then
+    case ":\${LD_PRELOAD:-}:" in
+        *":\$CR_SO:"*) ;;
+        *) export LD_PRELOAD="\${CR_SO}\${LD_PRELOAD:+:\${LD_PRELOAD}}" ;;
+    esac
+fi
+
+exec env LD_AUDIT="\$HOME/.local/share/navi/library-inject.so:\$HOME/.local/share/navi/libnavi.so" "$native_steam" "\$@"
 EOF
     chmod 755 "$wrapper"
 
@@ -88,7 +102,21 @@ EOF
         if [ -n "$sys_bin" ] && [ -x "$sys_bin" ] && [ "$sys_bin" != "$navi_path/$exe" ]; then
             cat > "$navi_path/$exe" <<EOF
 #!/bin/sh
-exec env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" "$sys_bin" "\$@"
+# Navi Steam wrapper with dynamic CloudRedirect preload and idle pending-ops execution
+CR_PENDING="\$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
+if [ -x "\$CR_PENDING" ]; then
+    "\$CR_PENDING" --process-all 2>/dev/null || true
+fi
+
+CR_SO="\$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
+if [ -f "\$HOME/.config/navi/cloud_enabled" ] && [ ! -f "\$HOME/.config/CloudRedirect/disable" ] && [ -f "\$CR_SO" ]; then
+    case ":\${LD_PRELOAD:-}:" in
+        *":\$CR_SO:"*) ;;
+        *) export LD_PRELOAD="\${CR_SO}\${LD_PRELOAD:+:\${LD_PRELOAD}}" ;;
+    esac
+fi
+
+exec env LD_AUDIT="\$HOME/.local/share/navi/library-inject.so:\$HOME/.local/share/navi/libnavi.so" "$sys_bin" "\$@"
 EOF
             chmod 755 "$navi_path/$exe"
         fi
@@ -343,6 +371,35 @@ do_install() {
         smart_copy "$res_dir" "$navi_share/res"
     fi
 
+    # Cloud helper binary
+    mkdir -p "$navi_share/bin"
+    if [ -n "$bin_dir" ] && [ -f "$bin_dir/navi-cloud-apply-pending" ]; then
+        cp -f --remove-destination "$bin_dir/navi-cloud-apply-pending" "$navi_share/bin/navi-cloud-apply-pending"
+        chmod 755 "$navi_share/bin/navi-cloud-apply-pending"
+    elif [ -f "$REPO_ROOT/bin/navi-cloud-apply-pending" ]; then
+        cp -f --remove-destination "$REPO_ROOT/bin/navi-cloud-apply-pending" "$navi_share/bin/navi-cloud-apply-pending"
+        chmod 755 "$navi_share/bin/navi-cloud-apply-pending"
+    fi
+
+    # CloudRedirect payload
+    local cr_dir="$navi_share/cloudredirect"
+    mkdir -p "$cr_dir"
+    local cr_src="${res_dir:-$REPO_ROOT/res}"
+    if [ -f "$cr_src/cloud_redirect.so" ]; then
+        cp -f --remove-destination "$cr_src/cloud_redirect.so" "$cr_dir/cloud_redirect.so"
+        chmod 755 "$cr_dir/cloud_redirect.so"
+    elif [ -f "$REPO_ROOT/res/cloud_redirect.so" ]; then
+        cp -f --remove-destination "$REPO_ROOT/res/cloud_redirect.so" "$cr_dir/cloud_redirect.so"
+        chmod 755 "$cr_dir/cloud_redirect.so"
+    fi
+    if [ -f "$cr_src/cloud_redirect_cli" ]; then
+        cp -f --remove-destination "$cr_src/cloud_redirect_cli" "$cr_dir/cloud_redirect_cli"
+        chmod 755 "$cr_dir/cloud_redirect_cli"
+    elif [ -f "$REPO_ROOT/res/cloud_redirect_cli" ]; then
+        cp -f --remove-destination "$REPO_ROOT/res/cloud_redirect_cli" "$cr_dir/cloud_redirect_cli"
+        chmod 755 "$cr_dir/cloud_redirect_cli"
+    fi
+
     # 6. Flatpak Steam support
     local flatpak_steam_dir="$HOME/.var/app/com.valvesoftware.Steam"
     if [ -d "$flatpak_steam_dir" ] || (command -v flatpak >/dev/null 2>&1 && flatpak info com.valvesoftware.Steam >/dev/null 2>&1); then
@@ -354,6 +411,33 @@ do_install() {
             mkdir -p "$flatpak_navi/res"
             smart_copy "$res_dir" "$flatpak_navi/res"
         fi
+
+        mkdir -p "$flatpak_navi/bin"
+        if [ -n "$bin_dir" ] && [ -f "$bin_dir/navi-cloud-apply-pending" ]; then
+            cp -f --remove-destination "$bin_dir/navi-cloud-apply-pending" "$flatpak_navi/bin/navi-cloud-apply-pending"
+            chmod 755 "$flatpak_navi/bin/navi-cloud-apply-pending"
+        elif [ -f "$REPO_ROOT/bin/navi-cloud-apply-pending" ]; then
+            cp -f --remove-destination "$REPO_ROOT/bin/navi-cloud-apply-pending" "$flatpak_navi/bin/navi-cloud-apply-pending"
+            chmod 755 "$flatpak_navi/bin/navi-cloud-apply-pending"
+        fi
+
+        local fp_cr_dir="$flatpak_navi/cloudredirect"
+        mkdir -p "$fp_cr_dir"
+        if [ -f "$cr_src/cloud_redirect.so" ]; then
+            cp -f --remove-destination "$cr_src/cloud_redirect.so" "$fp_cr_dir/cloud_redirect.so"
+            chmod 755 "$fp_cr_dir/cloud_redirect.so"
+        elif [ -f "$REPO_ROOT/res/cloud_redirect.so" ]; then
+            cp -f --remove-destination "$REPO_ROOT/res/cloud_redirect.so" "$fp_cr_dir/cloud_redirect.so"
+            chmod 755 "$fp_cr_dir/cloud_redirect.so"
+        fi
+        if [ -f "$cr_src/cloud_redirect_cli" ]; then
+            cp -f --remove-destination "$cr_src/cloud_redirect_cli" "$fp_cr_dir/cloud_redirect_cli"
+            chmod 755 "$fp_cr_dir/cloud_redirect_cli"
+        elif [ -f "$REPO_ROOT/res/cloud_redirect_cli" ]; then
+            cp -f --remove-destination "$REPO_ROOT/res/cloud_redirect_cli" "$fp_cr_dir/cloud_redirect_cli"
+            chmod 755 "$fp_cr_dir/cloud_redirect_cli"
+        fi
+
         if command -v flatpak >/dev/null 2>&1; then
             local fp_audit="/app/links/\$LIB/libshared-library-guard.so:$flatpak_navi/library-inject.so:$flatpak_navi/libnavi.so"
             flatpak override --user --env=LD_AUDIT="$fp_audit" --env=SHARED_LIBRARY_GUARD=0 com.valvesoftware.Steam 2>/dev/null || true
