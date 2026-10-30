@@ -515,6 +515,214 @@
         };
     }
 
+    function fetchAppCloudStatus(appId) {
+        if (window.NaviCloudManager && window.NaviCloudManager.fetchAppStatus) {
+            return window.NaviCloudManager.fetchAppStatus(appId);
+        }
+        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/status', {
+            headers: { 'X-Navi-Auth': window.__naviAuthToken || '' }
+        }).then(function(r) { return r.json(); });
+    }
+
+    function toggleAppCloudRedirect(appId, redirect) {
+        if (window.NaviCloudManager && window.NaviCloudManager.toggleAppRedirect) {
+            return window.NaviCloudManager.toggleAppRedirect(appId, redirect);
+        }
+        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Navi-Auth': window.__naviAuthToken || ''
+            },
+            body: JSON.stringify({ redirect: !!redirect })
+        }).then(function(r) { return r.json(); });
+    }
+
+    function backupAppCloudSave(appId) {
+        if (window.NaviCloudManager && window.NaviCloudManager.backupAppSave) {
+            return window.NaviCloudManager.backupAppSave(appId);
+        }
+        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/backup', {
+            method: 'POST',
+            headers: { 'X-Navi-Auth': window.__naviAuthToken || '' }
+        }).then(function(r) { return r.json(); });
+    }
+
+    function openRestoreModal(appId, onCompleted) {
+        if (window.NaviCloudManager && window.NaviCloudManager.openRestoreModal) {
+            return window.NaviCloudManager.openRestoreModal(appId, onCompleted);
+        }
+        if (document.getElementById('sls-restore-modal')) return;
+        var overlay = document.createElement('div');
+        overlay.id = 'sls-restore-modal';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
+        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
+                '<div>' +
+                    '<h2 style="margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;">Restore Cloud Save</h2>' +
+                    '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
+                '</div>' +
+                '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+            '</div>' +
+            '<div id="sls-restore-body" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' +
+                '<div style="text-align:center;padding:24px;color:#969696;">Loading backups...</div>' +
+            '</div>' +
+            '<div style="display:flex;justify-content:flex-end;">' +
+                '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Close</button>' +
+            '</div>' +
+        '</div>';
+        document.body.appendChild(overlay);
+
+        var closeBtn = overlay.querySelector('#sls-restore-close');
+        var cancelBtn = overlay.querySelector('#sls-modal-cancel');
+        var bodyEl = overlay.querySelector('#sls-restore-body');
+
+        function closeModal() { overlay.remove(); }
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+
+        fetchAppCloudStatus(appId).then(function(data) {
+            var backups = data.backups || [];
+            if (backups.length === 0) {
+                bodyEl.innerHTML = '<div style="text-align:center;padding:24px;color:#9ca3af;font-size:14px;">No backups available for this game.</div>';
+                trapSteamGamepadModal(overlay, [cancelBtn, closeBtn]);
+                return;
+            }
+            bodyEl.innerHTML = '';
+            var itemBtns = [];
+            for (var i = 0; i < backups.length; i++) {
+                var file = backups[i];
+                var baseName = file.split('/').pop() || file;
+
+                var row = document.createElement('div');
+                row.style.cssText = 'display:flex;align-items:center;justify-content:space-between;padding:10px 12px;margin-bottom:6px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.1);border-radius:3px;';
+
+                var nameDiv = document.createElement('div');
+                nameDiv.style.cssText = 'font-size:13px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-right:12px;';
+                nameDiv.textContent = baseName;
+                nameDiv.title = file;
+
+                var btn = document.createElement('button');
+                btn.className = 'sls-btn-restore-item Focusable';
+                btn.setAttribute('tabindex', '-1');
+                btn.setAttribute('role', 'button');
+                btn.setAttribute('data-backup-path', file);
+                btn.style.cssText = 'background:#2563eb;color:#fff;border:none;border-radius:2px;padding:6px 14px;font-size:13px;cursor:pointer;';
+                btn.textContent = 'Restore';
+
+                (function(restoreBtn, targetPath) {
+                    restoreBtn.onclick = function() {
+                        restoreBtn.disabled = true;
+                        restoreBtn.textContent = 'Restoring...';
+                        fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/restore', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json', 'X-Navi-Auth': window.__naviAuthToken || '' },
+                            body: JSON.stringify({ backupFile: targetPath })
+                        }).then(function() {
+                            closeModal();
+                            alert('Restore enqueued. Please restart Steam via Navi to safely apply changes.');
+                            if (onCompleted) onCompleted(true);
+                        }).catch(function(e) {
+                            restoreBtn.disabled = false;
+                            restoreBtn.textContent = 'Restore';
+                            alert('Restore error: ' + (e && e.message ? e.message : String(e)));
+                        });
+                    };
+                })(btn, file);
+
+                row.appendChild(nameDiv);
+                row.appendChild(btn);
+                bodyEl.appendChild(row);
+                itemBtns.push(btn);
+            }
+            trapSteamGamepadModal(overlay, itemBtns.concat([cancelBtn, closeBtn]));
+        }).catch(function(e) {
+            bodyEl.innerHTML = '';
+            var errEl = document.createElement('div');
+            errEl.style.cssText = 'text-align:center;padding:24px;color:#f87171;';
+            errEl.textContent = 'Error loading backups: ' + (e && e.message ? e.message : String(e));
+            bodyEl.appendChild(errEl);
+            trapSteamGamepadModal(overlay, [cancelBtn, closeBtn]);
+        });
+    }
+
+    function openResetModal(appId, onCompleted) {
+        if (document.getElementById('sls-reset-modal')) return;
+        var overlay = document.createElement('div');
+        overlay.id = 'sls-reset-modal';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
+        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
+                '<div>' +
+                    '<h2 style="margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;">Reset Cloud Save</h2>' +
+                    '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
+                '</div>' +
+                '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+            '</div>' +
+            '<div style="background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;">' +
+                '<p style="margin:0;font-size:13px;line-height:1.5;color:#fca5a5;">' +
+                    '⚠️ <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.' +
+                '</p>' +
+            '</div>' +
+            '<div style="margin-bottom:20px;">' +
+                '<label style="display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;">' +
+                    'To confirm, type <b style="color:#fff;letter-spacing:1px;">RESET</b> into the box below:' +
+                '</label>' +
+                '<input type="text" id="sls-reset-input" autocomplete="off" spellcheck="false" placeholder="Type RESET to confirm" ' +
+                    'style="width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;" />' +
+            '</div>' +
+            '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
+                '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Cancel</button>' +
+                '<button id="sls-modal-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" disabled style="height:36px;padding:0 20px;background:#dc2626;color:#fff;cursor:default;opacity:0.4;font-weight:600;">Confirm Reset</button>' +
+            '</div>' +
+        '</div>';
+        document.body.appendChild(overlay);
+
+        var closeBtn = overlay.querySelector('#sls-reset-close');
+        var cancelBtn = overlay.querySelector('#sls-modal-cancel');
+        var confirmBtn = overlay.querySelector('#sls-modal-confirm');
+        var input = overlay.querySelector('#sls-reset-input');
+
+        function closeModal() { overlay.remove(); }
+        closeBtn.onclick = closeModal;
+        cancelBtn.onclick = closeModal;
+
+        input.addEventListener('input', function() {
+            var val = (input.value || '').trim();
+            if (val === 'RESET') {
+                confirmBtn.disabled = false;
+                confirmBtn.style.opacity = '1';
+                confirmBtn.style.cursor = 'pointer';
+            } else {
+                confirmBtn.disabled = true;
+                confirmBtn.style.opacity = '0.4';
+                confirmBtn.style.cursor = 'default';
+            }
+        });
+
+        confirmBtn.onclick = function() {
+            if (confirmBtn.disabled) return;
+            confirmBtn.disabled = true;
+            confirmBtn.innerText = 'Resetting...';
+            fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/reset', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-Navi-Auth': window.__naviAuthToken || '' },
+                body: JSON.stringify({ confirm: 'RESET' })
+            }).then(function() {
+                closeModal();
+                alert('Cloud save reset enqueued. Please restart Steam via Navi to safely apply changes.');
+                if (onCompleted) onCompleted(true);
+            }).catch(function(e) {
+                confirmBtn.disabled = false;
+                confirmBtn.innerText = 'Confirm Reset';
+                alert('Reset error: ' + e);
+            });
+        };
+
+        trapSteamGamepadModal(overlay, [input, confirmBtn, cancelBtn, closeBtn]);
+        setTimeout(function() { input.focus(); }, 100);
+    }
+
     function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart) {
         if (document.getElementById('sls-navi-modal')) return;
         var overlay = document.createElement('div');
@@ -545,6 +753,18 @@
                 '</button>' +
                 '<button id="sls-navi-btn-config" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
                     '<span>Config (Fix / Auto Crack)</span>' +
+                '</button>' +
+                '<button id="sls-navi-btn-cloud-toggle" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">' +
+                    '<span>Cloud Save</span><span id="sls-navi-cloud-badge" style="font-size:13px; font-weight:600; color:#9ca3af;">Checking...</span>' +
+                '</button>' +
+                '<button id="sls-navi-btn-cloud-backup" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
+                    '<span>Backup Cloud Save</span>' +
+                '</button>' +
+                '<button id="sls-navi-btn-cloud-restore" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
+                    '<span>Restore Cloud Save</span>' +
+                '</button>' +
+                '<button id="sls-navi-btn-cloud-reset" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;">' +
+                    '<span>Reset Cloud Save</span>' +
                 '</button>' +
                 '<button id="sls-navi-btn-remove" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; ' + removeBtnStyle + '">' +
                     '<span>' + removeLabel + '</span>' +
@@ -585,6 +805,11 @@
         var cancelBtn = document.getElementById('sls-navi-cancel');
         var provBtn = document.getElementById('sls-navi-btn-provider');
         var confBtn = document.getElementById('sls-navi-btn-config');
+        var cloudToggleBtn = document.getElementById('sls-navi-btn-cloud-toggle');
+        var cloudBackupBtn = document.getElementById('sls-navi-btn-cloud-backup');
+        var cloudRestoreBtn = document.getElementById('sls-navi-btn-cloud-restore');
+        var cloudResetBtn = document.getElementById('sls-navi-btn-cloud-reset');
+        var cloudBadge = document.getElementById('sls-navi-cloud-badge');
         var remBtn = document.getElementById('sls-navi-btn-remove');
 
         closeX.onclick = function() { closeModal(); };
@@ -604,6 +829,63 @@
             });
         };
 
+        var isAppCloudActive = false;
+        function updateModalCloudUI(active) {
+            isAppCloudActive = !!active;
+            if (cloudBadge) {
+                if (isAppCloudActive) {
+                    cloudBadge.innerText = 'Active';
+                    cloudBadge.style.color = '#34d399';
+                } else {
+                    cloudBadge.innerText = 'Inactive';
+                    cloudBadge.style.color = '#9ca3af';
+                }
+            }
+        }
+
+        fetchAppCloudStatus(appid).then(function(cdata) {
+            updateModalCloudUI(cdata.redirected);
+        }).catch(function() {
+            updateModalCloudUI(false);
+        });
+
+        cloudToggleBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            var target = !isAppCloudActive;
+            if (cloudBadge) cloudBadge.innerText = 'Updating...';
+            toggleAppCloudRedirect(appid, target).then(function() {
+                updateModalCloudUI(target);
+            }).catch(function() {
+                updateModalCloudUI(isAppCloudActive);
+            });
+        };
+
+        cloudBackupBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            var span = cloudBackupBtn.querySelector('span');
+            if (span) span.innerText = 'Backing up...';
+            backupAppCloudSave(appid).then(function() {
+                if (span) span.innerText = 'Backup Created!';
+                setTimeout(function() { if (span) span.innerText = 'Backup Cloud Save'; }, 2000);
+            }).catch(function() {
+                if (span) span.innerText = 'Backup Cloud Save';
+            });
+        };
+
+        cloudRestoreBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            closeModal(function() {
+                openRestoreModal(appid);
+            });
+        };
+
+        cloudResetBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            closeModal(function() {
+                openResetModal(appid);
+            });
+        };
+
         remBtn.onclick = function(e) {
             e.preventDefault(); e.stopPropagation();
             if (isPending) {
@@ -619,7 +901,7 @@
             }
         };
 
-        trapSteamGamepadModal(overlay, [provBtn, confBtn, remBtn, cancelBtn, closeX]);
+        trapSteamGamepadModal(overlay, [provBtn, confBtn, cloudToggleBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, remBtn, cancelBtn, closeX]);
     }
 
     function createRemoveButton(manageContainer, appid, isPending, onlineFixInstalled, autoCrackInstalled, provider) {
@@ -627,7 +909,7 @@
 
         // Remove any existing SLS buttons from this container before re-inserting
         parentNode.querySelectorAll(
-            '.sls-remove-lua-btn, .sls-config-btn, .sls-provider-label, .sls-change-provider-btn, .sls-navi-btn'
+            '.sls-remove-lua-btn, .sls-config-btn, .sls-provider-label, .sls-change-provider-btn, .sls-navi-btn, .sls-cloud-toggle-btn, .sls-cloud-backup-btn, .sls-cloud-restore-btn, .sls-cloud-reset-btn'
         ).forEach(function(el) { el.remove(); });
 
         // Detect Steam Deck / Big Picture Mode (GamepadUI) vs Desktop Mode
@@ -798,6 +1080,82 @@
             providerLabel.innerHTML = 'Provider: <span style="color:rgb(220, 222, 223);font-weight:500;margin-left:4px;">' + provider + '</span>';
         }
 
+        // 5. Cloud Save Redirection Controls (Desktop Mode)
+        var cloudToggleBtn = makeSteamButton('sls-cloud-toggle-btn', 'Cloud Save: ...');
+        var cloudBackupBtn = makeSteamButton('sls-cloud-backup-btn', 'Backup Save');
+        var cloudRestoreBtn = makeSteamButton('sls-cloud-restore-btn', 'Restore Save');
+        var cloudResetBtn = makeSteamButton('sls-cloud-reset-btn', 'Reset Save');
+        cloudResetBtn.style.color = '#f87171';
+
+        var isRowCloudActive = false;
+        function updateRowCloudUI(active) {
+            isRowCloudActive = !!active;
+            var span = cloudToggleBtn.querySelector('span');
+            if (span) {
+                if (isRowCloudActive) {
+                    span.innerHTML = 'Cloud Save: <b style="color:#34d399;">Active</b>';
+                } else {
+                    span.innerHTML = 'Cloud Save: <b style="color:#9ca3af;">Inactive</b>';
+                }
+            }
+        }
+
+        fetchAppCloudStatus(appid).then(function(data) {
+            updateRowCloudUI(data.redirected);
+        }).catch(function() {
+            updateRowCloudUI(false);
+        });
+
+        cloudToggleBtn.addEventListener('vgp_onok', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            cloudToggleBtn.click();
+        });
+        cloudToggleBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            var target = !isRowCloudActive;
+            var span = cloudToggleBtn.querySelector('span');
+            if (span) span.innerText = 'Updating...';
+            toggleAppCloudRedirect(appid, target).then(function() {
+                updateRowCloudUI(target);
+            }).catch(function() {
+                updateRowCloudUI(isRowCloudActive);
+            });
+        };
+
+        cloudBackupBtn.addEventListener('vgp_onok', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            cloudBackupBtn.click();
+        });
+        cloudBackupBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            var span = cloudBackupBtn.querySelector('span');
+            if (span) span.innerText = 'Backing up...';
+            backupAppCloudSave(appid).then(function() {
+                if (span) span.innerText = 'Saved!';
+                setTimeout(function() { if (span) span.innerText = 'Backup Save'; }, 2000);
+            }).catch(function() {
+                if (span) span.innerText = 'Backup Save';
+            });
+        };
+
+        cloudRestoreBtn.addEventListener('vgp_onok', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            cloudRestoreBtn.click();
+        });
+        cloudRestoreBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            openRestoreModal(appid);
+        };
+
+        cloudResetBtn.addEventListener('vgp_onok', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            cloudResetBtn.click();
+        });
+        cloudResetBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            openResetModal(appid);
+        };
+
         // Mark this container as injected BEFORE inserting DOM nodes so the
         // MutationObserver callback that fires during insertion sees the guard
         // already set and skips re-entry.
@@ -805,7 +1163,11 @@
 
         // Insert SLS buttons BEFORE the Manage gear (manageContainer),
         // so they appear first in the row. Reverse insertion order keeps
-        // visual order: Provider Label → Remove Lua → Config → Change Provider.
+        // visual order: Provider Label → Remove Lua → Config → Change Provider → Cloud Toggle → Backup → Restore → Reset.
+        parentNode.insertBefore(cloudResetBtn, parentNode.firstChild);
+        parentNode.insertBefore(cloudRestoreBtn, parentNode.firstChild);
+        parentNode.insertBefore(cloudBackupBtn, parentNode.firstChild);
+        parentNode.insertBefore(cloudToggleBtn, parentNode.firstChild);
         parentNode.insertBefore(changeProvBtn, parentNode.firstChild);
         parentNode.insertBefore(configBtn, parentNode.firstChild);
         parentNode.insertBefore(removeBtn, parentNode.firstChild);
@@ -816,6 +1178,10 @@
             registerSteamFocusNode(removeBtn);
             registerSteamFocusNode(configBtn);
             registerSteamFocusNode(changeProvBtn);
+            registerSteamFocusNode(cloudToggleBtn);
+            registerSteamFocusNode(cloudBackupBtn);
+            registerSteamFocusNode(cloudRestoreBtn);
+            registerSteamFocusNode(cloudResetBtn);
         }, 10);
     }
 
