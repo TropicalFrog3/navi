@@ -48,6 +48,17 @@ This script computes the SHA-256 of `steamclient.so`, extracts the version times
     - <NEW_CLIENT_SHA256> # steamclient - <VERSION_NUMBER>
   ```
 
+### CloudRedirect Prebuilt Binary Integrity Checks
+In addition to `steamclient.so` whitelisting, verify the prebuilt CloudRedirect binaries:
+```bash
+make check-cloudredirect
+```
+This validation checks:
+- Existence of `res/cloud_redirect.so` and `res/cloud_redirect_cli`.
+- ELF 32-bit architecture (`readelf -h` verifying `ELF32` and `Intel 80386`).
+- Exact SHA-256 checksums and file size match against tracked constants.
+- File accessibility and executable permissions.
+
 ---
 
 ## 3. Gate 2: Virtual Function Table (VFT) Auditing
@@ -66,6 +77,9 @@ Check and update indices in `src/core/vftableinfo.cpp`:
 
 | Interface | Method | Known Index | Expected Behavior |
 | :--- | :--- | :--- | :--- |
+| **IClientRemoteStorage** | `FileWrite` | **5** | Detoured by CloudRedirect to mirror/redirect writes |
+| **IClientRemoteStorage** | `FileRead` | **7** | Detoured by CloudRedirect to serve redirected reads |
+| **IClientRemoteStorage** | `FileForget` / `IsCloudEnabledForApp` | **8** | Detoured by CloudRedirect for app cloud status |
 | **IClientRemoteStorage** | `InternalGetSyncState` | **74** | Return `k_ERemoteStorageSyncStateDisabled` (0) for cloud-disabled games |
 | **IClientRemoteStorage** | `GetConflictingFileTimestamps`| **75** | Set `*pbIsConflict = false` and return `true` |
 | **IClientRemoteStorage** | `GetPendingRemoteOperationInfo` | **76** | Zero out operation info and return `false` |
@@ -103,6 +117,20 @@ To eliminate "Out of Sync" or "Cloud Error" badges across all games without brea
 Steam uses two distinct `libtier0_s.so` memory namespaces. Hardcoding GOT offsets for `g_pMemAllocSteam` causes heap corruption crashes.
 - Dynamically parse `PT_DYNAMIC` -> `DT_REL` / `DT_STRTAB` -> locate `R_386_GLOB_DAT` for `"g_pMemAllocSteam"`.
 - Under `LD_AUDIT` (`la_objopen`), `ld.so` relocations are applied lazily after library mapping. Always dereference GOT slots lazily on first call.
+
+### 4.3 Steam User Account ID Arithmetic & Save Path Resolution
+When resolving save paths for CloudRedirect or the idle helper (`bin/navi-cloud-apply-pending`):
+- **User Discovery via `loginusers.vdf`**:
+  Steam tracks configured user accounts in `~/.local/share/Steam/config/loginusers.vdf` identified by their 64-bit SteamID (`7656119xxxxxxxxxx`).
+- **Account ID Conversion Arithmetic**:
+  Convert 64-bit SteamID to 32-bit AccountID:
+  $$\text{AccountID} = \text{SteamID} \ \& \ \text{0xFFFFFFFF}$$
+  $$\text{or } \text{AccountID} = \text{SteamID} - 76561197960265728$$
+- **Save Path Hierarchy**:
+  Cloud save files reside within the Steam userdata hierarchy:
+  `~/.local/share/Steam/userdata/<account_id>/<app_id>/`
+- **Idle Helper Targeting**:
+  `bin/navi-cloud-apply-pending` uses the 32-bit AccountID to target save reset, backup, and restore paths across `userdata/<account_id>/<app_id>/remote/` and `remotecache.vdf`.
 
 ---
 

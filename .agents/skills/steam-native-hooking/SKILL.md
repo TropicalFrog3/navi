@@ -212,3 +212,40 @@ When using `LD_AUDIT`, `la_objopen` fires immediately after a library is mapped,
 ## 8. New Steam Version Updates
 For the complete 5-gate pipeline, RTTI VFT auditing, client hash verification, cloud job detours, and DOM injection resilience when updating to a new Steam build, see:
 - [steam-version-update](../steam-version-update/SKILL.md)
+
+## 9. CloudRedirect `steamclient.so` Vtable Detours & Coordination
+
+### 9.1 `IClientRemoteStorage` Vtable Slots Detoured by CloudRedirect
+CloudRedirect (`cloud_redirect.so`) intercepts file I/O within `CUserRemoteStorage` (`IClientRemoteStorage`) in `steamclient.so`:
+- **Slot 5 (`FileWrite`)**: Intercepts file write operations to mirror or redirect save payloads into redirected directories or cloud provider staging before committing.
+- **Slot 7 (`FileRead`)**: Intercepts file reads to serve save data transparently from redirected paths or cloud provider caches.
+- **Slot 8 (`FileForget` / `IsCloudEnabledForApp`)**: Intercepts remote file deletion and queries to `CUserRemoteStorage::IsCloudEnabledForApp`, ensuring redirected games report proper local storage states.
+
+### 9.2 Coordination with Navi Cloud Interception
+Navi and CloudRedirect operate in tandem to prevent cloud conflicts and manage local storage:
+1. **Navi Cloud Sync Job Suppression**:
+   - `Apps::shouldDisableCloud(appId)` in `src/presenter/apps.cpp` identifies apps that should not sync to Valve's cloud (unowned, native installs, auto-crack, DLC-managed).
+   - Navi detours `CClientJobRemoteStorageSync::BYieldingRunJob` (virtual method #18 in `27CClientJobRemoteStorageSync`) in `src/presenter/hooks.cpp` to return `true` immediately without network sync for intercepted apps.
+   - Whitelists critical apps: `AppID 7` (`Roaming Config`) and `AppID 2371090` (`Steam Game Notes`), as well as legitimate user-owned purchases.
+2. **CloudRedirect Local File I/O Redirection**:
+   - While Navi suppresses Valve's remote sync jobs to eliminate "Out of Sync" or "Cloud Error" badges, `cloud_redirect.so` detours the low-level file I/O layer (`FileWrite`, `FileRead`) to redirect save data to structured local directories (`~/.local/share/navi/cloudredirect/storage/`) or remote cloud providers (Google Drive, OneDrive, Cloudflare R2, AWS S3, or Local-Only).
+
+### 9.3 SLSsteam YAML Sentinel Shim Synchronization
+Apps managed by CloudRedirect are synchronized non-destructively into `~/.config/SLSsteam/config.yaml`:
+- **Sentinel Region**:
+  ```yaml
+  # >>> NAVI CLOUD SHIM (DO NOT EDIT MANUALLY)
+  DisableCloud: no
+  AdditionalApps:
+    - 480
+    - 730
+  # <<< NAVI CLOUD SHIM
+  ```
+- **Set Union Merging ($S_{merged} = S_{user} \cup S_{navi}$)**:
+  The managed app list is updated via single-key set-union:
+  $$S_{merged} = S_{user} \cup S_{navi}$$
+  Existing user entries in `AdditionalApps` outside the shim block are preserved intact.
+- **Safe Set Subtraction on Removal ($S_{remaining} = S_{merged} \setminus S_{removed}$)**:
+  When an app is removed from CloudRedirect management, Navi performs safe set subtraction:
+  $$S_{remaining} = S_{merged} \setminus S_{removed}$$
+  If no apps remain under Navi management, the sentinel block is cleaned up without corrupting user configuration.

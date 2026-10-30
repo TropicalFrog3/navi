@@ -39,3 +39,35 @@ Linux GCC frequently generates local function clones that deviate from standard 
 
 ## 6. Verify Function Identity via GOT Strings
 Do not trust pattern anchors implicitly. Verify you have the correct function by finding assertions, logging, or VPROF strings inside it. In Linux shared objects, these strings are often referenced as GOT-relative offsets (e.g., `lea eax, [ebx - offset]`).
+
+## 7. CloudRedirect Prebuilt Binaries & Runtime Injection
+- **Prebuilt Binaries**:
+  - `res/cloud_redirect.so` (32-bit x86 Linux ELF shared library)
+  - `res/cloud_redirect_cli` (32-bit x86 Linux ELF PIE executable)
+  - Both binaries must remain strictly co-located in the same directory (`res/` in the repository, `~/.local/share/navi/cloudredirect/` at runtime). `cloud_redirect_cli` dynamically loads `%scloud_redirect.so` relative to its own executable path (`/proc/self/exe`).
+- **Dynamic `LD_PRELOAD` Wrapper Pattern (`scripts/lib/install.sh`)**:
+  - The launcher wrapper script conditionally injects `cloud_redirect.so` into the 32-bit Steam client runtime:
+    ```sh
+    CR_SO="$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
+    if [ -f "$HOME/.config/navi/cloud_enabled" ] && [ ! -f "$HOME/.config/CloudRedirect/disable" ] && [ -f "$CR_SO" ]; then
+        case ":${LD_PRELOAD:-}:" in
+            *":$CR_SO:"*) ;;
+            *) export LD_PRELOAD="${CR_SO}${LD_PRELOAD:+:${LD_PRELOAD}}" ;;
+        esac
+    fi
+    ```
+  - **Gate Conditions**: Requires existence of `$HOME/.config/navi/cloud_enabled` and absence of killswitch `$HOME/.config/CloudRedirect/disable`.
+  - **Dedup & Precedence**: Prepends `cloud_redirect.so` to `LD_PRELOAD` using POSIX parameter expansion with `:` delimiter deduplication, preserving any user-defined `LD_PRELOAD` paths.
+- **Out-of-Process Idle Helper Execution**:
+  - Queue processing and save directory modifications (`bin/navi-cloud-apply-pending --process-all`) must execute strictly **before** Steam launches.
+  - In-process save resets, file overwrites, or pending queue processing while `steam` or `steamwebhelper` processes are active are strictly prohibited to avoid runtime dynamic linker (`rtld`) lock deadlocks, SQLite lockups, and file corruption.
+
+## 8. CLI Exit Code Semantics & stdout Parsing
+- **Non-Standard Exit Code Semantics**:
+  - `cloud_redirect_cli` does not follow traditional POSIX conventions where non-zero strictly signifies an execution failure:
+    - Exit code `0`: Indicates active, logged-in, or redirected state (e.g. `status` when authenticated and enabled, `app-status` when actively redirected).
+    - Exit code `1`: Represents an informational status (e.g. `status` when not logged in or disabled, `app-status` when an app is not currently redirected).
+  - True execution errors typically return other error codes (e.g. 127 for not found or OS signals).
+- **Caller Guardrails (`CloudManager`)**:
+  - Callers like `CCloudManager` must never treat exit code `1` as a fatal failure.
+  - Callers must capture `stdout` (and `stderr`), parse the structured JSON payload or text substrings (e.g., using `ExtractJsonSubstring`), and evaluate fields (such as `authenticated` or `redirected`) to determine application state.
