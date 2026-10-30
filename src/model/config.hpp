@@ -83,6 +83,13 @@ public:
 	MTVariable<std::string> depotBoxKey;
 	MTVariable<std::string> hubcapKey;
 
+	// Cloud Saves (CloudRedirect)
+	MTVariable<bool> cloudSavesEnabled{false};
+	MTVariable<std::string> cloudSavesProvider{"local-only"};
+	MTVariable<std::unordered_set<AppId_t>> cloudSavesManagedApps;
+	MTVariable<bool> cloudAutoBackupBeforeReset{true};
+	MTVariable<uint32_t> cloudBackupRetentionCount{5};
+
 	std::mutex appsChangedMutex;
 	std::unordered_set<AppId_t> newApps;
 	std::unordered_set<AppId_t> removedApps;
@@ -280,6 +287,7 @@ public:
 
 	bool shouldExcludeAppId(const AppId_t appId, const bool ignoreAdditionalApps = false);
 	CSteamId getDenuvoGameOwner(const AppId_t appId);
+	bool IsAppCloudRedirected(AppId_t appId) const;
 };
 
 extern CConfig g_config;

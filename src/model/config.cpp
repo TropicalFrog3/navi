@@ -415,6 +415,24 @@ bool CConfig::loadSettings(bool firstLoad)
 		setError(ELoadError::MissingKey, "DenuvoGames");
 	}
 
+	const auto cloudSavesNode = node["CloudSaves"];
+	if (cloudSavesNode)
+	{
+		cloudSavesEnabled.set(getSetting<bool>(cloudSavesNode, "Enabled", false));
+		cloudSavesProvider.set(getSetting<std::string>(cloudSavesNode, "Provider", "local-only"));
+		cloudAutoBackupBeforeReset.set(getSetting<bool>(cloudSavesNode, "AutoBackupBeforeReset", true));
+		cloudBackupRetentionCount.set(getSetting<uint32_t>(cloudSavesNode, "BackupRetentionCount", 5));
+		cloudSavesManagedApps.set(getList<AppId_t>(cloudSavesNode, "ManagedApps"));
+	}
+	else
+	{
+		cloudSavesEnabled.set(false);
+		cloudSavesProvider.set("local-only");
+		cloudAutoBackupBeforeReset.set(true);
+		cloudBackupRetentionCount.set(5);
+		cloudSavesManagedApps.set({});
+	}
+
 	const auto errors = __loadErrors.get();
 	if (errors.size())
 	{
@@ -433,6 +451,17 @@ bool CConfig::loadSettings(bool firstLoad)
 bool CConfig::isAddedAppId(const AppId_t appId)
 {
 	return addedAppIds.get().contains(appId);
+}
+
+bool CConfig::IsAppCloudRedirected(AppId_t appId) const
+{
+	auto* self = const_cast<CConfig*>(this);
+	if (!appId || !self->cloudSavesEnabled.get())
+	{
+		return false;
+	}
+
+	return self->cloudSavesManagedApps.get().contains(appId);
 }
 
 bool CConfig::shouldExcludeAppId(const AppId_t appId, const bool ignoreAdditionalApps)

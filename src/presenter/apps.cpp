@@ -1183,6 +1183,11 @@ bool Apps::shouldDisableCloud(const AppId_t appId)
 		return false;
 	}
 
+	if (g_config.IsAppCloudRedirected(appId))
+	{
+		return false;
+	}
+
 	if (g_config.isAddedAppId(appId) ||
 	    isInstalled(appId) ||
 	    isOnlineFixInstalled(appId) ||

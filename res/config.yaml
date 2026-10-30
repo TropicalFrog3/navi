@@ -111,6 +111,13 @@ API: no
 #Disable cloud saves for unlocked games. Set to "no" if using CloudRedirect or similar.
 DisableCloud: yes
 
+CloudSaves:
+  Enabled: false
+  Provider: "local-only"
+  ManagedApps: []
+  AutoBackupBeforeReset: true
+  BackupRetentionCount: 5
+
 #Disable updates for AppIds on AdditionalApps
 #Only works for unowned games, since those do not get any depots from CUserAppManager::BuildDepotDependency.
 #For owned games use ManifestIds

@@ -92,6 +92,7 @@ UNIT_TEST_PROD_SRCS := \
 	src/model/sdk/protobufs/steammessages_clientserver_2.pb.cpp \
 	src/presenter/apps.cpp \
 	src/presenter/autoupdate.cpp \
+	src/presenter/cloudredirect.cpp \
 	src/presenter/luagenerator.cpp \
 	src/presenter/nativeinstall.cpp \
 	src/presenter/process_lock.cpp \
