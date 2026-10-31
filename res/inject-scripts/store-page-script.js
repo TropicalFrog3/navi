@@ -24,6 +24,7 @@
         delete naviPending[id];
         p(status, body);
     };
+    window.naviFetch = naviFetch;
     function naviFetch(url, opts) {
         return new Promise(function(resolve, reject) {
             var path = String(url).replace(/^http:\/\/127\.0\.0\.1:9001/, '');
@@ -849,6 +850,9 @@
         if (document.getElementById('sls-overlay-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-overlay-modal');
         overlay.dataset.slsAppid = String(appid);
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,12,18,0.85);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
         var order = getProviderOrder();
@@ -879,7 +883,7 @@
         overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 6px; padding: 18px 22px; width: 680px; max-width:calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; box-sizing: border-box;" id="sls-modal-card">' +
             '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-shrink:0;">' +
             '<div><h2 style="margin:0; font-size:20px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Lua download provider</h2><p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appid + '</p></div>' +
-            '<button id="sls-provider-close" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button></div>' +
+            '<button id="sls-provider-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button></div>' +
             '<div id="sls-provider-rows" style="flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 6px; padding-left: 2px; padding-top: 2px; padding-bottom: 2px; display: flex; flex-direction: column; gap: 6px; overscroll-behavior: contain;">' + rows + '</div>' +
             '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-shrink:0;">' +
             '<button id="sls-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;">Clear App Cache</button>' +
@@ -1103,6 +1107,9 @@
             if (document.getElementById('sls-remove-overlay')) return;
             var overlay = document.createElement('div');
             overlay.id = 'sls-remove-overlay';
+            overlay.setAttribute('role', 'dialog');
+            overlay.setAttribute('aria-modal', 'true');
+            overlay.setAttribute('data-testid', 'sls-remove-overlay');
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
             overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
                 '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
@@ -1171,6 +1178,9 @@
         if (document.getElementById('sls-overlay-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-overlay-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
         var currentRyuu = configApiKeys['sls-ryuu-key'] || '';
         var currentDpbx = configApiKeys['sls-dpbx-key'] || '';
@@ -1183,7 +1193,7 @@
                     '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">API Credentials</h2>' +
                     '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
                 '</div>' +
-                '<button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button>' +
+                '<button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
             '</div>' +
             '<!-- API Settings Section -->' +
             '<div>' +

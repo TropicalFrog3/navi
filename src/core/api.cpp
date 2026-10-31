@@ -167,6 +167,8 @@ void NaviAPI::init()
 	if (fd == -1)
 	{
 		LOG_NOTIFYWARN("Failed to watch %s!\n API will be unavailable", path);
+		delete watcher;
+		watcher = nullptr;
 		return;
 	}
 
@@ -174,6 +176,17 @@ void NaviAPI::init()
 
 	watcher->start();
 	LOG_DEBUG("Navi API initialized!\n");
+}
+
+void NaviAPI::shutdown()
+{
+	if (watcher)
+	{
+		watcher->stop();
+		delete watcher;
+		watcher = nullptr;
+	}
+	initialized = false;
 }
 
 void NaviAPI::runCompatOps()

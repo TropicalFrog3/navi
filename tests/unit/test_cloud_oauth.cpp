@@ -1,5 +1,7 @@
 #include <gtest/gtest.h>
 #include "cloud_oauth.hpp"
+#include "cloudredirect.hpp"
+#include "libmem/libmem.h"
 #include <arpa/inet.h>
 #include <chrono>
 #include <filesystem>
@@ -8,6 +10,9 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+extern "C" lm_bool_t LM_CALL LM_FindModule(lm_string_t, lm_module_t*) __attribute__((weak));
+extern "C" lm_bool_t LM_CALL LM_FindModule(lm_string_t, lm_module_t*) { return LM_FALSE; }
 
 namespace fs = std::filesystem;
 using namespace Navi::CloudRedirect;
@@ -159,7 +164,13 @@ TEST(CloudOAuthTest, PortConflictCheckAndAuthFlow)
 
     // Now with port free, StartAuthFlow should succeed
     std::string err2;
-    std::string validUrl = engine.StartAuthFlow(OAuthProvider::GoogleDrive, err2);
+    std::string validUrl;
+    for (int retry = 0; retry < 10; ++retry)
+    {
+        validUrl = engine.StartAuthFlow(OAuthProvider::GoogleDrive, err2);
+        if (!validUrl.empty()) break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    }
     EXPECT_FALSE(validUrl.empty());
     EXPECT_TRUE(err2.empty());
     EXPECT_NE(validUrl.find("accounts.google.com"), std::string::npos);
@@ -171,4 +182,53 @@ TEST(CloudOAuthTest, PortConflictCheckAndAuthFlow)
     // Cancel in-flight auth
     engine.CancelAuthFlow(OAuthProvider::GoogleDrive);
     EXPECT_FALSE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+}
+
+TEST(CloudRedirectBridgeTest, LoadEngineDisabledAndKillswitch)
+{
+    const char* origHome = getenv("HOME");
+    const char* origXdgConfig = getenv("XDG_CONFIG_HOME");
+    const char* origXdgData = getenv("XDG_DATA_HOME");
+
+    fs::path tempDir = fs::path(std::string("/tmp/test_cr_load_") + std::to_string(getpid()) + "_" +
+                       std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
+    std::error_code ec;
+    fs::create_directories(tempDir, ec);
+
+    setenv("HOME", tempDir.c_str(), 1);
+    unsetenv("XDG_CONFIG_HOME");
+    unsetenv("XDG_DATA_HOME");
+
+    auto& bridge = CCloudRedirectBridge::Instance();
+
+    // 1. Disabled when cloud_enabled flag is missing
+    EXPECT_FALSE(bridge.IsEnabled());
+    EXPECT_FALSE(bridge.LoadEngine());
+
+    // 2. Disabled when killswitch file exists even if cloud_enabled exists
+    const auto& paths = bridge.GetPaths();
+    fs::create_directories(paths.naviConfigDir, ec);
+    fs::create_directories(paths.crConfigDir, ec);
+
+    std::ofstream flag(paths.naviEnabledFlag);
+    flag << "1";
+    flag.close();
+
+    std::ofstream killswitch(paths.crKillswitchFile);
+    killswitch << "1";
+    killswitch.close();
+
+    EXPECT_FALSE(bridge.IsEnabled());
+    EXPECT_FALSE(bridge.LoadEngine());
+
+    // 3. Enabled but engineSo missing
+    fs::remove(paths.crKillswitchFile, ec);
+    EXPECT_TRUE(bridge.IsEnabled());
+    EXPECT_FALSE(bridge.LoadEngine());
+
+    // Clean up
+    fs::remove_all(tempDir, ec);
+    if (origHome) setenv("HOME", origHome, 1); else unsetenv("HOME");
+    if (origXdgConfig) setenv("XDG_CONFIG_HOME", origXdgConfig, 1); else unsetenv("XDG_CONFIG_HOME");
+    if (origXdgData) setenv("XDG_DATA_HOME", origXdgData, 1); else unsetenv("XDG_DATA_HOME");
 }

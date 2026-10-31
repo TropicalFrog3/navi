@@ -45,6 +45,7 @@ namespace Navi::CloudRedirect
         PlatformTier DetectPlatformTier() const;
         const ResolvedPaths_t& GetPaths() const;
         bool IsEnabled() const;
+        bool LoadEngine();
         bool DetectStandaloneInstallation() const;
         bool SetEnabledState(bool enable);
         bool SyncSlsSteamConfig(const std::unordered_set<AppId_t>& managedApps);

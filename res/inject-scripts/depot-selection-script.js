@@ -136,6 +136,9 @@
 
     var overlay = document.createElement('div');
     overlay.id = 'sls-depot-overlay-modal';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('data-testid', 'sls-depot-overlay-modal');
     overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,12,18,0.85);z-index:2147483647;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:1;';
 
     var cardHtml = '<div style="background: linear-gradient(145deg, #161920 0%, #0d0f14 100%); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 28px; width: 480px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 50px rgba(0,0,0,0.6); font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; color: #f5f6f8; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-depot-modal-card">' +
@@ -145,11 +148,11 @@
                 '<h2 style="margin:0; font-size:22px; font-weight:700; background: linear-gradient(90deg, #fff 0%, #a5aab6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Select Depots</h2>' +
                 '<p style="margin:4px 0 0; font-size:12px; color:#6b7280; font-weight: 500;">AppID: <span style="color:#9ca3af; font-family:monospace;">' + appid + '</span></p>' +
             '</div>' +
-            '<button id="sls-depot-close-x" style="background:rgba(255,255,255,0.05); border:none; color:#9ca3af; font-size:20px; cursor:pointer; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition: all 0.2s;">&times;</button>' +
+            '<button id="sls-depot-close-x" aria-label="Close" style="background:rgba(255,255,255,0.05); border:none; color:#9ca3af; font-size:20px; cursor:pointer; width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition: all 0.2s;">&times;</button>' +
         '</div>' +
         '<!-- Content -->' +
         '<div id="sls-depot-content" style="flex-grow: 1; overflow-y: auto; margin-bottom: 24px; padding-right: 8px;">' +
-            '<div class="sls-loading-header" id="sls-depot-loading-status">' +
+            '<div class="sls-loading-header" id="sls-depot-loading-status" role="status" aria-live="polite">' +
                 '<div class="sls-spinner"></div>' +
                 '<div class="sls-loading-text-wrap">' +
                     '<span class="sls-loading-title">Loading depots & details…</span>' +

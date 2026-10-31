@@ -226,6 +226,10 @@ namespace Hooks
 	extern DetourHook<CSteamUIAppController_BuildCompleteAppOverviewChange_t> CSteamUIAppController_BuildCompleteAppOverviewChange;
 	extern DetourHook<CSteamUIAppController_RunFrame_t> CSteamUIAppController_RunFrame;
 
+	// ubuntu12_32/steam (main executable)
+	typedef void(*CSteamApp_Shutdown_t)(void*);
+	extern DetourHook<CSteamApp_Shutdown_t> CSteamApp_Shutdown;
+
 	bool setup();
 	void place();
 	void placeVFTHooks();

@@ -85,6 +85,8 @@ static std::vector<int> parseProviderOrder(const std::string& value)
 #include <fcntl.h>
 #include <cstring>
 #include <cerrno>
+#include <sys/eventfd.h>
+#include <poll.h>
 
 namespace StoreInject
 {
@@ -93,6 +95,7 @@ namespace StoreInject
     static std::set<uint32_t> g_pendingRestartApps;
     static std::atomic<bool> g_shouldStop(false);
     static std::atomic<int> g_serverFd{-1};
+    static std::atomic<int> g_wakeFd{-1};
     static std::atomic<bool> g_shutdownCalled{false};
     static std::string g_naviAuthToken;
 
@@ -169,6 +172,7 @@ namespace StoreInject
                                "Access-Control-Allow-Origin: *\r\n"
                                "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
                                "Access-Control-Allow-Headers: Content-Type\r\n"
+                               "Access-Control-Allow-Headers: Content-Type, X-Navi-Auth\r\n"
                                "Connection: close\r\n"
                                "Content-Length: " + std::to_string(jsonBody.size()) + "\r\n\r\n" + jsonBody;
         send(sock, response.c_str(), response.size(), 0);
@@ -182,6 +186,7 @@ namespace StoreInject
                                "Access-Control-Allow-Origin: *\r\n"
                                "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
                                "Access-Control-Allow-Headers: Content-Type\r\n"
+                               "Access-Control-Allow-Headers: Content-Type, X-Navi-Auth\r\n"
                                "Connection: close\r\n"
                                "Content-Length: " + std::to_string(htmlBody.size()) + "\r\n\r\n" + htmlBody;
         send(sock, response.c_str(), response.size(), 0);
@@ -703,12 +708,14 @@ namespace StoreInject
         auto pages = CDPInject::fetchPages();
         for (const auto& page : pages)
         {
+            if (g_shouldStop) break;
             if (page.webSocketDebuggerUrl.empty() ||
                 page.url.find("store.steampowered.com") == std::string::npos)
                 continue;
 
             std::string authInjectJs = "if (!window.__naviAuthToken) { window.__naviAuthToken = \"" + getNaviAuthToken() + "\"; }";
             CDPInject::injectJS(page.webSocketDebuggerUrl, authInjectJs);
+            if (g_shouldStop) break;
 
             std::string encoded = CDPInject::evalString(page.webSocketDebuggerUrl, kDrainExpr);
             if (encoded.empty()) continue;
@@ -717,6 +724,7 @@ namespace StoreInject
             std::string line;
             while (std::getline(lines, line))
             {
+                if (g_shouldStop) break;
                 size_t sp = line.find(' ');
                 if (sp == std::string::npos || sp == 0 || sp + 1 >= line.size()) continue;
                 std::string id = line.substr(0, sp);
@@ -728,6 +736,7 @@ namespace StoreInject
 
                 std::string body;
                 int status = loopbackRequest(path, body);
+                if (g_shouldStop) break;
 
                 std::string js = "window.__naviResolve && window.__naviResolve(\"" + id + "\"," +
                                  std::to_string(status) + ",decodeURIComponent(\"" + urlEncode(body) + "\"));";
@@ -739,7 +748,12 @@ namespace StoreInject
     static void automationWorker()
     {
         LOG_INFO("StoreInject: Automation worker started\n");
-        
+
+        for (int i = 0; i < 30 && !g_shouldStop; ++i)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        }
+
         int checkCounter = 100;
         int bridgeCounter = 0;
 
@@ -749,11 +763,23 @@ namespace StoreInject
             int sock = CDPInject::tcpConnect("127.0.0.1", 8080, 1);
             if (sock >= 0)
             {
+                if (g_shouldStop)
+                {
+                    close(sock);
+                    break;
+                }
+
                 // Serve store-page requests roughly every 300ms
                 if (bridgeCounter++ >= 6)
                 {
                     bridgeCounter = 0;
                     pollPageBridge();
+                }
+
+                if (g_shouldStop)
+                {
+                    close(sock);
+                    break;
                 }
 
                 // Trigger the C++ CDP injector every 5 seconds to inject new pages
@@ -775,8 +801,11 @@ namespace StoreInject
                 }
                 close(sock);
             }
-            
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+            for (int i = 0; i < 5 && !g_shouldStop; ++i)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
         }
     }
 
@@ -808,21 +837,34 @@ namespace StoreInject
             return;
         }
 
+        int wake_fd = g_wakeFd.load();
+
         LOG_INFO("StoreInject: Callback server listening on port 9001\n");
 
         while (!g_shouldStop)
         {
-            struct timeval tv;
-            tv.tv_sec = 1;
-            tv.tv_usec = 0;
-            fd_set readfds;
-            FD_ZERO(&readfds);
-            FD_SET(server_fd, &readfds);
+            struct pollfd pfds[2];
+            pfds[0].fd = server_fd;
+            pfds[0].events = POLLIN;
+            pfds[0].revents = 0;
+            pfds[1].fd = wake_fd;
+            pfds[1].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
+            pfds[1].revents = 0;
 
-            if (select(server_fd + 1, &readfds, NULL, NULL, &tv) > 0)
+            int ret = poll(pfds, 2, 1000);
+            if (ret > 0)
             {
-                if ((new_socket = accept4(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen, SOCK_CLOEXEC)) >= 0)
+                if (wake_fd >= 0 && (pfds[1].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL)))
                 {
+                    uint64_t val = 0;
+                    (void)read(wake_fd, &val, sizeof(val));
+                    if (g_shouldStop) break;
+                }
+
+                if (pfds[0].revents & POLLIN)
+                {
+                    if ((new_socket = accept4(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen, SOCK_CLOEXEC)) >= 0)
+                    {
                     std::string request = readFullHttpRequest(new_socket);
                     bool handled = false;
                     if (!request.empty())
@@ -2023,6 +2065,7 @@ namespace StoreInject
                 }
             }
         }
+    }
         int fd = g_serverFd.exchange(-1);
         if (fd >= 0) close(fd);
     }
@@ -2034,23 +2077,26 @@ namespace StoreInject
         g_shouldStop = false;
         getNaviAuthToken();
 
+        int prev_wfd = g_wakeFd.exchange(eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC));
+        if (prev_wfd >= 0) ::close(prev_wfd);
+
         // Start the callback server immediately as it's just a passive listener
         g_workerThread = std::thread(callbackServer);
 
-        // Delay the automation worker by 3 seconds to let Steam initialize safely
-        std::thread([]() {
-            std::this_thread::sleep_for(std::chrono::seconds(3));
-            if (!g_shouldStop) {
-                g_autoThread = std::thread(automationWorker);
-                g_autoThread.detach(); 
-            }
-        }).detach();
+        // Automation worker delays internally and is joinable
+        g_autoThread = std::thread(automationWorker);
     }
 
     void shutdown()
     {
         if (g_shutdownCalled.exchange(true)) return;
         g_shouldStop = true;
+        int wfd_signal = g_wakeFd.load();
+        if (wfd_signal >= 0)
+        {
+            uint64_t val = 1;
+            (void)write(wfd_signal, &val, sizeof(val));
+        }
         int fd = g_serverFd.exchange(-1);
         if (fd >= 0)
         {
@@ -2060,6 +2106,15 @@ namespace StoreInject
         if (g_workerThread.joinable())
         {
             g_workerThread.join();
+        }
+        if (g_autoThread.joinable())
+        {
+            g_autoThread.join();
+        }
+        int wfd = g_wakeFd.exchange(-1);
+        if (wfd >= 0)
+        {
+            ::close(wfd);
         }
     }
 }

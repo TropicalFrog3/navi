@@ -1,5 +1,6 @@
 ---
 description: Guidelines for implementing memory hooks and byte patterns in the Navi C++ codebase.
+trigger: always_on
 ---
 # C++ Memory Hooking & Pattern Resolution
 

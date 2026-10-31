@@ -1,0 +1,120 @@
+{
+  "console": [],
+  "network": [
+    {
+      "url": "http://127.0.0.1:9001/cloud/status",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "x-navi-auth",
+        "Access-Control-Request-Method": "GET",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414257.187969
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/pending-ops",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "x-navi-auth",
+        "Access-Control-Request-Method": "GET",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414257.1892445
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/status",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414257.1897354
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/pending-ops",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414257.191096
+    },
+    {
+      "url": "http://127.0.0.1:9001/check?id=1443430",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414257.1943338
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/status",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "x-navi-auth",
+        "Access-Control-Request-Method": "GET",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414257.1972332
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/status",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414257.1978464
+    },
+    {
+      "url": "http://127.0.0.1:9001/check?id=1443430",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414257.2298276
+    }
+  ]
+}

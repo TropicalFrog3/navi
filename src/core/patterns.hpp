@@ -62,6 +62,11 @@ namespace Patterns
 		extern Pattern_t RunFrame;
 	}
 
+	namespace SteamApp
+	{
+		extern Pattern_t Shutdown;
+	}
+
 	namespace CPackageInfoCache
 	{
 		extern Pattern_t GetPackageInfo;

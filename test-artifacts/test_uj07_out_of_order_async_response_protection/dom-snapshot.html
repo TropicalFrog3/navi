@@ -1,0 +1,387 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steam Library - Rogue (AppID: 1443430)</title>
+    <style>
+        :root {
+            --bg-dark: #171d25;
+            --bg-darker: #0e141b;
+            --card-bg: #1e232d;
+            --accent-blue: #1a9fff;
+            --text-primary: #dcdedf;
+            --text-muted: #8f98a0;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            font-family: "Motiva Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+            overflow-x: hidden;
+        }
+        /* Top Bar */
+        .steam-top-bar {
+            height: 40px;
+            background: var(--bg-darker);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        ._1Ky59qmywxOUtNcI1cgmkX {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+        /* Navigation Container */
+        ._2D64jIEK7wpUR_NlObDW76 {
+            height: 48px;
+            background: rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            gap: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        ._2Lu3d-5qLmW4i19ysTt2jT {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        ._2Lu3d-5qLmW4i19ysTt2jT:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        ._1gqEjB5QsKT_NftD1dEsdZ {
+            color: #fff;
+            border-bottom: 2px solid var(--accent-blue);
+            border-radius: 4px 4px 0 0;
+        }
+        /* Library Content Layout */
+        .library-wrapper {
+            display: flex;
+            height: calc(100vh - 88px);
+        }
+        .library-sidebar {
+            width: 260px;
+            background: rgba(0, 0, 0, 0.15);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            box-sizing: border-box;
+        }
+        .sidebar-item {
+            padding: 10px 14px;
+            border-radius: 4px;
+            color: var(--text-primary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(26, 159, 255, 0.12);
+            border-left: 3px solid var(--accent-blue);
+        }
+        .app-details-container {
+            flex: 1;
+            padding: 32px 48px;
+            background: radial-gradient(circle at top right, #222b35 0%, #171d25 60%);
+            overflow-y: auto;
+        }
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .app-title-group h1 {
+            margin: 0;
+            font-size: 38px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+        .app-title-group .app-meta {
+            margin-top: 6px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+        .app-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .btn-play {
+            background: linear-gradient(90deg, #47bfff 0%, #1a9fff 100%);
+            color: #fff;
+            font-weight: 700;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            padding: 12px 36px;
+            cursor: pointer;
+        }
+        .btn-manage-container {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        div[aria-label="Manage"] {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 10px 14px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        div[aria-label="Manage"]:hover {
+            background: rgba(255, 255, 255, 0.16);
+            color: #fff;
+        }
+        .app-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 18px;
+        }
+        .stat-title {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+        }
+        .stat-value {
+            font-size: 22px;
+            font-weight: 700;
+            margin-top: 6px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="app_1443430" data-appid="1443430">
+    <!-- Top Bar with version target class -->
+    <div class="steam-top-bar">
+        <div class="_1Ky59qmywxOUtNcI1cgmkX" id="steam-top-bar-inner">
+            <span>Steam Client Shell</span>
+        </div>
+    </div>
+
+    <!-- Navigation Bar with SuperNav target class -->
+    <div class="_2D64jIEK7wpUR_NlObDW76" id="steam-supernav">
+        <div class="_2Lu3d-5qLmW4i19ysTt2jT _19axKcqYRuaJ8vdYKYmtTQ">STORE</div>
+        <div class="_2Lu3d-5qLmW4i19ysTt2jT _1gqEjB5QsKT_NftD1dEsdZ _19axKcqYRuaJ8vdYKYmtTQ">LIBRARY</div>
+        <div class="_2Lu3d-5qLmW4i19ysTt2jT _19axKcqYRuaJ8vdYKYmtTQ">COMMUNITY</div>
+    </div>
+
+    <div class="library-wrapper">
+        <div class="library-sidebar">
+            <div style="margin-bottom: 12px;">
+                <input type="text" id="library-search-input" placeholder="Search by name..." style="width: 100%; box-sizing: border-box; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 4px; padding: 6px 10px; color: #fff; font-size: 13px; outline: none;">
+            </div>
+            <div id="library-items-list">
+                <div class="sidebar-item" data-appid="1443430" data-game-title="Rogue">
+                    <span>🎮</span>
+                    <span>Rogue</span>
+                </div>
+                <div class="sidebar-item" data-appid="440" data-game-title="Team Fortress 2">
+                    <span>🎮</span>
+                    <span>Team Fortress 2</span>
+                </div>
+                <div class="sidebar-item" data-appid="730" data-game-title="Counter-Strike 2">
+                    <span>🎮</span>
+                    <span>Counter-Strike 2</span>
+                </div>
+                <div class="sidebar-item" data-appid="620" data-game-title="Portal 2">
+                    <span>🎮</span>
+                    <span>Portal 2</span>
+                </div>
+                <div class="sidebar-item" data-appid="570" data-game-title="Dota 2">
+                    <span>🎮</span>
+                    <span>Dota 2</span>
+                </div>
+            </div>
+            <div id="library-empty-search-state" style="display: none; padding: 16px; text-align: center; color: var(--text-muted); font-size: 13px;">
+                No games match your search.
+            </div>
+        </div>
+
+        <div class="app-details-container" id="app-details-container" data-appid="1443430">
+            <div class="app-header">
+                <div class="app-title-group">
+                    <h1>Rogue</h1>
+                    <div class="app-meta">AppID: 1443430 • Installed • Cloud Saves Ready</div>
+                </div>
+                <div class="app-actions">
+                    <button class="btn-play Focusable">PLAY</button>
+                    <div class="btn-manage-container" id="manage-btn-parent-wrapper">
+                        <div class="btn-manage-inner-parent" id="manage-btn-container">
+                            <div aria-label="Manage" class="Focusable" role="button" tabindex="0">
+                                <span>⚙️</span>
+                                <span>Manage</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-title">Cloud Status</div>
+                    <div class="stat-value" style="color: #4ade80;">Active</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Time Played</div>
+                    <div class="stat-value">42.5 hrs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Achievements</div>
+                    <div class="stat-value">18 / 24</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Set mock auth token
+        window.__naviAuthToken = "test_auth_token_phase1";
+
+        // Initialize mock React Fiber on Manage button
+        (function() {
+            var manageBtn = document.querySelector('div[aria-label="Manage"]');
+            if (manageBtn) {
+                var mockFiber = {
+                    memoizedProps: {
+                        appid: 1443430,
+                        node: {
+                            constructor: function(tree, parent, properties) {
+                                this.m_Tree = tree;
+                                this.m_Parent = parent;
+                                this.m_Properties = properties || {};
+                                this.SetProperties = function(p) { this.m_Properties = Object.assign(this.m_Properties, p); };
+                                this.OnMount = function(el) {};
+                            }
+                        }
+                    },
+                    return: null
+                };
+                manageBtn.__reactFiber$testMock = mockFiber;
+                if (manageBtn.parentNode) {
+                    manageBtn.parentNode.__reactFiber$testMock = mockFiber;
+                }
+            }
+
+            // Mock React Router history on SuperNav container for import-lua-script
+            var superNav = document.querySelector('._2D64jIEK7wpUR_NlObDW76');
+            if (superNav) {
+                var listeners = [];
+                var mockHistory = {
+                    listen: function(cb) {
+                        listeners.push(cb);
+                        return function() {
+                            var idx = listeners.indexOf(cb);
+                            if (idx >= 0) listeners.splice(idx, 1);
+                        };
+                    },
+                    push: function(path) {
+                        listeners.forEach(function(cb) { cb({ pathname: path }); });
+                    }
+                };
+                superNav.__reactFiber$superNav = {
+                    memoizedProps: {
+                        history: mockHistory
+                    },
+                    return: null
+                };
+            }
+
+            // Mock Steam collectionStore and appStore for auto-collection.js
+            window.collectionStore = {
+                userCollections: [],
+                m_mapCollectionsFromStorage: new Map(),
+                GetUserCollectionsByName: function(name) {
+                    return this.userCollections.filter(function(c) { return c.name === name; });
+                },
+                NewUnsavedCollection: function(name, filter, appIds) {
+                    return {
+                        id: 'col_' + Math.random().toString(36).slice(2),
+                        name: name,
+                        apps: (appIds || []).slice()
+                    };
+                },
+                SaveCollection: function(col) {
+                    if (!this.userCollections.includes(col)) {
+                        this.userCollections.push(col);
+                    }
+                    this.m_mapCollectionsFromStorage.set(col.id, col);
+                },
+                AddOrRemoveApp: function(appIds, isAdd, colId) {
+                    var col = this.userCollections.find(function(c) { return c.id === colId; });
+                    if (col) {
+                        if (isAdd) {
+                            appIds.forEach(function(id) {
+                                if (!col.apps.includes(id)) col.apps.push(id);
+                            });
+                        } else {
+                            col.apps = col.apps.filter(function(id) { return !appIds.includes(id); });
+                        }
+                    }
+                }
+            };
+
+            window.appStore = {
+                GetAppOverviewByAppID: function(appId) {
+                    if (Number(appId) === 9999999) return null;
+                    return { appid: Number(appId), display_name: "Game " + appId };
+                }
+            };
+
+            // Setup debounced library search
+            var searchInput = document.getElementById('library-search-input');
+            var emptyState = document.getElementById('library-empty-search-state');
+            var searchDebounceTimer = null;
+            var latestSearchQuerySeq = 0;
+
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    clearTimeout(searchDebounceTimer);
+                    var currentSeq = ++latestSearchQuerySeq;
+                    searchDebounceTimer = setTimeout(function() {
+                        if (currentSeq !== latestSearchQuerySeq) return; // Out-of-order protection
+                        var q = searchInput.value.trim().toLowerCase();
+                        var items = document.querySelectorAll('#library-items-list .sidebar-item');
+                        var visibleCount = 0;
+                        items.forEach(function(el) {
+                            var title = (el.getAttribute('data-game-title') || el.textContent || '').toLowerCase();
+                            var matches = !q || title.indexOf(q) !== -1;
+                            el.style.display = matches ? 'flex' : 'none';
+                            if (matches) visibleCount++;
+                        });
+                        if (emptyState) {
+                            emptyState.style.display = (visibleCount === 0 && q) ? 'block' : 'none';
+                        }
+                    }, 50);
+                });
+            }
+        })();
+    </script>
+
+
+
+</body></html>

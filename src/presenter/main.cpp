@@ -19,10 +19,12 @@
 #include "nativeinstall.hpp"
 #include "vftableinfo.hpp"
 #include "legacy_migration.hpp"
+#include "cloudredirect.hpp"
 
 #include "libmem/libmem.h"
 #include <curl/curl.h>
 
+#include <atomic>
 #include <chrono>
 #include <cstdio>
 #include <cstdlib>
@@ -80,23 +82,19 @@ static bool cleanEnvVar(const char* varName, const char* endsWith)
 //__attribute__((noreturn))
 static void unload()
 {
+	static std::atomic<bool> s_unloaded{false};
+	if (s_unloaded.exchange(true))
+	{
+		return;
+	}
+
+	StoreInject::shutdown();
 	Tier0Hook::remove();
 	CefSizeFix::removeSizeFixScript();
-	StoreInject::shutdown();
 	Hooks::remove();
+	NaviAPI::shutdown();
+	g_config.shutdown();
 	curl_global_cleanup();
-	//Hooks::remove();
-
-	//This is absolutely unnessecary for applications loading Navi where it cancels from setup()
-	//Would be nice to run have for failed load() attempts though 
-	//lm_module_t mod;
-	//if (LM_FindModule("libnavi.so", &mod))
-	//{
-	//	//TODO: Investigate crash ?
-	//	//Possibly: Might be because we're unmapping what ever thread we're running in
-	//	//munmap(reinterpret_cast<void*>(mod.base), mod.size);
-	//}
-	//exit(0);
 }
 
 //TODO: Remove when unload() works properly since it should not be needed anymore after that
@@ -156,6 +154,21 @@ static void setup()
 
 	LOG_DEBUG("Navi loading in %s\n", proc.name);
 
+	if (LM_FindModule(proc.name, &g_modSteam))
+	{
+		LOG_INFO("steam module found at 0x%x to 0x%x, path: %s\n", g_modSteam.base, g_modSteam.end, g_modSteam.path);
+		Decompiler::parseModule(g_modSteam);
+	}
+	else if (LM_FindModule("steam", &g_modSteam))
+	{
+		LOG_INFO("steam module found at 0x%x to 0x%x, path: %s\n", g_modSteam.base, g_modSteam.end, g_modSteam.path);
+		Decompiler::parseModule(g_modSteam);
+	}
+	else
+	{
+		LOG_WARN("Failed to find steam module!\n");
+	}
+
 	//Any release
 	cleanEnvVar("LD_AUDIT", "libnavi.so");
 	cleanEnvVar("LD_AUDIT", "library-inject.so");
@@ -172,6 +185,18 @@ static void setup()
 	{
 		unload();
 		return;
+	}
+
+	if (g_config.cloudSavesEnabled.get())
+	{
+		auto& bridge = Navi::CloudRedirect::CCloudRedirectBridge::Instance();
+		bridge.EnsureLocalOnlyConfig();
+		std::error_code ec;
+		if (!std::filesystem::exists(bridge.GetPaths().crKillswitchFile, ec))
+		{
+			bridge.SetEnabledState(true);
+		}
+		bridge.SyncSlsSteamConfig(g_config.cloudSavesManagedApps.get());
 	}
 
 	DepotKeys::loadDepotKeysYaml();
@@ -205,6 +230,14 @@ static void load()
 	if (!g_modSteamClient.base || !g_modSteamUI.base || !g_modTier0.base)
 	{
 		return;
+	}
+
+	if (!g_modSteam.base)
+	{
+		if (LM_FindModule("steam", &g_modSteam))
+		{
+			Decompiler::parseModule(g_modSteam);
+		}
 	}
 
 	const auto path = std::filesystem::path(g_modSteamClient.path);
@@ -273,6 +306,11 @@ static void load()
 		LOG_INFO("Tier0 hook installed - steamwebhelper will use pipe-based CDP\n");
 	} else {
 		LOG_WARN("Tier0 hook failed - falling back to port-based CDP\n");
+	}
+
+	if (g_config.cloudSavesEnabled.get())
+	{
+		Navi::CloudRedirect::CCloudRedirectBridge::Instance().LoadEngine();
 	}
 
 	// Inject the CEF size fix script into Steam's UI
@@ -429,6 +467,8 @@ __attribute__((constructor)) static void registerAuditEhFrame()
 __attribute__((destructor)) static void onLibraryUnload()
 {
 	StoreInject::shutdown();
+	NaviAPI::shutdown();
+	g_config.shutdown();
 	if (g_registeredEhFrameBegin != nullptr)
 	{
 		using DeregisterFrameInfoFn = void* (*)(const void*);

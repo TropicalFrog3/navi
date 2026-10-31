@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https: 'unsafe-inline' 'unsafe-eval'; connect-src https:;">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buy Rogue on Steam (AppID: 1443430)</title>
+    <style>
+        :root {
+            --bg-body: #1b2838;
+            --bg-area: #0e141b;
+            --btn-green: #5c7e10;
+            --btn-green-hover: #75a019;
+            --text-light: #c6d4df;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background: var(--bg-body);
+            color: var(--text-light);
+            font-family: "Motiva Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        .page_content {
+            max-width: 940px;
+            margin: 0 auto;
+        }
+        .game_title_area {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .game_title_area h2 {
+            margin: 0;
+            font-size: 26px;
+            color: #fff;
+        }
+        .game_area_purchase {
+            background: linear-gradient(135deg, rgba(38, 54, 76, 0.6) 0%, rgba(20, 29, 41, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 4px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+        }
+        .game_area_purchase_game {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .game_area_purchase_game h1 {
+            margin: 0;
+            font-size: 20px;
+            color: #fff;
+        }
+        .game_purchase_action {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .game_purchase_price {
+            font-size: 15px;
+            color: #fff;
+            padding-right: 12px;
+        }
+        .btn_addtocart, .btn_add_to_cart {
+            display: inline-block;
+        }
+        .btn_green_steamui {
+            background: linear-gradient(90deg, #799905 0%, #536904 100%);
+            border-radius: 2px;
+            display: inline-block;
+            padding: 2px;
+            text-decoration: none;
+            color: #d2efa9;
+            font-size: 15px;
+            cursor: pointer;
+        }
+        .btn_green_steamui > span {
+            background: linear-gradient(90deg, #587e12 0%, #3e5a09 100%);
+            display: block;
+            padding: 0 15px;
+            line-height: 30px;
+            border-radius: 2px;
+        }
+        .btn_green_steamui:hover > span {
+            background: linear-gradient(90deg, #6c9a17 0%, #4b6d0b 100%);
+            color: #fff;
+        }
+        /* Big picture mode summary bar */
+        #summaryBarTop {
+            display: block;
+            height: 2px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body data-ds-appid="1443430">
+    <div class="page_content">
+        <div class="game_title_area">
+            <h2>Rogue</h2>
+            <div style="font-size: 13px; color: #8f98a0; margin-top: 4px;">Community Hub &bull; Store Page</div>
+        </div>
+
+        <!-- Optional Big Picture mode top summary container -->
+        <div id="summaryBarTop"></div>
+
+        <div class="game_area_purchase" id="game_area_purchase" data-ds-appid="1443430">
+            <div class="game_area_purchase_game">
+                <h1>Buy Rogue</h1>
+                <div class="game_purchase_action">
+                    <div class="game_purchase_price">$9.99</div>
+                    <div class="game_purchase_action_bg">
+                        <div class="btn_addtocart">
+                            <a class="btn_green_steamui btn_medium" href="javascript:void(0)">
+                                <span>Add to Cart</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store dynamic store mocks
+        window.GDynamicStore = {
+            s_rgOwnedApps: {},
+            DecorateDynamicItems: function() {}
+        };
+
+        // Initialize queue
+        window.__naviQueue = window.__naviQueue || [];
+        window.__naviAuthToken = "test_auth_token_store";
+    </script>
+</body>
+</html>
+

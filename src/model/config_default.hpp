@@ -114,7 +114,7 @@ API: no
 DisableCloud: yes
 
 CloudSaves:
-  Enabled: false
+  Enabled: true
   Provider: "local-only"
   ManagedApps: []
   AutoBackupBeforeReset: true

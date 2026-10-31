@@ -53,6 +53,7 @@ namespace NaviAPI
 	bool isEnabled();
 	void onFileChange(const char* filename);
 	void init();
+	void shutdown();
 
 	void runCompatOps();
 	void runInstallOps();

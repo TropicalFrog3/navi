@@ -8,11 +8,16 @@
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
+#include <dlfcn.h>
 #include <fstream>
-#include <regex>
 #include <sstream>
+#include <string_view>
 #include <system_error>
 #include <vector>
+
+#include "libmem/libmem.h"
+
+extern "C" lm_bool_t LM_FindModule(lm_string_t name, lm_module_t *module_out) __attribute__((weak));
 
 namespace Navi::CloudRedirect
 {
@@ -46,15 +51,16 @@ namespace Navi::CloudRedirect
             }
 
             // Check if top-level DisableCloud:
-            std::regex disableCloudRegex(R"(^\s*DisableCloud\s*:.*$)");
-            if (std::regex_match(line, disableCloudRegex))
+            size_t firstNonWs = line.find_first_not_of(" \t");
+            std::string_view trimmed = (firstNonWs != std::string::npos) ? std::string_view(line.data() + firstNonWs, line.size() - firstNonWs) : std::string_view();
+
+            if (trimmed.starts_with("DisableCloud:") || trimmed.starts_with("DisableCloud "))
             {
                 continue;
             }
 
             // Check if top-level AdditionalApps:
-            std::regex addAppsRegex(R"(^\s*AdditionalApps\s*:.*$)");
-            if (std::regex_match(line, addAppsRegex))
+            if (trimmed.starts_with("AdditionalApps:") || trimmed.starts_with("AdditionalApps "))
             {
                 if (line.find('[') != std::string::npos)
                 {
@@ -193,6 +199,38 @@ namespace Navi::CloudRedirect
         const auto& paths = GetPaths();
         std::error_code ec;
         return std::filesystem::exists(paths.naviEnabledFlag, ec) && !std::filesystem::exists(paths.crKillswitchFile, ec);
+    }
+
+    bool CCloudRedirectBridge::LoadEngine()
+    {
+        if (!IsEnabled())
+        {
+            return false;
+        }
+
+        const auto paths = GetPaths();
+        std::error_code ec;
+        if (!std::filesystem::exists(paths.engineSo, ec))
+        {
+            LOG_WARN("CloudRedirect engine not found: %s\n", paths.engineSo.c_str());
+            return false;
+        }
+
+        lm_module_t mod{};
+        if (LM_FindModule != nullptr && LM_FindModule("cloud_redirect.so", &mod))
+        {
+            return true;
+        }
+
+        void* handle = dlopen(paths.engineSo.c_str(), RTLD_NOW | RTLD_GLOBAL);
+        if (!handle)
+        {
+            LOG_WARN("Failed to dlopen CloudRedirect engine: %s\n", dlerror());
+            return false;
+        }
+
+        LOG_INFO("CloudRedirect engine loaded successfully at %p\n", handle);
+        return true;
     }
 
     bool CCloudRedirectBridge::DetectStandaloneInstallation() const

@@ -168,6 +168,19 @@ namespace Patterns
 		};
 	}
 
+	namespace SteamApp
+	{
+		Pattern_t Shutdown
+		{
+			"CSteamApp::Shutdown",
+			"C6 46 4C 01 8D 86 94 00 00 00 89 04 24",
+			SigFollowMode::PrologueUpwards,
+			std::vector<int16_t> { 0x10, 0x24, 0x74, 0x8B, 0x53, 0x56, 0x57 },
+			&g_modSteam,
+			true
+		};
+	}
+
 	namespace CPackageInfoCache
 	{
 		Pattern_t GetPackageInfo

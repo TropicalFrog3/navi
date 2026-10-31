@@ -84,7 +84,7 @@ public:
 	MTVariable<std::string> hubcapKey;
 
 	// Cloud Saves (CloudRedirect)
-	MTVariable<bool> cloudSavesEnabled{false};
+	MTVariable<bool> cloudSavesEnabled{true};
 	MTVariable<std::string> cloudSavesProvider{"local-only"};
 	MTVariable<std::unordered_set<AppId_t>> cloudSavesManagedApps;
 	MTVariable<bool> cloudAutoBackupBeforeReset{true};
@@ -98,6 +98,7 @@ public:
 	CFileWatcher* watcher = nullptr;
 
 	~CConfig();
+	void shutdown();
 
 	std::string getDir() const;
 	std::string getPath() const;

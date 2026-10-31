@@ -3,6 +3,7 @@
 #include "log.hpp"
 #include "depotkeys.hpp"
 #include "config.hpp"
+#include "cloudredirect.hpp"
 #include <yaml-cpp/yaml.h>
 
 #include <cstdlib>
@@ -484,6 +485,33 @@ namespace StoreInjectView
             }
         }
 
+        // CloudSaves
+        bool csEnabled = g_config.cloudSavesEnabled.get();
+        std::string csProvider = g_config.cloudSavesProvider.get();
+        bool csAutoBackup = g_config.cloudAutoBackupBeforeReset.get();
+        uint32_t csRetention = g_config.cloudBackupRetentionCount.get();
+        std::vector<uint32_t> csManagedApps;
+        {
+            auto s = g_config.cloudSavesManagedApps.get();
+            csManagedApps.assign(s.begin(), s.end());
+            std::sort(csManagedApps.begin(), csManagedApps.end());
+        }
+        if (fileLoaded && node["CloudSaves"] && node["CloudSaves"].IsMap())
+        {
+            const auto csNode = node["CloudSaves"];
+            if (csNode["Enabled"]) { try { csEnabled = csNode["Enabled"].as<bool>(); } catch (...) {} }
+            if (csNode["Provider"]) { try { csProvider = csNode["Provider"].as<std::string>(); } catch (...) {} }
+            if (csNode["AutoBackupBeforeReset"]) { try { csAutoBackup = csNode["AutoBackupBeforeReset"].as<bool>(); } catch (...) {} }
+            if (csNode["BackupRetentionCount"]) { try { csRetention = csNode["BackupRetentionCount"].as<uint32_t>(); } catch (...) {} }
+            if (csNode["ManagedApps"] && csNode["ManagedApps"].IsSequence()) {
+                csManagedApps.clear();
+                for (const auto& item : csNode["ManagedApps"]) {
+                    try { csManagedApps.push_back(item.as<uint32_t>()); } catch (...) {}
+                }
+                std::sort(csManagedApps.begin(), csManagedApps.end());
+            }
+        }
+
         auto formatUint32Array = [](const std::vector<uint32_t>& vec) -> std::string {
             std::string s = "[";
             for (size_t i = 0; i < vec.size(); ++i)
@@ -542,7 +570,14 @@ namespace StoreInjectView
         ss << "  \"SubscriptionTimestamps\": " << formatStringMap(subscriptionTimestamps) << ",\n";
         ss << "  \"SteamIdOverride\": " << formatStringMap(steamIdOverride) << ",\n";
         ss << "  \"DlcDataYaml\": \"" << escapeJson(dlcDataYaml) << "\",\n";
-        ss << "  \"DenuvoGamesYaml\": \"" << escapeJson(denuvoGamesYaml) << "\"\n";
+        ss << "  \"DenuvoGamesYaml\": \"" << escapeJson(denuvoGamesYaml) << "\",\n";
+        ss << "  \"CloudSaves\": {\n";
+        ss << "    \"Enabled\": " << (csEnabled ? "true" : "false") << ",\n";
+        ss << "    \"Provider\": \"" << escapeJson(csProvider) << "\",\n";
+        ss << "    \"AutoBackupBeforeReset\": " << (csAutoBackup ? "true" : "false") << ",\n";
+        ss << "    \"BackupRetentionCount\": " << csRetention << ",\n";
+        ss << "    \"ManagedApps\": " << formatUint32Array(csManagedApps) << "\n";
+        ss << "  }\n";
         ss << "}";
         return ss.str();
     }
@@ -768,6 +803,58 @@ namespace StoreInjectView
             }
         }
 
+        if (parsed["CloudSaves"] && parsed["CloudSaves"].IsMap())
+        {
+            const auto& cs = parsed["CloudSaves"];
+            YAML::Node csNode;
+            if (rootNode["CloudSaves"] && rootNode["CloudSaves"].IsMap())
+            {
+                csNode = rootNode["CloudSaves"];
+            }
+            else
+            {
+                csNode = YAML::Node(YAML::NodeType::Map);
+            }
+
+            if (cs["Enabled"])
+            {
+                try { csNode["Enabled"] = cs["Enabled"].as<bool>(); } catch (...) {}
+            }
+            if (cs["Provider"])
+            {
+                try {
+                    std::string prov = cs["Provider"].as<std::string>();
+                    if (prov == "local-only" || prov == "gdrive" || prov == "onedrive" || prov == "r2" || prov == "s3")
+                    {
+                        csNode["Provider"] = prov;
+                    }
+                } catch (...) {}
+            }
+            if (cs["AutoBackupBeforeReset"])
+            {
+                try { csNode["AutoBackupBeforeReset"] = cs["AutoBackupBeforeReset"].as<bool>(); } catch (...) {}
+            }
+            if (cs["BackupRetentionCount"])
+            {
+                try {
+                    uint32_t ret = cs["BackupRetentionCount"].as<uint32_t>();
+                    if (ret < 1) ret = 1;
+                    if (ret > 100) ret = 100;
+                    csNode["BackupRetentionCount"] = ret;
+                } catch (...) {}
+            }
+            if (cs["ManagedApps"] && cs["ManagedApps"].IsSequence())
+            {
+                YAML::Node seq(YAML::NodeType::Sequence);
+                for (const auto& item : cs["ManagedApps"])
+                {
+                    try { seq.push_back(item.as<uint32_t>()); } catch (...) {}
+                }
+                csNode["ManagedApps"] = seq;
+            }
+            rootNode["CloudSaves"] = csNode;
+        }
+
         std::filesystem::path p(configYamlPath);
         if (p.has_parent_path() && !std::filesystem::exists(p.parent_path()))
         {
@@ -784,6 +871,7 @@ namespace StoreInjectView
         }
 
         g_config.loadSettings(false);
+        Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(g_config.cloudSavesManagedApps.get());
         return true;
     }
 }

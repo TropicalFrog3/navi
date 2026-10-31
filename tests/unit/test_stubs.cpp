@@ -160,6 +160,7 @@ EAppType IClientApps::getAppType(const AppId_t)
 }
 
 // Dynamic module handles
+lm_module_t g_modSteam{};
 lm_module_t g_modSteamClient{};
 lm_module_t g_modSteamUI{};
 lm_module_t g_modTier0{};

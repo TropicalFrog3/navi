@@ -11,12 +11,13 @@ typedef void(*FileModifyEvent_t)(const char* filename);
 
 class CFileWatcher
 {
-	pthread_t watchThread;
+	pthread_t watchThread = 0;
 
 public:
 	constexpr static int WATCH_MASK = IN_CLOSE_WRITE | IN_MOVED_TO;
 
-	int notifyFd;
+	int notifyFd = -1;
+	int wakeFd = -1;
 	std::unordered_map<int, std::string> fileFdMap;
 
 	FileModifyEvent_t onModify;

@@ -3,6 +3,7 @@
 #include "log.hpp"
 #include "config.hpp"
 #include "version.hpp"
+#include "storeinject.hpp"
 
 #include <dlfcn.h>
 #include <filesystem>
@@ -63,6 +64,7 @@ namespace RemoveLua
         auto pages = CDPInject::fetchPages();
         if (pages.empty()) return false;
 
+        std::vector<std::string> pagesNeedCloudManager;
         std::vector<std::string> pagesNeedAppDetails;
         std::vector<std::string> pagesNeedImportLua;
         std::vector<std::string> pagesNeedAutoCollection;
@@ -81,6 +83,10 @@ namespace RemoveLua
                 continue;
             }
 
+            if (!CDPInject::isScriptInjected(page.webSocketDebuggerUrl, "!!window.__naviCloudManagerLoaded"))
+            {
+                pagesNeedCloudManager.push_back(page.webSocketDebuggerUrl);
+            }
             if (!CDPInject::isScriptInjected(page.webSocketDebuggerUrl, "!!window.__slsAppDetailsInjected"))
             {
                 pagesNeedAppDetails.push_back(page.webSocketDebuggerUrl);
@@ -95,17 +101,27 @@ namespace RemoveLua
             }
         }
 
-        if (pagesNeedAppDetails.empty() && pagesNeedImportLua.empty() &&
+        if (pagesNeedCloudManager.empty() && pagesNeedAppDetails.empty() && pagesNeedImportLua.empty() &&
             pagesNeedAutoCollection.empty() && pagesNeedVersionTopBar.empty())
         {
             return true;
         }
 
         // Lazy-loaded cache
+        static std::string cachedCloudManagerScript;
         static std::string cachedAppDetailsScript;
         static std::string cachedImportLuaScript;
         static std::string cachedAutoCollectionScript;
         static std::string cachedVersionTopBarScript;
+
+        if (!pagesNeedCloudManager.empty() && cachedCloudManagerScript.empty())
+        {
+            cachedCloudManagerScript = loadResourceFile("cloud_manager.js");
+            if (cachedCloudManagerScript.empty()) {
+                LOG_DEBUG("Failed to load cloud_manager.js");
+                return false;
+            }
+        }
 
         if (!pagesNeedAppDetails.empty() && cachedAppDetailsScript.empty())
         {
@@ -144,6 +160,12 @@ namespace RemoveLua
             size_t versionPos = cachedVersionTopBarScript.find("%VERSION%");
             if (versionPos != std::string::npos)
                 cachedVersionTopBarScript.replace(versionPos, 9, VERSION);
+        }
+
+        for (const auto& wsUrl : pagesNeedCloudManager)
+        {
+            std::string authJs = "if (!window.__naviAuthToken) { window.__naviAuthToken = \"" + StoreInject::getNaviAuthToken() + "\"; }\n";
+            CDPInject::injectJS(wsUrl, authJs + cachedCloudManagerScript);
         }
 
         for (const auto& wsUrl : pagesNeedAppDetails)

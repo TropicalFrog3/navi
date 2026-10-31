@@ -202,6 +202,9 @@
         if (document.getElementById('sls-overlay-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-overlay-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
 
         var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">' +
@@ -211,7 +214,7 @@
                     '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">SLS Game Manager</h2>' +
                     '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
                 '</div>' +
-                '<button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button>' +
+                '<button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
             '</div>' +
             '<!-- Administrative Tools Section -->' +
             '<div id="sls-content-admin" style="display:block; margin-bottom:24px;">' +
@@ -335,6 +338,9 @@
         if (document.getElementById('sls-provider-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-provider-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-provider-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
 
         var rows = '';
@@ -356,10 +362,10 @@
                     '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Change Provider</h2>' +
                     '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
                 '</div>' +
-                '<button id="sls-prov-close" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button>' +
+                '<button id="sls-prov-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
             '</div>' +
             '<div id="sls-provider-list" style="max-height:320px;overflow-y:auto;margin-bottom:16px;">' + rows + '</div>' +
-            '<div id="sls-prov-status" style="display:none;text-align:center;padding:12px;font-size:14px;color:#dcdedf;background:rgba(172,178,201,0.1);border-radius:2px;margin-bottom:16px;"></div>' +
+            '<div id="sls-prov-status" role="status" aria-live="polite" style="display:none;text-align:center;padding:12px;font-size:14px;color:#dcdedf;background:rgba(172,178,201,0.1);border-radius:2px;margin-bottom:16px;"></div>' +
             '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
                 '<button id="sls-prov-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>' +
             '</div>' +
@@ -555,6 +561,9 @@
         if (document.getElementById('sls-restore-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-restore-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-restore-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
         overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
             '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
@@ -562,7 +571,7 @@
                     '<h2 style="margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;">Restore Cloud Save</h2>' +
                     '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
                 '</div>' +
-                '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+                '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
             '</div>' +
             '<div id="sls-restore-body" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' +
                 '<div style="text-align:center;padding:24px;color:#969696;">Loading backups...</div>' +
@@ -650,6 +659,9 @@
         if (document.getElementById('sls-reset-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-reset-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-reset-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
         overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
             '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
@@ -657,7 +669,7 @@
                     '<h2 style="margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;">Reset Cloud Save</h2>' +
                     '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
                 '</div>' +
-                '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+                '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
             '</div>' +
             '<div style="background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;">' +
                 '<p style="margin:0;font-size:13px;line-height:1.5;color:#fca5a5;">' +
@@ -727,6 +739,9 @@
         if (document.getElementById('sls-navi-modal')) return;
         var overlay = document.createElement('div');
         overlay.id = 'sls-navi-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-navi-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
 
         var provText = provider || 'None';
@@ -741,7 +756,7 @@
                     '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Navi Menu</h2>' +
                     '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
                 '</div>' +
-                '<button id="sls-navi-close" class="sls-btn-close Focusable" tabindex="-1" role="button">&times;</button>' +
+                '<button id="sls-navi-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
             '</div>' +
             '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;">' +
                 '<span style="font-size:14px; color:rgb(139, 147, 164);">Current Provider</span>' +

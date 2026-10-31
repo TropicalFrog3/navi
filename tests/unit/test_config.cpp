@@ -209,6 +209,83 @@ TEST_F(ConfigUnitTest, ApiKeysOverlayDirectConfigSync)
     EXPECT_NE(scriptContent.find("/api-keys"), std::string::npos);
 }
 
+TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
+{
+    ASSERT_TRUE(g_config.createFile());
+    ASSERT_TRUE(g_config.loadSettings(true));
+
+    const std::string configPath = g_config.getPath();
+
+    // 1. Initial renderFullConfigJson: check CloudSaves fields and default values
+    std::string initialJson = StoreInjectView::renderFullConfigJson(configPath);
+    EXPECT_NE(initialJson.find("\"CloudSaves\": {"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"Enabled\": true"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"Provider\": \"local-only\""), std::string::npos);
+    EXPECT_NE(initialJson.find("\"AutoBackupBeforeReset\": true"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"BackupRetentionCount\": 5"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"ManagedApps\": []"), std::string::npos);
+
+    // 2. Apply config update with CloudSaves
+    std::string updateJson = R"({
+        "CloudSaves": {
+            "Enabled": true,
+            "Provider": "gdrive",
+            "AutoBackupBeforeReset": false,
+            "BackupRetentionCount": 10,
+            "ManagedApps": [480, 730]
+        }
+    })";
+
+    std::string err;
+    bool ok = StoreInjectView::applyFullConfigJson(configPath, updateJson, err);
+    EXPECT_TRUE(ok) << err;
+
+    // Verify g_config in-memory state updated
+    EXPECT_TRUE(g_config.cloudSavesEnabled.get());
+    EXPECT_EQ(g_config.cloudSavesProvider.get(), "gdrive");
+    EXPECT_FALSE(g_config.cloudAutoBackupBeforeReset.get());
+    EXPECT_EQ(g_config.cloudBackupRetentionCount.get(), 10u);
+    auto managed = g_config.cloudSavesManagedApps.get();
+    EXPECT_EQ(managed.size(), 2u);
+    EXPECT_TRUE(managed.contains(480));
+    EXPECT_TRUE(managed.contains(730));
+
+    // Verify written YAML file on disk contains updated CloudSaves
+    std::ifstream f(configPath);
+    ASSERT_TRUE(f.is_open());
+    std::string yamlContent((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
+    f.close();
+    EXPECT_NE(yamlContent.find("CloudSaves:"), std::string::npos);
+    EXPECT_NE(yamlContent.find("Provider: gdrive"), std::string::npos);
+
+    // Verify renderFullConfigJson reflects new state
+    std::string updatedJson = StoreInjectView::renderFullConfigJson(configPath);
+    EXPECT_NE(updatedJson.find("\"Enabled\": true"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"Provider\": \"gdrive\""), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"AutoBackupBeforeReset\": false"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"BackupRetentionCount\": 10"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"ManagedApps\": [480, 730]"), std::string::npos);
+
+    // 3. Provider validation and retention clamping
+    std::string clampedJson = R"({
+        "CloudSaves": {
+            "Enabled": true,
+            "Provider": "unsupported_provider",
+            "AutoBackupBeforeReset": true,
+            "BackupRetentionCount": 999,
+            "ManagedApps": [480]
+        }
+    })";
+    EXPECT_TRUE(StoreInjectView::applyFullConfigJson(configPath, clampedJson, err)) << err;
+    // Provider shouldn't update to unsupported_provider, remains gdrive
+    EXPECT_EQ(g_config.cloudSavesProvider.get(), "gdrive");
+    // Retention clamped to 100
+    EXPECT_EQ(g_config.cloudBackupRetentionCount.get(), 100u);
+    auto managedClamped = g_config.cloudSavesManagedApps.get();
+    EXPECT_EQ(managedClamped.size(), 1u);
+    EXPECT_TRUE(managedClamped.contains(480));
+}
+
 TEST(ShutdownTest, CleanShutdownAndCdpTargetFiltering)
 {
     auto readSrc = [](const std::filesystem::path& path) -> std::string {

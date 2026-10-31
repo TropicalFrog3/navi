@@ -9,6 +9,8 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <errno.h>
+#include <poll.h>
+#include <sys/eventfd.h>
 
 
 //TODO: Investigate why gcc complains when put into CFileWatcher itself
@@ -21,33 +23,65 @@ void* watchLoop(void* args)
 	{
 		LOG_DEBUG("Watching for changes...\n");
 
-		char buffer[4096] __attribute__ ((aligned(__alignof__(struct inotify_event))));
-		ssize_t len = read(watcher->notifyFd, buffer, sizeof(buffer));
-		if (len <= 0)
+		struct pollfd fds[2];
+		fds[0].fd = watcher->notifyFd;
+		fds[0].events = POLLIN;
+		fds[0].revents = 0;
+		fds[1].fd = watcher->wakeFd;
+		fds[1].events = POLLIN;
+		fds[1].revents = 0;
+
+		int ret = poll(fds, 2, -1);
+		if (ret < 0)
 		{
-			// If read was interrupted by a signal, try again
-			if (len == -1 && errno == EINTR)
+			// If poll was interrupted by a signal, try again
+			if (errno == EINTR)
 				continue;
-			
-			LOG_DEBUG("inotify read error or closed: %d\n", errno);
+
+			LOG_DEBUG("poll error: %d\n", errno);
 			break;
 		}
 
-		for (char *ptr = buffer; ptr < buffer + len;
-				ptr += sizeof(struct inotify_event) + reinterpret_cast<struct inotify_event *>(ptr)->len)
+		if (fds[1].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL))
 		{
-			const struct inotify_event *event = reinterpret_cast<const struct inotify_event *>(ptr);
-			
-			if (watcher->fileFdMap.contains(event->wd))
+			break;
+		}
+
+		if (fds[0].revents & POLLIN)
+		{
+			char buffer[4096] __attribute__ ((aligned(__alignof__(struct inotify_event))));
+			ssize_t len = read(watcher->notifyFd, buffer, sizeof(buffer));
+			if (len <= 0)
 			{
-				LOG_DEBUG("inotify %u(%s) -> %u (name: %s)\n", 
-					event->wd, 
-					watcher->fileFdMap[event->wd].c_str(), 
-					event->mask,
-					event->len ? event->name : "N/A");
-				
-				watcher->onModify(event->len ? event->name : nullptr);
+				// If read was interrupted by a signal, try again
+				if (len == -1 && errno == EINTR)
+					continue;
+
+				LOG_DEBUG("inotify read error or closed: %d\n", errno);
+				break;
 			}
+
+			for (char *ptr = buffer; ptr < buffer + len;
+					ptr += sizeof(struct inotify_event) + reinterpret_cast<struct inotify_event *>(ptr)->len)
+			{
+				const struct inotify_event *event = reinterpret_cast<const struct inotify_event *>(ptr);
+				
+				if (watcher->fileFdMap.contains(event->wd))
+				{
+					LOG_DEBUG("inotify %u(%s) -> %u (name: %s)\n", 
+						event->wd, 
+						watcher->fileFdMap[event->wd].c_str(), 
+						event->mask,
+						event->len ? event->name : "N/A");
+					
+					watcher->onModify(event->len ? event->name : nullptr);
+				}
+			}
+		}
+		else if (fds[0].revents & (POLLERR | POLLHUP | POLLNVAL))
+		{
+			LOG_DEBUG("inotify fd error or hangup: %d\n", fds[0].revents);
+			break;
 		}
 	}
 
@@ -57,32 +91,17 @@ void* watchLoop(void* args)
 CFileWatcher::CFileWatcher(const FileModifyEvent_t onModify)
 {
 	this->onModify = onModify;
+	watchThread = 0;
 
 	notifyFd = inotify_init();
 	LOG_DEBUG("Created notify fd %i\n", notifyFd);
+	wakeFd = eventfd(0, EFD_CLOEXEC | EFD_NONBLOCK);
+	LOG_DEBUG("Created wake fd %i\n", wakeFd);
 }
 
 CFileWatcher::~CFileWatcher()
 {
-	if (watchThread)
-	{
-		stop();
-	}
-
-	if (notifyFd != -1)
-	{
-		close(notifyFd);
-
-		for (const auto& fd : fileFdMap)
-		{
-			if (fd.first == -1)
-			{
-				continue;
-			}
-
-			close(fd.first);
-		}
-	}
+	stop();
 }
 
 bool CFileWatcher::addWatch(const char* path, uint32_t mask)
@@ -101,10 +120,37 @@ bool CFileWatcher::addWatch(const char* path, uint32_t mask)
 bool CFileWatcher::start()
 {
 	int code = pthread_create(&watchThread, nullptr, &watchLoop, this);
-	return code == 0;
+	if (code != 0)
+	{
+		watchThread = 0;
+		return false;
+	}
+	return true;
 }
 
 void CFileWatcher::stop()
 {
-	pthread_cancel(watchThread);
+	if (wakeFd != -1)
+	{
+		uint64_t val = 1;
+		[[maybe_unused]] ssize_t ret = write(wakeFd, &val, sizeof(val));
+	}
+
+	if (watchThread)
+	{
+		pthread_join(watchThread, nullptr);
+		watchThread = 0;
+	}
+
+	if (wakeFd != -1)
+	{
+		close(wakeFd);
+		wakeFd = -1;
+	}
+
+	if (notifyFd != -1)
+	{
+		close(notifyFd);
+		notifyFd = -1;
+	}
 }

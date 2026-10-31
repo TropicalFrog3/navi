@@ -157,12 +157,19 @@ bool CConfig::init()
 	return true;
 }
 
-CConfig::~CConfig()
+void CConfig::shutdown()
 {
 	if (watcher)
 	{
+		watcher->stop();
 		delete watcher;
+		watcher = nullptr;
 	}
+}
+
+CConfig::~CConfig()
+{
+	shutdown();
 }
 
 void CConfig::setError(const ELoadError err, const char* keyName)
@@ -418,7 +425,7 @@ bool CConfig::loadSettings(bool firstLoad)
 	const auto cloudSavesNode = node["CloudSaves"];
 	if (cloudSavesNode)
 	{
-		cloudSavesEnabled.set(getSetting<bool>(cloudSavesNode, "Enabled", false));
+		cloudSavesEnabled.set(getSetting<bool>(cloudSavesNode, "Enabled", true));
 		cloudSavesProvider.set(getSetting<std::string>(cloudSavesNode, "Provider", "local-only"));
 		cloudAutoBackupBeforeReset.set(getSetting<bool>(cloudSavesNode, "AutoBackupBeforeReset", true));
 		cloudBackupRetentionCount.set(getSetting<uint32_t>(cloudSavesNode, "BackupRetentionCount", 5));
@@ -426,7 +433,7 @@ bool CConfig::loadSettings(bool firstLoad)
 	}
 	else
 	{
-		cloudSavesEnabled.set(false);
+		cloudSavesEnabled.set(true);
 		cloudSavesProvider.set("local-only");
 		cloudAutoBackupBeforeReset.set(true);
 		cloudBackupRetentionCount.set(5);

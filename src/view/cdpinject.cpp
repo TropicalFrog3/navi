@@ -21,7 +21,9 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <sys/wait.h>
-#include <signal.h>
+#include <poll.h>
+#include <fcntl.h>
+#include <cerrno>
 
 #include <openssl/sha.h>
 #include <base64/base64.hpp>
@@ -128,19 +130,50 @@ namespace CDPInject
             int sock = -1;
             for (struct addrinfo* p = res; p != nullptr; p = p->ai_next)
             {
-                sock = socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+                sock = socket(p->ai_family, p->ai_socktype | SOCK_NONBLOCK | SOCK_CLOEXEC, p->ai_protocol);
                 if (sock < 0) continue;
 
-                struct timeval tv;
-                tv.tv_sec = timeout;
-                tv.tv_usec = 0;
-                setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
-                setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
+                int ret = connect(sock, p->ai_addr, p->ai_addrlen);
+                bool connected = false;
 
-                if (connect(sock, p->ai_addr, p->ai_addrlen) == 0)
+                if (ret == 0)
                 {
+                    connected = true;
+                }
+                else if (errno == EINPROGRESS)
+                {
+                    struct pollfd pfd{};
+                    pfd.fd = sock;
+                    pfd.events = POLLOUT;
+                    int timeoutMs = timeout > 0 ? timeout * 1000 : 0;
+                    int pr = poll(&pfd, 1, timeoutMs);
+                    if (pr > 0 && (pfd.revents & POLLOUT))
+                    {
+                        int so_error = 0;
+                        socklen_t slen = sizeof(so_error);
+                        if (getsockopt(sock, SOL_SOCKET, SO_ERROR, &so_error, &slen) == 0 && so_error == 0)
+                        {
+                            connected = true;
+                        }
+                    }
+                }
+
+                if (connected)
+                {
+                    int flags = fcntl(sock, F_GETFL, 0);
+                    if (flags >= 0)
+                    {
+                        fcntl(sock, F_SETFL, flags & ~O_NONBLOCK);
+                    }
+
+                    struct timeval tv;
+                    tv.tv_sec = timeout;
+                    tv.tv_usec = 0;
+                    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+                    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof(tv));
                     break;
                 }
+
                 close(sock);
                 sock = -1;
             }

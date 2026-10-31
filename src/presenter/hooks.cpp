@@ -22,6 +22,9 @@
 #include "nativeinstall.hpp"
 #include "manifestcode.hpp"
 #include "licenses.hpp"
+#include "storeinject.hpp"
+#include "tier0hook.hpp"
+#include "cefsizefix.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -1733,6 +1736,51 @@ static void* hkCSteamUIAppController_RunFrame(void* pController)
 	return Hooks::CSteamUIAppController_RunFrame.tramp.fn(pController);
 }
 
+static void hkSteamApp_Shutdown(void* pUpdater)
+{
+	LOG_INFO("hkSteamApp_Shutdown called: Steam shutdown sequence initiated (pUpdater=%p)\n", pUpdater);
+
+	// 1. Safety watchdog: force-terminates process if any thread deadlocks during shutdown
+	std::thread([]() {
+		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+		LOG_WARN("hkSteamApp_Shutdown watchdog expired (3000ms). Forcing _exit(0)\n");
+		_exit(0);
+	}).detach();
+
+	// 2. Prevent infinite loop in CSteamApp::Shutdown:
+	// In ubuntu12_32/steam, CSteamApp::Shutdown enters an updater finish wait loop:
+	//   call CThread::WaitForFinish
+	//   test al, al
+	//   jne exit
+	//   movzx eax, byte ptr [esi+0x4d]
+	//   test al, al
+	//   jne loop  <-- loops forever if [esi+0x4d] != 0
+	//   call CThread::Stop(0)
+	// By clearing pUpdater[0x4d] = 0, we ensure that if WaitForFinish times out or stalls,
+	// Valve's code falls through to CThread::Stop(0) rather than spinning indefinitely.
+	if (pUpdater != nullptr)
+	{
+		*reinterpret_cast<uint8_t*>(reinterpret_cast<uintptr_t>(pUpdater) + 0x4d) = 0;
+	}
+
+	// 3. Cleanly shutdown Navi background worker threads, sockets, and hooks
+	StoreInject::shutdown();
+	Tier0Hook::remove();
+	CefSizeFix::removeSizeFixScript();
+	NaviAPI::shutdown();
+	g_config.shutdown();
+
+	// 4. Call original CSteamApp::Shutdown
+	if (Hooks::CSteamApp_Shutdown.tramp.fn)
+	{
+		Hooks::CSteamApp_Shutdown.tramp.fn(pUpdater);
+	}
+
+	// 5. If original returned cleanly, terminate the process immediately
+	LOG_INFO("hkSteamApp_Shutdown completed cleanly. Calling _exit(0)\n");
+	_exit(0);
+}
+
 static bool hkClientCompat_BIsCompatLayerEnabled(IClientCompat* pClientCompat)
 {
 	if (!g_pClientCompat)
@@ -1846,6 +1894,7 @@ namespace Hooks
 	DetourHook<CSteamUIAppController_FillInAppOverview_t> CSteamUIAppController_FillInAppOverview;
 	DetourHook<CSteamUIAppController_BuildCompleteAppOverviewChange_t> CSteamUIAppController_BuildCompleteAppOverviewChange;
 	DetourHook<CSteamUIAppController_RunFrame_t> CSteamUIAppController_RunFrame;
+	DetourHook<CSteamApp_Shutdown_t> CSteamApp_Shutdown;
 }
 
 bool Hooks::setup()
@@ -1971,7 +2020,8 @@ bool Hooks::setup()
 		&& CGameInfoDialog_ServerResponded.setup(VFTIndexes::CGameInfoDialog::ServerResponded, hkCGameInfoDialog_ServerResponded)
 		&& CSteamUIAppController_FillInAppOverview.setup(Patterns::CSteamUIAppController::FillInAppOverview, hkCSteamUIAppController_FillInAppOverview)
 		&& CSteamUIAppController_BuildCompleteAppOverviewChange.setup(Patterns::CSteamUIAppController::BuildCompleteAppOverviewChange, hkCSteamUIAppController_BuildCompleteAppOverviewChange)
-		&& CSteamUIAppController_RunFrame.setup(Patterns::CSteamUIAppController::RunFrame, hkCSteamUIAppController_RunFrame);
+		&& CSteamUIAppController_RunFrame.setup(Patterns::CSteamUIAppController::RunFrame, hkCSteamUIAppController_RunFrame)
+		&& CSteamApp_Shutdown.setup(Patterns::SteamApp::Shutdown, hkSteamApp_Shutdown);
 
 
 	Hooks::place();
@@ -2012,6 +2062,7 @@ void Hooks::place()
 	CSteamUIAppController_FillInAppOverview.place();
 	CSteamUIAppController_BuildCompleteAppOverviewChange.place();
 	CSteamUIAppController_RunFrame.place();
+	CSteamApp_Shutdown.place();
 
 	IClientCompat_BIsCompatLayerEnabled.place();
 
@@ -2210,4 +2261,5 @@ void Hooks::remove()
 	CSteamUIAppController_FillInAppOverview.remove();
 	CSteamUIAppController_BuildCompleteAppOverviewChange.remove();
 	CSteamUIAppController_RunFrame.remove();
+	CSteamApp_Shutdown.remove();
 }

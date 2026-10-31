@@ -31,6 +31,7 @@ env/
 *.gcno
 *.gcov
 coverage*
+test-results/
 
 # C++
 .clangd

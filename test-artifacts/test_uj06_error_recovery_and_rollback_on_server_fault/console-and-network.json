@@ -1,0 +1,148 @@
+{
+  "console": [
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 500 (Internal Server Error)",
+      "timestamp": 1793414002.035056
+    },
+    {
+      "type": "error",
+      "text": "Failed to load resource: the server responded with a status of 401 (Unauthorized)",
+      "timestamp": 1793414002.0742576
+    }
+  ],
+  "network": [
+    {
+      "url": "http://127.0.0.1:9001/check?id=1443430",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414001.9933887
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/status",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "x-navi-auth",
+        "Access-Control-Request-Method": "GET",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414001.9957168
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/status",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414001.9963136
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/toggle",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "content-type,x-navi-auth",
+        "Access-Control-Request-Method": "POST",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414002.028785
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/toggle",
+      "method": "POST",
+      "headers": {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": "{\"redirect\":false}",
+      "time": 1793414002.0294864
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/status",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "x-navi-auth",
+        "Access-Control-Request-Method": "GET",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414002.0631118
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/status",
+      "method": "GET",
+      "headers": {
+        "Accept": "*/*",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": null,
+      "time": 1793414002.0639038
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/restore",
+      "method": "OPTIONS",
+      "headers": {
+        "Accept": "*/*",
+        "Access-Control-Request-Headers": "content-type,x-navi-auth",
+        "Access-Control-Request-Method": "POST",
+        "Origin": "null",
+        "Sec-Fetch-Mode": "cors",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36"
+      },
+      "body": null,
+      "time": 1793414002.0729554
+    },
+    {
+      "url": "http://127.0.0.1:9001/cloud/apps/1443430/restore",
+      "method": "POST",
+      "headers": {
+        "Accept": "*/*",
+        "Content-Type": "application/json",
+        "Origin": "null",
+        "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.0.0 Safari/537.36",
+        "X-Navi-Auth": "test_auth_token_phase1",
+        "sec-ch-ua": "\"Chromium\";v=\"154\", \"Google Chrome\";v=\"154\", \"Not A(Brand\";v=\"99\"",
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": "\"Linux\""
+      },
+      "body": "{\"backupFile\":\"/storage/1443430/backups/backup_1443430_auto_1.tar.gz\"}",
+      "time": 1793414002.0737317
+    }
+  ]
+}

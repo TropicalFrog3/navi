@@ -164,6 +164,15 @@ test-gate07:
 test-flow:
 	pytest -q --live tests/integration/test_steam_ui_flow.py
 
+test-ui:
+	pytest -q tests/integration/ui
+
+test-ui-p0:
+	pytest -q -m ui_p0 tests/integration/ui
+
+test-ui-a11y:
+	pytest -q -m "a11y or responsive" tests/integration/ui
+
 test-all: test
 
 audit-libs:
@@ -311,5 +320,8 @@ release: rebuild zips
 	test-gate07 \
 	test-flow \
 	test-e2e \
+	test-ui \
+	test-ui-p0 \
+	test-ui-a11y \
 	test-all \
 	coverage

@@ -35,7 +35,7 @@
     function isOriginCompliant() {
         try {
             var origin = window.location.origin;
-            if (!origin || origin === 'null') {
+            if (!origin || origin === 'null' || origin.indexOf('file:') === 0) {
                 var href = window.location.href || '';
                 if (href.indexOf('steamloopback.host') !== -1 ||
                     href.indexOf('steampowered.com') !== -1 ||
@@ -95,6 +95,7 @@
         }
 
         var opts = Object.assign({}, options || {});
+        var method = String(opts.method || 'GET').toUpperCase();
         var headers = Object.assign({}, opts.headers || {});
         headers['X-Navi-Auth'] = window.__naviAuthToken || '';
         if (opts.body && typeof opts.body === 'string' && !headers['Content-Type']) {
@@ -107,6 +108,20 @@
         }
 
         return fetch(targetUrl, opts);
+        return fetch(targetUrl, opts).catch(function(err) {
+            if (method === 'GET') {
+                return fetch(targetUrl);
+            }
+            if (method === 'POST' && opts.mode !== 'no-cors') {
+                var fallbackBody = 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + (typeof opts.body === 'string' ? opts.body : '{}');
+                return fetch(targetUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'text/plain' },
+                    body: fallbackBody
+                });
+            }
+            throw err;
+        });
     }
 
     /**
@@ -382,6 +397,9 @@
 
         var overlay = document.createElement('div');
         overlay.id = 'sls-reset-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-reset-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);' +
             'z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
 
@@ -394,7 +412,7 @@
                 '<h2 style="margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;">Reset Cloud Save</h2>' +
                 '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
             '</div>' +
-            '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+            '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
         '</div>' +
         '<div style="background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;">' +
             '<p style="margin:0;font-size:13px;line-height:1.5;color:#fca5a5;">' +
@@ -473,6 +491,9 @@
 
         var overlay = document.createElement('div');
         overlay.id = 'sls-restore-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-restore-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);' +
             'z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
 
@@ -485,7 +506,7 @@
                 '<h2 style="margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;">Restore Cloud Save</h2>' +
                 '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
             '</div>' +
-            '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+            '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
         '</div>' +
         '<div id="sls-restore-body" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' +
             '<div style="text-align:center;padding:24px;color:#969696;">Loading backups...</div>' +
@@ -583,6 +604,9 @@
 
         var overlay = document.createElement('div');
         overlay.id = 'sls-cloud-settings-modal';
+        overlay.setAttribute('role', 'dialog');
+        overlay.setAttribute('aria-modal', 'true');
+        overlay.setAttribute('data-testid', 'sls-cloud-settings-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);' +
             'z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
 
@@ -608,7 +632,7 @@
                 '<h2 style="margin:0;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Cloud Saves Manager</h2>' +
                 '<p style="margin:4px 0 0;font-size:13px;color:#969696;">Configure cloud save redirection & storage providers</p>' +
             '</div>' +
-            '<button id="sls-settings-close" class="sls-btn-close Focusable" tabindex="-1" role="button" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
+            '<button id="sls-settings-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
         '</div>' +
         '<!-- Master Toggle -->' +
         '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:16px;">' +
@@ -629,7 +653,7 @@
         '<div id="sls-provider-auth-block" style="padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:20px;">' +
             '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
                 '<span style="font-size:14px;color:#dcdedf;">Authentication Status:</span>' +
-                '<span id="sls-auth-badge" style="padding:3px 8px;border-radius:2px;font-size:12px;font-weight:600;">Checking...</span>' +
+                '<span id="sls-auth-badge" role="status" aria-live="polite" style="padding:3px 8px;border-radius:2px;font-size:12px;font-weight:600;">Checking...</span>' +
             '</div>' +
             '<div id="sls-auth-email" style="font-size:12px;color:#9ca3af;margin-bottom:10px;display:none;"></div>' +
             '<div id="sls-auth-actions" style="display:flex;justify-content:flex-end;"></div>' +

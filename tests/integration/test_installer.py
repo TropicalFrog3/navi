@@ -55,6 +55,9 @@ def test_install_update_uninstall_lifecycle(fake_home, run_installer):
     assert config_yaml.is_file(), "config.yaml was not generated in ~/.config/navi"
     assert steam_wrapper.is_file(), "Steam wrapper was not created in ~/.local/bin/steam"
 
+    cloud_enabled = fake_home / ".config" / "navi" / "cloud_enabled"
+    assert cloud_enabled.is_file(), "cloud_enabled should be created by default on install"
+
     wrapper_text = steam_wrapper.read_text()
     assert "LD_AUDIT=" in wrapper_text, "Steam wrapper missing LD_AUDIT environment variable"
     assert "libnavi.so" in wrapper_text
@@ -74,6 +77,7 @@ def test_install_update_uninstall_lifecycle(fake_home, run_installer):
     assert not libnavi.exists(), "libnavi.so should be removed on uninstall"
     assert not libinject.exists(), "library-inject.so should be removed on uninstall"
     assert not steam_wrapper.exists(), "Steam wrapper should be removed on uninstall"
+    assert not cloud_enabled.exists(), "cloud_enabled should be removed on uninstall"
     assert config_yaml.is_file(), "User config should be preserved by default on uninstall"
 
 

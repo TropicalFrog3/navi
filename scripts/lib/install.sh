@@ -63,18 +63,10 @@ install_safe_wrapper() {
 
     cat > "$wrapper" <<EOF
 #!/bin/sh
-# Navi Steam wrapper with dynamic CloudRedirect preload and idle pending-ops execution
+# Navi Steam wrapper with idle pending-ops execution
 CR_PENDING="\$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
 if [ -x "\$CR_PENDING" ]; then
     "\$CR_PENDING" --process-all 2>/dev/null || true
-fi
-
-CR_SO="\$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
-if [ -f "\$HOME/.config/navi/cloud_enabled" ] && [ ! -f "\$HOME/.config/CloudRedirect/disable" ] && [ -f "\$CR_SO" ]; then
-    case ":\${LD_PRELOAD:-}:" in
-        *":\$CR_SO:"*) ;;
-        *) export LD_PRELOAD="\${CR_SO}\${LD_PRELOAD:+:\${LD_PRELOAD}}" ;;
-    esac
 fi
 
 exec env LD_AUDIT="\$HOME/.local/share/navi/library-inject.so:\$HOME/.local/share/navi/libnavi.so" "$native_steam" "\$@"
@@ -102,18 +94,10 @@ EOF
         if [ -n "$sys_bin" ] && [ -x "$sys_bin" ] && [ "$sys_bin" != "$navi_path/$exe" ]; then
             cat > "$navi_path/$exe" <<EOF
 #!/bin/sh
-# Navi Steam wrapper with dynamic CloudRedirect preload and idle pending-ops execution
+# Navi Steam wrapper with idle pending-ops execution
 CR_PENDING="\$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
 if [ -x "\$CR_PENDING" ]; then
     "\$CR_PENDING" --process-all 2>/dev/null || true
-fi
-
-CR_SO="\$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
-if [ -f "\$HOME/.config/navi/cloud_enabled" ] && [ ! -f "\$HOME/.config/CloudRedirect/disable" ] && [ -f "\$CR_SO" ]; then
-    case ":\${LD_PRELOAD:-}:" in
-        *":\$CR_SO:"*) ;;
-        *) export LD_PRELOAD="\${CR_SO}\${LD_PRELOAD:+:\${LD_PRELOAD}}" ;;
-    esac
 fi
 
 exec env LD_AUDIT="\$HOME/.local/share/navi/library-inject.so:\$HOME/.local/share/navi/libnavi.so" "$sys_bin" "\$@"
@@ -139,7 +123,7 @@ install_desktop_entries() {
     for name in steam steam-native; do
         if [ -f "$sys_apps/$name.desktop" ]; then
             cp -f "$sys_apps/$name.desktop" "$user_apps/"
-            sed -i "/^Exec=/ { s|^Exec=/|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" /| }" "$user_apps/$name.desktop"
+            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" \"$HOME/.local/bin/steam\"\2|" "$user_apps/$name.desktop"
         fi
     done
 
@@ -148,12 +132,12 @@ install_desktop_entries() {
         mkdir -p "$autostart_dir"
         if [ -f "/etc/xdg/autostart/steam.desktop" ]; then
             cp -f "/etc/xdg/autostart/steam.desktop" "$autostart_dir/steam.desktop"
-            sed -i "/^Exec=/ { s|^Exec=/|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" /| }" "$autostart_dir/steam.desktop"
+            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" \"$HOME/.local/bin/steam\"\2|" "$autostart_dir/steam.desktop"
         else
             cat > "$autostart_dir/steam.desktop" <<EOF
 [Desktop Entry]
 Name=Steam
-Exec=env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" /usr/bin/steam -silent %U
+Exec=env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" "$HOME/.local/bin/steam" -silent %U
 Icon=steam
 Terminal=false
 Type=Application
@@ -174,7 +158,7 @@ EOF
                 log_info "Updated $desktop_dir/steam.desktop symlink to point to Navi wrapper."
             fi
         elif [ -f "$desktop_dir/steam.desktop" ]; then
-            sed -i "/^Exec=/ { s|^Exec=/|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" /| }" "$desktop_dir/steam.desktop"
+            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" \"$HOME/.local/bin/steam\"\2|" "$desktop_dir/steam.desktop"
             log_info "Patched $desktop_dir/steam.desktop with Navi LD_AUDIT wrapper."
         fi
     fi
@@ -385,6 +369,10 @@ do_install() {
     local cr_dir="$navi_share/cloudredirect"
     mkdir -p "$cr_dir"
     local cr_src="${res_dir:-$REPO_ROOT/res}"
+    if [ ! -f "$HOME/.config/CloudRedirect/disable" ]; then
+        mkdir -p "$HOME/.config/navi"
+        touch "$HOME/.config/navi/cloud_enabled"
+    fi
     if [ -f "$cr_src/cloud_redirect.so" ]; then
         cp -f --remove-destination "$cr_src/cloud_redirect.so" "$cr_dir/cloud_redirect.so"
         chmod 755 "$cr_dir/cloud_redirect.so"
@@ -423,6 +411,10 @@ do_install() {
 
         local fp_cr_dir="$flatpak_navi/cloudredirect"
         mkdir -p "$fp_cr_dir"
+        if [ ! -f "$flatpak_steam_dir/.config/CloudRedirect/disable" ]; then
+            mkdir -p "$flatpak_steam_dir/.config/navi"
+            touch "$flatpak_steam_dir/.config/navi/cloud_enabled"
+        fi
         if [ -f "$cr_src/cloud_redirect.so" ]; then
             cp -f --remove-destination "$cr_src/cloud_redirect.so" "$fp_cr_dir/cloud_redirect.so"
             chmod 755 "$fp_cr_dir/cloud_redirect.so"

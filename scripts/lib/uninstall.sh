@@ -203,6 +203,7 @@ do_uninstall() {
     if [ -d "$flatpak_navi" ]; then
         rm -rf "$flatpak_navi/cloudredirect"
         rm -f "$flatpak_navi/bin/navi-cloud-apply-pending"
+        rm -f "$HOME/.var/app/com.valvesoftware.Steam/.config/navi/cloud_enabled"
         rm -rf "$flatpak_navi"
         log_info "Removed Flatpak Navi directory: $flatpak_navi"
     fi
