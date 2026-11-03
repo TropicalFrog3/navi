@@ -18,7 +18,7 @@ description: enforces the feature lifecycle pipeline in the plans/ workspace of 
 
 1. **One file per item** — move folder→folder with the phase transition; never copy or fork threads.
 2. **Specs version by appending** — a revised spec becomes `<topic>-spec-v<next>.md`; previous `vN` is superseded, not overwritten.
-3. **`03-active/` stays honest** — only items currently being implemented; route to `src/CONTEXT.md` rows as soon as implementation starts, and back to `tests/CONTEXT.md` for gates.
+3. **`03-active/` stays honest** — only items currently being implemented; route to the target workspace's `CONTEXT.md` (`src/`, `res/`, or `tools/`) as soon as implementation starts, and back to `tests/CONTEXT.md` for gates.
 4. **The seed is immutable** — `01-backlog/dev-plan.md` is the legacy `Dev-Plan.txt` wishlist (untracked/ignored). New ideas become new files next to it; never re-edit the seed's original content.
 5. **Close-out requires one outcome line** — `Outcome: <shipped/rejected/deferred> — <1 line> — <YYYY-MM-DD>` at the very top of the archived spec, plus a link to the `tests/reports/YYYY-MM-DD-*.md` report if one exists.
 6. **Datestamped attachments** — session handoffs: `YYYY-MM-DD-handoff-<topic>.md`; gate summaries: `YYYY-MM-DD-<gate>-<summary>.md`; they never share names with plan files.
