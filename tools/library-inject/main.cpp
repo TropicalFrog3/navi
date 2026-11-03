@@ -1,19 +1,9 @@
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <filesystem>
-#include <fstream>
-#include <iostream>
 #include <link.h>
-#include <set>
-#include <string>
-#include <unordered_set>
+#include <unistd.h>
+#include <cstring>
+#include <cstdio>
 
-
-//std::ofstream logFile("/tmp/env-mod.log");
-
-static std::unordered_set<std::string> LIBS =
-{
+static const char* LIBS[] = {
 	"libcurl.so",
 	"libcurl.so.3",
 	"libcurl.so.4",
@@ -26,53 +16,51 @@ static std::unordered_set<std::string> LIBS =
 	"libcurl.so.4.6.0",
 	"libcurl.so.4.7.0",
 	"libcurl.so.4.8.0",
+	nullptr
 };
 
-static std::unordered_set<std::string> DIRS =
-{
-	//Fallback for 32 bit OS?
+static const char* DIRS[] = {
+	"/usr/lib/i386-linux-gnu",
+	"/usr/lib32",
+	"/usr/local/lib32",
 	"/usr/local/lib",
 	"/usr/lib",
-
-	"/usr/local/lib32", //Bazzite
-	"/usr/lib/i386-linux-gnu/", //Mint
-	"/usr/lib32", //SteamOS
+	nullptr
 };
+
+static char s_redirectedPath[512];
 
 char *la_objsearch(const char *name, __attribute__((unused)) uintptr_t *cookie, unsigned int flag)
 {
-	if (flag != LA_SER_ORIG)
+	if (flag != LA_SER_ORIG || !name)
 	{
 		return const_cast<char*>(name);
 	}
 
-	//logFile << "objopen: " << name << std::endl;
-
-	if(LIBS.contains(name))
+	bool match = false;
+	for (size_t i = 0; LIBS[i] != nullptr; ++i)
 	{
-		//logFile << "Replacing: " << name << std::endl;
-
-		for(const auto& dir : DIRS)
+		if (strcmp(name, LIBS[i]) == 0)
 		{
-			char path[255];
-			snprintf(path, sizeof(path), "%s/%s", dir.c_str(), name);
-			//logFile << "Path: " << path << std::endl;
+			match = true;
+			break;
+		}
+	}
 
-			if (!std::filesystem::exists(path))
-			{
-				continue;
-			}
+	if (!match)
+	{
+		return const_cast<char*>(name);
+	}
 
-			char* n = reinterpret_cast<char*>(malloc(sizeof(path)));
-			if (!n)
-			{
-				//logFile << "Failed to allocate char*!\n";
-				break;
-			}
-
-			strcpy(n, path);
-
-			return n;
+	for (size_t i = 0; DIRS[i] != nullptr; ++i)
+	{
+		char path[512];
+		snprintf(path, sizeof(path), "%s/%s", DIRS[i], name);
+		if (access(path, F_OK) == 0)
+		{
+			strncpy(s_redirectedPath, path, sizeof(s_redirectedPath) - 1);
+			s_redirectedPath[sizeof(s_redirectedPath) - 1] = '\0';
+			return s_redirectedPath;
 		}
 	}
 
@@ -83,7 +71,3 @@ unsigned int la_version(unsigned int)
 {
 	return LAV_CURRENT;
 }
-
-//void la_preinit(__attribute__((unused)) uintptr_t *cookie)
-//{
-//}

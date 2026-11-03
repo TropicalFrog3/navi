@@ -1,7 +1,9 @@
 #include "curl.hpp"
+#include "atomic_file.hpp"
 
 #include <algorithm>
 #include <cctype>
+#include <filesystem>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -453,4 +455,170 @@ int Curl::getString(const char* url, std::string& out)
 	out = bufSS.str();
 
 	return status;
+}
+
+int Curl::downloadToFile(const std::string& url, const std::string& destPath, int timeoutSec, const std::string& authHeader)
+{
+	if (url.empty() || destPath.empty()) return -1;
+
+	// Support local file paths and file:// scheme for testing and offline faking
+	std::string localFilePath;
+	if (url.rfind("file://", 0) == 0)
+	{
+		localFilePath = url.substr(7);
+	}
+	else if (url.rfind("/", 0) == 0)
+	{
+		localFilePath = url;
+	}
+
+	if (!localFilePath.empty())
+	{
+		std::error_code ec;
+		std::filesystem::path p(destPath);
+		if (p.has_parent_path())
+		{
+			std::filesystem::create_directories(p.parent_path(), ec);
+		}
+		std::filesystem::copy_file(localFilePath, destPath, std::filesystem::copy_options::overwrite_existing, ec);
+		return ec ? -1 : 200;
+	}
+
+	std::error_code ec;
+	std::filesystem::path p(destPath);
+	if (p.has_parent_path())
+	{
+		std::filesystem::create_directories(p.parent_path(), ec);
+		if (ec) return -1;
+	}
+
+	const std::string tmpPath = AtomicFile::makeTempPath(destPath);
+	AtomicFile::TempFileGuard guard(tmpPath);
+
+	int pipefd[2];
+	if (pipe(pipefd) == -1)
+	{
+		return -1;
+	}
+
+	const pid_t pid = fork();
+	if (pid == -1)
+	{
+		close(pipefd[0]);
+		close(pipefd[1]);
+		return -1;
+	}
+
+	if (pid == 0)
+	{
+		if (dup2(pipefd[1], STDOUT_FILENO) == -1)
+		{
+			_exit(1);
+		}
+		close(pipefd[0]);
+		close(pipefd[1]);
+
+		int nullfd = open("/dev/null", O_WRONLY);
+		if (nullfd != -1)
+		{
+			dup2(nullfd, STDERR_FILENO);
+			close(nullfd);
+		}
+
+		std::vector<std::string> argsStr;
+		argsStr.push_back("curl");
+		argsStr.push_back("-s");
+		argsStr.push_back("-S");
+		argsStr.push_back("-L");
+		argsStr.push_back("--max-redirs");
+		argsStr.push_back("5");
+		argsStr.push_back("-w");
+		argsStr.push_back("%{http_code}");
+		argsStr.push_back("-o");
+		argsStr.push_back(tmpPath);
+		argsStr.push_back("--connect-timeout");
+		argsStr.push_back("15");
+		argsStr.push_back("-m");
+		argsStr.push_back(std::to_string(timeoutSec > 0 ? timeoutSec : 60));
+		argsStr.push_back("-A");
+		argsStr.push_back("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+
+		if (!authHeader.empty())
+		{
+			argsStr.push_back("-H");
+			argsStr.push_back(authHeader);
+		}
+
+		argsStr.push_back(url);
+
+		std::vector<char*> args;
+		args.reserve(argsStr.size() + 1);
+		for (auto& s : argsStr)
+		{
+			args.push_back(const_cast<char*>(s.c_str()));
+		}
+		args.push_back(nullptr);
+
+		constexpr static const char* env[] =
+		{
+			"PATH=/usr/bin:/bin:/usr/local/bin",
+			nullptr
+		};
+
+		execve("/bin/curl", args.data(), const_cast<char**>(env));
+		execve("/usr/bin/curl", args.data(), const_cast<char**>(env));
+		execve("/run/current-system/sw/bin/curl", args.data(), const_cast<char**>(env));
+
+		_exit(1);
+	}
+
+	close(pipefd[1]);
+
+	std::string statusStr;
+	char buf[64];
+	ssize_t n;
+	while ((n = read(pipefd[0], buf, sizeof(buf) - 1)) > 0)
+	{
+		buf[n] = '\0';
+		statusStr += buf;
+	}
+	close(pipefd[0]);
+
+	int status = 0;
+	if (waitpid(pid, &status, 0) == -1 || !WIFEXITED(status))
+	{
+		return -1;
+	}
+
+	int httpCode = 0;
+	try
+	{
+		if (!statusStr.empty())
+		{
+			httpCode = std::stoi(statusStr);
+		}
+	}
+	catch (...)
+	{
+		httpCode = 0;
+	}
+
+	if (WEXITSTATUS(status) != 0 || httpCode == 0)
+	{
+		return -1;
+	}
+
+	if (httpCode >= 200 && httpCode < 300)
+	{
+		std::error_code renameEc;
+		std::filesystem::rename(tmpPath, destPath, renameEc);
+		if (renameEc)
+		{
+			std::filesystem::copy_file(tmpPath, destPath, std::filesystem::copy_options::overwrite_existing, renameEc);
+			if (renameEc) return -1;
+		}
+		guard.dismiss();
+	}
+
+	return httpCode;
 }

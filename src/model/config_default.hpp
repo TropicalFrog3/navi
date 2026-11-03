@@ -119,6 +119,12 @@ CloudSaves:
   ManagedApps: []
   AutoBackupBeforeReset: true
   BackupRetentionCount: 5
+  PrefixSync:
+    Enabled: true
+    SyncAtStartup: true
+    SyncOnLaunch: true
+    SyncOnExit: true
+    MaxFileMb: 64
 
 #Disable updates for AppIds on AdditionalApps
 #Only works for unowned games, since those do not get any depots from CUserAppManager::BuildDepotDependency.
@@ -157,5 +163,14 @@ DumpClientInterfaces: no
 ExtendedLogging: no
 RyuuKey: ""
 DepotBoxKey: ""
-HubcapKey: "")";
+HubcapKey: ""
 
+autocrack:
+  enabled: true
+  auto: false
+  autoAllowlist: []
+  gameInfoApi: steamclient
+  webApiKey: ""
+  experimentalEmu: false
+  unpackSteamStub: true
+  inactivityTimeoutSec: 120)";

@@ -33,4 +33,6 @@ namespace Curl
 	bool request(const HttpRequest_t& req, HttpResponse_t& outResp);
 
 	int getString(const char* url, std::string& out);
+
+	int downloadToFile(const std::string& url, const std::string& destPath, int timeoutSec = 60, const std::string& authHeader = "");
 }

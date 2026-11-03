@@ -87,8 +87,19 @@ public:
 	MTVariable<bool> cloudSavesEnabled{true};
 	MTVariable<std::string> cloudSavesProvider{"local-only"};
 	MTVariable<std::unordered_set<AppId_t>> cloudSavesManagedApps;
+	MTVariable<std::unordered_set<AppId_t>> cloudSavesDisabledApps;
 	MTVariable<bool> cloudAutoBackupBeforeReset{true};
 	MTVariable<uint32_t> cloudBackupRetentionCount{5};
+
+	// AutoCrack
+	MTVariable<bool> autoCrackEnabled{true};
+	MTVariable<bool> autoCrackAuto{false};
+	MTVariable<std::unordered_set<AppId_t>> autoCrackAutoAllowlist;
+	MTVariable<std::string> autoCrackGameInfoApi{"steamclient"};
+	MTVariable<std::string> autoCrackWebApiKey{""};
+	MTVariable<bool> autoCrackExperimentalEmu{false};
+	MTVariable<bool> autoCrackUnpackSteamStub{true};
+	MTVariable<uint32_t> autoCrackInactivityTimeoutSec{120};
 
 	std::mutex appsChangedMutex;
 	std::unordered_set<AppId_t> newApps;
@@ -96,6 +107,13 @@ public:
 
 	//Using incomplete class to avoid runtime linking errors
 	CFileWatcher* watcher = nullptr;
+
+	// Cloud Saves - emulator prefix bucket sync (Goldberg/GSE style saves)
+	MTVariable<bool> cloudPrefixSyncEnabled{true};
+	MTVariable<bool> cloudPrefixSyncAtStartUp{true};
+	MTVariable<bool> cloudPrefixSyncOnLaunch{true};
+	MTVariable<bool> cloudPrefixSyncOnExit{true};
+	MTVariable<uint32_t> cloudPrefixSyncMaxFileMb{64};
 
 	~CConfig();
 	void shutdown();
@@ -289,6 +307,7 @@ public:
 	bool shouldExcludeAppId(const AppId_t appId, const bool ignoreAdditionalApps = false);
 	CSteamId getDenuvoGameOwner(const AppId_t appId);
 	bool IsAppCloudRedirected(AppId_t appId) const;
+	std::unordered_set<AppId_t> GetEffectiveCloudRedirectedApps() const;
 };
 
 extern CConfig g_config;

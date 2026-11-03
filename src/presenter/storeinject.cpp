@@ -21,6 +21,9 @@
 #include "cloud_pending_ops.hpp"
 #include "cloud_view.hpp"
 #include "cloudredirect.hpp"
+#include "autocrack_manager.hpp"
+#include "prefix_bucket_sync.hpp"
+#include "globals.hpp"
 #include <unistd.h>
 #include <openssl/crypto.h>
 #include <openssl/rand.h>
@@ -191,6 +194,57 @@ namespace StoreInject
                                "Content-Length: " + std::to_string(htmlBody.size()) + "\r\n\r\n" + htmlBody;
         send(sock, response.c_str(), response.size(), 0);
         close(sock);
+    }
+
+    static void sendBinaryDownloadResponse(int sock, const std::string& downloadName, const std::string& data)
+    {
+        std::string safeName;
+        for (char c : downloadName)
+        {
+            if (c != '"' && c != '\r' && c != '\n' && c != '/' && c != '\\')
+            {
+                safeName += c;
+            }
+        }
+        if (safeName.empty()) safeName = "cloud_save.bin";
+
+        std::string header = "HTTP/1.1 200 OK\r\n"
+                             "Content-Type: application/octet-stream\r\n"
+                             "Content-Disposition: attachment; filename=\"" + safeName + "\"\r\n"
+                             "Access-Control-Allow-Origin: *\r\n"
+                             "Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n"
+                             "Access-Control-Allow-Headers: Content-Type, X-Navi-Auth\r\n"
+                             "Access-Control-Expose-Headers: Content-Disposition\r\n"
+                             "Connection: close\r\n"
+                             "Content-Length: " + std::to_string(data.size()) + "\r\n\r\n";
+        send(sock, header.c_str(), header.size(), 0);
+        size_t sentTotal = 0;
+        while (sentTotal < data.size())
+        {
+            ssize_t n = send(sock, data.data() + sentTotal, data.size() - sentTotal, 0);
+            if (n <= 0) break;
+            sentTotal += static_cast<size_t>(n);
+        }
+        close(sock);
+    }
+
+    static std::string extractCloudQueryParam(const std::string& uriPath, const std::string& key)
+    {
+        size_t qmark = uriPath.find('?');
+        if (qmark == std::string::npos) return "";
+        std::string query = uriPath.substr(qmark + 1);
+        size_t p = 0;
+        while ((p = query.find(key + "=", p)) != std::string::npos)
+        {
+            if (p == 0 || query[p - 1] == '&')
+            {
+                size_t vStart = p + key.size() + 1;
+                size_t vEnd = query.find('&', vStart);
+                return urlDecode(query.substr(vStart, vEnd == std::string::npos ? std::string::npos : vEnd - vStart));
+            }
+            p += key.size() + 1;
+        }
+        return "";
     }
 
     static std::string extractHttpPostBody(int sockFd, const std::string& rawRequest)
@@ -990,6 +1044,215 @@ namespace StoreInject
                                     handled = true;
                                 }
                             }
+                            else if (method == "GET" && (uriPath == "/cloud/apps" || uriPath.rfind("/cloud/apps?", 0) == 0))
+                            {
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+
+                                auto apps = Navi::CloudRedirect::CCloudManager::Instance().ListCloudApps(provider, acctId);
+                                auto managedSet = g_config.cloudSavesManagedApps.get();
+                                auto knownTitles = g_config.gameTitles.get();
+
+                                std::set<AppId_t> seenApps;
+                                for (const auto& a : apps) seenApps.insert(a.appId);
+
+                                for (AppId_t mAppId : managedSet)
+                                {
+                                    if (mAppId == 0 || seenApps.contains(mAppId)) continue;
+                                    auto mFiles = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(mAppId, provider, acctId);
+                                    Navi::CloudRedirect::CloudAppSummary_t summary;
+                                    summary.appId = mAppId;
+                                    summary.gameTitle = Navi::CloudRedirect::CCloudManager::Instance().ResolveAppTitleFromManifests(mAppId);
+                                    summary.fileCount = mFiles.size();
+                                    for (const auto& f : mFiles) summary.totalSizeBytes += f.sizeBytes;
+                                    summary.redirected = true;
+                                    apps.push_back(std::move(summary));
+                                    seenApps.insert(mAppId);
+                                }
+
+                                for (auto& a : apps)
+                                {
+                                    auto tIt = knownTitles.find(a.appId);
+                                    if (tIt != knownTitles.end() && !tIt->second.empty())
+                                    {
+                                        a.gameTitle = tIt->second;
+                                    }
+                                    if (a.gameTitle.empty())
+                                    {
+                                        a.gameTitle = "App " + std::to_string(a.appId);
+                                    }
+                                    a.redirected = g_config.IsAppCloudRedirected(a.appId);
+                                }
+
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderCloudAppsJson(provider, apps));
+                                handled = true;
+                            }
+                            else if (method == "GET" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/files/download") != std::string::npos)
+                            {
+                                size_t idStart = 12;
+                                size_t slashEnd = uriPath.find('/', idStart);
+                                AppId_t appId = 0;
+                                try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                std::string fileName = extractCloudQueryParam(uriPath, "file");
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+
+                                std::string content;
+                                std::string downloadName;
+                                std::string err;
+                                if (!Navi::CloudRedirect::CCloudManager::Instance().ReadAppCloudFile(appId, fileName, provider, acctId, content, downloadName, err))
+                                {
+                                    sendJsonResponse(new_socket, 404, "Not Found", Navi::CloudView::renderErrorJson(err));
+                                }
+                                else
+                                {
+                                    sendBinaryDownloadResponse(new_socket, downloadName, content);
+                                }
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/files/download") != std::string::npos)
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    size_t idStart = 12;
+                                    size_t slashEnd = uriPath.find('/', idStart);
+                                    AppId_t appId = 0;
+                                    try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    std::string fileName = Navi::CloudView::parseStringField(body, "fileName");
+                                    std::string provider = Navi::CloudView::parseStringField(body, "provider");
+                                    if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                    uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+
+                                    std::string content;
+                                    std::string downloadName;
+                                    std::string err;
+                                    if (!Navi::CloudRedirect::CCloudManager::Instance().ReadAppCloudFile(appId, fileName, provider, acctId, content, downloadName, err))
+                                    {
+                                        sendJsonResponse(new_socket, 404, "Not Found", Navi::CloudView::renderErrorJson(err));
+                                    }
+                                    else
+                                    {
+                                        const char* homeEnv = std::getenv("HOME");
+                                        fs::path dlDir = homeEnv ? (fs::path(homeEnv) / "Downloads") : fs::temp_directory_path();
+                                        std::error_code ec;
+                                        if (!fs::exists(dlDir, ec))
+                                        {
+                                            fs::create_directories(dlDir, ec);
+                                        }
+                                        std::string safeLeaf;
+                                        for (char c : downloadName)
+                                        {
+                                            if (c != '/' && c != '\\' && c != '\0') safeLeaf += c;
+                                        }
+                                        if (safeLeaf.empty()) safeLeaf = "save.dat";
+                                        fs::path targetPath = dlDir / (std::to_string(appId) + "_" + safeLeaf);
+                                        std::ofstream out(targetPath, std::ios::binary | std::ios::trunc);
+                                        if (!out.is_open())
+                                        {
+                                            sendJsonResponse(new_socket, 500, "Internal Server Error", Navi::CloudView::renderErrorJson("Failed to write downloaded file to " + targetPath.string()));
+                                        }
+                                        else
+                                        {
+                                            out.write(content.data(), static_cast<std::streamsize>(content.size()));
+                                            out.close();
+                                            auto esc = [](const std::string& s) {
+                                                std::string r;
+                                                for (char c : s) {
+                                                    if (c == '"') r += "\\\"";
+                                                    else if (c == '\\') r += "\\\\";
+                                                    else r += c;
+                                                }
+                                                return r;
+                                            };
+                                            std::ostringstream oss;
+                                            oss << "{\"success\":true,\"appId\":" << appId
+                                                << ",\"fileName\":\"" << esc(downloadName) << "\""
+                                                << ",\"savedPath\":\"" << esc(targetPath.string()) << "\""
+                                                << ",\"sizeBytes\":" << content.size() << "}";
+                                            sendJsonResponse(new_socket, 200, "OK", oss.str());
+                                        }
+                                    }
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "GET" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/files") != std::string::npos)
+                            {
+                                size_t idStart = 12;
+                                size_t slashEnd = uriPath.find('/', idStart);
+                                AppId_t appId = 0;
+                                try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+
+                                auto files = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(appId, provider, acctId);
+                                std::string gameTitle;
+                                auto knownTitles = g_config.gameTitles.get();
+                                auto tIt = knownTitles.find(appId);
+                                if (tIt != knownTitles.end() && !tIt->second.empty())
+                                {
+                                    gameTitle = tIt->second;
+                                }
+                                else
+                                {
+                                    gameTitle = Navi::CloudRedirect::CCloudManager::Instance().ResolveAppTitleFromManifests(appId);
+                                }
+                                bool redirected = g_config.IsAppCloudRedirected(appId);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderAppCloudFilesJson(appId, gameTitle, provider, redirected, files));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/sync") != std::string::npos)
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    size_t idStart = 12;
+                                    size_t slashEnd = uriPath.find('/', idStart);
+                                    AppId_t appId = 0;
+                                    try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
+
+                                    auto syncRes = PrefixBucketSync::RunJobForTest(appId, PrefixBucketSync::Mode::Full, "manual-ui");
+                                    const auto childDepots = Navi::CloudRedirect::CCloudManager::Instance().GetChildDepotIdsForApp(appId);
+                                    for (AppId_t cid : childDepots)
+                                    {
+                                        auto childRes = PrefixBucketSync::RunJobForTest(cid, PrefixBucketSync::Mode::Full, "manual-ui");
+                                        syncRes.filesPulled += childRes.filesPulled;
+                                        syncRes.filesPushed += childRes.filesPushed;
+                                    }
+                                    uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+                                    auto files = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(appId, "local-only", acctId);
+
+                                    auto esc = [](const std::string& s) {
+                                        std::string r;
+                                        for (char c : s) {
+                                            if (c == '"') r += "\\\"";
+                                            else if (c == '\\') r += "\\\\";
+                                            else r += c;
+                                        }
+                                        return r;
+                                    };
+                                    std::ostringstream oss;
+                                    oss << "{\"success\":true,\"appId\":" << appId
+                                        << ",\"filesPulled\":" << syncRes.filesPulled
+                                        << ",\"filesPushed\":" << syncRes.filesPushed
+                                        << ",\"fileCount\":" << files.size()
+                                        << ",\"message\":\"" << esc(syncRes.message.empty() ? "Cloud sync complete" : syncRes.message) << "\"}";
+                                    sendJsonResponse(new_socket, 200, "OK", oss.str());
+                                    handled = true;
+                                }
+                            }
                             else if (method == "GET" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/status") != std::string::npos)
                             {
                                 size_t idStart = 12; // length of "/cloud/apps/"
@@ -1017,11 +1280,22 @@ namespace StoreInject
                                     try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
                                     std::string body = extractHttpPostBody(new_socket, request);
                                     bool redirect = Navi::CloudView::parseBoolField(body, "redirect", false);
-                                    auto apps = g_config.cloudSavesManagedApps.get();
-                                    if (redirect) apps.insert(appId);
-                                    else apps.erase(appId);
-                                    g_config.cloudSavesManagedApps.set(apps);
-                                    Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(apps);
+                                    auto managedApps = g_config.cloudSavesManagedApps.get();
+                                    auto disabledApps = g_config.cloudSavesDisabledApps.get();
+                                    if (redirect)
+                                    {
+                                        managedApps.insert(appId);
+                                        disabledApps.erase(appId);
+                                    }
+                                    else
+                                    {
+                                        managedApps.erase(appId);
+                                        disabledApps.insert(appId);
+                                        Navi::CloudRedirect::CCloudRedirectBridge::Instance().RevertSlsSteamConfig({appId});
+                                    }
+                                    g_config.cloudSavesManagedApps.set(managedApps);
+                                    g_config.cloudSavesDisabledApps.set(disabledApps);
+                                    Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(g_config.GetEffectiveCloudRedirectedApps());
                                     sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderAppToggleJson(appId, redirect));
                                     handled = true;
                                 }
@@ -1046,28 +1320,45 @@ namespace StoreInject
                                     uint64_t ts = static_cast<uint64_t>(std::time(nullptr));
                                     fs::path backupFile = backupDir / ("manual-" + std::to_string(ts) + ".tar.gz");
 
-                                    fs::path steamRoot = Navi::CloudRedirect::CCloudRedirectBridge::Instance().GetPaths().steamRoot;
+                                    const auto& crPaths = Navi::CloudRedirect::CCloudRedirectBridge::Instance().GetPaths();
+                                    fs::path steamRoot = crPaths.steamRoot;
                                     std::vector<std::string> tarArgs = {"tar", "-czf", backupFile.string(), "-P"};
                                     bool hasFiles = false;
 
-                                    fs::path storageApp = steamRoot / "cloud_redirect" / "storage";
-                                    if (fs::exists(storageApp, ec))
+                                    std::vector<AppId_t> targetAppIds = {appId};
+                                    for (AppId_t cid : Navi::CloudRedirect::CCloudManager::Instance().GetChildDepotIdsForApp(appId))
                                     {
-                                        for (const auto& acct : fs::directory_iterator(storageApp, ec))
-                                        {
-                                            fs::path p = acct.path() / std::to_string(appId);
-                                            if (fs::exists(p, ec)) { tarArgs.push_back(p.string()); hasFiles = true; }
-                                        }
+                                        targetAppIds.push_back(cid);
                                     }
-                                    fs::path userdataRoot = steamRoot / "userdata";
-                                    if (fs::exists(userdataRoot, ec))
+
+                                    for (AppId_t tId : targetAppIds)
                                     {
-                                        for (const auto& acct : fs::directory_iterator(userdataRoot, ec))
+                                        std::string tIdStr = std::to_string(tId);
+                                        for (const fs::path& storageRoot : {crPaths.crConfigDir / "storage", crPaths.storageDir, steamRoot / "cloud_redirect" / "storage"})
                                         {
-                                            fs::path remoteDir = acct.path() / std::to_string(appId) / "remote";
-                                            if (fs::exists(remoteDir, ec)) { tarArgs.push_back(remoteDir.string()); hasFiles = true; }
-                                            fs::path rcFile = acct.path() / std::to_string(appId) / "remotecache.vdf";
-                                            if (fs::exists(rcFile, ec)) { tarArgs.push_back(rcFile.string()); hasFiles = true; }
+                                            if (!storageRoot.empty() && fs::exists(storageRoot, ec))
+                                            {
+                                                for (const auto& acct : fs::directory_iterator(storageRoot, ec))
+                                                {
+                                                    fs::path p = acct.path() / tIdStr;
+                                                    if (fs::exists(p, ec)) { tarArgs.push_back(p.string()); hasFiles = true; }
+                                                }
+                                            }
+                                        }
+                                        fs::path userdataRoot = steamRoot / "userdata";
+                                        if (fs::exists(userdataRoot, ec))
+                                        {
+                                            for (const auto& acct : fs::directory_iterator(userdataRoot, ec))
+                                            {
+                                                fs::path remoteDir = acct.path() / tIdStr / "remote";
+                                                if (fs::exists(remoteDir, ec)) { tarArgs.push_back(remoteDir.string()); hasFiles = true; }
+                                                fs::path rcFile = acct.path() / tIdStr / "remotecache.vdf";
+                                                if (fs::exists(rcFile, ec)) { tarArgs.push_back(rcFile.string()); hasFiles = true; }
+                                            }
+                                        }
+                                        for (const auto& gseDir : Navi::CloudRedirect::CCloudManager::Instance().ResolveGoldbergSavePaths(tId))
+                                        {
+                                            if (fs::exists(gseDir, ec)) { tarArgs.push_back(gseDir.string()); hasFiles = true; }
                                         }
                                     }
                                     if (!hasFiles) { tarArgs.push_back("--files-from"); tarArgs.push_back("/dev/null"); }
@@ -1338,6 +1629,8 @@ namespace StoreInject
                                     bool downloading = false;
                                     bool onlineFixInstalled = Apps::isOnlineFixInstalled(appId);
                                     bool autoCrackInstalled = Apps::isAutoCrackInstalled(appId);
+                                    auto acStatus = AutoCrack::inspectOrGetStatus(appId);
+                                    std::string autoCrackState = AutoCrack::stateToString(acStatus.state);
                                     bool paused = false;
 
                                     // Read provider name from sidecar file
@@ -1352,7 +1645,7 @@ namespace StoreInject
                                         }
                                     }
 
-                                    std::string json = StoreInjectView::renderCheckJson(exists, luaExists, gameExists, isUnlocked, pending, downloading, paused, onlineFixInstalled, autoCrackInstalled, providerName);
+                                    std::string json = StoreInjectView::renderCheckJson(exists, luaExists, gameExists, isUnlocked, pending, downloading, paused, onlineFixInstalled, autoCrackInstalled, providerName, autoCrackState);
                                     std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n" + json;
                                     send(new_socket, response.c_str(), response.size(), 0);
                                     close(new_socket);
@@ -1618,21 +1911,25 @@ namespace StoreInject
                                 close(new_socket);
                             }
                         }
-                        else if (request.find("/install-crack?id=") != std::string::npos)
+                        else if (request.find("/install-crack?id=") != std::string::npos || request.find("/install-crack?") != std::string::npos)
                         {
                             try {
                                 size_t idPos = request.find("id=");
                                 if (idPos != std::string::npos)
                                 {
-                                    size_t endPos = request.find_first_of(" &", idPos);
+                                    size_t endPos = request.find_first_of(" &\r\n", idPos);
                                     std::string idStr = request.substr(idPos + 3, (endPos == std::string::npos) ? std::string::npos : (endPos - (idPos + 3)));
                                     uint32_t appId = std::stoul(idStr);
-                                    LOG_INFO("StoreInject: Received /install-crack for AppID %u\n", appId);
+                                    bool force = (request.find("force=1") != std::string::npos || request.find("force=true") != std::string::npos);
+                                    LOG_INFO("StoreInject: Received /install-crack for AppID %u (force=%d)\n", appId, force);
                                     
-                                    Apps::setAutoCrackInstalled(appId, true);
-                                    
-                                    const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
-                                    send(new_socket, response, strlen(response), 0);
+                                    bool queued = AutoCrack::enqueue(appId, AutoCrack::Origin::Manual, force);
+                                    std::string respBody = queued ? "{\"queued\":true}" : "{\"queued\":false,\"reason\":\"busy\"}";
+                                    int statusCode = queued ? 202 : 409;
+                                    std::string response = "HTTP/1.1 " + std::to_string(statusCode) + " " + (queued ? "Accepted" : "Conflict") +
+                                                           "\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " +
+                                                           std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                    send(new_socket, response.c_str(), response.size(), 0);
                                     close(new_socket);
                                     handled = true;
                                 }
@@ -1641,21 +1938,50 @@ namespace StoreInject
                                 close(new_socket);
                             }
                         }
-                        else if (request.find("/remove-crack?id=") != std::string::npos)
+                        else if (request.find("/remove-crack?id=") != std::string::npos || request.find("/remove-crack?") != std::string::npos)
                         {
                             try {
                                 size_t idPos = request.find("id=");
                                 if (idPos != std::string::npos)
                                 {
-                                    size_t endPos = request.find_first_of(" &", idPos);
+                                    size_t endPos = request.find_first_of(" &\r\n", idPos);
                                     std::string idStr = request.substr(idPos + 3, (endPos == std::string::npos) ? std::string::npos : (endPos - (idPos + 3)));
                                     uint32_t appId = std::stoul(idStr);
                                     LOG_INFO("StoreInject: Received /remove-crack for AppID %u\n", appId);
                                     
-                                    Apps::setAutoCrackInstalled(appId, false);
-                                    
-                                    const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
-                                    send(new_socket, response, strlen(response), 0);
+                                    bool queued = AutoCrack::enqueueRestore(appId);
+                                    std::string respBody = queued ? "{\"queued\":true}" : "{\"queued\":false,\"reason\":\"busy\"}";
+                                    int statusCode = queued ? 202 : 409;
+                                    std::string response = "HTTP/1.1 " + std::to_string(statusCode) + " " + (queued ? "Accepted" : "Conflict") +
+                                                           "\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " +
+                                                           std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                    send(new_socket, response.c_str(), response.size(), 0);
+                                    close(new_socket);
+                                    handled = true;
+                                }
+                            } catch (...) {
+                                handled = false;
+                                close(new_socket);
+                            }
+                        }
+                        else if (request.find("/crack-status?id=") != std::string::npos || request.find("/crack-status?") != std::string::npos)
+                        {
+                            try {
+                                size_t idPos = request.find("id=");
+                                if (idPos != std::string::npos)
+                                {
+                                    size_t endPos = request.find_first_of(" &\r\n", idPos);
+                                    std::string idStr = request.substr(idPos + 3, (endPos == std::string::npos) ? std::string::npos : (endPos - (idPos + 3)));
+                                    uint32_t appId = std::stoul(idStr);
+                                    auto st = AutoCrack::inspectOrGetStatus(appId);
+
+                                    std::string respBody = "{\"state\":\"" + std::string(AutoCrack::stateToString(st.state)) + "\"," +
+                                                           "\"stage\":\"" + st.stage + "\"," +
+                                                           "\"message\":\"" + st.message + "\"," +
+                                                           "\"updatedAt\":" + std::to_string(st.updatedAt) + "}";
+                                    std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " +
+                                                           std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
+                                    send(new_socket, response.c_str(), response.size(), 0);
                                     close(new_socket);
                                     handled = true;
                                 }

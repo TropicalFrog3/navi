@@ -32,6 +32,10 @@
     let isAnnotateMode = false;
     let hoveredElement = null;
     let selectedElement = null;
+    let editingAnnotation = null;
+    let lastPointerX = null;
+    let lastPointerY = null;
+    let selectedClickPos = null; // { x, y, offsetX, offsetY }
     let originalInlineCss = '';
     let originalStyles = {}; // Baseline computed styles
     let pendingChanges = {}; // prop -> { original, new }
@@ -810,6 +814,25 @@
         align-items: center;
         gap: 8px;
       }
+      #popup-delete-btn {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 5px 10px;
+        background: rgba(239, 68, 68, 0.14);
+        border: 1px solid rgba(239, 68, 68, 0.35);
+        border-radius: 16px;
+        color: #f87171;
+        font-weight: 600;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      #popup-delete-btn:hover {
+        background: #ef4444;
+        border-color: #f87171;
+        color: #ffffff;
+      }
       #popup-cancel-btn {
         background: none;
         border: none;
@@ -1215,6 +1238,7 @@
         <div id="popup-footer">
           <div id="viewport-indicator">🖵 <span id="vp-width">1920</span>w</div>
           <div class="footer-actions">
+            <button type="button" id="popup-delete-btn" title="Delete annotation">Delete</button>
             <button type="button" id="popup-cancel-btn">Cancel</button>
             <button type="button" id="popup-action-btn">Save as pointer</button>
           </div>
@@ -1243,6 +1267,7 @@
     const popupHeader = shadow.getElementById('popup-header');
     const popupTargetTag = shadow.getElementById('popup-target-tag');
     const popupRevertBtn = shadow.getElementById('popup-revert-btn');
+    const popupDeleteBtn = shadow.getElementById('popup-delete-btn');
     const popupCancelBtn = shadow.getElementById('popup-cancel-btn');
     const popupActionBtn = shadow.getElementById('popup-action-btn');
     const commentTextarea = shadow.getElementById('comment-textarea');
@@ -1314,15 +1339,20 @@
     popoverClose.addEventListener('click', () => attachPopover.classList.remove('active'));
 
     // --- Tab Switching ---
+    function setActiveTab(tabName) {
+      activeTab = (tabName === 'design' || tabName === 'variants') ? tabName : 'comment';
+      shadow.querySelectorAll('.popup-tab').forEach(b => {
+        b.classList.toggle('active', b.dataset.tab === activeTab);
+      });
+      shadow.querySelectorAll('.tab-pane').forEach(p => {
+        p.classList.toggle('active', p.id === 'tab-' + activeTab);
+      });
+      updateActionButtonText();
+    }
+
     shadow.querySelectorAll('.popup-tab').forEach(tabBtn => {
       tabBtn.addEventListener('click', () => {
-        shadow.querySelectorAll('.popup-tab').forEach(b => b.classList.remove('active'));
-        tabBtn.classList.add('active');
-        activeTab = tabBtn.dataset.tab;
-
-        shadow.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        shadow.getElementById('tab-' + activeTab).classList.add('active');
-        updateActionButtonText();
+        setActiveTab(tabBtn.dataset.tab);
       });
     });
 
@@ -1642,6 +1672,10 @@
     }
 
     function updateActionButtonText() {
+      if (editingAnnotation) {
+        popupActionBtn.textContent = activeTab === 'variants' ? 'Update variants' : 'Update annotation';
+        return;
+      }
       if (activeTab === 'variants') {
         popupActionBtn.textContent = 'Create variants';
       } else if (activeTab === 'design' || Object.keys(pendingChanges).length > 0 || commentTextarea.value.trim().length > 0) {
@@ -1652,6 +1686,7 @@
     }
 
     commentTextarea.addEventListener('input', updateActionButtonText);
+    variantsTextarea.addEventListener('input', updateActionButtonText);
 
     // Revert Button
     popupRevertBtn.addEventListener('click', (e) => {
@@ -1810,6 +1845,12 @@
           right: Math.round(rect.right),
           bottom: Math.round(rect.bottom)
         },
+        clickPosition: selectedClickPos ? {
+          x: selectedClickPos.x,
+          y: selectedClickPos.y,
+          offsetX: Math.round(selectedClickPos.x - rect.left),
+          offsetY: Math.round(selectedClickPos.y - rect.top)
+        } : null,
         viewport: {
           width: window.innerWidth,
           height: window.innerHeight
@@ -1941,6 +1982,8 @@
         popup.style.display = 'none';
         hoveredElement = null;
         selectedElement = null;
+        editingAnnotation = null;
+        selectedClickPos = null;
         try { document.documentElement.style.cursor = ''; } catch (e) {}
         removeCaptureListeners();
       }
@@ -2032,8 +2075,12 @@
     function onPointerMove(e) {
       if (!isAnnotateMode || popup.style.display === 'flex' || isToolbarDragging) return;
 
+      if (e.target === host || (e.target && host.contains(e.target))) {
+        return;
+      }
+
       let el = e.target;
-      if (!el || el === host || host.contains(el)) {
+      if (!el) {
         el = document.elementFromPoint(e.clientX, e.clientY);
       }
 
@@ -2043,11 +2090,13 @@
         return;
       }
 
+      lastPointerX = e.clientX;
+      lastPointerY = e.clientY;
       updateHoverBoxForElement(el);
     }
 
     function onCaptureEvent(e) {
-      if (!isAnnotateMode) return;
+      if (!isAnnotateMode && popup.style.display !== 'flex') return;
 
       // Allow interactions inside our host's shadow root (corner button, popup dialog, pins)
       if (e.target === host || (e.target && host.contains(e.target))) {
@@ -2071,7 +2120,7 @@
           ? hoveredElement
           : ((e.target && e.target !== host && !host.contains(e.target)) ? e.target : document.elementFromPoint(e.clientX, e.clientY));
         if (el && el !== host && !host.contains(el)) {
-          openPopup(el);
+          openPopup(el, e.clientX, e.clientY);
         }
       }
     }
@@ -2094,14 +2143,40 @@
       window.removeEventListener('click', onCaptureEvent, true);
     }
 
+    function generateClientUuid() {
+      if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+      }
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+        const r = (Math.random() * 16) | 0;
+        return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16);
+      });
+    }
+
     // --- Popup Dialog Logic ---
-    function openPopup(el) {
+    function openPopup(el, clickX, clickY) {
+      editingAnnotation = null;
       selectedElement = el;
       hoverBox.style.display = 'none';
+      if (popupDeleteBtn) popupDeleteBtn.style.display = 'none';
 
       populateElementValues(el);
+      setActiveTab('comment');
 
       const rect = el.getBoundingClientRect();
+      const cx = (typeof clickX === 'number' && Number.isFinite(clickX))
+        ? clickX
+        : (typeof lastPointerX === 'number' && Number.isFinite(lastPointerX) ? lastPointerX : (rect.left + Math.min(15, rect.width / 2)));
+      const cy = (typeof clickY === 'number' && Number.isFinite(clickY))
+        ? clickY
+        : (typeof lastPointerY === 'number' && Number.isFinite(lastPointerY) ? lastPointerY : (rect.top + Math.min(15, rect.height / 2)));
+      selectedClickPos = {
+        x: Math.round(cx),
+        y: Math.round(cy),
+        offsetX: Math.round(cx - rect.left),
+        offsetY: Math.round(cy - rect.top)
+      };
+
       const popW = popup.offsetWidth || 320;
       const popH = popup.offsetHeight || 340;
       let left = rect.left;
@@ -2128,7 +2203,88 @@
 
       commentTextarea.value = '';
       variantsTextarea.value = '';
+      updateActionButtonText();
       setTimeout(() => commentTextarea.focus(), 50);
+    }
+
+    function openPopupForAnnotation(annot, pinEl) {
+      if (!annot) return;
+
+      // Roll back uncommitted preview styles from any currently open popup
+      if (selectedElement && originalInlineCss !== undefined) {
+        selectedElement.style.cssText = originalInlineCss;
+      }
+
+      editingAnnotation = annot;
+      const el = resolveElementForAnnotation(annot);
+      selectedElement = el || null;
+      selectedClickPos = annot.element_context?.clickPosition
+        ? { ...annot.element_context.clickPosition }
+        : null;
+
+      if (el) {
+        populateElementValues(el);
+        updateHoverBoxForElement(el);
+      } else {
+        originalInlineCss = undefined;
+        originalStyles = {};
+        pendingChanges = {};
+        if (popupTargetTag) {
+          popupTargetTag.textContent = (annot.element_context?.tag || 'element').toLowerCase();
+        }
+        if (vpWidth) vpWidth.textContent = window.innerWidth;
+        hoverBox.style.display = 'none';
+      }
+
+      if (annot.pending_changes && typeof annot.pending_changes === 'object') {
+        pendingChanges = JSON.parse(JSON.stringify(annot.pending_changes));
+        updateChangeDots();
+      }
+
+      const tabToOpen = (annot.mode === 'design' || annot.mode === 'variants') ? annot.mode : 'comment';
+      setActiveTab(tabToOpen);
+
+      commentTextarea.value = annot.comment || '';
+      variantsTextarea.value = annot.variant_instructions?.prompt || (annot.mode === 'variants' ? (annot.comment || '') : '');
+      updateActionButtonText();
+      if (popupDeleteBtn) popupDeleteBtn.style.display = 'inline-flex';
+
+      const anchorRect = pinEl
+        ? pinEl.getBoundingClientRect()
+        : (el ? el.getBoundingClientRect() : { left: 100, top: 100, bottom: 122, width: 22, height: 22 });
+      const popW = popup.offsetWidth || 320;
+      const popH = popup.offsetHeight || 340;
+      let left = anchorRect.left;
+      let top = anchorRect.bottom + 10;
+
+      if (left + popW > window.innerWidth - 20) left = window.innerWidth - popW - 20;
+      if (left < 20) left = 20;
+
+      if (top + popH > window.innerHeight - 20) {
+        top = anchorRect.top - popH - 10;
+      }
+      if (top < 20) top = 20;
+
+      popup.style.left = left + 'px';
+      popup.style.top = top + 'px';
+      popup.style.display = 'flex';
+
+      popupActionBtn.disabled = !isConnected;
+      if (!isConnected) {
+        popupActionBtn.title = "Annotator disconnected";
+      } else {
+        popupActionBtn.title = "";
+      }
+
+      // Ensure capture listeners are active so clicking outside closes the popup cleanly
+      attachCaptureListeners();
+
+      setTimeout(() => {
+        const targetInput = (tabToOpen === 'variants') ? variantsTextarea : commentTextarea;
+        targetInput.focus();
+        const len = targetInput.value.length;
+        try { targetInput.setSelectionRange(len, len); } catch (e) {}
+      }, 50);
     }
 
     function closePopup() {
@@ -2137,7 +2293,65 @@
         selectedElement.style.cssText = originalInlineCss;
       }
       popup.style.display = 'none';
+      if (popupDeleteBtn) popupDeleteBtn.style.display = 'none';
       selectedElement = null;
+      editingAnnotation = null;
+      selectedClickPos = null;
+      setAnnotateMode(false);
+    }
+
+    function onDeleteCurrentAnnotationClicked() {
+      if (!editingAnnotation) return;
+
+      const targetAnnot = editingAnnotation;
+      const annotId = targetAnnot.id || '';
+
+      // Revert any preview or applied pending CSS changes on the target element
+      if (selectedElement) {
+        if (originalInlineCss !== undefined) {
+          selectedElement.style.cssText = originalInlineCss;
+        }
+        if (targetAnnot.pending_changes && typeof targetAnnot.pending_changes === 'object') {
+          Object.entries(targetAnnot.pending_changes).forEach(([prop, change]) => {
+            try {
+              if (prop === 'inlineCss') {
+                selectedElement.style.cssText = (change && change.original) || '';
+              } else {
+                selectedElement.style[prop] = (change && change.original) || '';
+              }
+            } catch (e) {}
+          });
+        }
+      }
+
+      // 1. Instantly remove from activePins and re-render
+      activePins = activePins.filter(a => a !== targetAnnot && (!annotId || a.id !== annotId));
+      renderPins();
+
+      // 2. Transmit delete_annotation payload over CDP binding
+      const payload = {
+        action: 'delete_annotation',
+        id: annotId,
+        url: targetAnnot.url || window.location.href,
+        comment: targetAnnot.comment || '',
+        created_at: targetAnnot.created_at || ''
+      };
+
+      try {
+        if (typeof window[BINDING_NAME] === 'function') {
+          window[BINDING_NAME](JSON.stringify(payload));
+        } else {
+          console.error('[CEF Annotator] Binding function not found:', BINDING_NAME);
+        }
+      } catch (err) {
+        console.error('[CEF Annotator] Failed calling delete_annotation binding:', err);
+      }
+
+      popup.style.display = 'none';
+      if (popupDeleteBtn) popupDeleteBtn.style.display = 'none';
+      selectedElement = null;
+      editingAnnotation = null;
+      selectedClickPos = null;
       setAnnotateMode(false);
     }
 
@@ -2146,11 +2360,18 @@
         alert("Cannot save: Annotator daemon is disconnected.");
         return;
       }
-      if (!selectedElement) return;
+      if (!selectedElement && !editingAnnotation) return;
 
       const comment = commentTextarea.value.trim();
       const variantPrompt = variantsTextarea.value.trim();
-      const context = getElementContext(selectedElement);
+      const context = selectedElement
+        ? getElementContext(selectedElement)
+        : (editingAnnotation ? editingAnnotation.element_context : null);
+      if (!context) return;
+
+      if (editingAnnotation && !context.clickPosition && editingAnnotation.element_context?.clickPosition) {
+        context.clickPosition = { ...editingAnnotation.element_context.clickPosition };
+      }
 
       let mode = activeTab;
       let finalComment = comment;
@@ -2167,15 +2388,63 @@
         mode = 'design';
       }
 
-      const payload = {
-        action: 'save_annotation',
-        comment: finalComment,
-        mode: mode,
-        pending_changes: Object.keys(pendingChanges).length > 0 ? pendingChanges : null,
-        variant_instructions: variantInstructions,
-        element_context: context,
-        created_at: new Date().toISOString()
-      };
+      let payload;
+      if (editingAnnotation) {
+        const annotId = editingAnnotation.id || generateClientUuid();
+        editingAnnotation.id = annotId;
+        editingAnnotation.comment = finalComment;
+        editingAnnotation.mode = mode;
+        editingAnnotation.element_context = context;
+        if (Object.keys(pendingChanges).length > 0) {
+          editingAnnotation.pending_changes = pendingChanges;
+        } else {
+          delete editingAnnotation.pending_changes;
+        }
+        if (variantInstructions) {
+          editingAnnotation.variant_instructions = variantInstructions;
+        } else {
+          delete editingAnnotation.variant_instructions;
+        }
+        renderPins();
+
+        payload = {
+          action: 'update_annotation',
+          id: annotId,
+          comment: finalComment,
+          mode: mode,
+          pending_changes: Object.keys(pendingChanges).length > 0 ? pendingChanges : null,
+          variant_instructions: variantInstructions,
+          element_context: context,
+          updated_at: new Date().toISOString()
+        };
+      } else {
+        const annotId = generateClientUuid();
+        payload = {
+          action: 'save_annotation',
+          id: annotId,
+          comment: finalComment,
+          mode: mode,
+          pending_changes: Object.keys(pendingChanges).length > 0 ? pendingChanges : null,
+          variant_instructions: variantInstructions,
+          element_context: context,
+          created_at: new Date().toISOString()
+        };
+
+        // Optimistically render the pin immediately at the click position
+        const optimisticUrl = (WORLD_MODE === 'main' && currentRouteHint)
+          ? `https://steamloopback.host${currentRouteHint}`
+          : window.location.href;
+        activePins.push({
+          id: annotId,
+          url: optimisticUrl,
+          comment: finalComment,
+          mode: mode,
+          pending_changes: Object.keys(pendingChanges).length > 0 ? pendingChanges : undefined,
+          variant_instructions: variantInstructions || undefined,
+          element_context: context
+        });
+        renderPins();
+      }
 
       try {
         if (typeof window[BINDING_NAME] === 'function') {
@@ -2188,10 +2457,22 @@
       }
 
       // Close without rollback because change is confirmed
-      originalInlineCss = selectedElement.style.cssText;
+      if (selectedElement) {
+        originalInlineCss = selectedElement.style.cssText;
+      }
       popup.style.display = 'none';
+      if (popupDeleteBtn) popupDeleteBtn.style.display = 'none';
       selectedElement = null;
+      editingAnnotation = null;
+      selectedClickPos = null;
       setAnnotateMode(false);
+    }
+
+    if (popupDeleteBtn) {
+      popupDeleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        onDeleteCurrentAnnotationClicked();
+      });
     }
 
     popupCancelBtn.addEventListener('click', (e) => {
@@ -2223,20 +2504,20 @@
       const ctx = annot.element_context;
       if (!ctx || !ctx.selectors) return null;
 
-      if (ctx.selectors.priority && Array.isArray(ctx.selectors.priority)) {
-        for (const sel of ctx.selectors.priority) {
-          try {
-            const el = document.querySelector(sel);
-            if (el) return el;
-          } catch (e) {}
-        }
-      }
-
       if (ctx.selectors.nthOfTypePath) {
         try {
           const el = document.querySelector(ctx.selectors.nthOfTypePath);
           if (el) return el;
         } catch (e) {}
+      }
+
+      if (ctx.selectors.priority && Array.isArray(ctx.selectors.priority)) {
+        for (const sel of ctx.selectors.priority) {
+          try {
+            const matches = document.querySelectorAll(sel);
+            if (matches.length === 1) return matches[0];
+          } catch (e) {}
+        }
       }
 
       return null;
@@ -2245,20 +2526,44 @@
     function renderPins() {
       pinsContainer.innerHTML = '';
       const relevant = activePins.filter(matchesCurrentPage);
+      const pinRadius = 11; // .annot-pin is 22x22px
 
       relevant.forEach((annot, index) => {
         const pin = document.createElement('div');
         pin.className = 'annot-pin';
         pin.textContent = String(index + 1);
+        pin.title = 'Click to edit annotation';
 
         const tip = document.createElement('div');
         tip.className = 'annot-pin-tooltip';
         tip.textContent = annot.comment || '(No comment)';
         pin.appendChild(tip);
 
+        pin.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          openPopupForAnnotation(annot, pin);
+        });
+
         const el = resolveElementForAnnotation(annot);
+        const clickPos = annot.element_context?.clickPosition;
         let x = 0, y = 0;
-        if (el) {
+
+        if (clickPos && typeof clickPos.x === 'number' && typeof clickPos.y === 'number') {
+          if (el && typeof clickPos.offsetX === 'number' && typeof clickPos.offsetY === 'number') {
+            const r = el.getBoundingClientRect();
+            if (r.width > 0 || r.height > 0) {
+              x = r.left + clickPos.offsetX - pinRadius;
+              y = r.top + clickPos.offsetY - pinRadius;
+            } else {
+              x = clickPos.x - pinRadius;
+              y = clickPos.y - pinRadius;
+            }
+          } else {
+            x = clickPos.x - pinRadius;
+            y = clickPos.y - pinRadius;
+          }
+        } else if (el) {
           const r = el.getBoundingClientRect();
           x = r.left + 4;
           y = r.top + 4;
@@ -2267,11 +2572,11 @@
           y = annot.element_context.rect.top + 4;
         }
 
-        x = Math.max(10, Math.min(window.innerWidth - 30, x));
-        y = Math.max(10, Math.min(window.innerHeight - 30, y));
+        x = Math.max(4, Math.min(window.innerWidth - 26, x));
+        y = Math.max(4, Math.min(window.innerHeight - 26, y));
 
-        pin.style.left = x + 'px';
-        pin.style.top = y + 'px';
+        pin.style.left = Math.round(x) + 'px';
+        pin.style.top = Math.round(y) + 'px';
         pinsContainer.appendChild(pin);
       });
     }
@@ -2354,7 +2659,7 @@
           if (hoveredElement && hoveredElement !== host && !host.contains(hoveredElement)) {
             e.preventDefault();
             e.stopPropagation();
-            openPopup(hoveredElement);
+            openPopup(hoveredElement, lastPointerX, lastPointerY);
             return;
           }
         }
@@ -2449,7 +2754,7 @@
       }
       if (e.target.closest('#key-badge-enter')) {
         if (hoveredElement && hoveredElement !== host && !host.contains(hoveredElement)) {
-          openPopup(hoveredElement);
+          openPopup(hoveredElement, lastPointerX, lastPointerY);
         }
         return;
       }

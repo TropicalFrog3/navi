@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-#include <curl/curl.h>
+#include "curl.hpp"
 
 namespace LuaDownload
 {
@@ -122,98 +122,15 @@ namespace LuaDownload
         return Paths::findSteamRoot();
     }
 
-    // ── libcurl helpers ────────────────────────────────────────────────
-
-    static size_t curlWriteCallback(void* ptr, size_t size, size_t nmemb, void* userdata)
-    {
-        auto* file = static_cast<FILE*>(userdata);
-        return fwrite(ptr, size, nmemb, file);
-    }
-
+    // ── HTTP download helper ───────────────────────────────────────────
     /**
-     * Download a URL to a file using libcurl.
-     * Returns the HTTP status code, or -1 on connection/curl error.
+     * Download a URL to a file.
+     * Returns the HTTP status code, or -1 on connection error.
      */
     static int downloadToFile(const std::string& url, const std::string& destPath, const std::string& apiName, const std::string& authHeader = "", int timeoutSec = 60)
     {
-        CURL* curl = curl_easy_init();
-        if (!curl) return -1;
-
-        const std::string tmpPath = AtomicFile::makeTempPath(destPath);
-        AtomicFile::TempFileGuard guard(tmpPath);
-
-        FILE* fp = fopen(tmpPath.c_str(), "wb");
-        if (!fp)
-        {
-            curl_easy_cleanup(curl);
-            return -1;
-        }
-
-        struct curl_slist* headers = NULL;
-        if (!authHeader.empty()) {
-            headers = curl_slist_append(headers, authHeader.c_str());
-            curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-        }
-
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, static_cast<long>(timeoutSec > 0 ? timeoutSec : 60));
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
-        
-        // Use a more browser-like User-Agent to avoid some basic blocks
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        
-        // Robust SSL settings
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
-        
-        // Enable all supported encodings (gzip, deflate, etc.)
-        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-        
-        // Handle hanging connections
-        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 1L);
-        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 30L);
-
-        // Disable signal-based timeout handling (safe for threads)
-        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-
-        CURLcode res = curl_easy_perform(curl);
-        fclose(fp);
-
-        if (res != CURLE_OK)
-        {
-            LOG_DEBUG("LuaDownload: API '%s' curl error: %s (code %d)\n", apiName.c_str(), curl_easy_strerror(res), res);
-            
-            // If it's an SSL error on a known problematic host, suggest a reason
-            if (res == CURLE_SSL_CONNECT_ERROR || res == CURLE_PEER_FAILED_VERIFICATION) {
-                LOG_DEBUG("LuaDownload: TLS handshake failed — check certificates or DNS settings.\n");
-            }
-
-            if (headers) curl_slist_free_all(headers);
-            curl_easy_cleanup(curl);
-            return -1;
-        }
-
-        long httpCode = 0;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-        
-        if (headers) curl_slist_free_all(headers);
-        curl_easy_cleanup(curl);
-
-        if (httpCode >= 200 && httpCode < 300)
-        {
-            std::error_code ec;
-            fs::rename(tmpPath, destPath, ec);
-            if (ec)
-            {
-                fs::copy_file(tmpPath, destPath, fs::copy_options::overwrite_existing, ec);
-            }
-            guard.dismiss();
-        }
-
-        return static_cast<int>(httpCode);
+        (void)apiName;
+        return Curl::downloadToFile(url, destPath, timeoutSec > 0 ? timeoutSec : 60, authHeader);
     }
 
     // ── ZIP validation ─────────────────────────────────────────────────

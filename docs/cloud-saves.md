@@ -83,6 +83,30 @@ Diverted game saves and sync states are stored hierarchically inside the user's 
 - **`manifest.dat`**: Contains cryptographic hashes (SHA-256) and directory trees for the game's save files to detect modified, deleted, or conflicted files.
 - **Steam Userdata Mirror**: When redirected, `<SteamRoot>/userdata/<accountId>/<appId>/remote/` and `remotecache.vdf` are linked or synchronized into the redirected storage hierarchy.
 
+### 2.1 Proton Prefix Emulator Save Synchronization (`PrefixBucketSync`)
+
+Games running with Goldberg or GSE (`steam_api(64).dll` / `libsteam_api.so` replacements) handle `ISteamRemoteStorage` inside the emulated DLL rather than calling `steamclient.so`'s `CUserRemoteStorage`. Consequently, their save files are written inside the Proton prefix under:
+
+```
+<library>/steamapps/compatdata/<appId>/pfx/drive_c/users/<user>/AppData/{Roaming,Local,LocalLow}/<emulatorDir>/<appId>/{remote/,...}
+```
+
+`PrefixBucketSync` (`src/presenter/prefix_bucket_sync.cpp`) bridges these Proton prefix buckets with CloudRedirect's remote backend (`gdrive`, `onedrive`, `r2`, `s3`) automatically across devices without any hardcoded AppIDs, usernames, or emulator folder names:
+
+- **Structural Discovery**: Scans all Steam library `compatdata/<appId>/pfx/drive_c/users/<user>/AppData/{Roaming,Local,LocalLow}` trees for `<appId>` save buckets (`GSE Saves/<appId>/remote`, `Goldberg SteamEmu Saves/<appId>/remote`, or custom `<dir>/<appId>`).
+- **Pull on Startup & Game Launch (`sync-remote-app`)**: Before or upon launching a game, `PrefixBucketSync` invokes `cloud_redirect_cli sync-remote-app <provider> <accountId> <appId> <cloudRoot>`, materializes remote `<cleanPath>/<sha1>` blobs into the Proton prefix bucket (synthesizing the bucket directory on a fresh second device if needed), and backs up any conflicting local files under `~/.config/navi/cloud_backups/<appId>/prefix-conflict-<timestamp>/`.
+- **Push on Game Exit & Startup (`publish-full-manifest`)**: When a game exits, `PrefixBucketSync` mirrors updated save files into `~/.config/CloudRedirect/storage/<accountId>/<appId>/<cleanPath>`, seeds `root_token.cloudredirect` and `file_tokens.cloudredirect`, increments `cn.cloudredirect`, and runs `cloud_redirect_cli publish-full-manifest <provider> <accountId> <appId> <cloudRoot>`.
+- **Configuration (`~/.config/navi/config.yaml`)**:
+  ```yaml
+  CloudSaves:
+    PrefixSync:
+      Enabled: yes
+      SyncAtStartup: yes
+      SyncOnLaunch: yes
+      SyncOnExit: yes
+      MaxFileMb: 64
+  ```
+
 ---
 
 ## 3. Supported Cloud Providers

@@ -32,6 +32,12 @@ def repo_paths() -> dict[str, Path]:
         "root": REPO_ROOT,
         "fixtures": FIXTURES_DIR,
         "scripts": SCRIPTS_DIR,
+        "scripts_core": SCRIPTS_DIR / "core",
+        "scripts_store": SCRIPTS_DIR / "store",
+        "scripts_library": SCRIPTS_DIR / "library",
+        "scripts_cloud": SCRIPTS_DIR / "cloud",
+        "scripts_shell": SCRIPTS_DIR / "shell",
+        "scripts_vendor": SCRIPTS_DIR / "vendor",
     }
 
 

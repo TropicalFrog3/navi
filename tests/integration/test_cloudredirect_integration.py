@@ -182,25 +182,32 @@ class TestLauncherWrapperPreload:
         assert "INVOKED_PRELOAD=/usr/lib/libcustom.so" in out
         assert "cloud_redirect.so" not in out
 
-    def test_enabled_preserves_clean_environment_without_ld_preload_injection(self, wrapper_env):
-        """When enabled, absent killswitch, and so exists, wrapper does not inject cloud_redirect.so into LD_PRELOAD."""
+    def test_enabled_prepends_so_to_ld_preload(self, wrapper_env):
+        """When enabled, absent killswitch, and so exists, cloud_redirect.so is prepended to LD_PRELOAD."""
         wrapper_env["cr_so"].write_text("/* dummy so */")
         wrapper_env["cloud_enabled"].parent.mkdir(parents=True, exist_ok=True)
         wrapper_env["cloud_enabled"].write_text("1")
         if wrapper_env["killswitch"].exists():
             wrapper_env["killswitch"].unlink()
 
-        # Case A: Existing user LD_PRELOAD is preserved untouched
+        cr_so_str = str(wrapper_env["cr_so"])
+
+        # Case A: Existing user LD_PRELOAD
         rc, out = self._run_wrapper(wrapper_env, {"LD_PRELOAD": "/usr/lib/user_mod.so"})
         assert rc == 0
-        assert "INVOKED_PRELOAD=/usr/lib/user_mod.so" in out
-        assert "cloud_redirect.so" not in out
+        expected = f"INVOKED_PRELOAD={cr_so_str}:/usr/lib/user_mod.so"
+        assert expected in out
 
-        # Case B: Empty initial LD_PRELOAD remains clean
+        # Case B: Empty initial LD_PRELOAD
         rc, out = self._run_wrapper(wrapper_env, {"LD_PRELOAD": ""})
         assert rc == 0
-        assert "INVOKED_PRELOAD=" in out
-        assert "cloud_redirect.so" not in out
+        expected = f"INVOKED_PRELOAD={cr_so_str}"
+        assert expected in out
+
+        # Case C: LD_PRELOAD already contains cloud_redirect.so (no duplication)
+        rc, out = self._run_wrapper(wrapper_env, {"LD_PRELOAD": f"{cr_so_str}:/usr/lib/user_mod.so"})
+        assert rc == 0
+        assert out.count(cr_so_str) == 1
 
     def test_wrapper_executes_pending_ops_helper_if_present(self, wrapper_env):
         """Wrapper executes navi-cloud-apply-pending --process-all on startup if binary is present and executable."""

@@ -461,6 +461,35 @@ class CallbackServerStub:
         if clean_path == "/list":
             return json_resp(self.lua_app_ids)
 
+        # /cloud/apps/<id>/files
+        m_app_files = re.match(r"^/cloud/apps/(\d+)/files$", clean_path)
+        if m_app_files:
+            appid = int(m_app_files.group(1))
+            return json_resp({
+                "success": True,
+                "appId": appid,
+                "gameTitle": "Arma 3" if appid == 107410 else f"App {appid}",
+                "files": [
+                    {"folder": "remote", "fileName": "savedata_slot0.bin", "sizeBytes": 3984580, "timestamp": 1730582400},
+                    {"folder": "remote", "fileName": "savedata_slot1.bin", "sizeBytes": 4218880, "timestamp": 1730578800},
+                    {"folder": "userdata/107410", "fileName": "remotecache.vdf", "sizeBytes": 12288, "timestamp": 1730582400},
+                    {"folder": "userdata/107410", "fileName": "profile.cfg", "sizeBytes": 4096, "timestamp": 1730500000},
+                    {"folder": "stplug-in", "fileName": "107410.lua", "sizeBytes": 18432, "timestamp": 1730582000},
+                    {"folder": "depotcache", "fileName": "107411_892183912.manifest", "sizeBytes": 25270680, "timestamp": 1730581000},
+                    {"folder": "steamapps", "fileName": "appmanifest_107410.acf", "sizeBytes": 4096, "timestamp": 1730580000},
+                ],
+            })
+
+        # /cloud/apps
+        if clean_path == "/cloud/apps":
+            return json_resp({
+                "success": True,
+                "apps": [
+                    {"appId": 107410, "gameTitle": "Arma 3", "fileCount": 4, "totalSizeBytes": 8221844, "redirected": True},
+                    {"appId": 1443430, "gameTitle": "Test Game", "fileCount": 2, "totalSizeBytes": 10240, "redirected": True},
+                ],
+            })
+
         # /cloud/apps/<id>/status
         m_app_status = re.match(r"^/cloud/apps/(\d+)/status$", clean_path)
         if m_app_status:

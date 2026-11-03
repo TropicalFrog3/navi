@@ -19,5 +19,13 @@ do_build() {
             return 1
         fi
     fi
+    if [ -f "$REPO_ROOT/third_party/SteamAutoCrack/SteamAutoCrack.CLI/SteamAutoCrack.CLI.csproj" ]; then
+        if command -v dotnet >/dev/null 2>&1; then
+            log_info "Building AutoCrack payload..."
+            make autocrack || log_warn "AutoCrack build failed; continuing..."
+        else
+            log_warn "dotnet SDK not found; skipping AutoCrack build."
+        fi
+    fi
     log_info "Navi build completed successfully."
 }

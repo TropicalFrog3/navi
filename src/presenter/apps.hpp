@@ -1,6 +1,8 @@
 #pragma once
 
 #include "sdk.hpp"
+#include <filesystem>
+#include <vector>
 
 #include <cstdint>
 #include <map>
@@ -40,6 +42,8 @@ namespace Apps
 	void removeInstalled(uint32_t appId);
 	void deleteGameFiles(uint32_t appId);
 	bool gameFilesExist(uint32_t appId);
+	std::filesystem::path resolveInstallDir(uint32_t appId);
+	std::vector<std::filesystem::path> getSteamLibraryPaths();
 
 	bool isOnlineFixInstalled(uint32_t appId);
 	void setOnlineFixInstalled(uint32_t appId, bool installed);

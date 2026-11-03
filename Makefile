@@ -10,13 +10,12 @@ CXX := g++
 libs := $(wildcard lib/*.a)
 srcs := $(shell find src/ -type f -iname "*.cpp")
 
-CXXFLAGS := -O3 -flto=auto -fPIC -m32 -std=c++20 -Wall -Wextra -Wpedantic -Wno-error=format-security -D_GLIBCXX_USE_CXX11_ABI=0
+CXXFLAGS := -MMD -MP -O3 -flto=auto -fPIC -m32 -std=c++20 -Wall -Wextra -Wpedantic -Wno-error=format-security -D_GLIBCXX_USE_CXX11_ABI=0
 CXXFLAGS += -I./src -I./src/core -I./src/model -I./src/model/migrations -I./src/presenter -I./src/view -I./src/model/sdk
 
 LDFLAGS := -shared -Wl,--no-undefined
 LDFLAGS += $(shell pkg-config --libs "openssl")
 CXXFLAGS += -I/usr/include/x86_64-linux-gnu
-LDFLAGS += /usr/lib/i386-linux-gnu/libcurl.so.4
 
 JOBS := $(shell nproc)
 
@@ -90,12 +89,15 @@ UNIT_TEST_PROD_SRCS := \
 	src/model/sdk/protobufs/steammessages_base.pb.cpp \
 	src/model/sdk/protobufs/steammessages_clientserver.pb.cpp \
 	src/model/sdk/protobufs/steammessages_clientserver_2.pb.cpp \
+	src/model/sdk/IClientAppManager.cpp \
 	src/presenter/apps.cpp \
 	src/presenter/autoupdate.cpp \
+	src/presenter/autocrack_manager.cpp \
 	src/presenter/cloudredirect.cpp \
 	src/core/cloud_oauth.cpp \
 	src/presenter/cloud_manager.cpp \
 	src/presenter/cloud_pending_ops.cpp \
+	src/presenter/prefix_bucket_sync.cpp \
 	src/view/cloud_view.cpp \
 	src/presenter/luagenerator.cpp \
 	src/presenter/nativeinstall.cpp \
@@ -112,41 +114,41 @@ COV_CXXFLAGS := $(filter-out -O3 -flto=auto,$(CXXFLAGS)) -O0 -g --coverage
 
 obj/$(FLAGSSHA)/gtest/%.o: $(GTEST_DIR)/src/%.cc
 	@mkdir -p $(dir $@)
-	$(CXX) -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -isystem $(GTEST_DIR)/include -I$(GTEST_DIR) -pthread -MMD -MP -c $< -o $@
+	$(CXX) -m32 -std=c++20 -D_GLIBCXX_USE_CXX11_ABI=0 -isystem $(GTEST_DIR)/include -I$(GTEST_DIR) -pthread -c $< -o $@
 
 obj/$(FLAGSSHA)/tests/unit/%.o: tests/unit/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -isystem $(GTEST_DIR)/include -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -isystem $(GTEST_DIR)/include -isysteminclude -c $< -o $@
 
 obj/cov/model/config.o: src/model/config.cpp res/config.yaml
 	$(shell ./embed-config.sh)
 	@mkdir -p $(dir $@)
-	$(CXX) $(COV_CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) $(COV_CXXFLAGS) -isysteminclude -c $< -o $@
 
 obj/cov/%.o: src/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(COV_CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) $(COV_CXXFLAGS) -isysteminclude -c $< -o $@
 
 bin/unit_tests: $(UNIT_TEST_OBJS) $(UNIT_TEST_PROD_OBJS) $(GTEST_OBJS)
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -lpthread -ldl -o $@
+	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto -lpthread -ldl -o $@
 	chmod 755 $@
 
 bin/unit_tests_cov: $(COV_PROD_OBJS) $(UNIT_TEST_SDK_OBJS) $(UNIT_TEST_OBJS) $(GTEST_OBJS)
 	@mkdir -p bin
-	$(CXX) $(COV_CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto /usr/lib/i386-linux-gnu/libcurl.so.4 -lpthread -ldl -o $@
+	$(CXX) $(COV_CXXFLAGS) -fuse-ld=gold $^ lib/libprotobuf.a lib/libyaml-cpp.a -lssl -lcrypto -lpthread -ldl -o $@
 	chmod 755 $@
 
 obj/$(FLAGSSHA)/tools/cloud_pending/%.o: tools/cloud_pending/%.cpp
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 
-bin/navi-cloud-apply-pending: obj/$(FLAGSSHA)/tools/cloud_pending/main.o obj/$(FLAGSSHA)/presenter/cloud_pending_ops.o obj/$(FLAGSSHA)/presenter/cloudredirect.o obj/$(FLAGSSHA)/model/paths.o obj/$(FLAGSSHA)/model/vdf.o obj/$(FLAGSSHA)/core/utils.o obj/$(FLAGSSHA)/core/log.o
+bin/navi-cloud-apply-pending: obj/$(FLAGSSHA)/tools/cloud_pending/main.o obj/$(FLAGSSHA)/presenter/cloud_pending_ops.o obj/$(FLAGSSHA)/presenter/cloud_manager.o obj/$(FLAGSSHA)/presenter/cloudredirect.o obj/$(FLAGSSHA)/model/paths.o obj/$(FLAGSSHA)/model/vdf.o obj/$(FLAGSSHA)/core/utils.o obj/$(FLAGSSHA)/core/log.o
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libyaml-cpp.a -lssl -lcrypto -lpthread -ldl -o $@
 	chmod 755 $@
 
-test: bin/unit_tests
+test: prepare_dirs bin/unit_tests
 	./bin/unit_tests
 	if [ -d tests/integration ]; then pytest -q tests/integration; fi
 	$(MAKE) coverage
@@ -186,9 +188,9 @@ link-bins:
 	-test -f "$(NAVISO)" && ln -f "$(NAVISO)" "bin/libnavi.so"
 	-test -f "tools/library-inject/library-inject.so" && ln -f "tools/library-inject/library-inject.so" "bin/library-inject.so"
 
-$(NAVISO): $(objs) $(libs)
+$(NAVISO): $(objs) $(libs) | prepare_dirs
 	@mkdir -p bin
-	$(CXX) $(CXXFLAGS) $^ -o $(NAVISO) $(LDFLAGS)
+	$(CXX) $(CXXFLAGS) $(objs) $(libs) -o $(NAVISO) $(LDFLAGS)
 	$(MAKE) link-bins
 
 bin/library-inject.so:
@@ -202,20 +204,29 @@ schema-grabber:
 ticket-grabber:
 	$(MAKE) -C tools/ticket-grabber
 
+autocrack:
+	@mkdir -p pkg/autocrack
+	dotnet publish third_party/SteamAutoCrack/SteamAutoCrack.CLI/SteamAutoCrack.CLI.csproj \
+		-c Release -r linux-x64 --self-contained \
+		-p:PublishSingleFile=false -o pkg/autocrack/
+	@if [ ! -d "pkg/autocrack/Goldberg" ]; then \
+		echo "Downloading Goldberg emulator files..."; \
+		pkg/autocrack/SteamAutoCrack.CLI downloademu || true; \
+	fi
+
 -include $(deps)
 obj/$(FLAGSSHA)/presenter/update.o: src/presenter/update.cpp res/version
 	$(shell ./embed-version.sh)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 
 obj/$(FLAGSSHA)/model/config.o: src/model/config.cpp res/config.yaml
 	$(shell ./embed-config.sh)
 	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 
 obj/$(FLAGSSHA)/%.o : src/%.cpp
-	@mkdir -p $(dir $@)
-	$(CXX) $(CXXFLAGS) -isysteminclude -MMD -MP -c $< -o $@
+	@mkdir -p $(dir $@) && $(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 
 clean-libs:
 	rm -rvf \
@@ -231,8 +242,11 @@ clean-tools:
 	-$(MAKE) -C tools/schema-grabber clean
 	-$(MAKE) -C tools/ticket-grabber clean
 
-install:
-	./install.sh install
+prepare_dirs:
+	@mkdir -p bin
+	@mkdir -p obj/$(FLAGSSHA)
+
+.PHONY: prepare_dirs
 
 uninstall:
 	./install.sh uninstall
@@ -304,6 +318,7 @@ release: rebuild zips
 	link-bins \
 	schema-grabber \
 	ticket-grabber \
+	autocrack \
 	clean-libs \
 	clean-tools \
 	install \

@@ -12,6 +12,15 @@
 #include <cstring>
 #include <algorithm>
 #include <sys/stat.h>
+#include <filesystem>
+#include <vector>
+#include <map>
+#include <set>
+#include <unordered_set>
+
+
+
+
 
 namespace StoreInjectView
 {
@@ -32,7 +41,7 @@ namespace StoreInjectView
         }
         return {};
     }
-
+static std::string escapeJson(const std::string& s);
     void removeStoreInjectScript()
     {
         auto indexPath = findSteamUIIndexHtml();
@@ -123,32 +132,37 @@ namespace StoreInjectView
                "\",\"hubcap\":\"" + escapeJson(hubcapKey) + "\"}";
     }
 
-    std::string renderCheckJson(const CheckViewModel& info)
-    {
-        std::string escapedProvider;
-        for (char c : info.provider)
-        {
-            if (c == '"' || c == '\\') escapedProvider += '\\';
-            escapedProvider += c;
-        }
 
-        std::string json = "{\"exists\":" + std::string(info.exists ? "true" : "false") + 
-                           ",\"hasLua\":" + std::string(info.hasLua ? "true" : "false") +
-                           ",\"gameExists\":" + std::string(info.gameExists ? "true" : "false") +
-                           ",\"isUnlocked\":" + std::string(info.isUnlocked ? "true" : "false") +
-                           ",\"pending\":" + std::string(info.pending ? "true" : "false") +
-                           ",\"downloading\":" + std::string(info.downloading ? "true" : "false") +
-                           ",\"paused\":" + std::string(info.paused ? "true" : "false") +
-                           ",\"onlineFixInstalled\":" + std::string(info.onlineFixInstalled ? "true" : "false") +
-                           ",\"autoCrackInstalled\":" + std::string(info.autoCrackInstalled ? "true" : "false") +
-                           ",\"provider\":\"" + escapedProvider + "\"}";
-        return json;
+
+std::string renderCheckJson(const CheckViewModel& info) {
+    std::string escapedProvider;
+    for (char c : info.provider) {
+        if (c == '"' || c == '\\') escapedProvider += '\\';
+        escapedProvider += c;
     }
+    std::string escapedAutoCrackState = escapeJson(info.autoCrackState);
+    std::string json = "{\"exists\":" + std::string(info.exists ? "true" : "false") +
+                       ",\"hasLua\":" + std::string(info.hasLua ? "true" : "false") +
+                       ",\"gameExists\":" + std::string(info.gameExists ? "true" : "false") +
+                       ",\"isUnlocked\":" + std::string(info.isUnlocked ? "true" : "false") +
+                       ",\"pending\":" + std::string(info.pending ? "true" : "false") +
+                       ",\"downloading\":" + std::string(info.downloading ? "true" : "false") +
+                       ",\"paused\":" + std::string(info.paused ? "true" : "false") +
+                       ",\"onlineFixInstalled\":" + std::string(info.onlineFixInstalled ? "true" : "false") +
+                       ",\"autoCrackInstalled\":" + std::string(info.autoCrackInstalled ? "true" : "false") +
+                       ",\"autoCrackState\":\"" + escapedAutoCrackState + "\"" +
+                       ",\"provider\":\"" + escapedProvider + "\"}";
+    return json;
+}
+
+
+
 
     std::string renderCheckJson(bool exists, bool hasLua, bool gameExists, bool isUnlocked,
                                 bool pending, bool downloading, bool paused,
                                 bool onlineFixInstalled, bool autoCrackInstalled,
-                                const std::string& provider)
+                                const std::string& provider,
+                                const std::string& autoCrackState)
     {
         CheckViewModel model;
         model.exists = exists;
@@ -160,6 +174,7 @@ namespace StoreInjectView
         model.paused = paused;
         model.onlineFixInstalled = onlineFixInstalled;
         model.autoCrackInstalled = autoCrackInstalled;
+        model.autoCrackState = autoCrackState;
         model.provider = provider;
         return renderCheckJson(model);
     }
@@ -871,7 +886,7 @@ namespace StoreInjectView
         }
 
         g_config.loadSettings(false);
-        Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(g_config.cloudSavesManagedApps.get());
+        Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(g_config.GetEffectiveCloudRedirectedApps());
         return true;
     }
 }

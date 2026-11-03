@@ -16,6 +16,11 @@ namespace RemoveLua
     std::string loadResourceFile(const std::string& filename)
     {
         std::vector<std::string> paths;
+        static const std::vector<std::string> categories = {
+            "", "core/", "store/", "library/", "cloud/", "shell/", "vendor/"
+        };
+
+        std::vector<std::filesystem::path> searchDirs;
 
         // 1. Try to resolve relative to libnavi.so location using dladdr
         Dl_info info;
@@ -25,24 +30,42 @@ namespace RemoveLua
             {
                 std::filesystem::path libPath(info.dli_fname);
                 std::filesystem::path libDir = libPath.parent_path();
-                paths.push_back((libDir / filename).string());
-                paths.push_back((libDir / "res" / "inject-scripts" / filename).string());
-                paths.push_back((libDir / ".." / "res" / "inject-scripts" / filename).string());
+                searchDirs.push_back(libDir);
+                searchDirs.push_back(libDir / "res" / "inject-scripts");
+                searchDirs.push_back(libDir / ".." / "res" / "inject-scripts");
             }
             catch (...) {}
         }
 
         // 2. Add current working directory candidates
-        paths.push_back(filename);
-        paths.push_back("./res/inject-scripts/" + filename);
-        paths.push_back("../res/inject-scripts/" + filename);
+        searchDirs.push_back(".");
+        searchDirs.push_back("./res/inject-scripts");
+        searchDirs.push_back("../res/inject-scripts");
 
         // 3. Add home folder ~/.local/share/navi candidates
         const char* home = getenv("HOME");
         if (home)
         {
-            paths.push_back(std::string(home) + "/.local/share/navi/" + filename);
-            paths.push_back(std::string(home) + "/.local/share/navi/res/inject-scripts/" + filename);
+            searchDirs.push_back(std::filesystem::path(home) / ".local" / "share" / "navi");
+            searchDirs.push_back(std::filesystem::path(home) / ".local" / "share" / "navi" / "res" / "inject-scripts");
+        }
+
+        // Direct path
+        paths.push_back(filename);
+
+        for (const auto& baseDir : searchDirs)
+        {
+            if (filename.find('/') != std::string::npos)
+            {
+                paths.push_back((baseDir / filename).string());
+            }
+            else
+            {
+                for (const auto& cat : categories)
+                {
+                    paths.push_back((baseDir / (cat + filename)).string());
+                }
+            }
         }
 
         for (const auto& path : paths) {

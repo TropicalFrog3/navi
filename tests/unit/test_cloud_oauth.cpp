@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "cloud_oauth.hpp"
 #include "cloudredirect.hpp"
+#include "curl.hpp"
 #include "libmem/libmem.h"
 #include <arpa/inet.h>
 #include <chrono>
@@ -182,6 +183,312 @@ TEST(CloudOAuthTest, PortConflictCheckAndAuthFlow)
     // Cancel in-flight auth
     engine.CancelAuthFlow(OAuthProvider::GoogleDrive);
     EXPECT_FALSE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+}
+
+TEST(CloudOAuthTest, ExchangeCodeForTokenMocked)
+{
+    // 1. Google Drive token exchange mock
+    Curl::HttpRequest_t capturedReq;
+    Curl::setHttpTransportOverride([&capturedReq](const Curl::HttpRequest_t& req, Curl::HttpResponse_t& resp) {
+        capturedReq = req;
+        resp.statusCode = 200;
+        std::string body = "{\"access_token\":\"ya29.gdrive_mock_tok\",\"token_type\":\"Bearer\",\"expires_in\":3600,\"refresh_token\":\"1//mock_refresh\"}";
+        resp.body.assign(body.begin(), body.end());
+        return true;
+    });
+
+    std::string tokenJson, err;
+    bool ok = COAuthEngine::ExchangeCodeForToken(OAuthProvider::GoogleDrive,
+                                                "mock_code_123",
+                                                "mock_verifier_abc",
+                                                53692,
+                                                tokenJson,
+                                                err);
+    EXPECT_TRUE(ok);
+    EXPECT_TRUE(err.empty());
+    EXPECT_NE(tokenJson.find("ya29.gdrive_mock_tok"), std::string::npos);
+    EXPECT_EQ(capturedReq.method, "POST");
+    EXPECT_EQ(capturedReq.url, "https://oauth2.googleapis.com/token");
+    std::string bodyStr(capturedReq.body.begin(), capturedReq.body.end());
+    EXPECT_NE(bodyStr.find("client_id=1072944905499-vm2v2i5dvn0a0d2o4ca36i1vge8cvbn0.apps.googleusercontent.com"), std::string::npos);
+    EXPECT_NE(bodyStr.find("client_secret=v6V3fKV_zWU7iw1DrpO1rknX"), std::string::npos);
+    EXPECT_NE(bodyStr.find("grant_type=authorization_code"), std::string::npos);
+    EXPECT_NE(bodyStr.find("code=mock_code_123"), std::string::npos);
+    EXPECT_NE(bodyStr.find("code_verifier=mock_verifier_abc"), std::string::npos);
+    EXPECT_NE(bodyStr.find("redirect_uri=http%3A%2F%2F127.0.0.1%3A53692%2Fcallback"), std::string::npos);
+
+    // 2. OneDrive token exchange mock
+    ok = COAuthEngine::ExchangeCodeForToken(OAuthProvider::OneDrive,
+                                            "mock_code_ms",
+                                            "mock_verifier_ms",
+                                            53682,
+                                            tokenJson,
+                                            err);
+    EXPECT_TRUE(ok);
+    EXPECT_EQ(capturedReq.url, "https://login.microsoftonline.com/consumers/oauth2/v2.0/token");
+    bodyStr.assign(capturedReq.body.begin(), capturedReq.body.end());
+    EXPECT_NE(bodyStr.find("client_id=d3590ed6-52b3-4102-aeff-aad2292ab01c"), std::string::npos);
+    EXPECT_EQ(bodyStr.find("client_secret="), std::string::npos);
+    EXPECT_NE(bodyStr.find("redirect_uri=http%3A%2F%2F127.0.0.1%3A53682%2Fcallback"), std::string::npos);
+
+    // 3. Error handling: HTTP error from token endpoint
+    Curl::setHttpTransportOverride([](const Curl::HttpRequest_t&, Curl::HttpResponse_t& resp) {
+        resp.statusCode = 400;
+        std::string errBody = "{\"error\":\"invalid_grant\",\"error_description\":\"Malformed code\"}";
+        resp.body.assign(errBody.begin(), errBody.end());
+        return true;
+    });
+
+    ok = COAuthEngine::ExchangeCodeForToken(OAuthProvider::GoogleDrive, "bad_code", "v", 53692, tokenJson, err);
+    EXPECT_FALSE(ok);
+    EXPECT_NE(err.find("400"), std::string::npos);
+    EXPECT_NE(err.find("invalid_grant"), std::string::npos);
+
+    // 4. Error handling: Transport error
+    Curl::setHttpTransportOverride([](const Curl::HttpRequest_t&, Curl::HttpResponse_t& resp) {
+        resp.errorMsg = "Connection refused";
+        return false;
+    });
+
+    ok = COAuthEngine::ExchangeCodeForToken(OAuthProvider::GoogleDrive, "code", "v", 53692, tokenJson, err);
+    EXPECT_FALSE(ok);
+    EXPECT_NE(err.find("Connection refused"), std::string::npos);
+
+    // 5. Empty inputs
+    ok = COAuthEngine::ExchangeCodeForToken(OAuthProvider::GoogleDrive, "", "v", 53692, tokenJson, err);
+    EXPECT_FALSE(ok);
+    ok = COAuthEngine::ExchangeCodeForToken(OAuthProvider::GoogleDrive, "c", "", 53692, tokenJson, err);
+    EXPECT_FALSE(ok);
+
+    Curl::setHttpTransportOverride(nullptr);
+}
+
+TEST(CloudOAuthTest, LoopbackCallbackListenerSuccessAndTokenStorage)
+{
+    ScopedOAuthTestEnv env;
+    auto& engine = COAuthEngine::Instance();
+    engine.SetTokenDirForTest(env.tempDir);
+
+    const std::string mockTokenPayload =
+        "{\"access_token\":\"ya29.loopback_success_test\",\"token_type\":\"Bearer\",\"expires_in\":3600,\"refresh_token\":\"1//loopback_refresh\"}";
+
+    Curl::setHttpTransportOverride([&mockTokenPayload](const Curl::HttpRequest_t&, Curl::HttpResponse_t& resp) {
+        resp.statusCode = 200;
+        resp.body.assign(mockTokenPayload.begin(), mockTokenPayload.end());
+        return true;
+    });
+
+    std::string err;
+    std::string authUrl = engine.StartAuthFlow(OAuthProvider::GoogleDrive, err);
+    ASSERT_FALSE(authUrl.empty());
+    EXPECT_TRUE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+
+    const auto* session = engine.GetActiveSessionForTest();
+    ASSERT_NE(session, nullptr);
+    std::string state = session->state;
+    uint16_t port = session->port;
+
+    // Connect via loopback TCP socket
+    int clientSock = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+    ASSERT_GE(clientSock, 0);
+
+    struct sockaddr_in saddr{};
+    saddr.sin_family = AF_INET;
+    saddr.sin_port = htons(port);
+    inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
+
+    ASSERT_EQ(connect(clientSock, reinterpret_cast<struct sockaddr*>(&saddr), sizeof(saddr)), 0);
+
+    // Send HTTP GET /callback?code=mock_code_xyz&state=<state>
+    std::string req = "GET /callback?code=mock_code_xyz&state=" + state + " HTTP/1.1\r\n"
+                      "Host: 127.0.0.1:" + std::to_string(port) + "\r\n"
+                      "Connection: close\r\n\r\n";
+    ssize_t w = write(clientSock, req.data(), req.size());
+    ASSERT_EQ(static_cast<size_t>(w), req.size());
+
+    // Read HTTP response
+    std::string resp;
+    char buf[1024];
+    ssize_t n;
+    while ((n = read(clientSock, buf, sizeof(buf))) > 0)
+    {
+        resp.append(buf, n);
+    }
+    close(clientSock);
+
+    EXPECT_NE(resp.find("HTTP/1.1 200 OK"), std::string::npos);
+    EXPECT_NE(resp.find("Content-Type: text/html"), std::string::npos);
+    EXPECT_NE(resp.find("Authorization Successful"), std::string::npos);
+
+    // Wait for worker thread completion
+    EXPECT_TRUE(engine.WaitForAuthCompletion(OAuthProvider::GoogleDrive, 3000));
+    EXPECT_FALSE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+    EXPECT_EQ(engine.GetAuthStatus(OAuthProvider::GoogleDrive), AuthSessionStatus::Success);
+
+    // Verify token file was stored with 0600 permissions
+    fs::path tokenFile = env.tempDir / "tokens_gdrive.json";
+    ASSERT_TRUE(fs::exists(tokenFile));
+
+    struct stat st{};
+    ASSERT_EQ(stat(tokenFile.c_str(), &st), 0);
+    EXPECT_EQ(st.st_mode & 0777, 0600);
+
+    std::ifstream ifs(tokenFile);
+    std::string savedContent;
+    std::getline(ifs, savedContent);
+    EXPECT_EQ(savedContent, mockTokenPayload);
+
+    engine.SetTokenDirForTest({});
+    Curl::setHttpTransportOverride(nullptr);
+}
+
+TEST(CloudOAuthTest, LoopbackCallbackStateMismatchAndIgnoredPaths)
+{
+    auto& engine = COAuthEngine::Instance();
+
+    std::string err;
+    std::string authUrl = engine.StartAuthFlow(OAuthProvider::GoogleDrive, err);
+    ASSERT_FALSE(authUrl.empty());
+    EXPECT_TRUE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+
+    const auto* session = engine.GetActiveSessionForTest();
+    ASSERT_NE(session, nullptr);
+    std::string state = session->state;
+    uint16_t port = session->port;
+
+    // 1. Non-callback path (/favicon.ico) returns 404 and does not abort listener
+    {
+        int clientSock = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+        ASSERT_GE(clientSock, 0);
+        struct sockaddr_in saddr{};
+        saddr.sin_family = AF_INET;
+        saddr.sin_port = htons(port);
+        inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
+        ASSERT_EQ(connect(clientSock, reinterpret_cast<struct sockaddr*>(&saddr), sizeof(saddr)), 0);
+
+        std::string req = "GET /favicon.ico HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+        (void)write(clientSock, req.data(), req.size());
+
+        std::string resp;
+        char buf[1024];
+        ssize_t n;
+        while ((n = read(clientSock, buf, sizeof(buf))) > 0) resp.append(buf, n);
+        close(clientSock);
+
+        EXPECT_NE(resp.find("404 Not Found"), std::string::npos);
+        EXPECT_TRUE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+    }
+
+    // 2. State mismatch returns 400 Bad Request and does not consume valid session
+    {
+        int clientSock = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+        ASSERT_GE(clientSock, 0);
+        struct sockaddr_in saddr{};
+        saddr.sin_family = AF_INET;
+        saddr.sin_port = htons(port);
+        inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
+        ASSERT_EQ(connect(clientSock, reinterpret_cast<struct sockaddr*>(&saddr), sizeof(saddr)), 0);
+
+        std::string req = "GET /callback?code=fake_code&state=invalid_mismatched_state HTTP/1.1\r\nHost: 127.0.0.1\r\nConnection: close\r\n\r\n";
+        (void)write(clientSock, req.data(), req.size());
+
+        std::string resp;
+        char buf[1024];
+        ssize_t n;
+        while ((n = read(clientSock, buf, sizeof(buf))) > 0) resp.append(buf, n);
+        close(clientSock);
+
+        EXPECT_NE(resp.find("400 Bad Request"), std::string::npos);
+        EXPECT_NE(resp.find("State verification failed"), std::string::npos);
+        EXPECT_TRUE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+    }
+
+    // 3. User denial / cancel error query returns HTML and consumes session with Failed status
+    {
+        int clientSock = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+        ASSERT_GE(clientSock, 0);
+        struct sockaddr_in saddr{};
+        saddr.sin_family = AF_INET;
+        saddr.sin_port = htons(port);
+        inet_pton(AF_INET, "127.0.0.1", &saddr.sin_addr);
+        ASSERT_EQ(connect(clientSock, reinterpret_cast<struct sockaddr*>(&saddr), sizeof(saddr)), 0);
+
+        std::string req = "GET /callback?error=access_denied&error_description=User%20declined%20permission&state=" + state + " HTTP/1.1\r\n"
+                          "Host: 127.0.0.1\r\nConnection: close\r\n\r\n";
+        (void)write(clientSock, req.data(), req.size());
+
+        std::string resp;
+        char buf[1024];
+        ssize_t n;
+        while ((n = read(clientSock, buf, sizeof(buf))) > 0) resp.append(buf, n);
+        close(clientSock);
+
+        EXPECT_NE(resp.find("200 OK"), std::string::npos);
+        EXPECT_NE(resp.find("User declined permission"), std::string::npos);
+
+        EXPECT_TRUE(engine.WaitForAuthCompletion(OAuthProvider::GoogleDrive, 3000));
+        EXPECT_FALSE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+        EXPECT_EQ(engine.GetAuthStatus(OAuthProvider::GoogleDrive), AuthSessionStatus::Failed);
+        EXPECT_NE(engine.GetLastAuthError(OAuthProvider::GoogleDrive).find("User declined permission"), std::string::npos);
+    }
+}
+
+TEST(CloudOAuthTest, CleanThreadShutdownAndPortRelease)
+{
+    auto& engine = COAuthEngine::Instance();
+
+    std::string err;
+    std::string authUrl = engine.StartAuthFlow(OAuthProvider::GoogleDrive, err);
+    ASSERT_FALSE(authUrl.empty());
+    EXPECT_TRUE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+
+    // Cancel in-flight auth
+    engine.CancelAuthFlow(OAuthProvider::GoogleDrive);
+    EXPECT_FALSE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+
+    // Verify port 53692 is released immediately and can be bound again
+    int testSock = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+    ASSERT_GE(testSock, 0);
+    int opt = 1;
+    setsockopt(testSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    struct sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(53692);
+    inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+
+    EXPECT_EQ(bind(testSock, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)), 0);
+    close(testSock);
+}
+
+TEST(CloudOAuthTest, TimeoutSafetyAndSessionExpiration)
+{
+    auto& engine = COAuthEngine::Instance();
+    engine.SetSessionTimeoutForTest(1);
+
+    std::string err;
+    std::string authUrl = engine.StartAuthFlow(OAuthProvider::GoogleDrive, err);
+    ASSERT_FALSE(authUrl.empty());
+    EXPECT_TRUE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+
+    // Wait for timeout expiration (timeout was set to 1 sec)
+    EXPECT_TRUE(engine.WaitForAuthCompletion(OAuthProvider::GoogleDrive, 2500));
+    EXPECT_FALSE(engine.IsAuthInFlight(OAuthProvider::GoogleDrive));
+    EXPECT_EQ(engine.GetAuthStatus(OAuthProvider::GoogleDrive), AuthSessionStatus::Expired);
+
+    // Verify port 53692 was released
+    int testSock = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0);
+    ASSERT_GE(testSock, 0);
+    int opt = 1;
+    setsockopt(testSock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    struct sockaddr_in addr{};
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(53692);
+    inet_pton(AF_INET, "127.0.0.1", &addr.sin_addr);
+
+    EXPECT_EQ(bind(testSock, reinterpret_cast<struct sockaddr*>(&addr), sizeof(addr)), 0);
+    close(testSock);
+
+    engine.SetSessionTimeoutForTest(300);
 }
 
 TEST(CloudRedirectBridgeTest, LoadEngineDisabledAndKillswitch)

@@ -54,9 +54,10 @@ Identify which script in `res/inject-scripts/` controls the target UI:
 
 | Target URL / Route Hint | Component / Area | Primary Inject Script |
 | :--- | :--- | :--- |
-| `https://store.steampowered.com/*` | Steam Store Web Pages | [`res/inject-scripts/store-page-script.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/store-page-script.js) |
-| `https://steamloopback.host/library/*` | Steam Library Shell | [`res/inject-scripts/navi_inject.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/navi_inject.js) |
-| `https://steamloopback.host/index.html*` | Desktop Shell Navigation | [`res/inject-scripts/navi_inject.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/navi_inject.js) |
+| `https://store.steampowered.com/*` | Steam Store Web Pages | [`res/inject-scripts/store/store-page-script.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/store/store-page-script.js) |
+| `https://steamloopback.host/library/*` | Steam Library App Details & Modals | [`res/inject-scripts/library/app-details-script.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/library/app-details-script.js) |
+| `https://steamloopback.host/library/*` | Steam Client Runtime Hooks | [`res/inject-scripts/core/navi_inject.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/core/navi_inject.js) |
+| `https://steamloopback.host/index.html*` | Desktop Shell Navigation & SuperNav | [`res/inject-scripts/shell/import-lua-script.js`](file:///home/nicolas/Documents/my-github/SLSsteam_n_ACCELA/res/inject-scripts/shell/import-lua-script.js) |
 
 ---
 

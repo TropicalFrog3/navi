@@ -198,7 +198,10 @@ TEST_F(ConfigUnitTest, ApiKeysOverlayDirectConfigSync)
     EXPECT_EQ(jsonEsc, "{\"success\":true,\"ryuu\":\"key\\\"with\\\"quotes\",\"dpbx\":\"key\\\\with\\\\backslash\",\"hubcap\":\"\"}");
 
     // 4. Test store-page-script.js does not read provider.key from localStorage and fetches /api-keys
-    std::filesystem::path scriptPath = "res/inject-scripts/store-page-script.js";
+    std::filesystem::path scriptPath = "res/inject-scripts/store/store-page-script.js";
+    if (!std::filesystem::exists(scriptPath)) {
+        scriptPath = "res/inject-scripts/store-page-script.js";
+    }
     ASSERT_TRUE(std::filesystem::exists(scriptPath));
     std::ifstream sf(scriptPath);
     ASSERT_TRUE(sf.is_open());

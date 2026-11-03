@@ -25,6 +25,7 @@
 #include "storeinject.hpp"
 #include "tier0hook.hpp"
 #include "cefsizefix.hpp"
+#include "prefix_bucket_sync.hpp"
 
 #include <cstddef>
 #include <cstdint>
@@ -40,7 +41,7 @@
 #include <sys/wait.h>
 #include <sys/types.h>
 
-#include <curl/curl.h>
+#include "curl.hpp"
 #include <map>
 #include <thread>
 #include <string>
@@ -58,100 +59,81 @@ static std::unordered_map<lm_address_t, std::string>& placedDetours()
 static std::map<uint32_t, std::string> g_appSizes;
 static std::mutex g_appSizesMutex;
 
-static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
-{
-    ((std::string*)userp)->append((char*)contents, size * nmemb);
-    return size * nmemb;
-}
-
 static void FetchAppSizeThread(uint32_t appId)
 {
-    CURL *curl;
-    CURLcode res;
+    char url[128];
+    snprintf(url, sizeof(url), "https://api.steamcmd.net/v1/info/%u", appId);
     std::string readBuffer;
-
-    curl = curl_easy_init();
-    if(curl) {
-        char url[128];
-        snprintf(url, sizeof(url), "https://api.steamcmd.net/v1/info/%u", appId);
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5L); 
-        res = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
+    int res = Curl::getString(url, readBuffer);
+    if (res == 0) {
+        uint64_t totalSize = 0;
+        const char* depotsStart = "\"depots\": {";
+        size_t depotsIdx = readBuffer.find(depotsStart);
         
-        if (res == CURLE_OK) {
-            uint64_t totalSize = 0;
-            size_t depotPos = 0;
-            const char* depotsStart = "\"depots\": {";
-            size_t depotsIdx = readBuffer.find(depotsStart);
-            
-            if (depotsIdx != std::string::npos) {
-                uint64_t commonSize = 0;
-                uint64_t linuxSize = 0;
-                uint64_t windowsSize = 0;
-                uint64_t macosSize = 0;
-                uint64_t otherTotal = 0;
-                uint32_t otherCount = 0;
+        if (depotsIdx != std::string::npos) {
+            uint64_t commonSize = 0;
+            uint64_t linuxSize = 0;
+            uint64_t windowsSize = 0;
+            uint64_t macosSize = 0;
+            uint64_t otherTotal = 0;
+            uint32_t otherCount = 0;
 
-                size_t pos = depotsIdx + strlen(depotsStart);
-                while (true) {
-                    size_t sizeIdx = readBuffer.find("\"size\": \"", pos);
-                    if (sizeIdx == std::string::npos) break;
+            size_t pos = depotsIdx + strlen(depotsStart);
+            while (true) {
+                size_t sizeIdx = readBuffer.find("\"size\": \"", pos);
+                if (sizeIdx == std::string::npos) break;
 
-                    size_t blockStart = readBuffer.rfind("{", sizeIdx);
-                    std::string block = (blockStart != std::string::npos) ? readBuffer.substr(blockStart, 1024) : "";
+                size_t blockStart = readBuffer.rfind("{", sizeIdx);
+                std::string block = (blockStart != std::string::npos) ? readBuffer.substr(blockStart, 1024) : "";
 
-                    std::string oslist;
-                    size_t oslistIdx = block.find("\"oslist\": \"");
-                    if (oslistIdx != std::string::npos) {
-                        size_t osValStart = oslistIdx + 11;
-                        size_t osValEnd = block.find("\"", osValStart);
-                        if (osValEnd != std::string::npos) {
-                            oslist = block.substr(osValStart, osValEnd - osValStart);
-                        }
+                std::string oslist;
+                size_t oslistIdx = block.find("\"oslist\": \"");
+                if (oslistIdx != std::string::npos) {
+                    size_t osValStart = oslistIdx + 11;
+                    size_t osValEnd = block.find("\"", osValStart);
+                    if (osValEnd != std::string::npos) {
+                        oslist = block.substr(osValStart, osValEnd - osValStart);
                     }
-
-                    uint64_t size = 0;
-                    size_t valStart = sizeIdx + 9;
-                    size_t valEnd = readBuffer.find("\"", valStart);
-                    if (valEnd != std::string::npos) {
-                        try { size = std::stoull(readBuffer.substr(valStart, valEnd - valStart)); } catch(...) {}
-                    }
-
-                    if (oslist.empty()) {
-                        commonSize += size;
-                    } else if (oslist.find("linux") != std::string::npos) {
-                        linuxSize += size;
-                    } else if (oslist.find("windows") != std::string::npos) {
-                        windowsSize += size;
-                    } else if (oslist.find("macos") != std::string::npos) {
-                        macosSize += size;
-                    } else {
-                        otherTotal += size;
-                        otherCount++;
-                    }
-                    pos = sizeIdx + 9;
                 }
 
-                if (linuxSize > 0) totalSize = commonSize + linuxSize;
-                else if (windowsSize > 0) totalSize = commonSize + windowsSize;
-                else if (macosSize > 0) totalSize = commonSize + macosSize;
-                else if (otherCount > 0) totalSize = commonSize + (otherTotal / otherCount);
-                else totalSize = commonSize;
+                uint64_t size = 0;
+                size_t valStart = sizeIdx + 9;
+                size_t valEnd = readBuffer.find("\"", valStart);
+                if (valEnd != std::string::npos) {
+                    try { size = std::stoull(readBuffer.substr(valStart, valEnd - valStart)); } catch(...) {}
+                }
+
+                if (oslist.empty()) {
+                    commonSize += size;
+                } else if (oslist.find("linux") != std::string::npos) {
+                    linuxSize += size;
+                } else if (oslist.find("windows") != std::string::npos) {
+                    windowsSize += size;
+                } else if (oslist.find("macos") != std::string::npos) {
+                    macosSize += size;
+                } else {
+                    otherTotal += size;
+                    otherCount++;
+                }
+                pos = sizeIdx + 9;
             }
 
-            if (totalSize > 0) {
-                LOG_INFO("Fetched size for appId %u: %llu\n", appId, totalSize);
-                std::lock_guard<std::mutex> lock(g_appSizesMutex);
-                g_appSizes[appId] = std::to_string(totalSize);
-            } else {
-                LOG_INFO("Fetched size for appId %u was 0\n", appId);
-            }
-        } else {
-            LOG_INFO("Failed to fetch size for appId %u: %s\n", appId, curl_easy_strerror(res));
+            if (linuxSize > 0) totalSize = commonSize + linuxSize;
+            else if (windowsSize > 0) totalSize = commonSize + windowsSize;
+            else if (macosSize > 0) totalSize = commonSize + macosSize;
+            else if (otherCount > 0) totalSize = commonSize + (otherTotal / otherCount);
+            else totalSize = commonSize;
         }
+
+        if (totalSize > 0) {
+            LOG_INFO("Fetched size for appId %u: %llu\n", appId, totalSize);
+            std::lock_guard<std::mutex> lock(g_appSizesMutex);
+            g_appSizes[appId] = std::to_string(totalSize);
+        } else {
+            LOG_INFO("Fetched size for appId %u was 0\n", appId);
+        }
+    } else {
+        LOG_INFO("Failed to fetch size for appId %u: exit code %d\n", appId, res);
     }
 }
 
@@ -662,6 +644,7 @@ static uint32_t hkSteamEngine_ProcessIPCFrame(CSteamEngine* pSteamEngine, HSteam
 		);
 
 		Apps::runIPCFrame();
+		PrefixBucketSync::notifyFrame();
 		NaviAPI::runIPCFrame();
 
 		if (Licenses::hasPendingRefresh())

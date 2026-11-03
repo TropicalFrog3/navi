@@ -616,7 +616,31 @@ class AnnotatorDaemon:
                 s.update_pins([])
             return
 
-        if data.get("action") != "save_annotation":
+        if data.get("action") == "delete_annotation":
+            annot_id = str(data.get("id", "")).strip()
+            target_comment = str(data.get("comment", "")).strip()
+            all_annots = load_local_annotations()
+            remaining = []
+            removed_ids = []
+            removed_one = False
+            for a in all_annots:
+                aid = a.get("id", "")
+                if not removed_one and ((annot_id and aid == annot_id) or (not annot_id and a.get("comment", "") == target_comment)):
+                    removed_one = True
+                    if aid:
+                        removed_ids.append(aid)
+                else:
+                    remaining.append(a)
+            for aid in removed_ids:
+                delete_from_vibe_server(aid)
+            save_local_annotations(remaining)
+            print(f"[Deleted] Annotation {annot_id[:8] if annot_id else '(untagged)'} removed from {ANNOTATIONS_FILE}")
+            for s in self.sessions.values():
+                s.update_pins(remaining)
+            return
+
+        action = data.get("action")
+        if action not in ("save_annotation", "update_annotation"):
             return
 
         # Strict schema & type check
@@ -626,8 +650,8 @@ class AnnotatorDaemon:
             print("[Security Rejected] element_context must be a dict", file=sys.stderr)
             return
 
-        # Build clean annotation object
-        annot_id = str(uuid.uuid4())
+        raw_id = str(data.get("id", "")).strip()
+        annot_id = raw_id if raw_id and len(raw_id) <= 64 else str(uuid.uuid4())
         page_ctx = elem_ctx.get("pageContext", {})
         real_url = page_ctx.get("url") or session.url
         if session.world_mode == "main" and session.route_hint:
@@ -645,6 +669,43 @@ class AnnotatorDaemon:
         pending_changes = data.get("pending_changes")
         variant_instructions = data.get("variant_instructions")
 
+        all_annots = load_local_annotations()
+        now_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+
+        if action == "update_annotation":
+            updated_existing = False
+            for idx, existing in enumerate(all_annots):
+                if existing.get("id") == annot_id:
+                    annotation = {
+                        "id": annot_id,
+                        "url": existing.get("url") or real_url,
+                        "comment": comment,
+                        "status": existing.get("status", "pending"),
+                        "mode": mode,
+                        "element_context": elem_ctx,
+                        "created_at": existing.get("created_at", now_iso),
+                        "updated_at": now_iso,
+                        "attachments": existing.get("attachments", [])
+                    }
+                    if pending_changes and isinstance(pending_changes, dict):
+                        annotation["pending_changes"] = pending_changes
+                        annotation["cleanup_required"] = True
+                    if variant_instructions and isinstance(variant_instructions, dict):
+                        annotation["variant_instructions"] = variant_instructions
+                    all_annots[idx] = annotation
+                    updated_existing = True
+                    break
+
+            if updated_existing:
+                save_local_annotations(all_annots)
+                print(f"[Updated] Annotation {annot_id[:8]} updated in {ANNOTATIONS_FILE}")
+                delete_from_vibe_server(annot_id)
+                post_to_vibe_server(annotation, screenshot_bytes)
+                for s in self.sessions.values():
+                    s.update_pins(all_annots)
+                return
+
+        # Build clean annotation object
         annotation = {
             "id": annot_id,
             "url": real_url,
@@ -652,7 +713,7 @@ class AnnotatorDaemon:
             "status": "pending",
             "mode": mode,
             "element_context": elem_ctx,
-            "created_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "created_at": now_iso,
             "attachments": []
         }
         if pending_changes and isinstance(pending_changes, dict):
@@ -662,7 +723,6 @@ class AnnotatorDaemon:
             annotation["variant_instructions"] = variant_instructions
 
         # 1. Local dual storage
-        all_annots = load_local_annotations()
         all_annots.append(annotation)
         save_local_annotations(all_annots)
         print(f"[Saved] Annotation {annot_id[:8]} written to {ANNOTATIONS_FILE}")

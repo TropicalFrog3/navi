@@ -9,6 +9,8 @@ namespace Navi::CloudRedirect
 {
     struct PendingOperation_t;
     struct ProviderAuthStatus_t;
+    struct CloudFileEntry_t;
+    struct CloudAppSummary_t;
 }
 
 namespace Navi::CloudView
@@ -16,6 +18,12 @@ namespace Navi::CloudView
     std::string renderStatusJson(bool enabled, const std::string& provider, size_t managedAppsCount, size_t pendingOpsCount);
     std::string renderProviderStatusJson(const CloudRedirect::ProviderAuthStatus_t& status);
     std::string renderAppStatusJson(AppId_t appId, bool redirected, uint64_t storageBytes, const std::vector<std::string>& backups);
+    std::string renderCloudAppsJson(const std::string& provider, const std::vector<CloudRedirect::CloudAppSummary_t>& apps);
+    std::string renderAppCloudFilesJson(AppId_t appId,
+                                        const std::string& gameTitle,
+                                        const std::string& provider,
+                                        bool redirected,
+                                        const std::vector<CloudRedirect::CloudFileEntry_t>& files);
     std::string renderAppToggleJson(AppId_t appId, bool redirected);
     std::string renderBackupSuccessJson(AppId_t appId, const std::string& backupPath);
     std::string renderPendingOperationAcceptedJson(const std::string& opId);
@@ -27,4 +35,5 @@ namespace Navi::CloudView
     std::string parseStringField(const std::string& json, const std::string& key);
     bool parseConfirmReset(const std::string& json);
 }
+
 

@@ -20,9 +20,10 @@
 #include "vftableinfo.hpp"
 #include "legacy_migration.hpp"
 #include "cloudredirect.hpp"
+#include "autocrack_manager.hpp"
+#include "prefix_bucket_sync.hpp"
 
 #include "libmem/libmem.h"
-#include <curl/curl.h>
 
 #include <atomic>
 #include <chrono>
@@ -89,12 +90,13 @@ static void unload()
 	}
 
 	StoreInject::shutdown();
+	AutoCrack::shutdown();
+	PrefixBucketSync::shutdown();
 	Tier0Hook::remove();
 	CefSizeFix::removeSizeFixScript();
 	Hooks::remove();
 	NaviAPI::shutdown();
 	g_config.shutdown();
-	curl_global_cleanup();
 }
 
 //TODO: Remove when unload() works properly since it should not be needed anymore after that
@@ -141,7 +143,6 @@ static void setup()
 	}
 
 	g_pLog = std::unique_ptr<CLog>(CLog::createDefaultLog());
-	curl_global_init(CURL_GLOBAL_ALL);
 	//Won't happen, log throws a runtime exception when creation fails.
 	//But just in case I decide to refactor one day
 	if (!g_pLog)
@@ -187,6 +188,10 @@ static void setup()
 		return;
 	}
 
+	DepotKeys::loadDepotKeysYaml();
+	scanLuaPluginsAndUpdateConfig();
+	DepotKeys::scanLuaPluginsForDepotKeys();
+
 	if (g_config.cloudSavesEnabled.get())
 	{
 		auto& bridge = Navi::CloudRedirect::CCloudRedirectBridge::Instance();
@@ -196,12 +201,8 @@ static void setup()
 		{
 			bridge.SetEnabledState(true);
 		}
-		bridge.SyncSlsSteamConfig(g_config.cloudSavesManagedApps.get());
+		bridge.SyncSlsSteamConfig(g_config.GetEffectiveCloudRedirectedApps());
 	}
-
-	DepotKeys::loadDepotKeysYaml();
-	scanLuaPluginsAndUpdateConfig();
-	DepotKeys::scanLuaPluginsForDepotKeys();
 
 	//Since we can't statically link everything and some distros seem to respect LD_LIBRARY_PATH
 	//more or less than mine does we just force append those
@@ -308,10 +309,6 @@ static void load()
 		LOG_WARN("Tier0 hook failed - falling back to port-based CDP\n");
 	}
 
-	if (g_config.cloudSavesEnabled.get())
-	{
-		Navi::CloudRedirect::CCloudRedirectBridge::Instance().LoadEngine();
-	}
 
 	// Inject the CEF size fix script into Steam's UI
 	CefSizeFix::injectSizeFixScript();
@@ -319,6 +316,9 @@ static void load()
 	// Start the Store injection background thread (callback server on port 9001)
 	// MUST start before RemoveLua injection, because the JS depends on the /check API
 	StoreInject::init();
+
+	AutoCrack::init();
+	PrefixBucketSync::init();
 
 	// Inject the Remove Lua button script (needs port 9001 to be listening)
 	RemoveLua::injectRemoveLuaScript();
@@ -467,6 +467,8 @@ __attribute__((constructor)) static void registerAuditEhFrame()
 __attribute__((destructor)) static void onLibraryUnload()
 {
 	StoreInject::shutdown();
+	AutoCrack::shutdown();
+	PrefixBucketSync::shutdown();
 	NaviAPI::shutdown();
 	g_config.shutdown();
 	if (g_registeredEhFrameBegin != nullptr)

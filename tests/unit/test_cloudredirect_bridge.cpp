@@ -339,3 +339,39 @@ CloudSaves:
     g_config.cloudSavesEnabled.set(false);
     EXPECT_FALSE(g_config.IsAppCloudRedirected(480));
 }
+
+TEST(CloudRedirectBridgeTest, SpoofedAppsDefaultToCloudRedirectedWithProviderOrLocal)
+{
+    ScopedTestEnv env;
+
+    std::string spoofedYaml = R"(
+DisableCloud: yes
+AdditionalApps:
+  - 250900
+  - 3856460
+FakeAppIds:
+  111222: 480
+CloudSaves:
+  Enabled: true
+  Provider: "local-only"
+  ManagedApps: []
+  DisabledApps:
+    - 3856460
+)";
+
+    EXPECT_TRUE(AtomicFile::write(g_config.getPath(), spoofedYaml));
+    EXPECT_TRUE(g_config.loadSettings());
+
+    EXPECT_TRUE(g_config.IsAppCloudRedirected(250900));
+    EXPECT_TRUE(g_config.IsAppCloudRedirected(111222));
+    EXPECT_TRUE(g_config.IsAppCloudRedirected(480));
+    EXPECT_FALSE(g_config.IsAppCloudRedirected(3856460));
+    EXPECT_FALSE(g_config.IsAppCloudRedirected(999999));
+
+    const auto effective = g_config.GetEffectiveCloudRedirectedApps();
+    EXPECT_TRUE(effective.contains(250900));
+    EXPECT_TRUE(effective.contains(111222));
+    EXPECT_TRUE(effective.contains(480));
+    EXPECT_FALSE(effective.contains(3856460));
+}
+

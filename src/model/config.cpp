@@ -3,6 +3,7 @@
 
 #include "config_migration.hpp"
 #include "cache_migration.hpp"
+#include "cloudredirect.hpp"
 #include "depotkeys.hpp"
 #include "licenses.hpp"
 #include "filewatcher.hpp"
@@ -114,6 +115,10 @@ static void onFileChange(const char* filename)
 	g_config.loadSettings();
 	scanLuaPluginsAndUpdateConfig();
 	DepotKeys::scanLuaPluginsForDepotKeys();
+	if (g_config.cloudSavesEnabled.get())
+	{
+		Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(g_config.GetEffectiveCloudRedirectedApps());
+	}
 	Licenses::queueRefresh();
 	LOG_NOTIFY("Config reloaded!");
 }
@@ -430,6 +435,32 @@ bool CConfig::loadSettings(bool firstLoad)
 		cloudAutoBackupBeforeReset.set(getSetting<bool>(cloudSavesNode, "AutoBackupBeforeReset", true));
 		cloudBackupRetentionCount.set(getSetting<uint32_t>(cloudSavesNode, "BackupRetentionCount", 5));
 		cloudSavesManagedApps.set(getList<AppId_t>(cloudSavesNode, "ManagedApps"));
+		if (cloudSavesNode["DisabledApps"])
+		{
+			cloudSavesDisabledApps.set(getList<AppId_t>(cloudSavesNode, "DisabledApps", true));
+		}
+		else
+		{
+			cloudSavesDisabledApps.set({});
+		}
+
+		const auto prefixSyncNode = cloudSavesNode["PrefixSync"];
+		if (prefixSyncNode)
+		{
+			cloudPrefixSyncEnabled.set(getSetting<bool>(prefixSyncNode, "Enabled", true));
+			cloudPrefixSyncAtStartUp.set(getSetting<bool>(prefixSyncNode, "SyncAtStartup", true));
+			cloudPrefixSyncOnLaunch.set(getSetting<bool>(prefixSyncNode, "SyncOnLaunch", true));
+			cloudPrefixSyncOnExit.set(getSetting<bool>(prefixSyncNode, "SyncOnExit", true));
+			cloudPrefixSyncMaxFileMb.set(getSetting<uint32_t>(prefixSyncNode, "MaxFileMb", 64));
+		}
+		else
+		{
+			cloudPrefixSyncEnabled.set(true);
+			cloudPrefixSyncAtStartUp.set(true);
+			cloudPrefixSyncOnLaunch.set(true);
+			cloudPrefixSyncOnExit.set(true);
+			cloudPrefixSyncMaxFileMb.set(64);
+		}
 	}
 	else
 	{
@@ -438,6 +469,37 @@ bool CConfig::loadSettings(bool firstLoad)
 		cloudAutoBackupBeforeReset.set(true);
 		cloudBackupRetentionCount.set(5);
 		cloudSavesManagedApps.set({});
+		cloudSavesDisabledApps.set({});
+
+		cloudPrefixSyncEnabled.set(true);
+		cloudPrefixSyncAtStartUp.set(true);
+		cloudPrefixSyncOnLaunch.set(true);
+		cloudPrefixSyncOnExit.set(true);
+		cloudPrefixSyncMaxFileMb.set(64);
+	}
+
+	const auto autoCrackNode = node["autocrack"];
+	if (autoCrackNode)
+	{
+		autoCrackEnabled.set(getSetting<bool>(autoCrackNode, "enabled", true));
+		autoCrackAuto.set(getSetting<bool>(autoCrackNode, "auto", false));
+		autoCrackAutoAllowlist.set(getList<AppId_t>(autoCrackNode, "autoAllowlist"));
+		autoCrackGameInfoApi.set(getSetting<std::string>(autoCrackNode, "gameInfoApi", "steamclient"));
+		autoCrackWebApiKey.set(getSetting<std::string>(autoCrackNode, "webApiKey", ""));
+		autoCrackExperimentalEmu.set(getSetting<bool>(autoCrackNode, "experimentalEmu", false));
+		autoCrackUnpackSteamStub.set(getSetting<bool>(autoCrackNode, "unpackSteamStub", true));
+		autoCrackInactivityTimeoutSec.set(getSetting<uint32_t>(autoCrackNode, "inactivityTimeoutSec", 120));
+	}
+	else
+	{
+		autoCrackEnabled.set(true);
+		autoCrackAuto.set(false);
+		autoCrackAutoAllowlist.set({});
+		autoCrackGameInfoApi.set("steamclient");
+		autoCrackWebApiKey.set("");
+		autoCrackExperimentalEmu.set(false);
+		autoCrackUnpackSteamStub.set(true);
+		autoCrackInactivityTimeoutSec.set(120);
 	}
 
 	const auto errors = __loadErrors.get();
@@ -460,6 +522,38 @@ bool CConfig::isAddedAppId(const AppId_t appId)
 	return addedAppIds.get().contains(appId);
 }
 
+std::unordered_set<AppId_t> CConfig::GetEffectiveCloudRedirectedApps() const
+{
+	auto* self = const_cast<CConfig*>(this);
+	std::unordered_set<AppId_t> effective;
+	if (!self->cloudSavesEnabled.get())
+	{
+		return effective;
+	}
+
+	const auto disabled = self->cloudSavesDisabledApps.get();
+	auto addIfEnabled = [&](AppId_t id) {
+		if (id != 0 && !disabled.contains(id))
+		{
+			effective.insert(id);
+		}
+	};
+
+	for (AppId_t id : self->cloudSavesManagedApps.get()) addIfEnabled(id);
+	for (AppId_t id : self->addedAppIds.get()) addIfEnabled(id);
+	for (const auto& [realId, fakeId] : self->fakeAppIds.get())
+	{
+		addIfEnabled(realId);
+		addIfEnabled(fakeId);
+	}
+	if (self->useWhiteList.get())
+	{
+		for (AppId_t id : self->appIds.get()) addIfEnabled(id);
+	}
+
+	return effective;
+}
+
 bool CConfig::IsAppCloudRedirected(AppId_t appId) const
 {
 	auto* self = const_cast<CConfig*>(this);
@@ -468,7 +562,34 @@ bool CConfig::IsAppCloudRedirected(AppId_t appId) const
 		return false;
 	}
 
-	return self->cloudSavesManagedApps.get().contains(appId);
+	if (self->cloudSavesDisabledApps.get().contains(appId))
+	{
+		return false;
+	}
+
+	if (self->cloudSavesManagedApps.get().contains(appId) ||
+	    self->addedAppIds.get().contains(appId))
+	{
+		return true;
+	}
+
+	const auto fakeMap = self->fakeAppIds.get();
+	if (fakeMap.contains(appId))
+	{
+		return true;
+	}
+	for (const auto& [realId, fakeId] : fakeMap)
+	{
+		(void)realId;
+		if (fakeId == appId) return true;
+	}
+
+	if (self->useWhiteList.get() && self->appIds.get().contains(appId))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 bool CConfig::shouldExcludeAppId(const AppId_t appId, const bool ignoreAdditionalApps)
@@ -673,6 +794,11 @@ bool CConfig::addAdditionalAppId(uint32_t appId)
 	auto current = addedAppIds.get();
 	current.insert(appId);
 	addedAppIds = current;
+
+	if (cloudSavesEnabled.get())
+	{
+		Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(GetEffectiveCloudRedirectedApps());
+	}
 
 	{
 		const std::lock_guard lock(appsChangedMutex);

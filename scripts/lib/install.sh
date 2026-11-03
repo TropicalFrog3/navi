@@ -63,13 +63,21 @@ install_safe_wrapper() {
 
     cat > "$wrapper" <<EOF
 #!/bin/sh
-# Navi Steam wrapper with idle pending-ops execution
+# Navi Steam wrapper with dynamic CloudRedirect preload and idle pending-ops execution
 CR_PENDING="\$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
 if [ -x "\$CR_PENDING" ]; then
     "\$CR_PENDING" --process-all 2>/dev/null || true
 fi
 
-exec env LD_AUDIT="\$HOME/.local/share/navi/library-inject.so:\$HOME/.local/share/navi/libnavi.so" "$native_steam" "\$@"
+CR_SO="\$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
+if [ -f "\$HOME/.config/navi/cloud_enabled" ] && [ ! -f "\$HOME/.config/CloudRedirect/disable" ] && [ -f "\$CR_SO" ]; then
+    case ":\${LD_PRELOAD:-}:" in
+        *":\$CR_SO:"*) ;;
+        *) export LD_PRELOAD="\${CR_SO}\${LD_PRELOAD:+:\${LD_PRELOAD}}" ;;
+    esac
+fi
+
+exec env LD_AUDIT="\$HOME/.local/share/navi/libnavi.so:\$HOME/.local/share/navi/library-inject.so" "$native_steam" "\$@"
 EOF
     chmod 755 "$wrapper"
 
@@ -94,13 +102,21 @@ EOF
         if [ -n "$sys_bin" ] && [ -x "$sys_bin" ] && [ "$sys_bin" != "$navi_path/$exe" ]; then
             cat > "$navi_path/$exe" <<EOF
 #!/bin/sh
-# Navi Steam wrapper with idle pending-ops execution
+# Navi Steam wrapper with dynamic CloudRedirect preload and idle pending-ops execution
 CR_PENDING="\$HOME/.local/share/navi/bin/navi-cloud-apply-pending"
 if [ -x "\$CR_PENDING" ]; then
     "\$CR_PENDING" --process-all 2>/dev/null || true
 fi
 
-exec env LD_AUDIT="\$HOME/.local/share/navi/library-inject.so:\$HOME/.local/share/navi/libnavi.so" "$sys_bin" "\$@"
+CR_SO="\$HOME/.local/share/navi/cloudredirect/cloud_redirect.so"
+if [ -f "\$HOME/.config/navi/cloud_enabled" ] && [ ! -f "\$HOME/.config/CloudRedirect/disable" ] && [ -f "\$CR_SO" ]; then
+    case ":\${LD_PRELOAD:-}:" in
+        *":\$CR_SO:"*) ;;
+        *) export LD_PRELOAD="\${CR_SO}\${LD_PRELOAD:+:\${LD_PRELOAD}}" ;;
+    esac
+fi
+
+exec env LD_AUDIT="\$HOME/.local/share/navi/libnavi.so:\$HOME/.local/share/navi/library-inject.so" "$sys_bin" "\$@"
 EOF
             chmod 755 "$navi_path/$exe"
         fi
@@ -123,7 +139,7 @@ install_desktop_entries() {
     for name in steam steam-native; do
         if [ -f "$sys_apps/$name.desktop" ]; then
             cp -f "$sys_apps/$name.desktop" "$user_apps/"
-            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" \"$HOME/.local/bin/steam\"\2|" "$user_apps/$name.desktop"
+            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/libnavi.so:$HOME/.local/share/navi/library-inject.so\" \"$HOME/.local/bin/steam\"\2|" "$user_apps/$name.desktop"
         fi
     done
 
@@ -132,12 +148,12 @@ install_desktop_entries() {
         mkdir -p "$autostart_dir"
         if [ -f "/etc/xdg/autostart/steam.desktop" ]; then
             cp -f "/etc/xdg/autostart/steam.desktop" "$autostart_dir/steam.desktop"
-            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" \"$HOME/.local/bin/steam\"\2|" "$autostart_dir/steam.desktop"
+            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/libnavi.so:$HOME/.local/share/navi/library-inject.so\" \"$HOME/.local/bin/steam\"\2|" "$autostart_dir/steam.desktop"
         else
             cat > "$autostart_dir/steam.desktop" <<EOF
 [Desktop Entry]
 Name=Steam
-Exec=env LD_AUDIT="$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so" "$HOME/.local/bin/steam" -silent %U
+Exec=env LD_AUDIT="$HOME/.local/share/navi/libnavi.so:$HOME/.local/share/navi/library-inject.so" "$HOME/.local/bin/steam" -silent %U
 Icon=steam
 Terminal=false
 Type=Application
@@ -158,7 +174,7 @@ EOF
                 log_info "Updated $desktop_dir/steam.desktop symlink to point to Navi wrapper."
             fi
         elif [ -f "$desktop_dir/steam.desktop" ]; then
-            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/library-inject.so:$HOME/.local/share/navi/libnavi.so\" \"$HOME/.local/bin/steam\"\2|" "$desktop_dir/steam.desktop"
+            sed -i -E "s|^Exec=(env LD_AUDIT=\"[^\"]*\" )?[^ ]*(.*)$|Exec=env LD_AUDIT=\"$HOME/.local/share/navi/libnavi.so:$HOME/.local/share/navi/library-inject.so\" \"$HOME/.local/bin/steam\"\2|" "$desktop_dir/steam.desktop"
             log_info "Patched $desktop_dir/steam.desktop with Navi LD_AUDIT wrapper."
         fi
     fi
@@ -192,7 +208,7 @@ install_steamos_systemd_integration() {
         mkdir -p "$dropin_dir"
         cat > "$dropin_file" <<EOF
 [Service]
-Environment="LD_AUDIT=%h/.local/share/navi/library-inject.so:%h/.local/share/navi/libnavi.so"
+Environment="LD_AUDIT=%h/.local/share/navi/libnavi.so:%h/.local/share/navi/library-inject.so"
 Environment="PATH=%h/.local/bin:%h/.local/share/navi/path:/usr/local/bin:/usr/bin"
 EOF
         if command -v systemctl >/dev/null 2>&1; then
@@ -386,6 +402,20 @@ do_install() {
     elif [ -f "$REPO_ROOT/res/cloud_redirect_cli" ]; then
         cp -f --remove-destination "$REPO_ROOT/res/cloud_redirect_cli" "$cr_dir/cloud_redirect_cli"
         chmod 755 "$cr_dir/cloud_redirect_cli"
+    fi
+
+    # AutoCrack payload
+    local autocrack_share="$navi_share/autocrack"
+    mkdir -p "$autocrack_share"
+    if [ ! -f "$REPO_ROOT/pkg/autocrack/SteamAutoCrack.CLI" ] && [ -f "$REPO_ROOT/third_party/SteamAutoCrack/SteamAutoCrack.CLI/SteamAutoCrack.CLI.csproj" ]; then
+        if command -v dotnet >/dev/null 2>&1; then
+            log_info "Building AutoCrack payload before installation..."
+            make -C "$REPO_ROOT" autocrack || log_warn "AutoCrack build failed; continuing..."
+        fi
+    fi
+    if [ -d "$REPO_ROOT/pkg/autocrack" ]; then
+        smart_copy "$REPO_ROOT/pkg/autocrack" "$autocrack_share"
+        [ -f "$autocrack_share/SteamAutoCrack.CLI" ] && chmod 755 "$autocrack_share/SteamAutoCrack.CLI"
     fi
 
     # 6. Flatpak Steam support

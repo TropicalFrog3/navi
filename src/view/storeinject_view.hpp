@@ -66,6 +66,7 @@ namespace StoreInjectView
         bool paused{false};
         bool onlineFixInstalled{false};
         bool autoCrackInstalled{false};
+        std::string autoCrackState;
         std::string provider;
     };
 
@@ -76,7 +77,8 @@ namespace StoreInjectView
     std::string renderCheckJson(bool exists, bool hasLua, bool gameExists, bool isUnlocked,
                                 bool pending, bool downloading, bool paused,
                                 bool onlineFixInstalled, bool autoCrackInstalled,
-                                const std::string& provider);
+                                const std::string& provider,
+                                const std::string& autoCrackState = "");
 
     struct DepotEntryViewModel {
         std::string id;

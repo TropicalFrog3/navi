@@ -8,7 +8,9 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
-STORE_SCRIPT_PATH = REPO_ROOT / "res" / "inject-scripts" / "store-page-script.js"
+STORE_SCRIPT_PATH = REPO_ROOT / "res" / "inject-scripts" / "store" / "store-page-script.js"
+if not STORE_SCRIPT_PATH.exists():
+    STORE_SCRIPT_PATH = REPO_ROOT / "res" / "inject-scripts" / "store-page-script.js"
 
 
 def test_store_page_script_syntax():

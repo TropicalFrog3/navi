@@ -41,22 +41,23 @@ has_zenity() {
 find_native_steam() {
     local candidate
     for candidate in \
-        /usr/bin/steam \
-        /usr/local/bin/steam \
+        "$HOME/.local/share/Steam/steam.sh" \
         "$HOME/.steam/steam/steam.sh" \
-        "$HOME/.local/share/Steam/steam.sh"; do
-        if [ -x "$candidate" ] && ! grep -qE 'navi/library-inject|LD_AUDIT' "$candidate" 2>/dev/null; then
+        /usr/games/steam \
+        /usr/bin/steam \
+        /usr/local/bin/steam; do
+        if [ -x "$candidate" ] && ! grep -qE 'navi/library-inject|navi/libnavi|LD_AUDIT=' "$candidate" 2>/dev/null; then
             echo "$candidate"
             return 0
         fi
     done
     local in_path
     in_path="$(command -v steam 2>/dev/null || true)"
-    if [ -n "$in_path" ] && [ -x "$in_path" ] && [ "$in_path" != "$HOME/.local/bin/steam" ] && ! grep -qE 'navi/library-inject|LD_AUDIT' "$in_path" 2>/dev/null; then
+    if [ -n "$in_path" ] && [ -x "$in_path" ] && [ "$in_path" != "$HOME/.local/bin/steam" ] && ! grep -qE 'navi/library-inject|navi/libnavi|LD_AUDIT=' "$in_path" 2>/dev/null; then
         echo "$in_path"
         return 0
     fi
-    echo "/usr/bin/steam"
+    echo "/usr/games/steam"
     return 0
 }
 

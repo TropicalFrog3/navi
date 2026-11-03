@@ -10,6 +10,9 @@
 #include "licenses.hpp"
 #include "depotkeys.hpp"
 #include "manifestcode.hpp"
+#include "autocrack_manager.hpp"
+#include "IClientAppManager.hpp"
+#include "CUser.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -206,7 +209,7 @@ static void reloadAppsJson()
 }
 
 // Forward declaration — defined below, after the VDF parse helpers.
-static std::vector<std::filesystem::path> getSteamLibraryPaths();
+
 
 // Patch ACF files that were previously written with StateFlags=6 (installed +
 // update_required) by legacy download engines. The "update required"
@@ -219,7 +222,7 @@ static std::vector<std::filesystem::path> getSteamLibraryPaths();
 // installedApps tracking list so the runtime hooks protect them going forward.
 static void patchExistingAcfStateFlags()
 {
-    auto libraryPaths = getSteamLibraryPaths();
+    auto libraryPaths = Apps::getSteamLibraryPaths();
     if (libraryPaths.empty()) return;
 
     int patched = 0;
@@ -389,7 +392,7 @@ void Apps::setAutoCrackInstalled(uint32_t appId, bool installed)
     saveAppsJson();
 }
 
-static std::vector<std::filesystem::path> getSteamLibraryPaths()
+std::vector<std::filesystem::path> Apps::getSteamLibraryPaths()
 {
     std::vector<std::filesystem::path> paths;
     const char* home = getenv("HOME");
@@ -444,6 +447,46 @@ static std::vector<std::filesystem::path> getSteamLibraryPaths()
     }
 
     return paths;
+}
+
+std::filesystem::path Apps::resolveInstallDir(uint32_t appId)
+{
+    auto libraryPaths = getSteamLibraryPaths();
+    std::string manifestName = "appmanifest_" + std::to_string(appId) + ".acf";
+
+    for (auto& libPath : libraryPaths)
+    {
+        auto manifestPath = libPath / manifestName;
+        if (!std::filesystem::exists(manifestPath))
+            continue;
+
+        std::ifstream manifest(manifestPath);
+        std::string line;
+        std::string installDir;
+        while (std::getline(manifest, line))
+        {
+            if (line.find("\"installdir\"") == std::string::npos) continue;
+
+            auto lastQuote = line.rfind('"');
+            if (lastQuote == std::string::npos) continue;
+            auto secondLastQuote = line.rfind('"', lastQuote - 1);
+            if (secondLastQuote == std::string::npos) continue;
+
+            installDir = line.substr(secondLastQuote + 1, lastQuote - secondLastQuote - 1);
+            break;
+        }
+        manifest.close();
+
+        if (!installDir.empty())
+        {
+            auto gamePath = libPath / "common" / installDir;
+            if (std::filesystem::exists(gamePath))
+            {
+                return gamePath;
+            }
+        }
+    }
+    return {};
 }
 
 void Apps::deleteGameFiles(uint32_t appId)
@@ -1174,6 +1217,74 @@ void Apps::runIPCFrame()
 	}
 
 	g_config.newApps.clear();
+
+	// AutoCrack state-edge detector (throttled to once every 2 seconds)
+	static auto s_lastCheckTime = std::chrono::steady_clock::time_point{};
+	static std::unordered_map<uint32_t, uint32_t> s_lastAppState;
+	static bool s_hasInitialState = false;
+
+	auto now = std::chrono::steady_clock::now();
+	if (std::chrono::duration_cast<std::chrono::seconds>(now - s_lastCheckTime).count() >= 2)
+	{
+		s_lastCheckTime = now;
+		auto appManager = usr->getAppManager();
+		if (appManager)
+		{
+			auto addedAppsList = g_config.addedAppIds.get();
+			for (const auto& appId : addedAppsList)
+			{
+				if (isNonSteamApp(appId)) continue;
+
+				uint32_t state = static_cast<uint32_t>(appManager->getAppInstallState(appId));
+				auto it = s_lastAppState.find(appId);
+				if (!s_hasInitialState || it == s_lastAppState.end())
+				{
+					s_lastAppState[appId] = state;
+					continue;
+				}
+
+				uint32_t oldState = it->second;
+				s_lastAppState[appId] = state;
+
+				// Detect transition: old had UpdateRunning (0x100) or UpdateStarted (0x400),
+				// and new state has FullyInstalled (0x4) with neither of those bits.
+				constexpr uint32_t k_UpdateRunning = 0x100;
+				constexpr uint32_t k_UpdateStarted = 0x400;
+				constexpr uint32_t k_FullyInstalled = 0x4;
+
+				bool wasUpdating = (oldState & (k_UpdateRunning | k_UpdateStarted)) != 0;
+				bool isInstalledNow = (state & k_FullyInstalled) != 0 &&
+				                      (state & (k_UpdateRunning | k_UpdateStarted)) == 0;
+
+				if (wasUpdating && isInstalledNow)
+				{
+					LOG_INFO("AutoCrack: Detected install/update complete edge for AppID %u (0x%x -> 0x%x)\n",
+					         appId, oldState, state);
+
+					if (isAutoCrackInstalled(appId))
+					{
+						// Post-update: check for drift
+						if (AutoCrack::isDriftDetected(appId))
+						{
+							LOG_NOTIFY("App %u updated — open Manage modal to re-apply AutoCrack", appId);
+							AutoCrack::setStatus(appId, AutoCrack::State::NeedsReapply, "drift",
+							                     "Game updated by Steam — re-apply AutoCrack?");
+						}
+					}
+					else if (g_config.autoCrackEnabled.get() && g_config.autoCrackAuto.get())
+					{
+						const auto allowlist = g_config.autoCrackAutoAllowlist.get();
+						if (allowlist.empty() || allowlist.contains(appId))
+						{
+							LOG_INFO("AutoCrack: Enqueueing auto crack for AppID %u\n", appId);
+							AutoCrack::enqueue(appId, AutoCrack::Origin::Auto, false);
+						}
+					}
+				}
+			}
+			s_hasInitialState = true;
+		}
+	}
 }
 
 bool Apps::shouldDisableCloud(const AppId_t appId)
@@ -1188,13 +1299,20 @@ bool Apps::shouldDisableCloud(const AppId_t appId)
 		return false;
 	}
 
-	if (g_config.isAddedAppId(appId) ||
+	const bool isSpoofedOrManaged =
+	    g_config.isAddedAppId(appId) ||
 	    isInstalled(appId) ||
 	    isOnlineFixInstalled(appId) ||
 	    isAutoCrackInstalled(appId) ||
 	    NativeInstall::isNative(appId) ||
-	    DepotKeys::isKeyManagedApp(appId))
+	    DepotKeys::isKeyManagedApp(appId);
+
+	if (isSpoofedOrManaged)
 	{
+		if (g_config.cloudSavesEnabled.get() && !g_config.cloudSavesDisabledApps.get().contains(appId))
+		{
+			return false;
+		}
 		return true;
 	}
 

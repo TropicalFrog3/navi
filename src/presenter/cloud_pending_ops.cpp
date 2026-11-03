@@ -1,4 +1,5 @@
 #include "cloud_pending_ops.hpp"
+#include "cloud_manager.hpp"
 #include "cloudredirect.hpp"
 #include "atomic_file.hpp"
 #include "log.hpp"
@@ -603,6 +604,16 @@ bool CPendingOpsExecutor::CreatePreOpBackup(const PendingOperation_t& op, fs::pa
         }
     }
 
+    // Also include Goldberg emulator save directories — these bypass the
+    // CUserRemoteStorage hook and are stored outside userdata/remote/.
+    for (const auto& goldbergDir : CCloudManager::Instance().ResolveGoldbergSavePaths(op.appId))
+    {
+        if (fs::exists(goldbergDir, ec) && fs::is_directory(goldbergDir, ec))
+        {
+            targetPaths.push_back(goldbergDir);
+        }
+    }
+
     for (const auto& tp : targetPaths)
     {
         tarArgs.push_back(tp.string());
@@ -703,6 +714,18 @@ bool CPendingOpsExecutor::PerformGranularReset(const PendingOperation_t& op)
                 rootOfs << "0\n";
                 rootOfs.close();
             }
+        }
+    }
+
+    // Wipe Goldberg emulator save directories.
+    // These bypass the CUserRemoteStorage hook, so we must clean them
+    // explicitly during a reset to match the invariant that all cloud-redirected
+    // save state has been cleared.
+    for (const auto& goldbergDir : CCloudManager::Instance().ResolveGoldbergSavePaths(op.appId))
+    {
+        if (fs::exists(goldbergDir, ec) && fs::is_directory(goldbergDir, ec))
+        {
+            fs::remove_all(goldbergDir, ec);
         }
     }
 

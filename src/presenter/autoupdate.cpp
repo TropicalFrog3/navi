@@ -5,7 +5,6 @@
 #include "atomic_file.hpp"
 
 #include <yaml-cpp/yaml.h>
-#include <curl/curl.h>
 #include <openssl/sha.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
@@ -33,12 +32,6 @@ namespace AutoUpdate
         return REMOTE_VERSION_URL;
     }
 
-    static size_t curlWriteCallback(void* ptr, size_t size, size_t nmemb, void* userdata)
-    {
-        auto* file = static_cast<FILE*>(userdata);
-        return fwrite(ptr, size, nmemb, file);
-    }
-
     static void sendNotification(const std::string& title, const std::string& msg, const std::string& urgency = "normal")
     {
         const char* testEnv = std::getenv("SLS_TEST_ENV");
@@ -52,81 +45,7 @@ namespace AutoUpdate
 
     static bool downloadToFile(const std::string& url, const std::string& destPath)
     {
-        // Support local file paths and file:// scheme for testing and offline faking
-        std::string localFilePath;
-        if (url.rfind("file://", 0) == 0)
-        {
-            localFilePath = url.substr(7);
-        }
-        else if (url.rfind("/", 0) == 0)
-        {
-            localFilePath = url;
-        }
-
-        if (!localFilePath.empty())
-        {
-            std::error_code ec;
-            std::filesystem::copy_file(localFilePath, destPath, std::filesystem::copy_options::overwrite_existing, ec);
-            if (!ec)
-            {
-                LOG_INFO("AutoUpdate: Copied mock release from %s -> %s\n", localFilePath.c_str(), destPath.c_str());
-                return true;
-            }
-            LOG_WARN("AutoUpdate: Failed to copy local mock release: %s\n", ec.message().c_str());
-            return false;
-        }
-
-        CURL* curl = curl_easy_init();
-        if (!curl) return false;
-
-        const std::string tmpPath = AtomicFile::makeTempPath(destPath);
-        AtomicFile::TempFileGuard guard(tmpPath);
-
-        FILE* fp = fopen(tmpPath.c_str(), "wb");
-        if (!fp)
-        {
-            curl_easy_cleanup(curl);
-            return false;
-        }
-
-        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curlWriteCallback);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, fp);
-        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 120L);
-        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 15L);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 1L);
-        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 2L);
-        curl_easy_setopt(curl, CURLOPT_ACCEPT_ENCODING, "");
-        curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
-
-        CURLcode res = curl_easy_perform(curl);
-        fclose(fp);
-
-        if (res != CURLE_OK)
-        {
-            curl_easy_cleanup(curl);
-            return false;
-        }
-
-        long httpCode = 0;
-        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &httpCode);
-        curl_easy_cleanup(curl);
-
-        if (httpCode == 200)
-        {
-            std::error_code ec;
-            fs::rename(tmpPath, destPath, ec);
-            if (ec)
-            {
-                fs::copy_file(tmpPath, destPath, fs::copy_options::overwrite_existing, ec);
-            }
-            guard.dismiss();
-            return true;
-        }
-
-        return false;
+        return Curl::downloadToFile(url, destPath, 120) == 200;
     }
 
     static std::vector<int> parseVersionNumbers(const std::string& versionStr)

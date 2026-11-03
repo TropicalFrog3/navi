@@ -55,7 +55,8 @@ cmake_install.cmake
 
 # Dependencies
 node_modules/
-vendor/
+/vendor/
+!res/inject-scripts/vendor/
 lib/
 
 # System files
@@ -91,3 +92,5 @@ steam-os/*
 tools/cef-annotator/annotations.json
 tools/cef-annotator/*.png
 
+# Archify
+.archify/*

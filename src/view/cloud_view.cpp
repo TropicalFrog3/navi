@@ -78,6 +78,76 @@ namespace Navi::CloudView
         return ss.str();
     }
 
+    std::string renderCloudAppsJson(const std::string& provider, const std::vector<CloudRedirect::CloudAppSummary_t>& apps)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"provider\": \"" << escapeJsonString(provider) << "\",\n"
+           << "  \"apps\": [\n";
+        for (size_t i = 0; i < apps.size(); ++i)
+        {
+            const auto& a = apps[i];
+            if (i > 0) ss << ",\n";
+            ss << "    {\n"
+               << "      \"appId\": " << a.appId << ",\n"
+               << "      \"gameTitle\": \"" << escapeJsonString(a.gameTitle) << "\",\n"
+               << "      \"fileCount\": " << a.fileCount << ",\n"
+               << "      \"totalSizeBytes\": " << a.totalSizeBytes << ",\n"
+               << "      \"redirected\": " << (a.redirected ? "true" : "false") << ",\n"
+               << "      \"inRemoteCloud\": " << (a.inRemoteCloud ? "true" : "false") << ",\n"
+               << "      \"inLocalMirror\": " << (a.inLocalMirror ? "true" : "false") << ",\n"
+               << "      \"childAppIds\": [";
+            for (size_t j = 0; j < a.childAppIds.size(); ++j)
+            {
+                if (j > 0) ss << ", ";
+                ss << a.childAppIds[j];
+            }
+            ss << "]\n"
+               << "    }";
+        }
+        ss << "\n  ]\n}";
+        return ss.str();
+    }
+
+    std::string renderAppCloudFilesJson(AppId_t appId,
+                                        const std::string& gameTitle,
+                                        const std::string& provider,
+                                        bool redirected,
+                                        const std::vector<CloudRedirect::CloudFileEntry_t>& files)
+    {
+        uint64_t totalSize = 0;
+        for (const auto& f : files)
+        {
+            totalSize += f.sizeBytes;
+        }
+
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"appId\": " << appId << ",\n"
+           << "  \"gameTitle\": \"" << escapeJsonString(gameTitle) << "\",\n"
+           << "  \"provider\": \"" << escapeJsonString(provider) << "\",\n"
+           << "  \"redirected\": " << (redirected ? "true" : "false") << ",\n"
+           << "  \"fileCount\": " << files.size() << ",\n"
+           << "  \"totalSizeBytes\": " << totalSize << ",\n"
+           << "  \"files\": [\n";
+        for (size_t i = 0; i < files.size(); ++i)
+        {
+            const auto& f = files[i];
+            if (i > 0) ss << ",\n";
+            ss << "    {\n"
+               << "      \"folder\": \"" << escapeJsonString(f.folder) << "\",\n"
+               << "      \"fileName\": \"" << escapeJsonString(f.fileName) << "\",\n"
+               << "      \"sizeBytes\": " << f.sizeBytes << ",\n"
+               << "      \"modifiedTime\": " << f.modifiedTime << ",\n"
+               << "      \"timestamp\": " << f.modifiedTime << ",\n"
+               << "      \"inRemoteCloud\": " << (f.inRemoteCloud ? "true" : "false") << ",\n"
+               << "      \"inLocalMirror\": " << (f.inLocalMirror ? "true" : "false") << "\n"
+               << "    }";
+        }
+        ss << "\n  ]\n}";
+        return ss.str();
+    }
+
     std::string renderAppToggleJson(AppId_t appId, bool redirected)
     {
         std::ostringstream ss;
