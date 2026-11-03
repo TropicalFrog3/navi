@@ -78,7 +78,8 @@ core.[0-9]*
 result/
 .direnv/
 .envrc
-Dev-Plan.txt
+# Personal planning seed (kept untracked, as legacy Dev-Plan.txt was)
+plans/01-backlog/dev-plan.md
 
 release/*
 prod-release/*
@@ -87,6 +88,15 @@ navi.zip
 .cla*/*
 steam-os/*
 .antigravityignore
+
+# Re-include the agents workspace (.ag*/* predates .agents/)
+!.agents/
+!.agents/AGENTS.md
+!.agents/mcp_config.json
+!.agents/agents/
+!.agents/rules/
+!.agents/scripts/
+!.agents/skills/
 
 # CEF Annotator
 tools/cef-annotator/annotations.json
