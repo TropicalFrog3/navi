@@ -1,3 +1,6 @@
 [submodule "res/SLSlogos"]
 	path = res/SLSlogos
 	url = https://github.com/xamionex/SLSlogos
+[submodule "third_party/SteamAutoCrack"]
+	path = third_party/SteamAutoCrack
+	url = ./third_party/SteamAutoCrack
