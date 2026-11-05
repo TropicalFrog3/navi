@@ -1057,18 +1057,21 @@ namespace StoreInject
                                 std::set<AppId_t> seenApps;
                                 for (const auto& a : apps) seenApps.insert(a.appId);
 
-                                for (AppId_t mAppId : managedSet)
+                                if (provider.empty() || provider == "local-only")
                                 {
-                                    if (mAppId == 0 || seenApps.contains(mAppId)) continue;
-                                    auto mFiles = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(mAppId, provider, acctId);
-                                    Navi::CloudRedirect::CloudAppSummary_t summary;
-                                    summary.appId = mAppId;
-                                    summary.gameTitle = Navi::CloudRedirect::CCloudManager::Instance().ResolveAppTitleFromManifests(mAppId);
-                                    summary.fileCount = mFiles.size();
-                                    for (const auto& f : mFiles) summary.totalSizeBytes += f.sizeBytes;
-                                    summary.redirected = true;
-                                    apps.push_back(std::move(summary));
-                                    seenApps.insert(mAppId);
+                                    for (AppId_t mAppId : managedSet)
+                                    {
+                                        if (mAppId == 0 || seenApps.contains(mAppId)) continue;
+                                        auto mFiles = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(mAppId, provider, acctId);
+                                        Navi::CloudRedirect::CloudAppSummary_t summary;
+                                        summary.appId = mAppId;
+                                        summary.gameTitle = Navi::CloudRedirect::CCloudManager::Instance().ResolveAppTitleFromManifests(mAppId);
+                                        summary.fileCount = mFiles.size();
+                                        for (const auto& f : mFiles) summary.totalSizeBytes += f.sizeBytes;
+                                        summary.redirected = true;
+                                        apps.push_back(std::move(summary));
+                                        seenApps.insert(mAppId);
+                                    }
                                 }
 
                                 for (auto& a : apps)
@@ -1084,6 +1087,11 @@ namespace StoreInject
                                     }
                                     a.redirected = g_config.IsAppCloudRedirected(a.appId);
                                 }
+
+                                apps.erase(
+                                    std::remove_if(apps.begin(), apps.end(),
+                                                   [](const Navi::CloudRedirect::CloudAppSummary_t& a) { return !a.redirected; }),
+                                    apps.end());
 
                                 sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderCloudAppsJson(provider, apps));
                                 handled = true;
@@ -1223,6 +1231,8 @@ namespace StoreInject
                                     AppId_t appId = 0;
                                     try { appId = std::stoul(uriPath.substr(idStart, slashEnd - idStart)); } catch (...) {}
 
+                                    uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+                                    std::string provider = g_config.cloudSavesProvider.get();
                                     auto syncRes = PrefixBucketSync::RunJobForTest(appId, PrefixBucketSync::Mode::Full, "manual-ui");
                                     const auto childDepots = Navi::CloudRedirect::CCloudManager::Instance().GetChildDepotIdsForApp(appId);
                                     for (AppId_t cid : childDepots)
@@ -1231,8 +1241,11 @@ namespace StoreInject
                                         syncRes.filesPulled += childRes.filesPulled;
                                         syncRes.filesPushed += childRes.filesPushed;
                                     }
-                                    uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
-                                    auto files = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(appId, "local-only", acctId);
+                                    if (Navi::CloudRedirect::CCloudManager::Instance().SyncAppToCloudAndUpdateCatalog(appId, provider, acctId))
+                                    {
+                                        syncRes.ok = true;
+                                    }
+                                    auto files = Navi::CloudRedirect::CCloudManager::Instance().ListAppCloudFiles(appId, provider, acctId);
 
                                     auto esc = [](const std::string& s) {
                                         std::string r;

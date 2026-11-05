@@ -1,7 +1,10 @@
 #pragma once
 
 #include "sdk/sdk.hpp"
+#include <cstdint>
+#include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #include <filesystem>
 #include <mutex>
@@ -42,9 +45,91 @@ struct CloudAppSummary_t
     std::vector<AppId_t> childAppIds;
 };
 
+/// Parsed summary of one stplug-in lua plugin collected during the single
+/// library pass. Mirrors exactly what the legacy per-candidate scans needed:
+/// ownership facts (depots/dlcs/manifests), child ids, the fallback-3 title
+/// (first addappid line carrying a trailing -- comment) and all raw
+/// "addappid(<digits>" ids used by ListCloudApps discovery.
+struct ScanLuaFileRecord
+{
+    fs::path path;
+    std::string stem;               ///< filename stem as listed on disk
+    AppId_t stemAppId{0};           ///< stemAppId when stem is fully numeric, else 0
+    bool readOk{false};             ///< content could be opened and read
+    bool parsedValid{false};        ///< LuaParser::parse().valid
+    std::string parsedAppId;        ///< LuaParser::parse().appId string
+    std::string gameName;           ///< LuaParser::parse().gameName (lua owner title rule)
+    std::string luaTitle;           ///< first addappid line with trailing -- comment
+    std::vector<AppId_t> depots;    ///< digits-only keys of parsed.depots
+    std::vector<AppId_t> dlcs;      ///< digits-only keys of parsed.dlcs
+    std::vector<AppId_t> manifests; ///< digits-only keys of parsed.manifests (setManifestid)
+    std::vector<AppId_t> allAddAppIds; ///< every "addappid(<digits>" in raw content
+};
+
+/// One library-map snapshot built by a single pass over all Steam library
+/// appmanifests + stplug-in lua plugins. Depot->parent, child-depot lists and
+/// title lookups become map lookups instead of per-candidate rescans of the
+/// whole library. RED/GREEN guarded by
+/// CloudManagerTest.InventoryScanIndexReadsLibraryOncePerPass.
+struct ScanIndex
+{
+    fs::path steamRoot;                  ///< root the scan ran against (empty = none)
+    std::vector<fs::path> steamAppsDirs; ///< GetSteamAppsDirs() snapshot, same order
+    fs::path stplugDir;                  ///< <steamRoot>/config/stplug-in snapshot
+    bool steamRootMissing{false};        ///< true when no usable steamRoot is configured
+
+    /// depotId -> owning parent from the InstalledDepots pass. First manifest in
+    /// scan order wins, exactly mirroring the legacy per-depot scan.
+    std::unordered_map<AppId_t, AppId_t> parentOfDepotFromManifests;
+    /// appId -> child depots from the same InstalledDepots pass (order preserved).
+    std::unordered_map<AppId_t, std::vector<AppId_t>> childrenOfAppFromManifests;
+    /// appmanifest appId -> first "name" passing IsPlaceholderAppTitle(name)
+    /// (the 1-arg legacy rule used for owner titles).
+    std::unordered_map<AppId_t, std::string> manifestTitleOf;
+    /// appmanifest appId -> first "name" passing IsPlaceholderAppTitle(name, appId)
+    /// (the 2-arg legacy rule used by direct title resolution).
+    std::unordered_map<AppId_t, std::string> manifestTitleOfStrict;
+
+    /// depotId -> owning parent from one lua-plugins pass. The first owner whose
+    /// gameName passes IsPlaceholderAppTitle wins; when none has a usable title,
+    /// the first-referenced owner is used (exact legacy FindDepotOwnerInLuaPlugins rule).
+    std::unordered_map<AppId_t, AppId_t> parentOfDepotFromLua;
+    /// depotId -> the winning lua owner's gameName (empty when untitled).
+    std::unordered_map<AppId_t, std::string> luaOwnerTitleOf;
+
+    /// gameId -> child ids (depots + dlcs + manifests, order preserved) read from
+    /// the <gameId>.lua stem file (legacy GetChildDepotIdsForApp step 2).
+    std::unordered_map<AppId_t, std::vector<AppId_t>> childrenOfAppFromLuaStem;
+    /// gameId -> child ids merged from other .lua files whose parsed appId matches
+    /// (legacy GetChildDepotIdsForApp step 3, scan order preserved).
+    std::unordered_map<AppId_t, std::vector<AppId_t>> childrenOfAppFromLuaMapped;
+    /// gameId -> lua fallback title (fallback 3: first addappid line with a
+    /// trailing -- comment in the <gameId>.lua stem file).
+    std::unordered_map<AppId_t, std::string> luaTitleOfStem;
+
+    /// Per-file lua records in scan order (ListCloudApps discovery + title lookups).
+    std::vector<ScanLuaFileRecord> luaFiles;
+};
+
+/// Test-only scan instrumentation: how many library files one inventory
+/// pass opened/parsed. Lets unit tests pin the scan-once behavior of
+/// ListCloudApps (RED/GREEN for perf regressions). Counters are process-wide
+/// and must be reset via ResetScanCountersForTest() before each measurement.
+struct ScanCounters
+{
+    uint64_t manifestFilesRead{0};  ///< appmanifest_*.acf file opens in depot/title scans
+    uint64_t luaFilesParsed{0};     ///< stplug-in lua files read+parsed in depot scans
+    uint64_t fileUpsertProbes{0};   ///< candidate entries compared in file upserts (D3: linear vs hash lookups)
+    uint64_t fileDedupProbes{0};    ///< candidate entries compared in child-file dedup (D3)
+};
+
+
 class CCloudManager
 {
 public:
+    static constexpr AppId_t kCloudCatalogAppId = 999999999;
+    static constexpr const char* kCloudCatalogFileName = "navi_cloud_catalog.json";
+
     static CCloudManager& Instance();
 
     ProviderAuthStatus_t CheckAuthStatus(const std::string& provider);
@@ -56,6 +141,19 @@ public:
 
     /// Performs a full cloud + local file scan for a single appId.
     std::vector<CloudFileEntry_t> ListAppCloudFiles(AppId_t appId, const std::string& provider, uint32_t accountId = 0);
+
+    /// Stages all local save files, Proton auto-cloud saves, Goldberg saves, and
+    /// stplug-in .lua/.provider + depotcache .manifest files for appId (and its folded
+    /// child depots) into <storageDir>/<accountId>/<appId>/ with updated tokens and CN.
+    bool StageAppFilesForCloudSync(AppId_t appId, uint32_t accountId = 0);
+
+    /// Rebuilds <storageDir>/<accountId>/999999999/navi_cloud_catalog.json from all
+    /// remote-confirmed redirected apps and publishes it to the remote cloud provider.
+    bool UpdateAndPublishCloudCatalog(const std::string& provider, uint32_t accountId = 0);
+
+    /// Stages all local files for appId, publishes <appId> to the remote cloud provider,
+    /// and updates + publishes the account's navi_cloud_catalog.json (999999999).
+    bool SyncAppToCloudAndUpdateCatalog(AppId_t appId, const std::string& provider, uint32_t accountId = 0);
 
     /// Reads the raw bytes of a cloud save file for download (syncing from remote provider if needed).
     bool ReadAppCloudFile(AppId_t appId,
@@ -71,11 +169,11 @@ public:
     std::string ResolveAppTitleFromManifests(AppId_t appId) const;
 
     /// Returns all child depot IDs and DLCs associated with a parent game,
-    /// by scanning installed app manifests (InstalledDepots) and Lua plugins.
+    /// by scanning installed app manifests (InstalledDepots), Lua plugins, and config DlcData.
     std::vector<AppId_t> GetChildDepotIdsForApp(AppId_t parentAppId) const;
 
     /// Returns the owning parent game App ID if depotId is an addon/child depot,
-    /// or 0 if it is not an addon of another game.
+    /// or 0 if it is not an addon of another game (checks manifests, Lua plugins, and config DlcData).
     AppId_t GetParentAppIdForDepot(AppId_t depotId) const;
 
     /// Returns every Goldberg-emulator save directory discovered for appId.
@@ -91,6 +189,12 @@ public:
     /// Override the steam root used for scanning stplug-in, depotcache, and userdata in tests.
     void SetSteamRootForTest(const fs::path& path);
 
+    /// Test-only scan instrumentation (see ScanCounters). Counters accumulate
+    /// parse-free library file opens across ListCloudApps/ListAppCloudFiles/title
+    /// and depot-resolution scans. Reset with ResetScanCountersForTest().
+    ScanCounters GetScanCountersForTest() const;
+    void ResetScanCountersForTest();
+
 private:
     CCloudManager();
     ~CCloudManager() = default;
@@ -103,8 +207,17 @@ private:
     fs::path GetSteamRoot() const;
     std::string RunCliCommand(const std::vector<std::string>& args, int timeoutMs = 15000) const;
     std::vector<uint32_t> ResolveCandidateAccountIds(uint32_t preferredAccountId) const;
-    std::string ResolveAppTitleFromManifestsInternal(AppId_t appId, int depth) const;
 
+    /// Builds (or reuses, when the library stamp is unchanged) the one-pass
+    /// library scan index used by all depot/child/title lookups below.
+    std::shared_ptr<const ScanIndex> ObtainScanIndex() const;
+    uint64_t ComputeScanIndexStamp() const;
+
+    AppId_t GetParentAppIdForDepot(AppId_t depotId, const ScanIndex& index) const;
+    std::vector<AppId_t> GetChildDepotIdsForApp(AppId_t parentAppId, const ScanIndex& index) const;
+    std::string ResolveAppTitleFromManifestsInternal(AppId_t appId, int depth, const ScanIndex& index) const;
+
+    std::vector<CloudFileEntry_t> ListAppCloudFiles(AppId_t appId, const std::string& provider, uint32_t accountId, const ScanIndex& index) const;
     std::vector<CloudFileEntry_t> ListAppCloudFilesDirect(AppId_t appId, const std::string& provider, uint32_t accountId) const;
     bool ReadAppCloudFileDirect(AppId_t appId,
                                 const std::string& relativeFileName,
@@ -114,12 +227,36 @@ private:
                                 std::string& outDownloadName,
                                 std::string& outError);
 
+    struct CatalogCache
+    {
+        std::string provider;
+        uint32_t accountId{0};
+        fs::path storageRoot;
+        uint64_t loadedAtMs{0};
+        std::unordered_map<AppId_t, CloudAppSummary_t> summaries;
+        std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> filesByApp;
+    };
+
+    bool LoadCloudCatalog(const std::string& provider,
+                          uint32_t accountId,
+                          bool syncRemote,
+                          std::unordered_map<AppId_t, CloudAppSummary_t>& outSummaries,
+                          std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>>& outFilesByApp) const;
+    void InvalidateCloudCatalogCache() const;
+
     mutable std::mutex m_mutex;
     fs::path m_cliPath;
     fs::path m_backupDir;
     fs::path m_storageDir;
     fs::path m_steamAppsRoot; ///< Override for tests; empty = auto-resolve
     fs::path m_steamRoot;     ///< Override for tests; empty = auto-resolve
+
+    mutable std::mutex m_scanIndexMutex;
+    mutable std::shared_ptr<const ScanIndex> m_scanIndexCache;
+    mutable uint64_t m_scanIndexStamp{0};
+
+    mutable std::mutex m_catalogMutex;
+    mutable CatalogCache m_catalogCache;
 };
 
 } // namespace Navi::CloudRedirect

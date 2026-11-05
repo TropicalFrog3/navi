@@ -125,6 +125,33 @@ Revokes active credentials and clears cached tokens for the specified provider.
 
 ---
 
+### `GET /cloud/apps`
+Returns the View Steam Cloud inventory of applications. Only CloudRedirect-redirected applications (`redirected: true` via `IsAppCloudRedirected`) are included in the response list; non-redirected applications discovered from Steam `userdata`, Proton `compatdata`, or `depotcache` are filtered out.
+
+- **Auth Required**: No
+- **Query Parameters**:
+  - `provider` (optional): Provider identifier (`local-only`, `gdrive`, `onedrive`, `r2`, `s3`). Defaults to the configured provider if omitted.
+- **Response** (`200 OK`):
+  ```json
+  {
+    "provider": "gdrive",
+    "apps": [
+      {
+        "appId": 480,
+        "gameTitle": "Spacewar",
+        "fileCount": 2,
+        "totalSizeBytes": 4096,
+        "redirected": true,
+        "inRemoteCloud": true,
+        "inLocalMirror": true,
+        "childAppIds": []
+      }
+    ]
+  }
+  ```
+
+---
+
 ### `GET /cloud/apps/<appId>/status`
 Returns save redirection status, storage footprint, and available backups for a specific application.
 

@@ -2,6 +2,7 @@
 #include "cloudredirect.hpp"
 #include "paths.hpp"
 #include "lua_parser.hpp"
+#include "config.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -11,12 +12,51 @@
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
+#include <atomic>
 #include <sys/poll.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
+namespace
+{
+    // Test-only scan instrumentation (see ScanCounters in cloud_manager.hpp).
+    // These must be bumped at every appmanifest/lua file the inventory path
+    // opens so unit tests can pin scan-once behavior. They never gate logic.
+    std::atomic<uint64_t> s_scanManifestFilesRead{0};
+    std::atomic<uint64_t> s_scanLuaFilesParsed{0};
+    std::atomic<uint64_t> s_scanFileUpsertProbes{0};
+    std::atomic<uint64_t> s_scanFileDedupProbes{0};
+
+    inline void NoteManifestFileRead()
+    {
+        s_scanManifestFilesRead.fetch_add(1, std::memory_order_relaxed);
+    }
+    inline void NoteLuaFileParsed()
+    {
+        s_scanLuaFilesParsed.fetch_add(1, std::memory_order_relaxed);
+    }
+    inline void NoteFileUpsertProbe()
+    {
+        s_scanFileUpsertProbes.fetch_add(1, std::memory_order_relaxed);
+    }
+    inline void NoteFileDedupProbe()
+    {
+        s_scanFileDedupProbes.fetch_add(1, std::memory_order_relaxed);
+    }
+} // namespace
+
 namespace Navi::CloudRedirect
 {
+
+static std::vector<fs::path> GetSteamAppsDirs(const fs::path& steamRoot);
+
+namespace
+{
+    void BuildScanIndexInto(const fs::path& steamRoot,
+                            const std::vector<fs::path>& steamAppsDirs,
+                            const fs::path& stplugDir,
+                            ScanIndex& out);
+}
 
 CCloudManager& CCloudManager::Instance()
 {
@@ -28,8 +68,11 @@ CCloudManager::CCloudManager() = default;
 
 void CCloudManager::SetCliPathForTest(const fs::path& path)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_cliPath = path;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_cliPath = path;
+    }
+    InvalidateCloudCatalogCache();
 }
 
 void CCloudManager::SetBackupDirForTest(const fs::path& path)
@@ -40,8 +83,11 @@ void CCloudManager::SetBackupDirForTest(const fs::path& path)
 
 void CCloudManager::SetStorageDirForTest(const fs::path& path)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_storageDir = path;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_storageDir = path;
+    }
+    InvalidateCloudCatalogCache();
 }
 
 void CCloudManager::SetSteamAppsRootForTest(const fs::path& path)
@@ -52,8 +98,131 @@ void CCloudManager::SetSteamAppsRootForTest(const fs::path& path)
 
 void CCloudManager::SetSteamRootForTest(const fs::path& path)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_steamRoot = path;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_steamRoot = path;
+    }
+    InvalidateCloudCatalogCache();
+}
+
+ScanCounters CCloudManager::GetScanCountersForTest() const
+{
+    ScanCounters c;
+    c.manifestFilesRead = s_scanManifestFilesRead.load(std::memory_order_relaxed);
+    c.luaFilesParsed = s_scanLuaFilesParsed.load(std::memory_order_relaxed);
+    c.fileUpsertProbes = s_scanFileUpsertProbes.load(std::memory_order_relaxed);
+    c.fileDedupProbes = s_scanFileDedupProbes.load(std::memory_order_relaxed);
+    return c;
+}
+
+void CCloudManager::ResetScanCountersForTest()
+{
+    s_scanManifestFilesRead.store(0, std::memory_order_relaxed);
+    s_scanLuaFilesParsed.store(0, std::memory_order_relaxed);
+    s_scanFileUpsertProbes.store(0, std::memory_order_relaxed);
+    s_scanFileDedupProbes.store(0, std::memory_order_relaxed);
+}
+
+std::shared_ptr<const ScanIndex> CCloudManager::ObtainScanIndex() const
+{
+    const fs::path steamRoot = GetSteamRoot();
+    // In unit test mode where storageDir is set but steamRoot is not, do not
+    // leak the host steamRoot into library lookups (legacy scan guard).
+    const bool steamRootUsable = !steamRoot.empty() && (m_storageDir.empty() || !m_steamRoot.empty());
+    if (!steamRootUsable)
+    {
+        auto empty = std::make_shared<ScanIndex>();
+        empty->steamRootMissing = true;
+        return empty;
+    }
+
+    const uint64_t stamp = ComputeScanIndexStamp();
+    {
+        std::lock_guard<std::mutex> lock(m_scanIndexMutex);
+        if (m_scanIndexCache && m_scanIndexStamp == stamp)
+        {
+            return m_scanIndexCache;
+        }
+    }
+
+    // Build outside the cache lock: one pass over appmanifests + lua plugins.
+    auto index = std::make_shared<ScanIndex>();
+    BuildScanIndexInto(steamRoot, GetSteamAppsDirs(steamRoot), steamRoot / "config" / "stplug-in", *index);
+
+    std::lock_guard<std::mutex> lock(m_scanIndexMutex);
+    if (m_scanIndexCache && m_scanIndexStamp == stamp)
+    {
+        return m_scanIndexCache; // another thread won the build race
+    }
+    m_scanIndexCache = std::move(index);
+    m_scanIndexStamp = stamp;
+    return m_scanIndexCache;
+}
+
+uint64_t CCloudManager::ComputeScanIndexStamp() const
+{
+    // FNV-1a over the library state the inventory depends on: directory lists,
+    // every appmanifest/lua/depotcache file name and mtime. Adding, removing or
+    // editing a library file changes the stamp (cache invalidated); identical
+    // state is served from the pass-lifetime index cache (spec item D4).
+    uint64_t h = 1469598103934665603ull;
+    auto mixBytes = [&h](const char* data, size_t len) {
+        for (size_t i = 0; i < len; ++i)
+        {
+            h ^= static_cast<uint8_t>(data[i]);
+            h *= 1099511628211ull;
+        }
+    };
+    auto mixStr = [&mixBytes](const std::string& s) { mixBytes(s.data(), s.size()); };
+    auto mixU64 = [&mixBytes](uint64_t v) {
+        uint8_t b[8];
+        for (int i = 0; i < 8; ++i) b[i] = static_cast<uint8_t>((v >> (8 * i)) & 0xFF);
+        mixBytes(reinterpret_cast<const char*>(b), 8);
+    };
+
+    const fs::path steamRoot = GetSteamRoot();
+    mixStr(steamRoot.string());
+    mixStr("storage=" + m_storageDir.string()); // tests switch storage roots too
+
+    auto stampDir = [&](const fs::path& dir) {
+        mixStr("DIR");
+        mixStr(dir.string());
+        std::error_code lec;
+        uint64_t count = 0;
+        if (fs::is_directory(dir, lec))
+        {
+            for (const auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied, lec))
+            {
+                if (lec) break;
+                if (!entry.is_regular_file(lec)) continue;
+                ++count;
+                mixStr(entry.path().filename().string());
+                std::error_code tec;
+                mixU64(static_cast<uint64_t>(fs::last_write_time(entry.path(), tec).time_since_epoch().count()));
+            }
+        }
+        mixU64(count);
+    };
+
+    std::error_code ec;
+    for (const auto& saDir : GetSteamAppsDirs(steamRoot)) stampDir(saDir);
+    stampDir(steamRoot / "config" / "stplug-in");
+    stampDir(steamRoot / "depotcache");
+
+    // appinfo.vdf feeds the uninstalled-title fallback: tolerate a refresh.
+    const fs::path appInfoPath = steamRoot / "appcache" / "appinfo.vdf";
+    if (fs::is_regular_file(appInfoPath, ec))
+    {
+        mixStr("APPINFO");
+        mixU64(static_cast<uint64_t>(fs::last_write_time(appInfoPath, ec).time_since_epoch().count()));
+    }
+    else
+    {
+        mixStr("APPINFO-missing");
+    }
+    (void)ec;
+
+    return h;
 }
 
 fs::path CCloudManager::GetSteamRoot() const
@@ -633,24 +802,34 @@ namespace
         return false;
     }
 
-    struct DepotOwner_t
-    {
-        AppId_t appId = 0;
-        std::string title;
-    };
-
     /**
-     * Find the owning parent game of a depot ID by scanning installed app manifests
-     * (appmanifest_*.acf) across Steam library folders. Each game manifest records
-     * its child depots in the "InstalledDepots" block.
+     * Builder for the one-pass library scan index (scan-once replacement for the
+     * legacy per-candidate rescans FindDepotOwnerInAppManifests /
+     * FindDepotOwnerInLuaPlugins / GetChildDepotIdsForApp / ResolveAppTitleFromManifests.
+     * Semantics mirror the legacy scans exactly:
+     *  - InstalledDepots ownership: first manifest in (dir, file) scan order wins.
+     *  - Manifest titles: first "name" line is stored under both placeholder rules
+     *    (1-arg for owner titles, 2-arg for the direct resolve path).
+     *  - Lua ownership: the first owner whose gameName passes IsPlaceholderAppTitle
+     *    wins; otherwise the first numerically-resolved owner tracks the depot.
+     *  - Lua child ids merge depots -> dlcs -> manifests per file in scan order.
      */
-    DepotOwner_t FindDepotOwnerInAppManifests(AppId_t depotId, const std::vector<fs::path>& steamAppsDirs)
+    void BuildScanIndexInto(const fs::path& steamRoot,
+                            const std::vector<fs::path>& steamAppsDirs,
+                            const fs::path& stplugDir,
+                            ScanIndex& out)
     {
-        DepotOwner_t owner;
-        if (depotId == 0) return owner;
-        const std::string depotIdStr = std::to_string(depotId);
+        out.steamRoot = steamRoot;
+        out.steamAppsDirs = steamAppsDirs;
+        out.stplugDir = stplugDir;
         std::error_code ec;
 
+        auto toAppId = [](const std::string& digits) -> AppId_t {
+            try { return static_cast<AppId_t>(std::stoul(digits)); }
+            catch (...) { return 0; }
+        };
+
+        // ---- Pass 1: every appmanifest_*.acf in every library folder, one read each ----
         for (const auto& saDir : steamAppsDirs)
         {
             if (!fs::is_directory(saDir, ec)) continue;
@@ -660,24 +839,25 @@ namespace
                 if (!entry.is_regular_file(ec)) continue;
                 const fs::path& p = entry.path();
                 const std::string fn = p.filename().string();
-                if (fn.rfind("appmanifest_", 0) != 0 || !fn.ends_with(".acf")) continue;
+                if (fn.rfind("appmanifest_", 0) != 0 || fn.length() < 16 || !fn.ends_with(".acf")) continue;
 
-                // Extract parent appId from filename appmanifest_<appId>.acf
-                std::string parentIdStr = fn.substr(12, fn.length() - 12 - 4);
-                if (!IsDigitsOnly(parentIdStr) || parentIdStr == depotIdStr) continue;
+                const std::string parentIdStr = fn.substr(12, fn.length() - 16);
+                if (!IsDigitsOnly(parentIdStr)) continue;
+                const AppId_t appId = static_cast<AppId_t>(std::strtoul(parentIdStr.c_str(), nullptr, 10));
 
                 std::ifstream mf(p);
                 if (!mf.is_open()) continue;
+                NoteManifestFileRead();
 
                 std::string line;
                 bool inInstalledDepots = false;
                 int depotsDepth = 0;
-                bool foundDepot = false;
-                std::string appName;
+                std::string appName;       ///< first "name" passing the 1-arg placeholder rule
+                std::string appNameStrict; ///< first "name" passing the 2-arg placeholder rule
 
                 while (std::getline(mf, line))
                 {
-                    if (appName.empty())
+                    if (appName.empty() || appNameStrict.empty())
                     {
                         size_t nameKey = line.find("\"name\"");
                         if (nameKey != std::string::npos)
@@ -687,10 +867,8 @@ namespace
                             if (q1 != std::string::npos && q2 != std::string::npos && q2 > q1 + 1)
                             {
                                 std::string n = line.substr(q1 + 1, q2 - q1 - 1);
-                                if (!IsPlaceholderAppTitle(n))
-                                {
-                                    appName = n;
-                                }
+                                if (appName.empty() && !IsPlaceholderAppTitle(n)) appName = n;
+                                if (appNameStrict.empty() && !IsPlaceholderAppTitle(n, appId)) appNameStrict = n;
                             }
                         }
                     }
@@ -727,87 +905,229 @@ namespace
                                 if (q2 != std::string::npos)
                                 {
                                     std::string key = line.substr(q1 + 1, q2 - q1 - 1);
-                                    if (key == depotIdStr)
+                                    if (IsDigitsOnly(key))
                                     {
-                                        foundDepot = true;
+                                        const AppId_t depot = toAppId(key);
+                                        out.childrenOfAppFromManifests[appId].push_back(depot);
+                                        if (depot != 0 && depot != appId)
+                                        {
+                                            if (!out.parentOfDepotFromManifests.contains(depot))
+                                            {
+                                                out.parentOfDepotFromManifests.emplace(depot, appId);
+                                            }
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-
-                    if (foundDepot && !appName.empty())
-                    {
-                        owner.appId = static_cast<AppId_t>(std::strtoul(parentIdStr.c_str(), nullptr, 10));
-                        owner.title = appName;
-                        return owner;
-                    }
                 }
 
-                if (foundDepot)
+                if (!appName.empty() && !out.manifestTitleOf.contains(appId))
                 {
-                    owner.appId = static_cast<AppId_t>(std::strtoul(parentIdStr.c_str(), nullptr, 10));
-                    return owner;
+                    out.manifestTitleOf.emplace(appId, appName);
+                }
+                if (!appNameStrict.empty() && !out.manifestTitleOfStrict.contains(appId))
+                {
+                    out.manifestTitleOfStrict.emplace(appId, appNameStrict);
                 }
             }
         }
-        return owner;
-    }
 
-    /**
-     * Find the owning game of a depot ID by scanning the numeric Lua plugins in
-     * config/stplug-in. Depot IDs are listed inside their parent game's
-     * <appId>.lua via addappid()/setManifestid(), so this lets unresolved depot
-     * IDs reported as cloud apps inherit the real game title.
-     */
-    DepotOwner_t FindDepotOwnerInLuaPlugins(AppId_t depotId, const fs::path& stplugDir)
-    {
-        DepotOwner_t owner;
-        std::error_code ec;
-        if (!fs::is_directory(stplugDir, ec)) return owner;
+        // ---- Pass 2: every .lua plugin in stplug-in, one read+parse each ----
+        if (!fs::is_directory(stplugDir, ec)) return;
 
-        const std::string depotIdStr = std::to_string(depotId);
+        struct LuaOwnerProbe
+        {
+            bool seen{false};
+            bool hasFirst{false};
+            AppId_t firstId{0};
+            bool titled{false};
+            AppId_t titledId{0};
+            std::string title;
+        };
+        std::unordered_map<AppId_t, LuaOwnerProbe> luaOwners; // depotId -> probe
+
         for (const auto& entry : fs::directory_iterator(stplugDir, fs::directory_options::skip_permission_denied, ec))
         {
             if (ec) break;
             if (!entry.is_regular_file(ec)) continue;
+            if (entry.path().extension() != ".lua") continue;
 
-            const fs::path& path = entry.path();
-            if (path.extension() != ".lua") continue;
-
-            const std::string stem = path.stem().string();
-            if (!IsDigitsOnly(stem) || stem == depotIdStr) continue;
-
-            std::ifstream lf(path);
-            if (!lf.is_open()) continue;
-
-            std::string content((std::istreambuf_iterator<char>(lf)),
-                                 std::istreambuf_iterator<char>());
-            if (content.find(depotIdStr) == std::string::npos) continue;
-
-            const LuaParser::ParseResult parsed = LuaParser::parse(content);
-            const bool referencesDepot = parsed.depots.find(depotIdStr) != parsed.depots.end() ||
-                                         parsed.manifests.find(depotIdStr) != parsed.manifests.end() ||
-                                         parsed.dlcs.find(depotIdStr) != parsed.dlcs.end();
-            if (!referencesDepot) continue;
-
-            std::string parentIdStr = (parsed.valid && !parsed.appId.empty() && IsDigitsOnly(parsed.appId)) ? parsed.appId : stem;
-            if (parentIdStr == depotIdStr) continue;
-
-            const bool hasUsableTitle = !parsed.gameName.empty() && !IsPlaceholderAppTitle(parsed.gameName);
-            if (hasUsableTitle)
+            ScanLuaFileRecord rec;
+            rec.path = entry.path();
+            rec.stem = rec.path.stem().string();
+            if (IsDigitsOnly(rec.stem))
             {
-                owner.appId = static_cast<AppId_t>(std::strtoul(parentIdStr.c_str(), nullptr, 10));
-                owner.title = parsed.gameName;
-                return owner;
+                rec.stemAppId = static_cast<AppId_t>(std::strtoul(rec.stem.c_str(), nullptr, 10));
             }
 
-            if (owner.appId == 0)
             {
-                owner.appId = static_cast<AppId_t>(std::strtoul(parentIdStr.c_str(), nullptr, 10));
+                std::ifstream lf(rec.path);
+                if (!lf.is_open())
+                {
+                    // Unreadable numeric-stem files still surface as discovery
+                    // candidates (legacy addCandidate used the stem alone).
+                    out.luaFiles.push_back(std::move(rec));
+                    continue;
+                }
+                NoteLuaFileParsed();
+                std::string content((std::istreambuf_iterator<char>(lf)),
+                                     std::istreambuf_iterator<char>());
+                rec.readOk = true;
+
+                const LuaParser::ParseResult parsed = LuaParser::parse(content);
+                rec.parsedValid = parsed.valid;
+                rec.parsedAppId = parsed.appId;
+                rec.gameName = parsed.gameName;
+
+                for (const auto& [depotIdStr, _] : parsed.depots)
+                {
+                    if (IsDigitsOnly(depotIdStr)) rec.depots.push_back(toAppId(depotIdStr));
+                }
+                for (const auto& [dlcIdStr, _] : parsed.dlcs)
+                {
+                    if (IsDigitsOnly(dlcIdStr)) rec.dlcs.push_back(toAppId(dlcIdStr));
+                }
+                for (const auto& [manifestIdStr, _] : parsed.manifests)
+                {
+                    if (IsDigitsOnly(manifestIdStr)) rec.manifests.push_back(toAppId(manifestIdStr));
+                }
+
+                // Fallback-3 title: first addappid line carrying a trailing -- comment.
+                {
+                    std::istringstream lines(content);
+                    std::string raw;
+                    while (std::getline(lines, raw))
+                    {
+                        size_t addApp = raw.find("addappid(");
+                        if (addApp == std::string::npos) continue;
+                        size_t comment = raw.find("--", addApp);
+                        if (comment == std::string::npos) continue;
+                        std::string title = raw.substr(comment + 2);
+                        title.erase(0, title.find_first_not_of(" \t"));
+                        title.erase(title.find_last_not_of(" \t\r\n") + 1);
+                        if (!title.empty())
+                        {
+                            rec.luaTitle = title;
+                            break;
+                        }
+                    }
+                }
+
+                // Raw "addappid(<digits>" discovery scan (legacy list scan rule).
+                {
+                    size_t pos = 0;
+                    while ((pos = content.find("addappid(", pos)) != std::string::npos)
+                    {
+                        pos += 9;
+                        size_t endPos = pos;
+                        while (endPos < content.length() && std::isdigit(static_cast<unsigned char>(content[endPos])))
+                        {
+                            endPos++;
+                        }
+                        if (endPos > pos)
+                        {
+                            try
+                            {
+                                rec.allAddAppIds.push_back(static_cast<AppId_t>(std::stoul(content.substr(pos, endPos - pos))));
+                            }
+                            catch (...) {}
+                        }
+                        pos = endPos;
+                    }
+                }
+            }
+
+            // Lua children (depots -> dlcs -> manifests, per-file order preserved).
+            std::vector<AppId_t> childIds;
+            childIds.reserve(rec.depots.size() + rec.dlcs.size() + rec.manifests.size());
+            childIds.insert(childIds.end(), rec.depots.begin(), rec.depots.end());
+            childIds.insert(childIds.end(), rec.dlcs.begin(), rec.dlcs.end());
+            childIds.insert(childIds.end(), rec.manifests.begin(), rec.manifests.end());
+
+            // Legacy GetChildDepotIdsForApp step 2: <stem>.lua seeds its stem app.
+            if (rec.stemAppId != 0)
+            {
+                auto& list = out.childrenOfAppFromLuaStem[rec.stemAppId];
+                list.insert(list.end(), childIds.begin(), childIds.end());
+            }
+
+            // Legacy step 3: files whose parsed appId names another game seed it.
+            // The stem-file skip mirrors the legacy parentLua path-equality skip.
+            if (rec.parsedValid && !rec.parsedAppId.empty() && IsDigitsOnly(rec.parsedAppId))
+            {
+                const AppId_t parsedAppId = static_cast<AppId_t>(std::strtoul(rec.parsedAppId.c_str(), nullptr, 10));
+                if (rec.stem != std::to_string(parsedAppId))
+                {
+                    auto& list = out.childrenOfAppFromLuaMapped[parsedAppId];
+                    list.insert(list.end(), childIds.begin(), childIds.end());
+                }
+            }
+
+            // Lua title fallback keyed by numeric stem (first non-empty wins).
+            if (rec.stemAppId != 0 && !rec.luaTitle.empty() && !out.luaTitleOfStem.contains(rec.stemAppId))
+            {
+                out.luaTitleOfStem.emplace(rec.stemAppId, rec.luaTitle);
+            }
+
+            // Lua ownership probes (mirrors the per-depot FindDepotOwnerInLuaPlugins scan).
+            if (rec.readOk)
+            {
+                const std::string resolvedParentStr =
+                    (rec.parsedValid && !rec.parsedAppId.empty() && IsDigitsOnly(rec.parsedAppId)) ? rec.parsedAppId : rec.stem;
+                const bool resolvedParentNumeric = !resolvedParentStr.empty() && IsDigitsOnly(resolvedParentStr);
+                const AppId_t resolvedParentId = resolvedParentNumeric
+                    ? static_cast<AppId_t>(std::strtoul(resolvedParentStr.c_str(), nullptr, 10))
+                    : 0u;
+                const bool usableTitle = !rec.gameName.empty() && !IsPlaceholderAppTitle(rec.gameName);
+
+                auto trackOwner = [&](AppId_t depotId) {
+                    if (depotId == 0) return; // non-digit/invalid sources are never queried
+                    // Guard 1 (legacy line 814 mirror): a file whose stem IS the
+                    // depot id never owns that depot from itself.
+                    if (rec.stem == std::to_string(depotId)) return;
+                    // Guard 2 (legacy line 831 mirror): self-listing files do not
+                    // own their depot via the resolved parent either.
+                    if (resolvedParentNumeric && resolvedParentStr == std::to_string(depotId)) return;
+
+                    LuaOwnerProbe& probe = luaOwners[depotId];
+                    if (probe.titled) return; // an earlier titled owner already won (legacy early return)
+                    if (usableTitle)
+                    {
+                        probe.titled = true;
+                        probe.titledId = resolvedParentId;
+                        probe.title = rec.gameName;
+                        return;
+                    }
+                    if (!probe.hasFirst && resolvedParentNumeric)
+                    {
+                        probe.hasFirst = true;
+                        probe.firstId = resolvedParentId;
+                    }
+                };
+
+                for (AppId_t id : rec.depots) trackOwner(id);
+                for (AppId_t id : rec.manifests) trackOwner(id);
+                for (AppId_t id : rec.dlcs) trackOwner(id);
+            }
+
+            out.luaFiles.push_back(std::move(rec));
+        }
+
+        // Resolve probes: titled owner wins, else the first referenced owner.
+        for (const auto& [depotId, probe] : luaOwners)
+        {
+            if (probe.titled)
+            {
+                out.parentOfDepotFromLua.emplace(depotId, probe.titledId);
+                out.luaOwnerTitleOf.emplace(depotId, probe.title);
+            }
+            else if (probe.firstId != 0)
+            {
+                out.parentOfDepotFromLua.emplace(depotId, probe.firstId);
             }
         }
-        return owner;
     }
 } // namespace
 
@@ -1069,42 +1389,31 @@ static std::vector<fs::path> GetSteamAppsDirs(const fs::path& steamRoot)
 
 std::string CCloudManager::ResolveAppTitleFromManifests(AppId_t appId) const
 {
-    return ResolveAppTitleFromManifestsInternal(appId, 0);
+    if (appId == 0) return "";
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    if (!index) return "";
+    return ResolveAppTitleFromManifestsInternal(appId, 0, *index);
 }
 
-std::string CCloudManager::ResolveAppTitleFromManifestsInternal(AppId_t appId, int depth) const
+// Index-driven variant: every library fact below comes from ONE build scan
+// (BuildScanIndexInto); depot ownership and owner-title recursion are map lookups.
+std::string CCloudManager::ResolveAppTitleFromManifestsInternal(AppId_t appId, int depth, const ScanIndex& index) const
 {
     if (appId == 0 || depth > 3) return "";
     if (appId == 7) return "Steam Client";
     if (appId == 241100) return "Steam Input Configs";
     if (appId == 250820) return "SteamVR";
     std::error_code ec;
-    const fs::path steamRoot = GetSteamRoot();
-    const std::vector<fs::path> steamAppsDirs = GetSteamAppsDirs(steamRoot);
+    const fs::path steamRoot = index.steamRoot;
 
-    const std::string manifestName = "appmanifest_" + std::to_string(appId) + ".acf";
-    for (const auto& saDir : steamAppsDirs)
+    // 1. Own appmanifest "name": first manifest in scan order passing the
+    //    per-app placeholder rule (index captures it while scanning each
+    //    appmanifest_*.acf exactly once).
     {
-        fs::path manifestPath = saDir / manifestName;
-        if (!fs::is_regular_file(manifestPath, ec)) continue;
-        std::ifstream mf(manifestPath);
-        std::string line;
-        while (std::getline(mf, line))
+        auto it = index.manifestTitleOfStrict.find(appId);
+        if (it != index.manifestTitleOfStrict.end() && !it->second.empty())
         {
-            size_t nameKey = line.find("\"name\"");
-            if (nameKey != std::string::npos)
-            {
-                size_t q1 = line.find('"', nameKey + 6);
-                size_t q2 = (q1 != std::string::npos) ? line.find('"', q1 + 1) : std::string::npos;
-                if (q1 != std::string::npos && q2 != std::string::npos && q2 > q1 + 1)
-                {
-                    std::string rawName = line.substr(q1 + 1, q2 - q1 - 1);
-                    if (!IsPlaceholderAppTitle(rawName, appId))
-                    {
-                        return rawName;
-                    }
-                }
-            }
+            return it->second;
         }
     }
 
@@ -1207,28 +1516,11 @@ std::string CCloudManager::ResolveAppTitleFromManifestsInternal(AppId_t appId, i
     }
 
     // Fallback 3: Extract game title from Lua plugin trailing comment
-    const fs::path luaPlugin = steamRoot / "config" / "stplug-in" / (std::to_string(appId) + ".lua");
-    if (fs::is_regular_file(luaPlugin, ec))
     {
-        std::ifstream lf(luaPlugin);
-        std::string line;
-        while (std::getline(lf, line))
+        auto it = index.luaTitleOfStem.find(appId);
+        if (it != index.luaTitleOfStem.end() && !it->second.empty())
         {
-            size_t addApp = line.find("addappid(");
-            if (addApp != std::string::npos)
-            {
-                size_t comment = line.find("--", addApp);
-                if (comment != std::string::npos)
-                {
-                    std::string title = line.substr(comment + 2);
-                    title.erase(0, title.find_first_not_of(" \t"));
-                    title.erase(title.find_last_not_of(" \t\r\n") + 1);
-                    if (!title.empty())
-                    {
-                        return title;
-                    }
-                }
-            }
+            return it->second;
         }
     }
 
@@ -1287,31 +1579,39 @@ std::string CCloudManager::ResolveAppTitleFromManifestsInternal(AppId_t appId, i
     // the caller with "App <depotId>".
     if (depth < 3)
     {
-        const DepotOwner_t manifestOwner = FindDepotOwnerInAppManifests(appId, steamAppsDirs);
-        if (!manifestOwner.title.empty())
+        auto mit = index.parentOfDepotFromManifests.find(appId);
+        if (mit != index.parentOfDepotFromManifests.end())
         {
-            return manifestOwner.title;
-        }
-        if (manifestOwner.appId != 0 && manifestOwner.appId != appId)
-        {
-            const std::string ownerTitle = ResolveAppTitleFromManifestsInternal(manifestOwner.appId, depth + 1);
-            if (!ownerTitle.empty())
+            auto ownerTitleIt = index.manifestTitleOf.find(mit->second);
+            if (ownerTitleIt != index.manifestTitleOf.end() && !ownerTitleIt->second.empty())
             {
-                return ownerTitle;
+                return ownerTitleIt->second;
+            }
+            if (mit->second != 0 && mit->second != appId)
+            {
+                const std::string ownerTitle = ResolveAppTitleFromManifestsInternal(mit->second, depth + 1, index);
+                if (!ownerTitle.empty())
+                {
+                    return ownerTitle;
+                }
             }
         }
 
-        const DepotOwner_t luaOwner = FindDepotOwnerInLuaPlugins(appId, steamRoot / "config" / "stplug-in");
-        if (!luaOwner.title.empty())
+        auto lit = index.parentOfDepotFromLua.find(appId);
+        if (lit != index.parentOfDepotFromLua.end())
         {
-            return luaOwner.title;
-        }
-        if (luaOwner.appId != 0 && luaOwner.appId != appId)
-        {
-            const std::string ownerTitle = ResolveAppTitleFromManifestsInternal(luaOwner.appId, depth + 1);
-            if (!ownerTitle.empty())
+            auto ownerTitleIt = index.luaOwnerTitleOf.find(appId);
+            if (ownerTitleIt != index.luaOwnerTitleOf.end() && !ownerTitleIt->second.empty())
             {
-                return ownerTitle;
+                return ownerTitleIt->second;
+            }
+            if (lit->second != 0 && lit->second != appId)
+            {
+                const std::string ownerTitle = ResolveAppTitleFromManifestsInternal(lit->second, depth + 1, index);
+                if (!ownerTitle.empty())
+                {
+                    return ownerTitle;
+                }
             }
         }
     }
@@ -1325,25 +1625,52 @@ AppId_t CCloudManager::GetParentAppIdForDepot(AppId_t depotId) const
     // Shared Steamworks Common Redistributables
     if (depotId >= 228980 && depotId <= 229007) return 0;
 
-    // In unit test mode where storageDir is set but steamRoot is not, do not leak host steamRoot
-    if (!m_storageDir.empty() && m_steamRoot.empty()) return 0;
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    if (index) return GetParentAppIdForDepot(depotId, *index);
 
-    const fs::path steamRoot = GetSteamRoot();
-    if (steamRoot.empty()) return 0;
-    const std::vector<fs::path> steamAppsDirs = GetSteamAppsDirs(steamRoot);
-
-    // 1. Check if an installed appmanifest_*.acf lists this depot in InstalledDepots
-    const DepotOwner_t manifestOwner = FindDepotOwnerInAppManifests(depotId, steamAppsDirs);
-    if (manifestOwner.appId != 0 && manifestOwner.appId != depotId)
+    // Fallback if index could not be obtained
+    const auto dlcData = g_config.dlcData.get();
+    for (const auto& [parentId, data] : dlcData)
     {
-        return manifestOwner.appId;
+        if (parentId == 0 || parentId == depotId) continue;
+        if (data.dlcIds.contains(depotId)) return parentId;
     }
 
-    // 2. Check if a Lua plugin lists this depot in depots, dlcs, or manifests
-    const DepotOwner_t luaOwner = FindDepotOwnerInLuaPlugins(depotId, steamRoot / "config" / "stplug-in");
-    if (luaOwner.appId != 0 && luaOwner.appId != depotId)
+    return 0;
+}
+
+AppId_t CCloudManager::GetParentAppIdForDepot(AppId_t depotId, const ScanIndex& index) const
+{
+    if (depotId == 0) return 0;
+    // Shared Steamworks Common Redistributables
+    if (depotId >= 228980 && depotId <= 229007) return 0;
+
+    if (!index.steamRootMissing)
     {
-        return luaOwner.appId;
+        // 1. Check if an installed appmanifest_*.acf lists this depot in InstalledDepots
+        auto mit = index.parentOfDepotFromManifests.find(depotId);
+        if (mit != index.parentOfDepotFromManifests.end())
+        {
+            if (mit->second != 0 && mit->second != depotId) return mit->second;
+        }
+
+        // 2. Check if a Lua plugin lists this depot in depots, dlcs, or manifests
+        auto lit = index.parentOfDepotFromLua.find(depotId);
+        if (lit != index.parentOfDepotFromLua.end())
+        {
+            if (lit->second != 0 && lit->second != depotId) return lit->second;
+        }
+    }
+
+    // 3. Fallback: check config DlcData mapping (child->parent reverse lookup)
+    const auto dlcData = g_config.dlcData.get();
+    for (const auto& [parentId, data] : dlcData)
+    {
+        if (parentId == 0 || parentId == depotId) continue;
+        if (data.dlcIds.contains(depotId))
+        {
+            return parentId;
+        }
     }
 
     return 0;
@@ -1354,8 +1681,33 @@ std::vector<AppId_t> CCloudManager::GetChildDepotIdsForApp(AppId_t parentAppId) 
     std::vector<AppId_t> children;
     if (parentAppId == 0) return children;
 
-    // In unit test mode where storageDir is set but steamRoot is not, do not leak host steamRoot
-    if (!m_storageDir.empty() && m_steamRoot.empty()) return children;
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    if (index) return GetChildDepotIdsForApp(parentAppId, *index);
+
+    const auto dlcData = g_config.dlcData.get();
+    auto dit = dlcData.find(parentAppId);
+    if (dit != dlcData.end())
+    {
+        std::vector<AppId_t> dlcList;
+        dlcList.reserve(dit->second.dlcIds.size());
+        for (const auto& [dlcId, _] : dit->second.dlcIds) dlcList.push_back(dlcId);
+        std::sort(dlcList.begin(), dlcList.end());
+        for (AppId_t id : dlcList)
+        {
+            if (id != 0 && id != parentAppId && (id < 228980 || id > 229007))
+            {
+                children.push_back(id);
+            }
+        }
+    }
+
+    return children;
+}
+
+std::vector<AppId_t> CCloudManager::GetChildDepotIdsForApp(AppId_t parentAppId, const ScanIndex& index) const
+{
+    std::vector<AppId_t> children;
+    if (parentAppId == 0) return children;
 
     std::unordered_set<AppId_t> seen;
     auto addChild = [&](AppId_t id) {
@@ -1368,148 +1720,45 @@ std::vector<AppId_t> CCloudManager::GetChildDepotIdsForApp(AppId_t parentAppId) 
         }
     };
 
-    const fs::path steamRoot = GetSteamRoot();
-    if (steamRoot.empty()) return children;
-    const std::vector<fs::path> steamAppsDirs = GetSteamAppsDirs(steamRoot);
-    std::error_code ec;
-
-    // 1. Scan InstalledDepots in appmanifest_<parentAppId>.acf across library folders
-    for (const auto& saDir : steamAppsDirs)
+    if (!index.steamRootMissing)
     {
-        fs::path p = saDir / ("appmanifest_" + std::to_string(parentAppId) + ".acf");
-        if (!fs::is_regular_file(p, ec)) continue;
-
-        std::ifstream mf(p);
-        if (!mf.is_open()) continue;
-
-        std::string line;
-        bool inInstalledDepots = false;
-        int depotsDepth = 0;
-
-        while (std::getline(mf, line))
+        // 1. InstalledDepots from appmanifest_<parentAppId>.acf across library folders
+        auto mit = index.childrenOfAppFromManifests.find(parentAppId);
+        if (mit != index.childrenOfAppFromManifests.end())
         {
-            if (!inInstalledDepots)
-            {
-                if (line.find("\"InstalledDepots\"") != std::string::npos)
-                {
-                    inInstalledDepots = true;
-                    depotsDepth = 0;
-                }
-            }
-            else
-            {
-                for (char c : line)
-                {
-                    if (c == '{') depotsDepth++;
-                    else if (c == '}')
-                    {
-                        depotsDepth--;
-                        if (depotsDepth <= 0)
-                        {
-                            inInstalledDepots = false;
-                            break;
-                        }
-                    }
-                }
-                if (inInstalledDepots && depotsDepth == 1)
-                {
-                    size_t q1 = line.find('"');
-                    if (q1 != std::string::npos)
-                    {
-                        size_t q2 = line.find('"', q1 + 1);
-                        if (q2 != std::string::npos)
-                        {
-                            std::string key = line.substr(q1 + 1, q2 - q1 - 1);
-                            if (IsDigitsOnly(key))
-                            {
-                                try
-                                {
-                                    addChild(static_cast<AppId_t>(std::stoul(key)));
-                                }
-                                catch (...) {}
-                            }
-                        }
-                    }
-                }
-            }
+            for (AppId_t id : mit->second) addChild(id);
+        }
+
+        // 2. Lua plugin config/stplug-in/<parentAppId>.lua
+        auto sit = index.childrenOfAppFromLuaStem.find(parentAppId);
+        if (sit != index.childrenOfAppFromLuaStem.end())
+        {
+            for (AppId_t id : sit->second) addChild(id);
+        }
+
+        // 3. Other .lua files whose primary addappid matches parentAppId
+        auto lit = index.childrenOfAppFromLuaMapped.find(parentAppId);
+        if (lit != index.childrenOfAppFromLuaMapped.end())
+        {
+            for (AppId_t id : lit->second) addChild(id);
         }
     }
 
-    // 2. Scan Lua plugin config/stplug-in/<parentAppId>.lua
-    const fs::path stplugDir = steamRoot / "config" / "stplug-in";
-    const fs::path parentLua = stplugDir / (std::to_string(parentAppId) + ".lua");
-    if (fs::is_regular_file(parentLua, ec))
+    // 4. DLCs from config DlcData mapping (parent->children forward lookup)
+    const auto dlcData = g_config.dlcData.get();
+    auto dit = dlcData.find(parentAppId);
+    if (dit != dlcData.end())
     {
-        std::ifstream lf(parentLua);
-        if (lf.is_open())
+        std::vector<AppId_t> dlcList;
+        dlcList.reserve(dit->second.dlcIds.size());
+        for (const auto& [dlcId, _] : dit->second.dlcIds)
         {
-            std::string content((std::istreambuf_iterator<char>(lf)),
-                                 std::istreambuf_iterator<char>());
-            auto parsed = LuaParser::parse(content);
-            for (const auto& [depotId, _] : parsed.depots)
-            {
-                if (IsDigitsOnly(depotId))
-                {
-                    try { addChild(static_cast<AppId_t>(std::stoul(depotId))); } catch (...) {}
-                }
-            }
-            for (const auto& [dlcId, _] : parsed.dlcs)
-            {
-                if (IsDigitsOnly(dlcId))
-                {
-                    try { addChild(static_cast<AppId_t>(std::stoul(dlcId))); } catch (...) {}
-                }
-            }
-            for (const auto& [manifestId, _] : parsed.manifests)
-            {
-                if (IsDigitsOnly(manifestId))
-                {
-                    try { addChild(static_cast<AppId_t>(std::stoul(manifestId))); } catch (...) {}
-                }
-            }
+            dlcList.push_back(dlcId);
         }
-    }
-
-    // 3. Scan all other .lua files in stplugDir where primary addappid matches parentAppId
-    if (fs::is_directory(stplugDir, ec))
-    {
-        const std::string parentStr = std::to_string(parentAppId);
-        for (const auto& entry : fs::directory_iterator(stplugDir, fs::directory_options::skip_permission_denied, ec))
+        std::sort(dlcList.begin(), dlcList.end());
+        for (AppId_t id : dlcList)
         {
-            if (ec) break;
-            if (!entry.is_regular_file(ec)) continue;
-            if (entry.path().extension() != ".lua") continue;
-            if (entry.path() == parentLua) continue;
-
-            std::ifstream lf(entry.path());
-            if (!lf.is_open()) continue;
-            std::string content((std::istreambuf_iterator<char>(lf)),
-                                 std::istreambuf_iterator<char>());
-            auto parsed = LuaParser::parse(content);
-            if (parsed.valid && parsed.appId == parentStr)
-            {
-                for (const auto& [depotId, _] : parsed.depots)
-                {
-                    if (IsDigitsOnly(depotId))
-                    {
-                        try { addChild(static_cast<AppId_t>(std::stoul(depotId))); } catch (...) {}
-                    }
-                }
-                for (const auto& [dlcId, _] : parsed.dlcs)
-                {
-                    if (IsDigitsOnly(dlcId))
-                    {
-                        try { addChild(static_cast<AppId_t>(std::stoul(dlcId))); } catch (...) {}
-                    }
-                }
-                for (const auto& [manifestId, _] : parsed.manifests)
-                {
-                    if (IsDigitsOnly(manifestId))
-                    {
-                        try { addChild(static_cast<AppId_t>(std::stoul(manifestId))); } catch (...) {}
-                    }
-                }
-            }
+            addChild(id);
         }
     }
 
@@ -1519,7 +1768,7 @@ std::vector<AppId_t> CCloudManager::GetChildDepotIdsForApp(AppId_t parentAppId) 
 std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t appId, const std::string& provider, uint32_t accountId) const
 {
     std::vector<CloudFileEntry_t> results;
-    if (appId == 0) return results;
+    if (appId == 0 || appId == kCloudCatalogAppId) return results;
 
     const std::string appIdStr = std::to_string(appId);
     const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
@@ -1527,13 +1776,17 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
     const bool isRemoteProvider = (!provider.empty() && provider != "local-only");
     std::error_code ec;
 
-    // Map of logical fileName -> CloudFileEntry_t
+    // Map of logical fileName -> CloudFileEntry_t (D3: hash-indexed upsert).
+    // Insert order is preserved via the slot vector; lookups are O(1).
     std::vector<std::pair<std::string, CloudFileEntry_t>> fileMap;
+    std::unordered_map<std::string, size_t> fileIndex; // logicalName -> fileMap slot
     auto upsertFile = [&](const std::string& logicalName, CloudFileEntry_t entry) {
         if (IsInternalMetadataRelPath(logicalName)) return;
-        for (auto& kv : fileMap)
+        NoteFileUpsertProbe(); // D3 instrumentation (one probe per upsert lookup)
+        const auto slot = fileIndex.find(logicalName);
+        if (slot != fileIndex.end())
         {
-            if (kv.first == logicalName)
+            auto& kv = fileMap[slot->second];
             {
                 if (entry.inRemoteCloud) kv.second.inRemoteCloud = true;
                 if (entry.inLocalMirror) kv.second.inLocalMirror = true;
@@ -1553,9 +1806,10 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
                         kv.second.modifiedTime = entry.modifiedTime;
                     }
                 }
-                return;
             }
+            return;
         }
+        fileIndex.emplace(logicalName, fileMap.size());
         fileMap.emplace_back(logicalName, std::move(entry));
     };
 
@@ -1615,6 +1869,13 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
             if (fEc || rel.empty()) continue;
             std::string relStr = rel.generic_string();
             if (IsInternalMetadataRelPath(relStr)) continue;
+
+            // If sync-remote-app materialized a <cleanPath>/<sha1> directory leaf, strip the trailing sha1
+            if (rel.has_parent_path() && IsHexHashSegment(it->path().filename().string()))
+            {
+                relStr = rel.parent_path().generic_string();
+                if (IsInternalMetadataRelPath(relStr)) continue;
+            }
 
             std::string matchedTok = rootToken;
             if (!relStr.empty() && relStr[0] == '%')
@@ -1739,11 +2000,10 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
         }
     }
 
-    // 3. When running in normal mode or when steamRoot is configured,
-    // also include local saves in Steam userdata/<acct>/<appId>/remote, Goldberg paths,
-    // Proton Auto-Cloud roots, and Lua/manifest files
+    // 3. When running in local-only mode (not a remote cloud provider), also include local saves
+    // in Steam userdata/<acct>/<appId>/remote, Goldberg paths, Proton Auto-Cloud roots, and Lua/manifest files.
     const fs::path steamRoot = GetSteamRoot();
-    if ((m_storageDir.empty() || !m_steamRoot.empty()) && appId != 760 && !steamRoot.empty())
+    if (!isRemoteProvider && (m_storageDir.empty() || !m_steamRoot.empty()) && appId != 760 && !steamRoot.empty())
     {
         const fs::path userdataRoot = steamRoot / "userdata";
 
@@ -2036,30 +2296,55 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
 
 std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(AppId_t appId, const std::string& provider, uint32_t accountId)
 {
+    if (appId == 0 || appId == kCloudCatalogAppId) return {};
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    if (!index) return {};
+    return ListAppCloudFiles(appId, provider, accountId, *index);
+}
+
+std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(AppId_t appId, const std::string& provider, uint32_t accountId, const ScanIndex& index) const
+{
+    if (appId == 0 || appId == kCloudCatalogAppId) return {};
+
+    const bool isRemoteProvider = (!provider.empty() && provider != "local-only");
+    if (isRemoteProvider)
+    {
+        const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+        for (uint32_t acct : accounts)
+        {
+            std::unordered_map<AppId_t, CloudAppSummary_t> catalogSummaries;
+            std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> catalogFilesByApp;
+            if (LoadCloudCatalog(provider, acct, /*syncRemote=*/false, catalogSummaries, catalogFilesByApp))
+            {
+                auto it = catalogFilesByApp.find(appId);
+                if (it != catalogFilesByApp.end() && !it->second.empty())
+                {
+                    return it->second;
+                }
+            }
+        }
+    }
+
     // 1. Files belonging directly to base game
     std::vector<CloudFileEntry_t> results = ListAppCloudFilesDirect(appId, provider, accountId);
 
     // 2. Discover and merge files for all child depots / addons
-    const std::vector<AppId_t> childDepots = GetChildDepotIdsForApp(appId);
+    const std::vector<AppId_t> childDepots = GetChildDepotIdsForApp(appId, index);
+    std::unordered_set<std::string> resultNames; // O(1) lookup keys for the child merge (D3)
+    resultNames.reserve(results.size());
+    for (const auto& existing : results) resultNames.insert(existing.fileName);
     for (AppId_t childId : childDepots)
     {
         std::vector<CloudFileEntry_t> childFiles = ListAppCloudFilesDirect(childId, provider, accountId);
         for (auto& cf : childFiles)
         {
             // Do not duplicate files already added by the base game (e.g. depot manifests referenced in Lua)
-            bool alreadyExists = false;
-            for (const auto& existing : results)
-            {
-                if (existing.fileName == cf.fileName)
-                {
-                    alreadyExists = true;
-                    break;
-                }
-            }
-            if (alreadyExists)
+            NoteFileDedupProbe(); // D3 instrumentation (one probe per set lookup)
+            if (resultNames.contains(cf.fileName))
             {
                 continue;
             }
+            resultNames.insert(cf.fileName);
 
             // Tag folder label: "Depot <childId> / <folder>"
             cf.folder = "Depot " + std::to_string(childId) + " / " + (cf.folder.empty() ? "SteamCloudRemote" : cf.folder);
@@ -2082,12 +2367,18 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
     const fs::path storageRoot = GetStorageDir();
     std::error_code ec;
 
+    // One-pass library scan index shared by every lookup in this request (D1).
+    // Depot->parent, child lists and titles below are map lookups against it.
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+
     std::vector<AppId_t> candidateApps;
     std::vector<AppId_t> remoteConfirmedApps;
     std::vector<AppId_t> localConfirmedApps;
+    bool remoteHasCatalog = false;
+    uint32_t activeRemoteAcct = 0;
 
     auto addCandidate = [&](AppId_t id) {
-        if (id == 0) return;
+        if (id == 0 || id == kCloudCatalogAppId) return;
         if (std::find(candidateApps.begin(), candidateApps.end(), id) == candidateApps.end())
         {
             candidateApps.push_back(id);
@@ -2109,6 +2400,8 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
             }
             if (jsonStr.empty()) continue;
 
+            activeRemoteAcct = acct;
+
             // Parse "app_ids":["250900","3856460"] array if present
             size_t idsKey = jsonStr.find("\"app_ids\"");
             if (idsKey != std::string::npos)
@@ -2128,8 +2421,18 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
                         if (IsDigitsOnly(appIdStr))
                         {
                             AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
-                            addCandidate(id);
-                            remoteConfirmedApps.push_back(id);
+                            if (id == kCloudCatalogAppId)
+                            {
+                                remoteHasCatalog = true;
+                            }
+                            else if (id != 0)
+                            {
+                                addCandidate(id);
+                                if (std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                                {
+                                    remoteConfirmedApps.push_back(id);
+                                }
+                            }
                         }
                         qPos = q2 + 1;
                     }
@@ -2151,10 +2454,17 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
                 if (IsDigitsOnly(appIdStr))
                 {
                     AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
-                    addCandidate(id);
-                    if (std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                    if (id == kCloudCatalogAppId)
                     {
-                        remoteConfirmedApps.push_back(id);
+                        remoteHasCatalog = true;
+                    }
+                    else if (id != 0)
+                    {
+                        addCandidate(id);
+                        if (std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                        {
+                            remoteConfirmedApps.push_back(id);
+                        }
                     }
                 }
                 pos = objEnd + 1;
@@ -2162,10 +2472,17 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
 
             break; // First valid response from active account is authoritative
         }
+
+        // Strict remote filtering: when a remote provider is selected, ONLY return apps
+        // that exist in the remote cloud provider. If none exist remotely, return empty immediately.
+        if (remoteConfirmedApps.empty())
+        {
+            return summaries;
+        }
     }
 
-    // 2. Also scan local CloudRedirect storage directories (<storageDir>/<acct>/<appId>)
-    if (fs::exists(storageRoot, ec) && fs::is_directory(storageRoot, ec))
+    // 2. In local-only mode, scan local CloudRedirect storage directories (<storageDir>/<acct>/<appId>)
+    if (!isRemoteProvider && fs::exists(storageRoot, ec) && fs::is_directory(storageRoot, ec))
     {
         for (uint32_t acct : accounts)
         {
@@ -2178,17 +2495,20 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
                 if (IsDigitsOnly(name))
                 {
                     AppId_t id = static_cast<AppId_t>(std::strtoul(name.c_str(), nullptr, 10));
-                    addCandidate(id);
-                    localConfirmedApps.push_back(id);
+                    if (id != 0 && id != kCloudCatalogAppId)
+                    {
+                        addCandidate(id);
+                        localConfirmedApps.push_back(id);
+                    }
                 }
             }
         }
     }
 
-    // 2b. In production mode (or when steamRoot is configured), also discover apps with local saves in Steam userdata/<acct>/<appId>/remote,
+    // 2b. In local-only mode, also discover apps with local saves in Steam userdata/<acct>/<appId>/remote,
     // Proton compatdata/<appId>/pfx/drive_c/users/steamuser, and games with Lua plugins or depot manifests
     const fs::path steamRoot = GetSteamRoot();
-    if ((m_storageDir.empty() || !m_steamRoot.empty()) && !steamRoot.empty())
+    if (!isRemoteProvider && (m_storageDir.empty() || !m_steamRoot.empty()) && !steamRoot.empty())
     {
         const fs::path userdataRoot = steamRoot / "userdata";
         if (fs::is_directory(userdataRoot, ec))
@@ -2203,7 +2523,7 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
                     std::string name = entry.path().filename().string();
                     if (!IsDigitsOnly(name)) continue;
                     AppId_t id = static_cast<AppId_t>(std::strtoul(name.c_str(), nullptr, 10));
-                    if (id == 0 || id == 760) continue;
+                    if (id == 0 || id == 760 || id == kCloudCatalogAppId) continue;
                     if (fs::is_directory(entry.path() / "remote", ec))
                     {
                         addCandidate(id);
@@ -2222,7 +2542,7 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
                 std::string name = entry.path().filename().string();
                 if (!IsDigitsOnly(name)) continue;
                 AppId_t id = static_cast<AppId_t>(std::strtoul(name.c_str(), nullptr, 10));
-                if (id == 0) continue;
+                if (id == 0 || id == kCloudCatalogAppId) continue;
                 if (fs::is_directory(entry.path() / "pfx" / "drive_c" / "users" / "steamuser", ec))
                 {
                     addCandidate(id);
@@ -2236,83 +2556,55 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
         const fs::path stplugDir = steamRoot / "config" / "stplug-in";
         if (fs::is_directory(stplugDir, ec))
         {
-            for (const auto& entry : fs::directory_iterator(stplugDir, fs::directory_options::skip_permission_denied, ec))
+            // The lua plugins were already read+parsed once while building the
+            // scan index; discovery consumes those records instead of re-reading.
+            for (const auto& lua : index->luaFiles)
             {
-                if (ec) break;
-                if (!entry.is_regular_file(ec)) continue;
-                const auto& path = entry.path();
-                if (path.extension() == ".lua")
+                if (lua.stemAppId != 0 && lua.stemAppId != kCloudCatalogAppId)
                 {
-                    std::string stem = path.stem().string();
-                    if (IsDigitsOnly(stem))
+                    addCandidate(lua.stemAppId);
+                    localConfirmedApps.push_back(lua.stemAppId);
+                }
+                else
+                {
+                    for (AppId_t id : lua.allAddAppIds)
                     {
-                        AppId_t id = static_cast<AppId_t>(std::strtoul(stem.c_str(), nullptr, 10));
-                        if (id != 0)
+                        if (id != 0 && id != kCloudCatalogAppId)
                         {
                             addCandidate(id);
                             localConfirmedApps.push_back(id);
                         }
                     }
-                    else
-                    {
-                        std::ifstream lf(path);
-                        if (lf.is_open())
-                        {
-                            std::string content((std::istreambuf_iterator<char>(lf)),
-                                                 std::istreambuf_iterator<char>());
-                            size_t pos = 0;
-                            while ((pos = content.find("addappid(", pos)) != std::string::npos)
-                            {
-                                pos += 9;
-                                size_t endPos = pos;
-                                while (endPos < content.length() && std::isdigit(static_cast<unsigned char>(content[endPos])))
-                                {
-                                    endPos++;
-                                }
-                                if (endPos > pos)
-                                {
-                                    try
-                                    {
-                                        AppId_t id = static_cast<AppId_t>(std::stoul(content.substr(pos, endPos - pos)));
-                                        if (id != 0)
-                                        {
-                                            addCandidate(id);
-                                            localConfirmedApps.push_back(id);
-                                        }
-                                    }
-                                    catch (...) {}
-                                }
-                                pos = endPos;
-                            }
-                        }
-                    }
-
-                    // Parse Lua plugin to collect all child depot IDs
-                    auto luaData = LuaParser::parseFile(path.string());
-                    for (const auto& [depotIdStr, _] : luaData.manifests)
-                    {
-                        if (IsDigitsOnly(depotIdStr))
-                        {
-                            try { knownDepotIds.insert(static_cast<AppId_t>(std::stoul(depotIdStr))); } catch (...) {}
-                        }
-                    }
                 }
-                else if (path.extension() == ".manifest")
+
+                // setManifestid() entries name depot ids (legacy knownDepotIds).
+                for (AppId_t depotId : lua.manifests)
                 {
-                    std::string stem = path.stem().string();
-                    size_t underscore = stem.find('_');
-                    std::string appIdStr = (underscore != std::string::npos) ? stem.substr(0, underscore) : stem;
-                    if (IsDigitsOnly(appIdStr))
+                    knownDepotIds.insert(depotId);
+                }
+            }
+
+            // Depot manifests sitting in stplug-in accept apps like depotcache
+            // does (pure name walk; the title check is an index lookup).
+            for (const auto& entry : fs::directory_iterator(stplugDir, fs::directory_options::skip_permission_denied, ec))
+            {
+                if (ec) break;
+                if (!entry.is_regular_file(ec)) continue;
+                if (entry.path().extension() != ".manifest") continue;
+
+                std::string stem = entry.path().stem().string();
+                size_t underscore = stem.find('_');
+                std::string appIdStr = (underscore != std::string::npos) ? stem.substr(0, underscore) : stem;
+                if (IsDigitsOnly(appIdStr))
+                {
+                    AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
+                    if (id != 0 && id != kCloudCatalogAppId && !knownDepotIds.contains(id))
                     {
-                        AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
-                        if (id != 0 && !knownDepotIds.contains(id))
+                        if (!ResolveAppTitleFromManifestsInternal(id, 0, *index).empty() ||
+                            fs::exists(steamRoot / "steamapps" / ("appmanifest_" + appIdStr + ".acf"), ec))
                         {
-                            if (!ResolveAppTitleFromManifests(id).empty() ||
-                                fs::exists(steamRoot / "steamapps" / ("appmanifest_" + appIdStr + ".acf"), ec))
-                            {
-                                addCandidate(id);
-                                localConfirmedApps.push_back(id);
-                            }
+                            addCandidate(id);
+                            localConfirmedApps.push_back(id);
                         }
                     }
                 }
@@ -2334,9 +2626,9 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
                     if (IsDigitsOnly(appIdStr))
                     {
                         AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
-                        if (id != 0 && !knownDepotIds.contains(id))
+                        if (id != 0 && id != kCloudCatalogAppId && !knownDepotIds.contains(id))
                         {
-                            if (!ResolveAppTitleFromManifests(id).empty() ||
+                            if (!ResolveAppTitleFromManifestsInternal(id, 0, *index).empty() ||
                                 fs::exists(steamRoot / "steamapps" / ("appmanifest_" + appIdStr + ".acf"), ec))
                             {
                                 addCandidate(id);
@@ -2355,8 +2647,9 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
 
     for (AppId_t id : candidateApps)
     {
-        AppId_t parentId = GetParentAppIdForDepot(id);
-        if (parentId != 0 && parentId != id)
+        if (id == 0 || id == kCloudCatalogAppId) continue;
+        AppId_t parentId = GetParentAppIdForDepot(id, *index);
+        if (parentId != 0 && parentId != id && parentId != kCloudCatalogAppId)
         {
             if (std::find(topLevelApps.begin(), topLevelApps.end(), parentId) == topLevelApps.end())
             {
@@ -2380,8 +2673,9 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
     // Also collect any other known child depots for each top-level app
     for (AppId_t parentId : topLevelApps)
     {
-        for (AppId_t cid : GetChildDepotIdsForApp(parentId))
+        for (AppId_t cid : GetChildDepotIdsForApp(parentId, *index))
         {
+            if (cid == kCloudCatalogAppId) continue;
             auto& cList = parentToChildren[parentId];
             if (std::find(cList.begin(), cList.end(), cid) == cList.end())
             {
@@ -2390,10 +2684,23 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
         }
     }
 
+    // Load remote catalog metadata if a remote provider is active
+    std::unordered_map<AppId_t, CloudAppSummary_t> catalogSummaries;
+    std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> catalogFilesByApp;
+    if (isRemoteProvider)
+    {
+        uint32_t targetAcct = activeRemoteAcct != 0 ? activeRemoteAcct : (accounts.empty() ? 0 : accounts.front());
+        if (targetAcct != 0)
+        {
+            LoadCloudCatalog(provider, targetAcct, /*syncRemote=*/remoteHasCatalog, catalogSummaries, catalogFilesByApp);
+        }
+    }
+
     // 4. For each top-level app, compute exact user save file count & total size
     // across the main game and all its child depots/addons.
     for (AppId_t appId : topLevelApps)
     {
+        if (appId == 0 || appId == kCloudCatalogAppId) continue;
         const auto& children = parentToChildren[appId];
 
         bool isRemoteApp = (std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), appId) != remoteConfirmedApps.end());
@@ -2406,8 +2713,38 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
             }
         }
 
+        if (isRemoteProvider)
+        {
+            if (!isRemoteApp) continue;
+
+            auto catIt = catalogSummaries.find(appId);
+            if (catIt != catalogSummaries.end() && catIt->second.fileCount > 0)
+            {
+                CloudAppSummary_t summary = catIt->second;
+                summary.inRemoteCloud = true;
+                summary.inLocalMirror = true;
+                for (AppId_t cid : children)
+                {
+                    if (std::find(summary.childAppIds.begin(), summary.childAppIds.end(), cid) == summary.childAppIds.end())
+                    {
+                        summary.childAppIds.push_back(cid);
+                    }
+                }
+                if (summary.gameTitle.empty() || IsPlaceholderAppTitle(summary.gameTitle, appId))
+                {
+                    std::string resolved = ResolveAppTitleFromManifestsInternal(appId, 0, *index);
+                    if (!resolved.empty())
+                    {
+                        summary.gameTitle = resolved;
+                    }
+                }
+                summaries.push_back(std::move(summary));
+                continue;
+            }
+        }
+
         const std::string effectiveProvider = (isRemoteProvider && isRemoteApp) ? provider : "local-only";
-        std::vector<CloudFileEntry_t> files = ListAppCloudFiles(appId, effectiveProvider, accountId);
+        std::vector<CloudFileEntry_t> files = ListAppCloudFiles(appId, effectiveProvider, accountId, *index);
         if (files.empty())
         {
             continue;
@@ -2416,7 +2753,7 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
         CloudAppSummary_t summary;
         summary.appId = appId;
         summary.childAppIds = children;
-        summary.gameTitle = ResolveAppTitleFromManifests(appId);
+        summary.gameTitle = ResolveAppTitleFromManifestsInternal(appId, 0, *index);
         summary.fileCount = static_cast<uint32_t>(files.size());
         summary.inRemoteCloud = isRemoteApp;
         summary.inLocalMirror = (std::find(localConfirmedApps.begin(), localConfirmedApps.end(), appId) != localConfirmedApps.end());
@@ -2457,7 +2794,7 @@ bool CCloudManager::ReadAppCloudFileDirect(AppId_t appId,
                                            uint32_t accountId,
                                            std::string& outContent,
                                            std::string& outDownloadName,
-                                     std::string& outError)
+                                           std::string& outError)
 {
     outContent.clear();
     outDownloadName.clear();
@@ -2489,13 +2826,31 @@ bool CCloudManager::ReadAppCloudFileDirect(AppId_t appId,
     std::error_code ec;
 
     auto tryReadFromDisk = [&](const fs::path& fullPath) -> bool {
-        if (!fs::is_regular_file(fullPath, ec) || ec) return false;
-        std::ifstream in(fullPath, std::ios::binary);
-        if (!in.is_open()) return false;
-        std::ostringstream ss;
-        ss << in.rdbuf();
-        outContent = ss.str();
-        return true;
+        if (fs::is_regular_file(fullPath, ec) && !ec)
+        {
+            std::ifstream in(fullPath, std::ios::binary);
+            if (!in.is_open()) return false;
+            std::ostringstream ss;
+            ss << in.rdbuf();
+            outContent = ss.str();
+            return true;
+        }
+        if (fs::is_directory(fullPath, ec) && !ec)
+        {
+            for (const auto& entry : fs::directory_iterator(fullPath, ec))
+            {
+                if (!ec && entry.is_regular_file(ec) && IsHexHashSegment(entry.path().filename().string()))
+                {
+                    std::ifstream in(entry.path(), std::ios::binary);
+                    if (!in.is_open()) return false;
+                    std::ostringstream ss;
+                    ss << in.rdbuf();
+                    outContent = ss.str();
+                    return true;
+                }
+            }
+        }
+        return false;
     };
 
     // 1. Check local CloudRedirect storage mirror (<storageDir>/<acct>/<appId>/<relPath>)
@@ -2631,7 +2986,9 @@ bool CCloudManager::ReadAppCloudFile(AppId_t appId,
     }
 
     // 3. Check all child depots / addons of this game
-    const std::vector<AppId_t> childDepots = GetChildDepotIdsForApp(appId);
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    std::vector<AppId_t> childDepots;
+    if (index) childDepots = GetChildDepotIdsForApp(appId, *index);
     for (AppId_t childId : childDepots)
     {
         if (ReadAppCloudFileDirect(childId, relativeFileName, provider, accountId, outContent, outDownloadName, outError))
@@ -2642,6 +2999,1067 @@ bool CCloudManager::ReadAppCloudFile(AppId_t appId,
 
     outError = "Cloud file not found: " + relativeFileName;
     return false;
+}
+
+namespace
+{
+    std::string EscapeCatalogJsonString(const std::string& input)
+    {
+        std::string out;
+        out.reserve(input.size() + 8);
+        for (char c : input)
+        {
+            switch (c)
+            {
+                case '"':  out += "\\\""; break;
+                case '\\': out += "\\\\"; break;
+                case '\b': out += "\\b";  break;
+                case '\f': out += "\\f";  break;
+                case '\n': out += "\\n";  break;
+                case '\r': out += "\\r";  break;
+                case '\t': out += "\\t";  break;
+                default:
+                    if (static_cast<unsigned char>(c) >= 0x20)
+                    {
+                        out += c;
+                    }
+                    break;
+            }
+        }
+        return out;
+    }
+
+    std::string ExtractCatalogJsonString(const std::string& json, const std::string& key, size_t maxSearchPos = std::string::npos)
+    {
+        const std::string needle = "\"" + key + "\"";
+        size_t pos = json.find(needle);
+        if (pos == std::string::npos || (maxSearchPos != std::string::npos && pos >= maxSearchPos)) return "";
+        pos = json.find(':', pos + needle.size());
+        if (pos == std::string::npos) return "";
+        pos = json.find('"', pos + 1);
+        if (pos == std::string::npos) return "";
+        ++pos;
+
+        std::string out;
+        bool esc = false;
+        for (size_t i = pos; i < json.size(); ++i)
+        {
+            char c = json[i];
+            if (esc)
+            {
+                switch (c)
+                {
+                    case '"':  out += '"';  break;
+                    case '\\': out += '\\'; break;
+                    case 'n':  out += '\n'; break;
+                    case 'r':  out += '\r'; break;
+                    case 't':  out += '\t'; break;
+                    default:   out += c;    break;
+                }
+                esc = false;
+                continue;
+            }
+            if (c == '\\')
+            {
+                esc = true;
+                continue;
+            }
+            if (c == '"')
+            {
+                break;
+            }
+            out += c;
+        }
+        return out;
+    }
+
+    std::vector<std::string> SplitCatalogJsonObjectArray(const std::string& json, const std::string& arrayKey)
+    {
+        std::vector<std::string> items;
+        const std::string needle = "\"" + arrayKey + "\"";
+        size_t pos = json.find(needle);
+        if (pos == std::string::npos) return items;
+        pos = json.find('[', pos + needle.size());
+        if (pos == std::string::npos) return items;
+
+        bool inStr = false;
+        bool esc = false;
+        int braceDepth = 0;
+        int bracketDepth = 1;
+        size_t objStart = 0;
+
+        for (size_t i = pos + 1; i < json.size(); ++i)
+        {
+            char c = json[i];
+            if (esc)
+            {
+                esc = false;
+                continue;
+            }
+            if (c == '\\' && inStr)
+            {
+                esc = true;
+                continue;
+            }
+            if (c == '"')
+            {
+                inStr = !inStr;
+                continue;
+            }
+            if (inStr) continue;
+
+            if (c == '[')
+            {
+                ++bracketDepth;
+            }
+            else if (c == ']')
+            {
+                --bracketDepth;
+                if (bracketDepth == 0) break;
+            }
+            else if (c == '{')
+            {
+                if (braceDepth == 0 && bracketDepth == 1)
+                {
+                    objStart = i;
+                }
+                ++braceDepth;
+            }
+            else if (c == '}')
+            {
+                --braceDepth;
+                if (braceDepth == 0 && bracketDepth == 1)
+                {
+                    items.push_back(json.substr(objStart, i - objStart + 1));
+                }
+            }
+        }
+        return items;
+    }
+
+    std::vector<AppId_t> ExtractCatalogUintArray(const std::string& json, const std::string& arrayKey)
+    {
+        std::vector<AppId_t> result;
+        const std::string needle = "\"" + arrayKey + "\"";
+        size_t pos = json.find(needle);
+        if (pos == std::string::npos) return result;
+        size_t arrStart = json.find('[', pos + needle.size());
+        if (arrStart == std::string::npos) return result;
+        size_t arrEnd = json.find(']', arrStart);
+        if (arrEnd == std::string::npos) return result;
+
+        size_t i = arrStart + 1;
+        while (i < arrEnd)
+        {
+            while (i < arrEnd && !std::isdigit(static_cast<unsigned char>(json[i]))) ++i;
+            if (i >= arrEnd) break;
+            std::string numStr;
+            while (i < arrEnd && std::isdigit(static_cast<unsigned char>(json[i])))
+            {
+                numStr += json[i];
+                ++i;
+            }
+            if (!numStr.empty())
+            {
+                AppId_t id = static_cast<AppId_t>(std::strtoul(numStr.c_str(), nullptr, 10));
+                if (id != 0) result.push_back(id);
+            }
+        }
+        return result;
+    }
+
+    void BumpCnFile(const fs::path& appDir)
+    {
+        const fs::path cnPath = appDir / "cn.cloudredirect";
+        long long cn = 0;
+        std::error_code ec;
+        if (fs::is_regular_file(cnPath, ec))
+        {
+            std::ifstream in(cnPath);
+            std::string line;
+            if (std::getline(in, line))
+            {
+                while (!line.empty() && (line.back() == '\n' || line.back() == '\r' || line.back() == ' '))
+                {
+                    line.pop_back();
+                }
+                if (!line.empty())
+                {
+                    try { cn = std::stoll(line); } catch (...) { cn = 0; }
+                }
+            }
+        }
+        ++cn;
+        std::ofstream out(cnPath, std::ios::trunc);
+        out << cn;
+    }
+} // namespace
+
+void CCloudManager::InvalidateCloudCatalogCache() const
+{
+    std::lock_guard<std::mutex> lock(m_catalogMutex);
+    m_catalogCache = CatalogCache{};
+}
+
+bool CCloudManager::LoadCloudCatalog(const std::string& provider,
+                                     uint32_t accountId,
+                                     bool syncRemote,
+                                     std::unordered_map<AppId_t, CloudAppSummary_t>& outSummaries,
+                                     std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>>& outFilesByApp) const
+{
+    outSummaries.clear();
+    outFilesByApp.clear();
+    if (accountId == 0) return false;
+
+    const fs::path storageRoot = GetStorageDir();
+    const uint64_t nowMs = static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count());
+
+    {
+        std::lock_guard<std::mutex> lock(m_catalogMutex);
+        if (m_catalogCache.provider == provider &&
+            m_catalogCache.accountId == accountId &&
+            m_catalogCache.storageRoot == storageRoot &&
+            !m_catalogCache.summaries.empty() &&
+            (nowMs - m_catalogCache.loadedAtMs) < 30000)
+        {
+            outSummaries = m_catalogCache.summaries;
+            outFilesByApp = m_catalogCache.filesByApp;
+            return true;
+        }
+    }
+
+    std::error_code ec;
+    const fs::path catalogDir = storageRoot / std::to_string(accountId) / std::to_string(kCloudCatalogAppId);
+    const fs::path catalogFile = catalogDir / kCloudCatalogFileName;
+
+    auto readCatalogOnDisk = [&]() -> std::string {
+        if (fs::is_regular_file(catalogFile, ec) && !ec)
+        {
+            std::ifstream in(catalogFile, std::ios::binary);
+            if (in.is_open())
+            {
+                std::ostringstream ss;
+                ss << in.rdbuf();
+                return ss.str();
+            }
+        }
+        if (fs::is_directory(catalogFile, ec) && !ec)
+        {
+            for (const auto& entry : fs::directory_iterator(catalogFile, ec))
+            {
+                if (!ec && entry.is_regular_file(ec) && IsHexHashSegment(entry.path().filename().string()))
+                {
+                    std::ifstream in(entry.path(), std::ios::binary);
+                    if (in.is_open())
+                    {
+                        std::ostringstream ss;
+                        ss << in.rdbuf();
+                        return ss.str();
+                    }
+                }
+            }
+        }
+        return "";
+    };
+
+    std::string existingContent = readCatalogOnDisk();
+
+    if ((syncRemote || existingContent.empty()) && !provider.empty() && provider != "local-only")
+    {
+        fs::create_directories(catalogDir, ec);
+        // Remove plain file before sync-remote-app so WriteFileNoIncrement("<cleanPath>/<sha1>") never hits ENOTDIR,
+        // and remove local CN/state markers so sync-remote-app always pulls the newest remote catalog.
+        if (fs::is_regular_file(catalogFile, ec))
+        {
+            fs::remove(catalogFile, ec);
+        }
+        fs::remove_all(catalogDir / "blobs", ec);
+        fs::remove(catalogDir / "cn.cloudredirect", ec);
+        fs::remove(catalogDir / "state.cloudredirect", ec);
+        fs::remove(catalogDir / "manifest.cloudredirect", ec);
+
+        RunCliCommand({"sync-remote-app", provider, std::to_string(accountId),
+                       std::to_string(kCloudCatalogAppId), storageRoot.parent_path().string()}, 20000);
+
+        std::string syncedContent = readCatalogOnDisk();
+        if (!syncedContent.empty())
+        {
+            if (fs::is_directory(catalogFile, ec))
+            {
+                fs::remove_all(catalogFile, ec);
+                std::ofstream out(catalogFile, std::ios::binary | std::ios::trunc);
+                out << syncedContent;
+            }
+            existingContent = std::move(syncedContent);
+        }
+        else if (!existingContent.empty())
+        {
+            // Restore pre-existing local catalog if sync-remote-app was a unit-test mock or offline
+            if (fs::is_directory(catalogFile, ec)) fs::remove_all(catalogFile, ec);
+            std::ofstream out(catalogFile, std::ios::binary | std::ios::trunc);
+            out << existingContent;
+        }
+    }
+
+    if (existingContent.empty())
+    {
+        return false;
+    }
+
+    const auto appObjs = SplitCatalogJsonObjectArray(existingContent, "apps");
+    for (const auto& appObj : appObjs)
+    {
+        const size_t filesKeyPos = appObj.find("\"files\"");
+        const std::string headerSlice = (filesKeyPos != std::string::npos) ? appObj.substr(0, filesKeyPos) : appObj;
+
+        AppId_t appId = static_cast<AppId_t>(ExtractJsonUint64(headerSlice, "appId", 0));
+        if (appId == 0 || appId == kCloudCatalogAppId) continue;
+
+        CloudAppSummary_t summary;
+        summary.appId = appId;
+        summary.gameTitle = ExtractCatalogJsonString(headerSlice, "gameTitle");
+        summary.fileCount = static_cast<uint32_t>(ExtractJsonUint64(headerSlice, "fileCount", 0));
+        summary.totalSizeBytes = ExtractJsonUint64(headerSlice, "totalSizeBytes", 0);
+        summary.redirected = ExtractJsonBool(headerSlice, "redirected", true);
+        summary.inRemoteCloud = ExtractJsonBool(headerSlice, "inRemoteCloud", true);
+        summary.inLocalMirror = ExtractJsonBool(headerSlice, "inLocalMirror", true);
+        summary.childAppIds = ExtractCatalogUintArray(headerSlice, "childAppIds");
+
+        std::vector<CloudFileEntry_t> files;
+        const auto fileObjs = SplitCatalogJsonObjectArray(appObj, "files");
+        files.reserve(fileObjs.size());
+        uint64_t computedTotal = 0;
+        for (const auto& fObj : fileObjs)
+        {
+            CloudFileEntry_t f;
+            f.fileName = ExtractCatalogJsonString(fObj, "fileName");
+            if (f.fileName.empty()) continue;
+            f.folder = ExtractCatalogJsonString(fObj, "folder");
+            if (f.folder.empty()) f.folder = "SteamCloudRemote";
+            f.sizeBytes = ExtractJsonUint64(fObj, "sizeBytes", 0);
+            f.modifiedTime = ExtractJsonUint64(fObj, "modifiedTime", 0);
+            f.inRemoteCloud = true;
+            f.inLocalMirror = true;
+            computedTotal += f.sizeBytes;
+            files.push_back(std::move(f));
+        }
+
+        if (!files.empty())
+        {
+            summary.fileCount = static_cast<uint32_t>(files.size());
+            if (summary.totalSizeBytes == 0) summary.totalSizeBytes = computedTotal;
+        }
+
+        outSummaries[appId] = std::move(summary);
+        outFilesByApp[appId] = std::move(files);
+    }
+
+    if (outSummaries.empty())
+    {
+        return false;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(m_catalogMutex);
+        m_catalogCache.provider = provider;
+        m_catalogCache.accountId = accountId;
+        m_catalogCache.storageRoot = storageRoot;
+        m_catalogCache.loadedAtMs = nowMs;
+        m_catalogCache.summaries = outSummaries;
+        m_catalogCache.filesByApp = outFilesByApp;
+    }
+    return true;
+}
+
+bool CCloudManager::StageAppFilesForCloudSync(AppId_t appId, uint32_t accountId)
+{
+    if (appId == 0 || appId == kCloudCatalogAppId) return false;
+
+    const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accounts.empty()) return false;
+    const uint32_t acct = accounts.front();
+
+    const fs::path storageRoot = GetStorageDir();
+    if (storageRoot.empty()) return false;
+
+    std::error_code ec;
+    const fs::path appDir = storageRoot / std::to_string(acct) / std::to_string(appId);
+    fs::create_directories(appDir, ec);
+    if (ec) return false;
+
+    // Remove CAS cache dir so publish-full-manifest never treats blobs/ as user files
+    fs::remove_all(appDir / "blobs", ec);
+    ec.clear();
+
+    // Collapse any <cleanPath>/<sha1> directory inside appDir into a flat file at <cleanPath>
+    {
+        std::vector<fs::path> shaLeaves;
+        for (auto it = fs::recursive_directory_iterator(appDir, fs::directory_options::skip_permission_denied, ec);
+             !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+        {
+            std::error_code fEc;
+            if (!it->is_regular_file(fEc) || fEc) continue;
+            fs::path rel = fs::relative(it->path(), appDir, fEc);
+            if (fEc || !rel.has_parent_path()) continue;
+            if (IsHexHashSegment(it->path().filename().string()))
+            {
+                shaLeaves.push_back(it->path());
+            }
+        }
+        for (const auto& leaf : shaLeaves)
+        {
+            if (!fs::is_regular_file(leaf, ec)) continue;
+            fs::path parentDir = leaf.parent_path();
+            if (parentDir == appDir) continue;
+            fs::path tmpFile = parentDir.string() + ".navi_flatten_tmp";
+            fs::copy_file(leaf, tmpFile, fs::copy_options::overwrite_existing, ec);
+            if (!ec)
+            {
+                fs::remove_all(parentDir, ec);
+                fs::rename(tmpFile, parentDir, ec);
+            }
+        }
+    }
+
+    // Read existing file_tokens.cloudredirect
+    std::unordered_map<std::string, std::string> fileTokens;
+    {
+        std::ifstream ftIn(appDir / "file_tokens.cloudredirect");
+        std::string line;
+        while (std::getline(ftIn, line))
+        {
+            size_t tab = line.find('\t');
+            if (tab != std::string::npos)
+            {
+                std::string k = line.substr(0, tab);
+                std::string v = line.substr(tab + 1);
+                while (!v.empty() && (v.back() == '\r' || v.back() == '\n')) v.pop_back();
+                if (!k.empty() && !v.empty()) fileTokens[k] = v;
+            }
+        }
+    }
+
+    auto stageOneFile = [&](const fs::path& srcFile, const std::string& cleanRel, const std::string& token) {
+        if (cleanRel.empty() || cleanRel.find("..") != std::string::npos || IsInternalMetadataRelPath(cleanRel))
+        {
+            return;
+        }
+        std::error_code sEc;
+        if (!fs::is_regular_file(srcFile, sEc) || sEc) return;
+
+        fs::path dst = appDir / cleanRel;
+        if (fs::is_directory(dst, sEc))
+        {
+            fs::remove_all(dst, sEc);
+        }
+        fs::create_directories(dst.parent_path(), sEc);
+
+        bool shouldCopy = true;
+        if (fs::is_regular_file(dst, sEc) && !sEc)
+        {
+            std::error_code cEc;
+            if (fs::equivalent(srcFile, dst, cEc) && !cEc)
+            {
+                shouldCopy = false;
+            }
+        }
+        if (shouldCopy)
+        {
+            fs::copy_file(srcFile, dst, fs::copy_options::overwrite_existing, sEc);
+        }
+        if (!token.empty())
+        {
+            fileTokens[cleanRel] = token;
+        }
+    };
+
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    std::vector<AppId_t> targetIds = {appId};
+    if (index)
+    {
+        for (AppId_t cid : GetChildDepotIdsForApp(appId, *index))
+        {
+            if (cid != 0 && cid != appId && cid != kCloudCatalogAppId)
+            {
+                targetIds.push_back(cid);
+            }
+        }
+    }
+
+    const fs::path steamRoot = GetSteamRoot();
+    const bool useSteamRoot = (m_storageDir.empty() || !m_steamRoot.empty()) && !steamRoot.empty();
+
+    for (AppId_t targetId : targetIds)
+    {
+        const bool isChild = (targetId != appId);
+        const std::string targetIdStr = std::to_string(targetId);
+        auto makeToken = [&](const std::string& baseFolder) -> std::string {
+            if (isChild)
+            {
+                return "Depot " + targetIdStr + " / " + baseFolder;
+            }
+            return "%" + baseFolder + "%";
+        };
+
+        // A. If child depot has files in its own <storageRoot>/<acct>/<childId>/ dir, fold them into parent appDir
+        if (isChild)
+        {
+            const fs::path childStorageDir = storageRoot / std::to_string(acct) / targetIdStr;
+            if (fs::is_directory(childStorageDir, ec))
+            {
+                for (auto it = fs::recursive_directory_iterator(childStorageDir, fs::directory_options::skip_permission_denied, ec);
+                     !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+                {
+                    std::error_code fEc;
+                    if (!it->is_regular_file(fEc) || fEc) continue;
+                    fs::path rel = fs::relative(it->path(), childStorageDir, fEc);
+                    if (fEc || rel.empty()) continue;
+                    std::string relStr = rel.generic_string();
+                    if (IsInternalMetadataRelPath(relStr)) continue;
+                    if (fs::exists(appDir / relStr, fEc)) continue;
+                    stageOneFile(it->path(), relStr, makeToken(NormalizeFolderToken("", relStr)));
+                }
+            }
+        }
+
+        if (!useSteamRoot) continue;
+
+        // B. Steam userdata/<acct>/<targetId>/remote/
+        if (targetId != 760)
+        {
+            const fs::path remoteDir = steamRoot / "userdata" / std::to_string(acct) / targetIdStr / "remote";
+            if (fs::is_directory(remoteDir, ec))
+            {
+                for (auto it = fs::recursive_directory_iterator(remoteDir, fs::directory_options::skip_permission_denied, ec);
+                     !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+                {
+                    std::error_code fEc;
+                    if (!it->is_regular_file(fEc) || fEc) continue;
+                    fs::path rel = fs::relative(it->path(), remoteDir, fEc);
+                    if (fEc || rel.empty()) continue;
+                    std::string relStr = rel.generic_string();
+                    if (IsInternalMetadataRelPath(relStr)) continue;
+                    if (isChild && fs::exists(appDir / relStr, fEc)) continue;
+                    stageOneFile(it->path(), relStr, makeToken("SteamCloudRemote"));
+                }
+            }
+        }
+
+        // C. Proton Auto-Cloud directories containing steam_autocloud.vdf
+        static const std::pair<const char*, const char*> kAutoCloudRoots[] = {
+            {"AppData/LocalLow", "WinAppDataLocalLow"},
+            {"AppData/Local", "WinAppDataLocal"},
+            {"AppData/Roaming", "WinAppDataRoaming"},
+            {"Documents", "WinMyDocuments"},
+            {"Saved Games", "WinSavedGames"},
+        };
+
+        const fs::path steamuserDir = steamRoot / "steamapps" / "compatdata" / targetIdStr / "pfx" / "drive_c" / "users" / "steamuser";
+        if (fs::is_directory(steamuserDir, ec))
+        {
+            for (const auto& [relCat, catToken] : kAutoCloudRoots)
+            {
+                const fs::path catRoot = steamuserDir / relCat;
+                if (!fs::is_directory(catRoot, ec)) continue;
+
+                std::vector<fs::path> autoCloudDirs;
+                for (auto it = fs::recursive_directory_iterator(catRoot, fs::directory_options::skip_permission_denied, ec);
+                     !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+                {
+                    std::error_code dEc;
+                    if (it->is_symlink(dEc))
+                    {
+                        if (it->is_directory(dEc)) it.disable_recursion_pending();
+                        continue;
+                    }
+                    if (it->is_directory(dEc))
+                    {
+                        std::string dname = it->path().filename().string();
+                        if (it.depth() >= 5 || dname == "Temp" || dname == "Microsoft" || dname == "Wine" ||
+                            dname == "BACKUP" || dname == "Steam" || dname == "Unity" ||
+                            dname == "UnrealEngine" || dname == "CrashReportClient" ||
+                            dname == "D3DSCache" || dname == "fontconfig")
+                        {
+                            it.disable_recursion_pending();
+                        }
+                        continue;
+                    }
+                    if (it->is_regular_file(dEc) && it->path().filename() == "steam_autocloud.vdf")
+                    {
+                        autoCloudDirs.push_back(it->path().parent_path());
+                    }
+                }
+
+                for (const auto& acDir : autoCloudDirs)
+                {
+                    for (auto it = fs::recursive_directory_iterator(acDir, fs::directory_options::skip_permission_denied, ec);
+                         !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+                    {
+                        std::error_code fEc;
+                        if (!it->is_regular_file(fEc) || fEc) continue;
+                        fs::path rel = fs::relative(it->path(), catRoot, fEc);
+                        if (fEc || rel.empty()) continue;
+                        std::string relStr = rel.generic_string();
+                        if (IsInternalMetadataRelPath(relStr)) continue;
+                        if (isChild && fs::exists(appDir / relStr, fEc)) continue;
+                        stageOneFile(it->path(), relStr, makeToken(catToken));
+                    }
+                }
+            }
+        }
+
+        // D. Goldberg save paths
+        for (const auto& goldbergDir : ResolveGoldbergSavePaths(targetId))
+        {
+            if (!fs::is_directory(goldbergDir, ec)) continue;
+            for (auto it = fs::recursive_directory_iterator(goldbergDir, fs::directory_options::skip_permission_denied, ec);
+                 !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+            {
+                std::error_code fEc;
+                if (!it->is_regular_file(fEc) || fEc) continue;
+                fs::path rel = fs::relative(it->path(), goldbergDir, fEc);
+                if (fEc || rel.empty()) continue;
+                std::string relStr = rel.generic_string();
+                if (IsInternalMetadataRelPath(relStr)) continue;
+                if (fs::exists(appDir / relStr, fEc)) continue;
+                stageOneFile(it->path(), relStr, makeToken("WinAppDataRoaming"));
+            }
+        }
+
+        // E. Steam Lua unlocker plugin (.lua, .provider) and depot manifest (.manifest) files
+        const fs::path stplugDir = steamRoot / "config" / "stplug-in";
+        const fs::path depotcacheDir = steamRoot / "depotcache";
+        const fs::path legacyDepotcacheDir = steamRoot / "config" / "depotcache";
+
+        const fs::path luaFile = stplugDir / (targetIdStr + ".lua");
+        if (fs::is_regular_file(luaFile, ec) && !ec)
+        {
+            std::string luaRel = "stplug-in/" + targetIdStr + ".lua";
+            if (!isChild || !fs::exists(appDir / luaRel, ec))
+            {
+                stageOneFile(luaFile, luaRel, makeToken("stplug-in"));
+            }
+
+            const fs::path provFile = stplugDir / (targetIdStr + ".provider");
+            if (fs::is_regular_file(provFile, ec) && !ec)
+            {
+                std::string provRel = "stplug-in/" + targetIdStr + ".provider";
+                if (!isChild || !fs::exists(appDir / provRel, ec))
+                {
+                    stageOneFile(provFile, provRel, makeToken("stplug-in"));
+                }
+            }
+
+            auto luaData = LuaParser::parseFile(luaFile.string());
+            for (const auto& [depotId, manifestGid] : luaData.manifests)
+            {
+                if (manifestGid.empty() || manifestGid == "0") continue;
+                std::string mfName = depotId + "_" + manifestGid + ".manifest";
+                fs::path mfPath;
+                if (fs::is_regular_file(depotcacheDir / mfName, ec)) mfPath = depotcacheDir / mfName;
+                else if (fs::is_regular_file(legacyDepotcacheDir / mfName, ec)) mfPath = legacyDepotcacheDir / mfName;
+                else if (fs::is_regular_file(stplugDir / "manifests" / mfName, ec)) mfPath = stplugDir / "manifests" / mfName;
+                else if (fs::is_regular_file(stplugDir / mfName, ec)) mfPath = stplugDir / mfName;
+
+                if (!mfPath.empty())
+                {
+                    std::string mfRel = "depotcache/" + mfName;
+                    if (!isChild || !fs::exists(appDir / mfRel, ec))
+                    {
+                        stageOneFile(mfPath, mfRel, makeToken("depotcache"));
+                    }
+                }
+            }
+        }
+
+        auto stageDirManifests = [&](const fs::path& dir) {
+            if (!fs::is_directory(dir, ec)) return;
+            for (const auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied, ec))
+            {
+                if (ec) break;
+                if (!entry.is_regular_file(ec)) continue;
+                std::string fn = entry.path().filename().string();
+                if (fn.ends_with(".manifest") && (fn.rfind(targetIdStr + "_", 0) == 0 || fn == targetIdStr + ".manifest"))
+                {
+                    std::string mfRel = "depotcache/" + fn;
+                    if (!isChild || !fs::exists(appDir / mfRel, ec))
+                    {
+                        stageOneFile(entry.path(), mfRel, makeToken("depotcache"));
+                    }
+                }
+            }
+        };
+
+        stageDirManifests(depotcacheDir);
+        stageDirManifests(legacyDepotcacheDir);
+        stageDirManifests(stplugDir);
+        stageDirManifests(stplugDir / "manifests");
+    }
+
+    // Ensure root_token.cloudredirect exists
+    const fs::path rtPath = appDir / "root_token.cloudredirect";
+    if (!fs::is_regular_file(rtPath, ec))
+    {
+        std::ofstream rtOut(rtPath, std::ios::trunc);
+        rtOut << "%SteamCloudRemote%\n";
+    }
+
+    // Ensure all regular user files in appDir are recorded in file_tokens.cloudredirect
+    std::vector<std::string> stagedFiles;
+    for (auto it = fs::recursive_directory_iterator(appDir, fs::directory_options::skip_permission_denied, ec);
+         !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+    {
+        std::error_code fEc;
+        if (!it->is_regular_file(fEc) || fEc) continue;
+        fs::path rel = fs::relative(it->path(), appDir, fEc);
+        if (fEc || rel.empty()) continue;
+        std::string relStr = rel.generic_string();
+        if (IsInternalMetadataRelPath(relStr)) continue;
+        stagedFiles.push_back(relStr);
+        if (!fileTokens.contains(relStr))
+        {
+            fileTokens[relStr] = "%" + NormalizeFolderToken("", relStr) + "%";
+        }
+    }
+
+    std::sort(stagedFiles.begin(), stagedFiles.end());
+    {
+        std::ofstream ftOut(appDir / "file_tokens.cloudredirect", std::ios::trunc);
+        for (const auto& relStr : stagedFiles)
+        {
+            ftOut << relStr << '\t' << fileTokens[relStr] << '\n';
+        }
+    }
+
+    BumpCnFile(appDir);
+    return !stagedFiles.empty();
+}
+
+bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, uint32_t accountId)
+{
+    const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accounts.empty()) return false;
+    const uint32_t acct = accounts.front();
+
+    const fs::path storageRoot = GetStorageDir();
+    if (storageRoot.empty()) return false;
+
+    std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
+    if (!index) return false;
+
+    const bool isRemoteProvider = (!provider.empty() && provider != "local-only");
+    std::vector<AppId_t> remoteConfirmedApps;
+
+    if (isRemoteProvider)
+    {
+        std::string out = RunCliCommand({"list-remote-app-ids", provider, std::to_string(acct)}, 15000);
+        std::string jsonStr = ExtractJsonSubstring(out);
+        if (jsonStr.empty())
+        {
+            out = RunCliCommand({"list-remote-apps", provider, std::to_string(acct)}, 15000);
+            jsonStr = ExtractJsonSubstring(out);
+        }
+
+        size_t idsKey = jsonStr.find("\"app_ids\"");
+        if (idsKey != std::string::npos)
+        {
+            size_t arrStart = jsonStr.find('[', idsKey);
+            size_t arrEnd = (arrStart != std::string::npos) ? jsonStr.find(']', arrStart) : std::string::npos;
+            if (arrStart != std::string::npos && arrEnd != std::string::npos)
+            {
+                size_t qPos = arrStart + 1;
+                while (qPos < arrEnd)
+                {
+                    size_t q1 = jsonStr.find('"', qPos);
+                    if (q1 == std::string::npos || q1 >= arrEnd) break;
+                    size_t q2 = jsonStr.find('"', q1 + 1);
+                    if (q2 == std::string::npos || q2 >= arrEnd) break;
+                    std::string appIdStr = jsonStr.substr(q1 + 1, q2 - q1 - 1);
+                    if (IsDigitsOnly(appIdStr))
+                    {
+                        AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
+                        if (id != 0 && id != kCloudCatalogAppId &&
+                            std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                        {
+                            remoteConfirmedApps.push_back(id);
+                        }
+                    }
+                    qPos = q2 + 1;
+                }
+            }
+        }
+
+        size_t pos = 0;
+        while (pos < jsonStr.size())
+        {
+            size_t keyPos = jsonStr.find("\"app_id\"", pos);
+            if (keyPos == std::string::npos) break;
+            size_t objStart = jsonStr.rfind('{', keyPos);
+            size_t objEnd = jsonStr.find('}', keyPos);
+            if (objStart == std::string::npos || objEnd == std::string::npos) break;
+
+            std::string itemJson = jsonStr.substr(objStart, objEnd - objStart + 1);
+            std::string appIdStr = ExtractJsonString(itemJson, "app_id");
+            if (IsDigitsOnly(appIdStr))
+            {
+                AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
+                if (id != 0 && id != kCloudCatalogAppId &&
+                    std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                {
+                    remoteConfirmedApps.push_back(id);
+                }
+            }
+            pos = objEnd + 1;
+        }
+    }
+
+    // Group remote-confirmed apps into top-level parent apps
+    std::vector<AppId_t> topLevelApps;
+    std::unordered_map<AppId_t, std::vector<AppId_t>> parentToChildren;
+    for (AppId_t id : remoteConfirmedApps)
+    {
+        AppId_t parentId = GetParentAppIdForDepot(id, *index);
+        if (parentId != 0 && parentId != id && parentId != kCloudCatalogAppId)
+        {
+            if (std::find(topLevelApps.begin(), topLevelApps.end(), parentId) == topLevelApps.end())
+            {
+                topLevelApps.push_back(parentId);
+            }
+            auto& cList = parentToChildren[parentId];
+            if (std::find(cList.begin(), cList.end(), id) == cList.end())
+            {
+                cList.push_back(id);
+            }
+        }
+        else
+        {
+            if (std::find(topLevelApps.begin(), topLevelApps.end(), id) == topLevelApps.end())
+            {
+                topLevelApps.push_back(id);
+            }
+        }
+    }
+    for (AppId_t parentId : topLevelApps)
+    {
+        for (AppId_t cid : GetChildDepotIdsForApp(parentId, *index))
+        {
+            if (cid == kCloudCatalogAppId) continue;
+            auto& cList = parentToChildren[parentId];
+            if (std::find(cList.begin(), cList.end(), cid) == cList.end())
+            {
+                cList.push_back(cid);
+            }
+        }
+    }
+
+    auto knownTitles = g_config.gameTitles.get();
+    struct CatalogAppItem
+    {
+        CloudAppSummary_t summary;
+        std::vector<CloudFileEntry_t> files;
+    };
+    std::vector<CatalogAppItem> items;
+
+    for (AppId_t appId : topLevelApps)
+    {
+        if (appId == 0 || appId == kCloudCatalogAppId) continue;
+        if (!g_config.IsAppCloudRedirected(appId)) continue;
+
+        // Collect files directly from the cloud storage mirror / remote (without scanning un-staged local dirs)
+        std::vector<CloudFileEntry_t> files = ListAppCloudFilesDirect(appId, isRemoteProvider ? provider : "local-only", acct);
+        const auto& children = parentToChildren[appId];
+        std::unordered_set<std::string> seenNames;
+        for (const auto& f : files) seenNames.insert(f.fileName);
+        for (AppId_t cid : children)
+        {
+            for (auto& cf : ListAppCloudFilesDirect(cid, isRemoteProvider ? provider : "local-only", acct))
+            {
+                if (seenNames.insert(cf.fileName).second)
+                {
+                    if (cf.folder.rfind("Depot ", 0) != 0)
+                    {
+                        cf.folder = "Depot " + std::to_string(cid) + " / " + (cf.folder.empty() ? "SteamCloudRemote" : cf.folder);
+                    }
+                    files.push_back(std::move(cf));
+                }
+            }
+        }
+        if (files.empty()) continue;
+
+        for (auto& f : files)
+        {
+            f.inRemoteCloud = true;
+            f.inLocalMirror = true;
+        }
+        std::sort(files.begin(), files.end(), [](const CloudFileEntry_t& a, const CloudFileEntry_t& b) {
+            if (a.folder != b.folder) return a.folder < b.folder;
+            return a.fileName < b.fileName;
+        });
+
+        CloudAppSummary_t summary;
+        summary.appId = appId;
+        summary.childAppIds = children;
+        auto tIt = knownTitles.find(appId);
+        if (tIt != knownTitles.end() && !tIt->second.empty())
+        {
+            summary.gameTitle = tIt->second;
+        }
+        else
+        {
+            summary.gameTitle = ResolveAppTitleFromManifestsInternal(appId, 0, *index);
+        }
+        if (summary.gameTitle.empty())
+        {
+            summary.gameTitle = "App " + std::to_string(appId);
+        }
+        summary.fileCount = static_cast<uint32_t>(files.size());
+        summary.redirected = true;
+        summary.inRemoteCloud = true;
+        summary.inLocalMirror = true;
+        uint64_t totalBytes = 0;
+        for (const auto& f : files) totalBytes += f.sizeBytes;
+        summary.totalSizeBytes = totalBytes;
+
+        items.push_back(CatalogAppItem{std::move(summary), std::move(files)});
+    }
+
+    std::sort(items.begin(), items.end(), [](const CatalogAppItem& a, const CatalogAppItem& b) {
+        if (!a.summary.gameTitle.empty() && !b.summary.gameTitle.empty() && a.summary.gameTitle != b.summary.gameTitle)
+        {
+            return a.summary.gameTitle < b.summary.gameTitle;
+        }
+        return a.summary.appId < b.summary.appId;
+    });
+
+    const uint64_t updatedAt = static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::seconds>(
+            std::chrono::system_clock::now().time_since_epoch()).count());
+
+    std::ostringstream js;
+    js << "{\n"
+       << "  \"version\": 1,\n"
+       << "  \"accountId\": " << acct << ",\n"
+       << "  \"updatedAt\": " << updatedAt << ",\n"
+       << "  \"apps\": [\n";
+    for (size_t i = 0; i < items.size(); ++i)
+    {
+        const auto& item = items[i];
+        const auto& s = item.summary;
+        if (i > 0) js << ",\n";
+        js << "    {\n"
+           << "      \"appId\": " << s.appId << ",\n"
+           << "      \"gameTitle\": \"" << EscapeCatalogJsonString(s.gameTitle) << "\",\n"
+           << "      \"fileCount\": " << s.fileCount << ",\n"
+           << "      \"totalSizeBytes\": " << s.totalSizeBytes << ",\n"
+           << "      \"redirected\": true,\n"
+           << "      \"inRemoteCloud\": true,\n"
+           << "      \"inLocalMirror\": true,\n"
+           << "      \"childAppIds\": [";
+        for (size_t c = 0; c < s.childAppIds.size(); ++c)
+        {
+            if (c > 0) js << ", ";
+            js << s.childAppIds[c];
+        }
+        js << "],\n"
+           << "      \"files\": [\n";
+        for (size_t fIdx = 0; fIdx < item.files.size(); ++fIdx)
+        {
+            const auto& f = item.files[fIdx];
+            if (fIdx > 0) js << ",\n";
+            js << "        {\n"
+               << "          \"fileName\": \"" << EscapeCatalogJsonString(f.fileName) << "\",\n"
+               << "          \"folder\": \"" << EscapeCatalogJsonString(f.folder) << "\",\n"
+               << "          \"sizeBytes\": " << f.sizeBytes << ",\n"
+               << "          \"modifiedTime\": " << f.modifiedTime << "\n"
+               << "        }";
+        }
+        js << "\n      ]\n"
+           << "    }";
+    }
+    js << "\n  ]\n}\n";
+
+    std::error_code ec;
+    const fs::path catalogDir = storageRoot / std::to_string(acct) / std::to_string(kCloudCatalogAppId);
+    fs::create_directories(catalogDir, ec);
+    if (ec) return false;
+
+    fs::remove_all(catalogDir / "blobs", ec);
+    const fs::path catalogFile = catalogDir / kCloudCatalogFileName;
+    if (fs::is_directory(catalogFile, ec))
+    {
+        fs::remove_all(catalogFile, ec);
+    }
+
+    {
+        std::ofstream out(catalogFile, std::ios::binary | std::ios::trunc);
+        if (!out.is_open()) return false;
+        out << js.str();
+    }
+    {
+        std::ofstream rtOut(catalogDir / "root_token.cloudredirect", std::ios::trunc);
+        rtOut << "%SteamCloudRemote%\n";
+    }
+    {
+        std::ofstream ftOut(catalogDir / "file_tokens.cloudredirect", std::ios::trunc);
+        ftOut << kCloudCatalogFileName << "\t%SteamCloudRemote%\n";
+    }
+    BumpCnFile(catalogDir);
+
+    if (isRemoteProvider)
+    {
+        RunCliCommand({"publish-full-manifest", provider, std::to_string(acct),
+                       std::to_string(kCloudCatalogAppId), storageRoot.parent_path().string()}, 30000);
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(m_catalogMutex);
+        m_catalogCache.provider = provider;
+        m_catalogCache.accountId = acct;
+        m_catalogCache.storageRoot = storageRoot;
+        m_catalogCache.loadedAtMs = static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        m_catalogCache.summaries.clear();
+        m_catalogCache.filesByApp.clear();
+        for (auto& item : items)
+        {
+            AppId_t id = item.summary.appId;
+            m_catalogCache.summaries[id] = std::move(item.summary);
+            m_catalogCache.filesByApp[id] = std::move(item.files);
+        }
+    }
+
+    return true;
+}
+
+bool CCloudManager::SyncAppToCloudAndUpdateCatalog(AppId_t appId, const std::string& provider, uint32_t accountId)
+{
+    if (appId == 0 || appId == kCloudCatalogAppId) return false;
+
+    const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accounts.empty()) return false;
+    const uint32_t acct = accounts.front();
+
+    if (!StageAppFilesForCloudSync(appId, acct))
+    {
+        return false;
+    }
+
+    const fs::path storageRoot = GetStorageDir();
+    if (!provider.empty() && provider != "local-only")
+    {
+        std::string out = RunCliCommand({"publish-full-manifest", provider, std::to_string(acct),
+                                         std::to_string(appId), storageRoot.parent_path().string()}, 60000);
+        if (out.find("\"success\":true") == std::string::npos &&
+            out.find("\"success\": true") == std::string::npos)
+        {
+            return false;
+        }
+    }
+
+    return UpdateAndPublishCloudCatalog(provider, acct);
 }
 
 } // namespace Navi::CloudRedirect

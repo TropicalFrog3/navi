@@ -371,31 +371,20 @@
     }
     window.__naviShowConfigPage = showConfigPage;
 
-// =========================================================================
+    // =========================================================================
     // CLOUD DRILL-DOWN FILE VIEWER MODULE
-    // 3 Interactive File Viewer Variations inside View Steam Cloud:
-    //   1. Filter Tabs (Category & Folder tabs with filtered table)
-    //   2. Grouped Sections (Collapsible folder accordions with stats & actions)
-    //   3. Tree Inspector (Interactive directory hierarchy tree with metadata inspector)
+    // Grouped Sections (Collapsible folder accordions with stats & actions,
+    // collapsed by default)
     // =========================================================================
     var CloudFileViewerModule = (function () {
-        var _activeVariation = 'tabs'; // 'tabs' | 'grouped' | 'tree'
-        try {
-            var saved = localStorage.getItem('navi_cloud_drilldown_view_mode');
-            if (saved && (saved === 'tabs' || saved === 'grouped' || saved === 'tree')) {
-                _activeVariation = saved;
-            }
-        } catch (e) {}
+        var _activeVariation = 'grouped';
 
         var _state = {
             appId: null,
             gameTitle: '',
             provider: 'local',
             files: [],
-            activeTab: 'all',
             collapsedGroups: {},
-            selectedFileIndex: 0,
-            expandedTreeDirs: {},
             container: null,
             showStatusBanner: null
         };
@@ -472,140 +461,6 @@
             });
         }
 
-        function renderVariation1_Tabs(targetEl) {
-            targetEl.innerHTML = '';
-            var files = _state.files;
-
-            var folderMap = {};
-            var catMap = {};
-            files.forEach(function (f) {
-                var folderName = f.folder || 'SteamCloud';
-                folderMap[folderName] = (folderMap[folderName] || 0) + 1;
-                var info = getFileTypeInfo(f.fileName);
-                catMap[info.cat] = (catMap[info.cat] || 0) + 1;
-            });
-
-            var tabs = [
-                { id: 'all', label: 'All Files', count: files.length }
-            ];
-
-            var folders = Object.keys(folderMap).sort();
-            if (folders.length > 1) {
-                folders.forEach(function (fd) {
-                    tabs.push({ id: 'folder:' + fd, label: '📁 ' + fd, count: folderMap[fd], isFolder: true, folder: fd });
-                });
-            }
-
-            if (catMap.saves) tabs.push({ id: 'cat:saves', label: '💾 Save Data', count: catMap.saves, isCat: true, cat: 'saves' });
-            if (catMap.lua) tabs.push({ id: 'cat:lua', label: '📜 Lua Plugins', count: catMap.lua, isCat: true, cat: 'lua' });
-            if (catMap.manifests) tabs.push({ id: 'cat:manifests', label: '📦 Manifests', count: catMap.manifests, isCat: true, cat: 'manifests' });
-            if (catMap.configs) tabs.push({ id: 'cat:configs', label: '⚙️ Configs', count: catMap.configs, isCat: true, cat: 'configs' });
-            if (catMap.other && folders.length <= 1) tabs.push({ id: 'cat:other', label: '📄 Other', count: catMap.other, isCat: true, cat: 'other' });
-
-            var hasActive = tabs.some(function (t) { return t.id === _state.activeTab; });
-            if (!hasActive) _state.activeTab = 'all';
-
-            var tabsBar = document.createElement('div');
-            tabsBar.id = 'sls-cloud-tabs-bar';
-            tabsBar.style.cssText = 'display: flex; gap: 6px; border-bottom: 1px solid #2a475e; margin-bottom: 12px; overflow-x: auto; padding-bottom: 2px;';
-
-            tabs.forEach(function (tab) {
-                var btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'sls-cloud-filter-tab' + (tab.id === _state.activeTab ? ' active' : '');
-                btn.setAttribute('data-tab-id', tab.id);
-                btn.innerHTML = escapeHtml(tab.label) + ' <span style="background:rgba(255,255,255,0.1); border-radius:10px; padding:1px 6px; font-size:10px; font-weight:700;">' + tab.count + '</span>';
-                btn.onclick = function (e) {
-                    e.preventDefault();
-                    _state.activeTab = tab.id;
-                    renderVariation1_Tabs(targetEl);
-                };
-                tabsBar.appendChild(btn);
-            });
-            targetEl.appendChild(tabsBar);
-
-            var filteredFiles = files.filter(function (f) {
-                if (_state.activeTab === 'all') return true;
-                if (_state.activeTab.indexOf('folder:') === 0) {
-                    var targetFolder = _state.activeTab.substring(7);
-                    return (f.folder || 'SteamCloud') === targetFolder;
-                }
-                if (_state.activeTab.indexOf('cat:') === 0) {
-                    var targetCat = _state.activeTab.substring(4);
-                    return getFileTypeInfo(f.fileName).cat === targetCat;
-                }
-                return true;
-            });
-
-            if (filteredFiles.length === 0) {
-                var emptyEl = document.createElement('div');
-                emptyEl.style.cssText = 'padding: 24px; text-align: center; color: #8f98a0; font-size: 13px;';
-                emptyEl.textContent = 'No files match the selected filter tab.';
-                targetEl.appendChild(emptyEl);
-                return;
-            }
-
-            var table = document.createElement('table');
-            table.className = 'navi-steam-cloud-table';
-            table.innerHTML =
-                '<thead><tr>' +
-                    '<th scope="col">FOLDER</th>' +
-                    '<th scope="col">FILE NAME</th>' +
-                    '<th scope="col">FILE SIZE</th>' +
-                    '<th scope="col">DATE WRITTEN</th>' +
-                    '<th scope="col"></th>' +
-                '</tr></thead>';
-
-            var tbody = document.createElement('tbody');
-            filteredFiles.forEach(function (f) {
-                var tr = document.createElement('tr');
-                tr.className = 'navi-cloud-file-row';
-                tr.setAttribute('data-search', ((f.fileName || '') + ' ' + (f.folder || '')).toLowerCase());
-
-                var tdFolder = document.createElement('td');
-                tdFolder.setAttribute('data-label', 'FOLDER');
-                tdFolder.textContent = f.folder || 'SteamCloud';
-
-                var tdName = document.createElement('td');
-                tdName.setAttribute('data-label', 'FILE NAME');
-                tdName.style.wordBreak = 'break-all';
-                var typeInfo = getFileTypeInfo(f.fileName);
-                tdName.innerHTML = '<span style="margin-right:6px;">' + typeInfo.icon + '</span><span>' + escapeHtml(f.fileName || '') + '</span>';
-
-                var tdSize = document.createElement('td');
-                tdSize.className = 'navi-col-num';
-                tdSize.setAttribute('data-label', 'FILE SIZE');
-                tdSize.textContent = fmtBytes(f.sizeBytes);
-
-                var tdDate = document.createElement('td');
-                tdDate.className = 'navi-col-num';
-                tdDate.setAttribute('data-label', 'DATE WRITTEN');
-                tdDate.textContent = fmtDate(f.timestamp);
-
-                var tdDl = document.createElement('td');
-                tdDl.setAttribute('data-label', 'ACTION');
-                tdDl.style.textAlign = 'right';
-
-                var dlBtn = document.createElement('button');
-                dlBtn.className = 'navi-steam-cloud-link';
-                dlBtn.textContent = 'Download';
-                dlBtn.onclick = function (e) {
-                    e.preventDefault();
-                    downloadFile(f, dlBtn);
-                };
-
-                tdDl.appendChild(dlBtn);
-                tr.appendChild(tdFolder);
-                tr.appendChild(tdName);
-                tr.appendChild(tdSize);
-                tr.appendChild(tdDate);
-                tr.appendChild(tdDl);
-                tbody.appendChild(tr);
-            });
-            table.appendChild(tbody);
-            targetEl.appendChild(table);
-        }
-
         function renderVariation2_Grouped(targetEl) {
             targetEl.innerHTML = '';
             var files = _state.files;
@@ -625,7 +480,7 @@
             folderNames.forEach(function (folderName) {
                 var groupFiles = groups[folderName];
                 var totalBytes = groupFiles.reduce(function (sum, item) { return sum + (Number(item.sizeBytes) || 0); }, 0);
-                var isCollapsed = !!_state.collapsedGroups[folderName];
+                var isCollapsed = _state.collapsedGroups[folderName] !== false;
 
                 var card = document.createElement('div');
                 card.className = 'sls-cloud-group-card';
@@ -735,7 +590,8 @@
 
                 header.onclick = function (e) {
                     e.preventDefault();
-                    var nextCollapsed = !_state.collapsedGroups[folderName];
+                    var currentlyCollapsed = _state.collapsedGroups[folderName] !== false;
+                    var nextCollapsed = !currentlyCollapsed;
                     _state.collapsedGroups[folderName] = nextCollapsed;
                     body.style.display = nextCollapsed ? 'none' : 'block';
                     chevron.textContent = nextCollapsed ? '►' : '▼';
@@ -748,242 +604,6 @@
             });
 
             targetEl.appendChild(listWrap);
-        }
-
-        function renderVariation3_Tree(targetEl) {
-            targetEl.innerHTML = '';
-            var files = _state.files;
-            if (_state.selectedFileIndex == null || _state.selectedFileIndex < 0 || _state.selectedFileIndex >= files.length) {
-                _state.selectedFileIndex = 0;
-            }
-
-            var container = document.createElement('div');
-            container.id = 'sls-cloud-tree-inspector-container';
-            container.className = 'sls-cloud-tree-inspector';
-            container.style.cssText = 'display: flex; min-height: 360px; border: 1px solid #2a475e; border-radius: 4px; background: #0f1620; overflow: hidden;';
-
-            // Left Pane: Directory Tree
-            var leftPane = document.createElement('div');
-            leftPane.id = 'sls-cloud-tree-pane';
-            leftPane.style.cssText = 'width: 340px; border-right: 1px solid #2a475e; padding: 12px; overflow-y: auto; background: #101822; flex-shrink: 0;';
-
-            var treeHeader = document.createElement('div');
-            treeHeader.style.cssText = 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 8px;';
-            treeHeader.innerHTML = '<span style="font-size:12px; font-weight:700; color:#c6d4df;">Directory Explorer</span>' +
-                '<div>' +
-                    '<button type="button" id="sls-tree-expand-all" class="sls-cfg-btn" style="padding:2px 6px; font-size:10px;">Expand All</button>' +
-                    '<button type="button" id="sls-tree-collapse-all" class="sls-cfg-btn" style="padding:2px 6px; font-size:10px; margin-left:4px;">Collapse All</button>' +
-                '</div>';
-            leftPane.appendChild(treeHeader);
-
-            var rootNode = document.createElement('div');
-            rootNode.style.cssText = 'font-size: 12px; font-weight: 700; color: #ffffff; padding: 4px 6px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;';
-            rootNode.innerHTML = '<span>🎮</span><span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + escapeHtml(_state.gameTitle || ('App ' + _state.appId)) + '</span>';
-            leftPane.appendChild(rootNode);
-
-            var groups = {};
-            files.forEach(function (f, idx) {
-                var folderName = f.folder || 'SteamCloud';
-                if (!groups[folderName]) groups[folderName] = [];
-                groups[folderName].push({ file: f, index: idx });
-            });
-
-            var folderNames = Object.keys(groups).sort();
-            var folderDivs = [];
-
-            folderNames.forEach(function (folderName) {
-                var items = groups[folderName];
-                var isCollapsed = _state.expandedTreeDirs[folderName] === false;
-
-                var fWrap = document.createElement('div');
-                fWrap.style.cssText = 'margin-left: 8px; margin-bottom: 6px;';
-
-                var fHeader = document.createElement('div');
-                fHeader.style.cssText = 'display: flex; align-items: center; gap: 6px; padding: 4px 6px; cursor: pointer; font-size: 12px; font-weight: 600; color: #66c0f4; border-radius: 3px;';
-                fHeader.onmouseenter = function () { fHeader.style.background = 'rgba(255,255,255,0.04)'; };
-                fHeader.onmouseleave = function () { fHeader.style.background = 'transparent'; };
-
-                fHeader.innerHTML = '<span style="font-size:10px; color:#8f98a0; width:12px; display:inline-block; text-align:center;">' + (isCollapsed ? '►' : '▼') + '</span>' +
-                    '<span>📁</span>' +
-                    '<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + escapeHtml(folderName) + '/</span>' +
-                    '<span style="color:#8f98a0; font-size:11px; font-weight:normal;">(' + items.length + ')</span>';
-
-                var fChildren = document.createElement('div');
-                fChildren.style.cssText = 'margin-left: 14px; display: ' + (isCollapsed ? 'none' : 'block') + ';';
-                folderDivs.push({ wrap: fChildren, arrow: fHeader.querySelector('span'), folder: folderName });
-
-                items.forEach(function (itemObj) {
-                    var f = itemObj.file;
-                    var idx = itemObj.index;
-                    var typeInfo = getFileTypeInfo(f.fileName);
-                    var isSelected = idx === _state.selectedFileIndex;
-
-                    var leafName = (f.folder && f.fileName.startsWith(f.folder + '/'))
-                        ? f.fileName.slice(f.folder.length + 1)
-                        : f.fileName;
-
-                    var itemEl = document.createElement('div');
-                    itemEl.className = 'sls-cloud-tree-item navi-cloud-file-row' + (isSelected ? ' active' : '');
-                    itemEl.setAttribute('data-file-idx', String(idx));
-                    itemEl.setAttribute('data-search', ((f.fileName || '') + ' ' + (f.folder || '')).toLowerCase());
-                    itemEl.innerHTML = '<span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' +
-                        '<span>' + typeInfo.icon + '</span>' +
-                        '<span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">' + escapeHtml(leafName) + '</span>' +
-                    '</span>' +
-                    '<span style="color:#8f98a0; font-size:11px; font-family:monospace; margin-left:8px; flex-shrink:0;">' + fmtBytes(f.sizeBytes) + '</span>';
-
-                    itemEl.onclick = function (e) {
-                        e.preventDefault();
-                        _state.selectedFileIndex = idx;
-                        leftPane.querySelectorAll('.sls-cloud-tree-item').forEach(function (el) {
-                            el.classList.remove('active');
-                        });
-                        itemEl.classList.add('active');
-                        renderTreeInspectorPanel(rightPane, f);
-                    };
-
-                    fChildren.appendChild(itemEl);
-                });
-
-                fHeader.onclick = function (e) {
-                    e.preventDefault();
-                    var currentlyCollapsed = fChildren.style.display === 'none';
-                    fChildren.style.display = currentlyCollapsed ? 'block' : 'none';
-                    fHeader.querySelector('span').textContent = currentlyCollapsed ? '▼' : '►';
-                    _state.expandedTreeDirs[folderName] = currentlyCollapsed;
-                };
-
-                fWrap.appendChild(fHeader);
-                fWrap.appendChild(fChildren);
-                leftPane.appendChild(fWrap);
-            });
-
-            var expandAllBtn = treeHeader.querySelector('#sls-tree-expand-all');
-            if (expandAllBtn) {
-                expandAllBtn.onclick = function (e) {
-                    e.preventDefault();
-                    folderDivs.forEach(function (fd) {
-                        fd.wrap.style.display = 'block';
-                        fd.arrow.textContent = '▼';
-                        _state.expandedTreeDirs[fd.folder] = true;
-                    });
-                };
-            }
-            var collapseAllBtn = treeHeader.querySelector('#sls-tree-collapse-all');
-            if (collapseAllBtn) {
-                collapseAllBtn.onclick = function (e) {
-                    e.preventDefault();
-                    folderDivs.forEach(function (fd) {
-                        fd.wrap.style.display = 'none';
-                        fd.arrow.textContent = '►';
-                        _state.expandedTreeDirs[fd.folder] = false;
-                    });
-                };
-            }
-
-            var rightPane = document.createElement('div');
-            rightPane.id = 'sls-cloud-tree-inspector-panel';
-            rightPane.style.cssText = 'flex: 1; padding: 20px; overflow-y: auto; background: #131d28;';
-
-            var activeFile = files[_state.selectedFileIndex] || files[0];
-            renderTreeInspectorPanel(rightPane, activeFile);
-
-            container.appendChild(leftPane);
-            container.appendChild(rightPane);
-            targetEl.appendChild(container);
-        }
-
-        function renderTreeInspectorPanel(panelEl, file) {
-            panelEl.innerHTML = '';
-            if (!file) {
-                panelEl.innerHTML = '<div style="color:#8f98a0; font-size:13px; text-align:center; padding:40px;">Select a file in the tree to inspect details.</div>';
-                return;
-            }
-
-            var typeInfo = getFileTypeInfo(file.fileName);
-            var fullPath = (file.folder && !file.fileName.startsWith(file.folder + '/')) ? (file.folder + '/' + file.fileName) : file.fileName;
-
-            var html =
-                '<div style="display:flex; align-items:center; gap:12px; margin-bottom:16px;">' +
-                    '<span style="font-size:32px;">' + typeInfo.icon + '</span>' +
-                    '<div style="overflow:hidden;">' +
-                        '<div style="font-size:18px; font-weight:700; color:#ffffff; word-break:break-all;">' + escapeHtml(file.fileName) + '</div>' +
-                        '<div style="font-size:12px; color:#8f98a0; margin-top:2px;">' + escapeHtml(typeInfo.label) + '</div>' +
-                    '</div>' +
-                '</div>' +
-
-                '<div style="background:#0a0f16; border:1px solid #1e293b; border-radius:4px; padding:10px 14px; margin-bottom:18px; display:flex; align-items:center; justify-content:space-between; gap:12px;">' +
-                    '<code id="sls-tree-inspect-path" style="color:#38bdf8; font-size:12px; font-family:monospace; word-break:break-all;">' + escapeHtml(fullPath) + '</code>' +
-                    '<button type="button" id="sls-tree-inspect-copy-btn" class="sls-cfg-btn" style="padding:4px 10px; font-size:11px; flex-shrink:0;">Copy Path</button>' +
-                '</div>' +
-
-                '<div style="background:#172230; border:1px solid #2a475e; border-radius:4px; padding:14px; margin-bottom:18px;">' +
-                    '<div style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#66c0f4; font-weight:700; margin-bottom:10px;">File Metadata</div>' +
-                    '<div style="display:grid; grid-template-columns:120px 1fr; gap:8px 12px; font-size:12px;">' +
-                        '<div style="color:#8f98a0;">Folder:</div>' +
-                        '<div style="color:#ffffff;">' + escapeHtml(file.folder || 'SteamCloud') + '</div>' +
-                        '<div style="color:#8f98a0;">Size:</div>' +
-                        '<div style="color:#ffffff; font-family:monospace;">' + fmtBytes(file.sizeBytes) + ' <span style="color:#8f98a0; font-size:11px;">(' + (Number(file.sizeBytes) || 0).toLocaleString() + ' bytes)</span></div>' +
-                        '<div style="color:#8f98a0;">Date Written:</div>' +
-                        '<div style="color:#ffffff;">' + fmtDate(file.timestamp) + '</div>' +
-                        '<div style="color:#8f98a0;">Cloud Status:</div>' +
-                        '<div style="color:#2ecc71; font-weight:600;">Synchronized in Steam Cloud</div>' +
-                    '</div>' +
-                '</div>' +
-                (function () {
-                    if (typeInfo.cat === 'lua') {
-                        return '<div style="background:#0a0f16; border:1px solid #1e293b; border-radius:4px; padding:12px; margin-bottom:18px;">' +
-                            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                                '<span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#38bdf8; font-weight:700;">📜 Lua Script Preview</span>' +
-                                '<span style="background:rgba(46,204,113,0.15); color:#2ecc71; border:1px solid rgba(46,204,113,0.3); font-size:10px; padding:1px 6px; border-radius:3px; font-weight:600;">Active Hook</span>' +
-                            '</div>' +
-                            '<pre style="margin:0; font-family:monospace; font-size:11px; color:#67e8f9; max-height:160px; overflow-y:auto; line-height:1.5; white-space:pre-wrap;">' +
-                                escapeHtml('-- Navi Plugin for App ' + (_state.appId || '') + '\naddappid(' + (_state.appId || '') + ', 1, "' + (_state.gameTitle || '') + '")\naddappid(' + (Number(_state.appId) + 1) + ', 0, "DLC Expansion")\nsetstat("dlc_license_flags", 0xFFFFFFFF)') +
-                            '</pre>' +
-                        '</div>';
-                    }
-                    if (typeInfo.cat === 'manifests') {
-                        return '<div style="background:#0a0f16; border:1px solid #1e293b; border-radius:4px; padding:12px; margin-bottom:18px;">' +
-                            '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">' +
-                                '<span style="font-size:11px; text-transform:uppercase; letter-spacing:0.5px; color:#f59e0b; font-weight:700;">📦 Manifest Inspector</span>' +
-                                '<span style="background:rgba(245,158,11,0.15); color:#fbbf24; border:1px solid rgba(245,158,11,0.3); font-size:10px; padding:1px 6px; border-radius:3px; font-weight:600;">DepotCache</span>' +
-                            '</div>' +
-                            '<div style="font-size:12px; color:#d1d5db; line-height:1.6;">' +
-                                '<div>• <b>Depot ID:</b> ' + escapeHtml((file.fileName.split('_')[0] || String(_state.appId))) + '</div>' +
-                                '<div>• <b>Manifest ID:</b> ' + escapeHtml((file.fileName.split('_')[1] || '').replace('.manifest', '')) + '</div>' +
-                                '<div>• <b>Target Arch:</b> Linux x64 / Common</div>' +
-                                '<div>• <b>Status:</b> Cached in Steam Cloud</div>' +
-                            '</div>' +
-                        '</div>';
-                    }
-                    return '';
-                })() +
-                '<div style="display:flex; gap:10px; align-items:center;">' +
-                    '<button type="button" id="sls-tree-inspect-dl-btn" class="sls-cfg-btn" style="background:#2563eb; color:#fff; font-weight:700; padding:8px 20px; font-size:13px; border-radius:3px; cursor:pointer;">⬇️ Download File</button>' +
-                '</div>';
-
-            panelEl.innerHTML = html;
-
-            var copyBtn = panelEl.querySelector('#sls-tree-inspect-copy-btn');
-            if (copyBtn) {
-                copyBtn.onclick = function (e) {
-                    e.preventDefault();
-                    if (navigator.clipboard && navigator.clipboard.writeText) {
-                        navigator.clipboard.writeText(fullPath).then(function () {
-                            copyBtn.textContent = 'Copied!';
-                            setTimeout(function () { copyBtn.textContent = 'Copy Path'; }, 1200);
-                        }).catch(function () {});
-                    }
-                };
-            }
-
-            var dlBtn = panelEl.querySelector('#sls-tree-inspect-dl-btn');
-            if (dlBtn) {
-                dlBtn.onclick = function (e) {
-                    e.preventDefault();
-                    downloadFile(file, dlBtn);
-                };
-            }
         }
 
         function render(container, files, selAppId, selTitle, provider, showStatusBanner) {
@@ -1016,6 +636,7 @@
             _state.appId = selAppId;
             _state.gameTitle = selTitle || ('App ' + selAppId);
             _state.provider = provider || 'local';
+            _state.collapsedGroups = {};
             _state.showStatusBanner = showStatusBanner;
 
             container.innerHTML = '';
@@ -1028,12 +649,7 @@
 
             var switcherWrap = document.createElement('div');
             switcherWrap.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-            switcherWrap.innerHTML = '<span style="font-size:12px; color:#8f98a0; font-weight:600;">View Mode:</span>' +
-                '<div id="sls-cloud-view-switcher" style="display:inline-flex; align-items:center; background:#101822; padding:2px; border-radius:4px; border:1px solid #2a475e; gap:2px;">' +
-                    '<button type="button" id="sls-cloud-view-tabs" class="sls-cloud-view-pill' + (_activeVariation === 'tabs' ? ' active' : '') + '" data-mode="tabs">🏷️ Filter Tabs</button>' +
-                    '<button type="button" id="sls-cloud-view-grouped" class="sls-cloud-view-pill' + (_activeVariation === 'grouped' ? ' active' : '') + '" data-mode="grouped">📂 Grouped Sections</button>' +
-                    '<button type="button" id="sls-cloud-view-tree" class="sls-cloud-view-pill' + (_activeVariation === 'tree' ? ' active' : '') + '" data-mode="tree">🌲 Tree Inspector</button>' +
-                '</div>';
+            switcherWrap.innerHTML = '<span style="font-size:12px; color:#c6d4df; font-weight:600;">📂 Grouped Sections</span>';
 
             var statsWrap = document.createElement('div');
             statsWrap.style.cssText = 'font-size: 12px; color: #8f98a0;';
@@ -1049,48 +665,14 @@
             contentContainer.id = 'sls-cloud-variation-view-container';
             container.appendChild(contentContainer);
 
-            function renderCurrentVariation() {
-                headerBar.querySelectorAll('.sls-cloud-view-pill').forEach(function (pill) {
-                    if (pill.getAttribute('data-mode') === _activeVariation) {
-                        pill.classList.add('active');
-                    } else {
-                        pill.classList.remove('active');
-                    }
-                });
-
-                if (_activeVariation === 'grouped') {
-                    renderVariation2_Grouped(contentContainer);
-                } else if (_activeVariation === 'tree') {
-                    renderVariation3_Tree(contentContainer);
-                } else {
-                    renderVariation1_Tabs(contentContainer);
-                }
-            }
-
-            headerBar.querySelectorAll('.sls-cloud-view-pill').forEach(function (pill) {
-                pill.onclick = function (e) {
-                    e.preventDefault();
-                    var mode = pill.getAttribute('data-mode');
-                    if (mode && mode !== _activeVariation) {
-                        _activeVariation = mode;
-                        try { localStorage.setItem('navi_cloud_drilldown_view_mode', mode); } catch (err) {}
-                        renderCurrentVariation();
-                    }
-                };
-            });
-
-            renderCurrentVariation();
+            renderVariation2_Grouped(contentContainer);
         }
 
         return {
             render: render,
-            switchVariation: function (varKey) {
-                if (varKey === 'tabs' || varKey === 'grouped' || varKey === 'tree') {
-                    _activeVariation = varKey;
-                    try { localStorage.setItem('navi_cloud_drilldown_view_mode', varKey); } catch (e) {}
-                    if (_state.container && _state.files) {
-                        render(_state.container, _state.files, _state.appId, _state.gameTitle, _state.provider, _state.showStatusBanner);
-                    }
+            switchVariation: function () {
+                if (_state.container && _state.files) {
+                    render(_state.container, _state.files, _state.appId, _state.gameTitle, _state.provider, _state.showStatusBanner);
                 }
             },
             getActiveVariation: function () {
@@ -1102,9 +684,8 @@
                     gameTitle: _state.gameTitle,
                     provider: _state.provider,
                     activeVariation: _activeVariation,
-                    activeTab: _state.activeTab,
-                    fileCount: _state.files.length,
-                    selectedFileIndex: _state.selectedFileIndex
+                    collapsedGroups: _state.collapsedGroups,
+                    fileCount: _state.files.length
                 };
             }
         };

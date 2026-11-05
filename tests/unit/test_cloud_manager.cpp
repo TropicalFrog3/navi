@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "cloud_manager.hpp"
 #include "cloud_view.hpp"
+#include "config.hpp"
 
 #include <chrono>
 #include <cstdlib>
@@ -412,8 +413,8 @@ TEST(CloudManagerTest, DiscoverAndListLuaAndManifestOnlyGames)
 
     manager.SetSteamRootForTest(steamRoot);
 
-    // 1. App discovery should discover app 480 and title "Spacewar" from Lua comment
-    auto apps = manager.ListCloudApps("gdrive", 999001);
+    // 1. App discovery in local-only mode should discover app 480 and title "Spacewar" from Lua comment
+    auto apps = manager.ListCloudApps("local-only", 999001);
     bool found480 = false;
     for (const auto& app : apps)
     {
@@ -429,7 +430,7 @@ TEST(CloudManagerTest, DiscoverAndListLuaAndManifestOnlyGames)
     EXPECT_TRUE(found480);
 
     // 2. Listing files should include the lua, provider, and manifest files
-    auto files = manager.ListAppCloudFiles(480, "gdrive", 999001);
+    auto files = manager.ListAppCloudFiles(480, "local-only", 999001);
     ASSERT_EQ(files.size(), 3u);
 
     bool hasLua = false, hasProv = false, hasMf = false;
@@ -463,12 +464,12 @@ TEST(CloudManagerTest, DiscoverAndListLuaAndManifestOnlyGames)
 
     // 3. Reading files
     std::string outData, outName, outErr;
-    bool readLuaOk = manager.ReadAppCloudFile(480, "stplug-in/480.lua", "gdrive", 999001, outData, outName, outErr);
+    bool readLuaOk = manager.ReadAppCloudFile(480, "stplug-in/480.lua", "local-only", 999001, outData, outName, outErr);
     EXPECT_TRUE(readLuaOk) << outErr;
     EXPECT_EQ(outData, luaContent);
     EXPECT_EQ(outName, "480.lua");
 
-    bool readMfOk = manager.ReadAppCloudFile(480, "depotcache/481_123456789.manifest", "gdrive", 999001, outData, outName, outErr);
+    bool readMfOk = manager.ReadAppCloudFile(480, "depotcache/481_123456789.manifest", "local-only", 999001, outData, outName, outErr);
     EXPECT_TRUE(readMfOk) << outErr;
     EXPECT_EQ(outData, mfContent);
     EXPECT_EQ(outName, "481_123456789.manifest");
@@ -611,5 +612,543 @@ TEST(CloudManagerTest, GroupAddonsAndChildDepotsIntoMainGame)
     manager.SetSteamRootForTest({});
     manager.SetStorageDirForTest({});
 }
+
+/**
+ * Scan-once regression test for ListCloudApps (cloud-apps-inventory-speedup D1).
+ * Builds a small fixture library (manifests, lua plugins, depotcache manifests,
+ * storage mirrors) with enough discovered candidates that today's per-candidate
+ * rescans blow past any scan-once bound, then measures the counters across TWO
+ * consecutive ListCloudApps passes. Also guards that the second pass still sees
+ * library changes (invalidation, not a stale cache).
+ */
+TEST(CloudManagerTest, InventoryScanIndexReadsLibraryOncePerPass)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path steamApps = steamRoot / "steamapps";
+    fs::path stplugDir = steamRoot / "config" / "stplug-in";
+    fs::path depotcacheDir = steamRoot / "depotcache";
+    fs::path mockStorageDir = env.tempDir / "storage";
+    std::error_code ec;
+    fs::create_directories(steamApps, ec);
+    fs::create_directories(stplugDir, ec);
+    fs::create_directories(depotcacheDir, ec);
+
+    // 8 parent games, each with an installed child depot and a storage mirror,
+    // plus 4 lua-only games with child depots and depotcache manifests.
+    constexpr unsigned kGames = 8;
+    constexpr unsigned kLuaGames = 4;
+
+    for (unsigned i = 0; i < kGames; ++i)
+    {
+        const std::string app = std::to_string(1500000u + i);
+        const std::string child = std::to_string(1501000u + i);
+        {
+            std::ofstream mf(steamApps / ("appmanifest_" + app + ".acf"));
+            mf << "\"AppState\"\n"
+                  "{\n"
+                  "\t\"appid\"\t\t\"" << app << "\"\n"
+                  "\t\"name\"\t\t\"Triangle Zone " << i << "\"\n"
+                  "\t\"InstalledDepots\"\n"
+                  "\t{\n"
+                  "\t\t\"" << child << "\"\n"
+                  "\t\t{\n"
+                  "\t\t\t\"manifest\"\t\t\"111111111111111111" << i << "\"\n"
+                  "\t\t}\n"
+                  "\t}\n"
+                  "}\n";
+        }
+        fs::create_directories(mockStorageDir / "999001" / app / "remote", ec);
+        { std::ofstream f(mockStorageDir / "999001" / app / "remote" / "save.dat"); f << "data-" << app; }
+        fs::create_directories(mockStorageDir / "999001" / child / "remote", ec);
+        { std::ofstream f(mockStorageDir / "999001" / child / "remote" / "child.dat"); f << "child-" << child; }
+    }
+
+    for (unsigned i = 0; i < kLuaGames; ++i)
+    {
+        const std::string app = std::to_string(1600000u + i);
+        const std::string child0 = std::to_string(1601000u + i);
+        const std::string child1 = std::to_string(1602000u + i);
+        {
+            std::ofstream lf(stplugDir / (app + ".lua"));
+            lf << "addappid(" << app << ", 1, 0) -- Lua Game " << i << "\n"
+               << "addappid(" << child0 << ", 1, \"dk0\")\n"
+               << "addappid(" << child1 << ", 1, \"dk1\")\n";
+        }
+        fs::create_directories(mockStorageDir / "999001" / child0 / "remote", ec);
+        { std::ofstream f(mockStorageDir / "999001" / child0 / "remote" / "save.bin"); f << "save-" << child0; }
+    }
+
+    unsigned manifestCount = 0;
+    for (const auto& e : fs::directory_iterator(steamApps, ec))
+        if (e.path().extension() == ".acf") manifestCount++;
+    unsigned luaCount = 0;
+    for (const auto& e : fs::directory_iterator(stplugDir, ec))
+        if (e.path().extension() == ".lua") luaCount++;
+    ASSERT_EQ(manifestCount, kGames);
+    ASSERT_EQ(luaCount, kLuaGames);
+
+    manager.SetSteamRootForTest(steamRoot);   // triggers production library paths
+    manager.SetStorageDirForTest(mockStorageDir);
+
+    manager.ResetScanCountersForTest();
+    auto apps1 = manager.ListCloudApps("local-only", 999001);
+    auto apps2 = manager.ListCloudApps("local-only", 999001);
+    auto counters = manager.GetScanCountersForTest();
+
+    // Sanity: discovery found all games (8 manifest parents + 4 lua parents)
+    size_t merged = 0;
+    for (const auto& a : apps1)
+        merged += a.childAppIds.size();
+    ASSERT_EQ(apps1.size(), kGames + kLuaGames);
+    ASSERT_EQ(merged, kGames + 2u * kLuaGames); // each lua game has 2 child depots
+
+    // Scan-once bounds: one manifest pass per ListCloudApps (+ margin for the
+    // single title lookup pass that the index' title cache absorbs), lua the
+    // same. Today: every candidate rescans every manifest (~games × manifests),
+    // and every top-level app re-parses every lua twice.
+    EXPECT_LE(counters.manifestFilesRead, static_cast<uint64_t>(manifestCount) * 3u)
+        << "manifest reads=" << counters.manifestFilesRead;
+    EXPECT_LE(counters.luaFilesParsed, static_cast<uint64_t>(luaCount) * 4u)
+        << "lua parses=" << counters.luaFilesParsed;
+
+    // Invalidation guard (green test, not scan-bound): after adding a new child
+    // depot for game 0 both via manifest edit, the second pass reflects it.
+    {
+        std::ofstream mf(steamApps / "appmanifest_1500000.acf");
+        mf << "\"AppState\"\n"
+              "{\n"
+              "\t\"appid\"\t\t\"1500000\"\n"
+              "\t\"name\"\t\t\"Triangle Zone 0\"\n"
+              "\t\"InstalledDepots\"\n"
+              "\t{\n"
+              "\t\t\"1501000\"\n"
+              "\t\t{\n"
+              "\t\t\t\"manifest\"\t\t\"1111111111111111110\"\n"
+              "\t\t}\n"
+              "\t\t\"1501007\"\n"
+              "\t\t{\n"
+              "\t\t\t\"manifest\"\t\t\"7777777777777777777\"\n"
+              "\t\t}\n"
+              "\t}\n"
+              "}\n";
+    }
+    manager.ResetScanCountersForTest();
+    auto apps3 = manager.ListCloudApps("local-only", 999001);
+    const CloudAppSummary_t* tz0 = nullptr;
+    for (const auto& a : apps3)
+        if (a.appId == 1500000) tz0 = &a;
+    ASSERT_NE(tz0, nullptr);
+    EXPECT_NE(std::find(tz0->childAppIds.begin(), tz0->childAppIds.end(), 1501000u),
+              tz0->childAppIds.end());
+    EXPECT_NE(std::find(tz0->childAppIds.begin(), tz0->childAppIds.end(), 1501007u),
+              tz0->childAppIds.end());
+
+    manager.SetSteamRootForTest({});
+    manager.SetStorageDirForTest({});
+}
+
+/**
+ * Regression test for the live-library grouping inversion found while
+ * verifying D1 against the real Steam library (2026-11-03 report addendum).
+ *
+ * Real file shape (e.g. 3856460.lua):
+ *     addappid(3856461, 0, "<key>")   <- parsed appId = 3856461 (first addappid)
+ *     setManifestid(3856461, "...")
+ *     addappid(3856460)               <- stem app listed keyless (parser: dlc)
+ *
+ * Legacy FindDepotOwnerInLuaPlugins has TWO skip guards per file/depot query:
+ *   1. stem == depot id   (the file named after the depot never owns it), and
+ *   2. resolved parent == depot id.
+ * Without guard 1 the index mapped parentOfDepot(3856460) = 3856461 and the
+ * inventory flipped which app of the pair is listed with children.
+ */
+TEST(CloudManagerTest, InventoryLuaSelflistedStemAppDoesNotInvertOwnership)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path stplugDir = steamRoot / "config" / "stplug-in";
+    std::error_code ec;
+    fs::create_directories(stplugDir, ec);
+
+    constexpr AppId_t kSelfApp = 3856460;
+    constexpr AppId_t kChildDepot = 3856461;
+
+    {
+        std::ofstream lf(stplugDir / (std::to_string(kSelfApp) + ".lua"));
+        lf << "addappid(" << kChildDepot << ", 0, \"23db969267704646917ace252094fce4d1e37e7e039bccae85a33a958038fc4b\") -- Cursed Words: The Word Game That Isn't\n"
+           << "setManifestid(" << kChildDepot << ", \"9170837311699582332\")\n"
+           << "addappid(" << kSelfApp << ")\n";
+    }
+
+    manager.SetSteamRootForTest(steamRoot);
+    manager.SetStorageDirForTest({});
+
+    // 1. The stem app is never owned by anything from its own file (guard 1).
+    EXPECT_EQ(manager.GetParentAppIdForDepot(kSelfApp), 0u);
+
+    // 2. The child depot's owner is also not resolvable from this file: the
+    //    parsed appId equals the queried depot (guard 2 shot-circuits it).
+    EXPECT_EQ(manager.GetParentAppIdForDepot(kChildDepot), 0u);
+
+    // 3. The stem app still collects its child depots via its own file.
+    const std::vector<AppId_t> children = manager.GetChildDepotIdsForApp(kSelfApp);
+    EXPECT_NE(std::find(children.begin(), children.end(), kChildDepot), children.end());
+
+    // 4. Title falls back to the lua trailing comment (fallback 3).
+    EXPECT_EQ(manager.ResolveAppTitleFromManifests(kSelfApp),
+              "Cursed Words: The Word Game That Isn't");
+
+    manager.SetSteamRootForTest({});
+    manager.SetStorageDirForTest({});
+}
+
+/**
+ * D3 regression gate (spec test #4, renamed as `UpsertFileIndexIsLinearNotQuadratic`):
+ * upsertFile must resolve a logical fileName with an O(1) lookup so that an app
+ * listing N mirrored files performs O(N) upsert work, not N*(N-1)/2 comparisons.
+ * Instrumented via ScanCounters::fileUpsertProbes (counted string comparisons).
+ */
+TEST(CloudManagerTest, UpsertFileIndexIsLinearNotQuadratic)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    constexpr AppId_t kApp = 5100100;
+    constexpr uint32_t kAcct = 999003;
+    constexpr size_t kMirrorFiles = 1200;
+
+    fs::path storageDir = env.tempDir / "storage";
+    fs::path appDir = storageDir / std::to_string(kAcct) / std::to_string(kApp);
+    std::error_code ec;
+    fs::create_directories(appDir, ec);
+
+    for (size_t i = 0; i < kMirrorFiles; ++i)
+    {
+        std::ofstream f(appDir / ("saves_slot_" + std::to_string(i) + ".dat"));
+        f << "x" << i;
+    }
+    // One duplicate-name upsert from a different source exercises the merge path
+    // (remote listing is not reachable in unit mode, so emulate the upsert twice
+    // via storage files with different capitalization-free relPaths is not
+    // possible; the important property is the lookup cost, covered by probes).
+
+    manager.SetStorageDirForTest(storageDir);
+    manager.SetSteamRootForTest({});
+
+    manager.ResetScanCountersForTest();
+    std::vector<CloudFileEntry_t> files = manager.ListAppCloudFiles(kApp, "local-only", kAcct);
+    ASSERT_EQ(files.size(), kMirrorFiles);
+
+    const auto counters = manager.GetScanCountersForTest();
+    // Linear expectation: one lookup per upsert (N inserts), plus bounded extra
+    // probes for metadata/merge touches. Quadratic legacy code performs
+    // N*(N-1)/2 = 719,400 comparisons for this fixture - far past the bound.
+    EXPECT_LT(counters.fileUpsertProbes, 4 * kMirrorFiles)
+        << "fileUpsertProbes=" << counters.fileUpsertProbes
+        << " for " << kMirrorFiles << " mirror files (expected ~O(N));";
+
+    manager.SetStorageDirForTest({});
+    manager.SetSteamRootForTest({});
+}
+
+/**
+ * D3 (spec): `ListAppCloudFiles`'s child-file dedup must not linearly scan
+ * `results` per child file. Legacy code performed O(baseFiles * childFiles)
+ * comparisons; the fix is an O(1) set lookup per child file, instrumented via
+ * ScanCounters::fileDedupProbes.
+ */
+TEST(CloudManagerTest, ChildFileDedupIsLinearNotQuadratic)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    constexpr AppId_t kBaseApp = 6200100;
+    constexpr AppId_t kChildDepot = 6200101;
+    constexpr uint32_t kAcct = 999004;
+    constexpr size_t kBaseFiles = 600;
+    constexpr size_t kChildFiles = 600;
+    constexpr size_t kOverlap = 20;
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path stplugDir = steamRoot / "config" / "stplug-in";
+    std::error_code ec;
+    fs::create_directories(stplugDir, ec);
+    {
+        std::ofstream lf(stplugDir / (std::to_string(kBaseApp) + ".lua"));
+        lf << "addappid(" << kBaseApp << ")\n"
+           << "addappid(" << kChildDepot << ")\n";
+    }
+
+    fs::path storageDir = env.tempDir / "storage";
+    fs::path baseDir = storageDir / std::to_string(kAcct) / std::to_string(kBaseApp);
+    fs::path childDir = storageDir / std::to_string(kAcct) / std::to_string(kChildDepot);
+    fs::create_directories(baseDir, ec);
+    fs::create_directories(childDir, ec);
+    for (size_t i = 0; i < kBaseFiles; ++i)
+    {
+        std::ofstream f(baseDir / ("base_" + std::to_string(i) + ".dat"));
+        f << "b" << i;
+    }
+    for (size_t i = 0; i < kChildFiles; ++i)
+    {
+        const bool overlap = i < kOverlap;
+        std::ofstream f(childDir / ((overlap ? "base_" + std::to_string(i) + ".dat"
+                                             : "child_" + std::to_string(i) + ".dat")));
+        f << "c" << i;
+    }
+
+    manager.SetSteamRootForTest(steamRoot);
+    manager.SetStorageDirForTest(storageDir);
+
+    manager.ResetScanCountersForTest();
+    std::vector<CloudFileEntry_t> files = manager.ListAppCloudFiles(kBaseApp, "local-only", kAcct);
+
+    // Dedupe contract: child-overlap fileNames must appear exactly once.
+    // (Counts are fixture-dependent - e.g. 3d lists the base app's own lua as
+    // an extra entry - so instead assert there is NO duplicate fileName.)
+    EXPECT_EQ(std::adjacent_find(files.begin(), files.end(),
+                                 [](const CloudFileEntry_t& a, const CloudFileEntry_t& b) {
+                                     return a.fileName == b.fileName;
+                                 }),
+              files.end());
+
+    const auto counters = manager.GetScanCountersForTest();
+    // Linear expectation: one set lookup per child file (+ a bounded number of
+    // extra probes). Legacy linear scanning performs kChildFiles * ~kBaseFiles
+    // comparisons (>= 300,000 for this fixture) - far past the bound.
+    EXPECT_LT(counters.fileDedupProbes, 3 * kChildFiles)
+        << "fileDedupProbes=" << counters.fileDedupProbes
+        << " for " << kChildFiles << " child files (expected ~O(N));";
+
+    manager.SetSteamRootForTest({});
+    manager.SetStorageDirForTest({});
+}
+
+TEST(CloudManagerTest, FoldDlcAppIdsIntoParentGameUsingDlcData)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path mockStorageDir = env.tempDir / "storage";
+    std::error_code ec;
+    fs::create_directories(steamRoot, ec);
+    fs::create_directories(mockStorageDir, ec);
+
+    const AppId_t parentAppId = 500000;
+    const AppId_t dlcAppId = 500001;
+
+    // Configure DlcData mapping in g_config (no manifest or lua linkage exists)
+    std::unordered_map<AppId_t, CConfig::CDlcData> dlcMap;
+    CConfig::CDlcData dlcEntry;
+    dlcEntry.parentId = parentAppId;
+    dlcEntry.dlcIds[dlcAppId] = "Cool Expansion Pack";
+    dlcMap[parentAppId] = dlcEntry;
+    g_config.dlcData.set(dlcMap);
+
+    manager.SetSteamRootForTest(steamRoot);
+    manager.SetStorageDirForTest(mockStorageDir);
+
+    // 1. Verify child->parent reverse lookup via DlcData
+    EXPECT_EQ(manager.GetParentAppIdForDepot(dlcAppId), parentAppId);
+
+    // 2. Verify parent->children forward lookup via DlcData
+    auto children = manager.GetChildDepotIdsForApp(parentAppId);
+    EXPECT_NE(std::find(children.begin(), children.end(), dlcAppId), children.end());
+
+    // 3. Create save files for both parent game and DLC addon
+    fs::path parentStorage = mockStorageDir / "999002" / std::to_string(parentAppId) / "remote";
+    fs::path dlcStorage = mockStorageDir / "999002" / std::to_string(dlcAppId) / "remote";
+    fs::create_directories(parentStorage, ec);
+    fs::create_directories(dlcStorage, ec);
+
+    const std::string parentData = "parent_game_save_data";
+    const std::string dlcData = "dlc_addon_save_data";
+    {
+        std::ofstream(parentStorage / "save.dat") << parentData;
+        std::ofstream(dlcStorage / "dlc_save.dat") << dlcData;
+    }
+
+    // 4. Test ListCloudApps: DLC should be folded into parent, not listed standalone
+    auto apps = manager.ListCloudApps("local-only", 999002);
+    bool dlcFoundAsTopLevel = false;
+    const CloudAppSummary_t* parentSummary = nullptr;
+    for (const auto& app : apps)
+    {
+        if (app.appId == dlcAppId) dlcFoundAsTopLevel = true;
+        if (app.appId == parentAppId) parentSummary = &app;
+    }
+    EXPECT_FALSE(dlcFoundAsTopLevel);
+    ASSERT_NE(parentSummary, nullptr);
+    EXPECT_EQ(parentSummary->fileCount, 2u);
+    EXPECT_EQ(parentSummary->totalSizeBytes, parentData.size() + dlcData.size());
+    EXPECT_NE(std::find(parentSummary->childAppIds.begin(), parentSummary->childAppIds.end(), dlcAppId),
+              parentSummary->childAppIds.end());
+
+    // 5. Test ListAppCloudFiles: DLC save must appear under parent game with tagged folder label
+    auto files = manager.ListAppCloudFiles(parentAppId, "local-only", 999002);
+    ASSERT_EQ(files.size(), 2u);
+    bool foundParentFile = false;
+    bool foundDlcFile = false;
+    for (const auto& f : files)
+    {
+        if (f.fileName == "remote/save.dat")
+        {
+            foundParentFile = true;
+            EXPECT_EQ(f.sizeBytes, parentData.size());
+        }
+        else if (f.fileName == "remote/dlc_save.dat")
+        {
+            foundDlcFile = true;
+            EXPECT_EQ(f.folder, "Depot 500001 / SteamCloudRemote");
+            EXPECT_EQ(f.sizeBytes, dlcData.size());
+        }
+    }
+    EXPECT_TRUE(foundParentFile);
+    EXPECT_TRUE(foundDlcFile);
+
+    // 6. Test ReadAppCloudFile: downloading DLC cloud file using parent appId
+    std::string readContent, downloadName, err;
+    bool ok = manager.ReadAppCloudFile(parentAppId, "remote/dlc_save.dat", "local-only", 999002, readContent, downloadName, err);
+    EXPECT_TRUE(ok) << err;
+    EXPECT_EQ(readContent, dlcData);
+    EXPECT_EQ(downloadName, "dlc_save.dat");
+
+    // Clean up test environment
+    g_config.dlcData.set({});
+    manager.SetSteamRootForTest({});
+    manager.SetStorageDirForTest({});
+}
+
+TEST(CloudManagerTest, RemoteProviderUsesCloudCatalogAndFiltersOutLocalOnlyApps)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path stplugDir = steamRoot / "config" / "stplug-in";
+    fs::path depotcacheDir = steamRoot / "depotcache";
+    fs::path userdataDir = steamRoot / "userdata" / "999001";
+    fs::path mockStorageDir = env.tempDir / "storage";
+    std::error_code ec;
+    fs::create_directories(stplugDir, ec);
+    fs::create_directories(depotcacheDir, ec);
+    fs::create_directories(userdataDir / "480" / "remote", ec);
+    fs::create_directories(userdataDir / "730" / "remote", ec);
+    fs::create_directories(mockStorageDir / "999001" / "730", ec);
+
+    // App 480 (Spacewar): has local save + lua + manifest, and will be synced to remote cloud
+    const std::string save480 = "spacewar_remote_save_payload";
+    const std::string lua480 = "addappid(480, 1, 0) -- Spacewar\nsetManifestid(480, \"111222\")\n";
+    const std::string mf480 = "manifest_binary_480_111222";
+    {
+        std::ofstream(userdataDir / "480" / "remote" / "save1.dat") << save480;
+        std::ofstream(stplugDir / "480.lua") << lua480;
+        std::ofstream(depotcacheDir / "480_111222.manifest") << mf480;
+    }
+
+    // App 730 (Counter-Strike 2): has local save + lua + local storage folder, but NOT in remote cloud
+    {
+        std::ofstream(userdataDir / "730" / "remote" / "cs2.dat") << "local_only_cs2_save";
+        std::ofstream(stplugDir / "730.lua") << "addappid(730, 1, 0) -- Counter-Strike 2\n";
+        std::ofstream(mockStorageDir / "999001" / "730" / "unpushed.dat") << "unpushed";
+    }
+
+    // Mock CLI that returns ["480", "999999999"] for list-remote-app-ids and succeeds on publish/sync
+    fs::path mockCli = env.tempDir / "mock_catalog_cli.sh";
+    {
+        std::ofstream ofs(mockCli);
+        ofs << "#!/bin/sh\n"
+            << "if [ \"$1\" = \"list-remote-app-ids\" ]; then\n"
+            << "  echo '{\"success\":true,\"app_ids\":[\"480\",\"999999999\"]}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"publish-full-manifest\" ]; then\n"
+            << "  echo '{\"success\":true,\"files_published\":1}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"sync-remote-app\" ]; then\n"
+            << "  echo '{\"success\":true,\"synced\":true}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "exit 0\n";
+    }
+    chmod(mockCli.c_str(), 0755);
+
+    manager.SetSteamRootForTest(steamRoot);
+    manager.SetStorageDirForTest(mockStorageDir);
+    manager.SetCliPathForTest(mockCli);
+
+    // 1. StageAppFilesForCloudSync stages save + lua + manifest into storage/999001/480
+    EXPECT_TRUE(manager.StageAppFilesForCloudSync(480, 999001));
+    EXPECT_TRUE(fs::is_regular_file(mockStorageDir / "999001" / "480" / "stplug-in" / "480.lua", ec));
+    EXPECT_TRUE(fs::is_regular_file(mockStorageDir / "999001" / "480" / "depotcache" / "480_111222.manifest", ec));
+    EXPECT_TRUE(fs::is_regular_file(mockStorageDir / "999001" / "480" / "file_tokens.cloudredirect", ec));
+    EXPECT_TRUE(fs::is_regular_file(mockStorageDir / "999001" / "480" / "cn.cloudredirect", ec));
+
+    // 2. SyncAppToCloudAndUpdateCatalog publishes 480 and writes + publishes 999999999/navi_cloud_catalog.json
+    EXPECT_TRUE(manager.SyncAppToCloudAndUpdateCatalog(480, "gdrive", 999001));
+    fs::path catalogFile = mockStorageDir / "999001" / "999999999" / "navi_cloud_catalog.json";
+    EXPECT_TRUE(fs::is_regular_file(catalogFile, ec));
+
+    // 3. Remote provider ("gdrive") must ONLY return remote-confirmed app 480 (from catalog),
+    //    ignoring local-only app 730 and never listing reserved catalog appId 999999999.
+    auto remoteApps = manager.ListCloudApps("gdrive", 999001);
+    ASSERT_EQ(remoteApps.size(), 1u);
+    EXPECT_EQ(remoteApps[0].appId, 480u);
+    EXPECT_EQ(remoteApps[0].gameTitle, "Spacewar");
+    EXPECT_EQ(remoteApps[0].fileCount, 3u);
+    EXPECT_EQ(remoteApps[0].totalSizeBytes, save480.size() + lua480.size() + mf480.size());
+    EXPECT_TRUE(remoteApps[0].inRemoteCloud);
+
+    // 4. ListAppCloudFiles for remote provider reads from the catalog (includes save + lua + manifest)
+    auto remoteFiles = manager.ListAppCloudFiles(480, "gdrive", 999001);
+    ASSERT_EQ(remoteFiles.size(), 3u);
+    for (const auto& f : remoteFiles)
+    {
+        EXPECT_TRUE(f.inRemoteCloud);
+    }
+
+    // 5. Local provider ("local-only") still discovers both 480 and 730 locally, and excludes 999999999
+    auto localApps = manager.ListCloudApps("local-only", 999001);
+    bool foundLocal480 = false;
+    bool foundLocal730 = false;
+    bool foundCatalogApp = false;
+    for (const auto& a : localApps)
+    {
+        if (a.appId == 480) foundLocal480 = true;
+        if (a.appId == 730) foundLocal730 = true;
+        if (a.appId == CCloudManager::kCloudCatalogAppId) foundCatalogApp = true;
+    }
+    EXPECT_TRUE(foundLocal480);
+    EXPECT_TRUE(foundLocal730);
+    EXPECT_FALSE(foundCatalogApp);
+
+    // 6. When remote provider has 0 apps in cloud, ListCloudApps("gdrive", 999001) returns empty {}
+    fs::path emptyCli = env.tempDir / "mock_empty_cli.sh";
+    {
+        std::ofstream ofs(emptyCli);
+        ofs << "#!/bin/sh\n"
+            << "echo '{\"success\":true,\"app_ids\":[]}'\n"
+            << "exit 0\n";
+    }
+    chmod(emptyCli.c_str(), 0755);
+    manager.SetCliPathForTest(emptyCli);
+
+    auto emptyRemoteApps = manager.ListCloudApps("gdrive", 999001);
+    EXPECT_TRUE(emptyRemoteApps.empty());
+
+    manager.SetSteamRootForTest({});
+    manager.SetStorageDirForTest({});
+    manager.SetCliPathForTest({});
+}
+
+
+
 
 

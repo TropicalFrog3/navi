@@ -1,6 +1,6 @@
 """
-Integration test for 3 File Viewer Variations (Filter Tabs, Grouped Sections, Tree Inspector)
-in View Steam Cloud drill-down file viewer inside import-lua-script.js.
+Integration test for Grouped Sections file viewer in View Steam Cloud drill-down
+inside import-lua-script.js (Filter Tabs and Tree Inspector removed; categories collapsed by default).
 """
 
 from __future__ import annotations
@@ -19,13 +19,13 @@ def config_page(driver: BrowserDriver) -> ConfigEditorPage:
 
 
 @pytest.mark.ui_p0
-def test_cloud_drilldown_three_file_viewer_variations(
+def test_cloud_drilldown_grouped_file_viewer_collapsed_by_default(
     config_page: ConfigEditorPage,
     callback_server: CallbackServerStub,
     driver: BrowserDriver,
     repo_paths: dict[str, Path],
 ) -> None:
-    """Validate 3 interactive file viewer variations and switcher in View Steam Cloud drill-down."""
+    """Validate Grouped Sections file viewer in View Steam Cloud drill-down with categories collapsed by default."""
     shell_path = repo_paths["fixtures"] / "steam_library_sp.html"
     driver.navigate_to_file(shell_path)
     driver.inject_script(repo_paths["scripts"] / "import-lua-script.js")
@@ -34,7 +34,7 @@ def test_cloud_drilldown_three_file_viewer_variations(
     config_page.open()
     assert config_page.is_open() is True
 
-    # 2. Wait for games table in View Steam Cloud and drill down into App 107410
+    # 2. Wait for games table in View Steam Cloud and drill down into first game
     driver.wait_for_condition(
         lambda: driver.evaluate("document.querySelector('.navi-steam-cloud-link') !== null") is True,
         timeout=5.0,
@@ -44,108 +44,60 @@ def test_cloud_drilldown_three_file_viewer_variations(
     # Click 'Show Files' on the first game
     driver.evaluate("document.querySelector('.navi-steam-cloud-link').click()")
 
-    # 3. Verify drill-down header and 3 view switcher pills exist
+    # 3. Verify drill-down header and Grouped Sections container render directly
     driver.wait_for_condition(
         lambda: driver.evaluate(
             "document.getElementById('sls-cloud-drilldown-header') !== null && "
-            "document.querySelectorAll('.sls-cloud-view-pill').length === 3"
+            "document.getElementById('sls-cloud-grouped-container') !== null && "
+            "document.querySelectorAll('.sls-cloud-group-card').length >= 1"
         ) is True,
         timeout=5.0,
-        error_message="Cloud drill-down header and 3 view pills not found",
+        error_message="Cloud drill-down grouped sections container not found",
     )
 
-    # 4. Test Variation 1 (Filter Tabs)
-    driver.evaluate("window.__slsCloudFileViewer.switchVariation('tabs')")
-    driver.wait_for_condition(
-        lambda: driver.evaluate("document.getElementById('sls-cloud-tabs-bar') !== null") is True,
-        timeout=3.0,
-    )
+    # 4. Verify Filter Tabs and Tree Inspector listings are removed
+    assert driver.evaluate("document.getElementById('sls-cloud-view-tabs') === null") is True
+    assert driver.evaluate("document.getElementById('sls-cloud-view-tree') === null") is True
+    assert driver.evaluate("document.getElementById('sls-cloud-tabs-bar') === null") is True
+    assert driver.evaluate("document.getElementById('sls-cloud-tree-inspector-container') === null") is True
 
-    tabs_count = driver.evaluate("document.querySelectorAll('.sls-cloud-filter-tab').length")
-    assert tabs_count >= 2
-
-    # Verify initial file rows count in tabs mode
-    initial_rows_count = driver.evaluate("document.querySelectorAll('.navi-cloud-file-row').length")
-    assert initial_rows_count >= 1
-
-    # Click a specific tab (e.g. second tab)
-    driver.evaluate("""
-        var tabs = document.querySelectorAll('.sls-cloud-filter-tab');
-        if (tabs.length > 1) { tabs[1].click(); }
-    """)
-    active_tab = driver.evaluate("window.__slsCloudFileViewer.getState().activeTab")
-    assert active_tab != "all"
-
-    # 5. Test Variation 2 (Grouped Sections)
-    driver.evaluate("window.__slsCloudFileViewer.switchVariation('grouped')")
-    driver.wait_for_condition(
-        lambda: driver.evaluate("document.querySelectorAll('.sls-cloud-group-card').length >= 1") is True,
-        timeout=3.0,
-    )
-
-    # Verify section header exists
+    # 5. Verify all file category sections are collapsed by default
     group_headers_count = driver.evaluate("document.querySelectorAll('.sls-cloud-group-header').length")
     assert group_headers_count >= 1
 
-    # Test collapse / expand toggle on the first group
-    body_visible_before = driver.evaluate(
-        "document.querySelector('.sls-cloud-group-body').style.display !== 'none'"
-    )
-    assert body_visible_before is True
+    all_collapsed_initially = driver.evaluate("""
+        Array.from(document.querySelectorAll('.sls-cloud-group-card')).every(function (card) {
+            var header = card.querySelector('.sls-cloud-group-header');
+            var body = card.querySelector('.sls-cloud-group-body');
+            var chevron = card.querySelector('.sls-cloud-group-chevron');
+            return header && header.getAttribute('aria-expanded') === 'false' &&
+                   body && body.style.display === 'none' &&
+                   chevron && chevron.textContent === '►';
+        })
+    """)
+    assert all_collapsed_initially is True
 
-    # Click header to collapse
+    # 6. Click first header to expand
     driver.evaluate("document.querySelector('.sls-cloud-group-header').click()")
-    body_visible_after = driver.evaluate(
-        "document.querySelector('.sls-cloud-group-body').style.display !== 'none'"
+    first_expanded = driver.evaluate(
+        "document.querySelector('.sls-cloud-group-body').style.display !== 'none' && "
+        "document.querySelector('.sls-cloud-group-header').getAttribute('aria-expanded') === 'true'"
     )
-    assert body_visible_after is False
+    assert first_expanded is True
 
-    # Click header again to re-expand
+    # 7. Click first header again to collapse
     driver.evaluate("document.querySelector('.sls-cloud-group-header').click()")
-    body_visible_reopened = driver.evaluate(
-        "document.querySelector('.sls-cloud-group-body').style.display !== 'none'"
+    first_collapsed_again = driver.evaluate(
+        "document.querySelector('.sls-cloud-group-body').style.display === 'none' && "
+        "document.querySelector('.sls-cloud-group-header').getAttribute('aria-expanded') === 'false'"
     )
-    assert body_visible_reopened is True
+    assert first_collapsed_again is True
 
-    # 6. Test Variation 3 (Tree Inspector)
-    driver.evaluate("window.__slsCloudFileViewer.switchVariation('tree')")
-    driver.wait_for_condition(
-        lambda: driver.evaluate(
-            "document.getElementById('sls-cloud-tree-pane') !== null && "
-            "document.getElementById('sls-cloud-tree-inspector-panel') !== null"
-        ) is True,
-        timeout=3.0,
-    )
-
-    # Verify tree file items exist
-    tree_items_count = driver.evaluate("document.querySelectorAll('.sls-cloud-tree-item').length")
-    assert tree_items_count >= 1
-
-    # Check inspector path display
-    inspect_path_initial = driver.evaluate("document.getElementById('sls-tree-inspect-path').textContent")
-    assert inspect_path_initial != ""
-
-    # Verify download button in inspector panel exists
-    assert driver.evaluate("document.getElementById('sls-tree-inspect-dl-btn') !== null") is True
-
-    # Click an unselected tree item if available and verify inspector update
-    if tree_items_count > 1:
-        driver.evaluate("""
-            var items = document.querySelectorAll('.sls-cloud-tree-item');
-            for (var i = 0; i < items.length; i++) {
-                if (!items[i].classList.contains('active')) {
-                    items[i].click();
-                    break;
-                }
-            }
-        """)
-        inspect_path_updated = driver.evaluate("document.getElementById('sls-tree-inspect-path').textContent")
-        assert inspect_path_updated != inspect_path_initial
-
-    # 7. Test that prototype banner in Manual Installation page is completely removed
+    # 8. Test that prototype banner in Manual Installation page is completely removed
     driver.evaluate("window.__naviShowImportLuaPage()")
     driver.wait_for_condition(
         lambda: driver.evaluate("document.getElementById('sls-manual-dropzone') !== null") is True,
         timeout=3.0,
     )
     assert driver.evaluate("document.getElementById('sls-companion-prototype-banner') === null") is True
+

@@ -475,6 +475,16 @@ class MockStoreInjectHandler(BaseHTTPRequestHandler):
             self._send_json(403, {"error": "Forbidden: invalid origin"})
             return
 
+        if self.path == "/cloud/apps" or self.path.startswith("/cloud/apps?"):
+            candidates = [
+                {"appId": 480, "gameTitle": "Spacewar", "fileCount": 2, "totalSizeBytes": 4096, "redirected": True},
+                {"appId": 730, "gameTitle": "Counter-Strike 2", "fileCount": 1, "totalSizeBytes": 2048, "redirected": False},
+                {"appId": 250900, "gameTitle": "The Binding of Isaac: Rebirth", "fileCount": 3, "totalSizeBytes": 8192, "redirected": True},
+            ]
+            filtered = [a for a in candidates if a.get("redirected") is True]
+            self._send_json(200, {"provider": "local-only", "apps": filtered})
+            return
+
         if self.path in ("/cloud/status", "/cloud/pending-ops") or self.path.startswith("/cloud/apps/"):
             self._send_json(200, {"success": True, "path": self.path})
         else:
@@ -633,6 +643,32 @@ class TestBackendApiSecurity:
         )
         assert status == 202
         assert body.get("status") == "accepted"
+
+    def test_cloud_apps_filters_to_redirected_only(self, api_server):
+        """GET /cloud/apps filters out non-redirected apps (redirected == false) before rendering JSON."""
+        storeinject_src = (REPO_ROOT / "src" / "presenter" / "storeinject.cpp").read_text(encoding="utf-8")
+        marker = 'else if (method == "GET" && (uriPath == "/cloud/apps" || uriPath.rfind("/cloud/apps?", 0) == 0))'
+        start_idx = storeinject_src.find(marker)
+        assert start_idx != -1, "GET /cloud/apps handler not found in storeinject.cpp"
+        end_idx = storeinject_src.find("renderCloudAppsJson(provider, apps)", start_idx)
+        assert end_idx != -1, "renderCloudAppsJson call not found in GET /cloud/apps handler"
+        handler_block = storeinject_src[start_idx:end_idx]
+
+        assign_idx = handler_block.find("a.redirected = g_config.IsAppCloudRedirected(a.appId);")
+        assert assign_idx != -1, "redirected assignment not found in GET /cloud/apps handler"
+        post_assign_block = handler_block[assign_idx:]
+        assert "std::remove_if" in post_assign_block and "!a.redirected" in post_assign_block, (
+            "GET /cloud/apps handler in storeinject.cpp must filter out non-redirected apps (!a.redirected) "
+            "via std::remove_if after assigning a.redirected and before renderCloudAppsJson"
+        )
+
+        base_url, _ = api_server
+        status, body = self._request(base_url, "/cloud/apps", method="GET")
+        assert status == 200
+        apps = body.get("apps", [])
+        assert len(apps) == 2
+        assert all(a.get("redirected") is True for a in apps)
+        assert [a["appId"] for a in apps] == [480, 250900]
 
 
 # ==============================================================================

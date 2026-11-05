@@ -1,6 +1,7 @@
 #include "prefix_bucket_sync.hpp"
 
 #include "apps.hpp"
+#include "cloud_manager.hpp"
 #include "cloudredirect.hpp"
 #include "config.hpp"
 #include "globals.hpp"
@@ -1994,6 +1995,12 @@ namespace PrefixBucketSync
                         res.message = pushRes.message;
                     }
                 }
+            }
+
+            if (ok && !g_hasRunCliOverride && isRemoteProviderReady())
+            {
+                Navi::CloudRedirect::CCloudManager::Instance().UpdateAndPublishCloudCatalog(
+                    g_config.cloudSavesProvider.get(), accountId);
             }
         }
 

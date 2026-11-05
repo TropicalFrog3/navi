@@ -22,7 +22,7 @@ live-hardware verification on real Steam Decks (`scripts/dev/deck-ctl.sh`).
 | `tests/CONTEXT.md` | Running or adding gates: unit, integration (Gate 0.7), UI journeys, device live tests |
 | `docs/CONTEXT.md` | Architecture/API write-ups, diagrams, third-party attribution |
 | `plans/CONTEXT.md` | New ideas, specs, active feature states, completed-item archives |
-| `.agents/AGENTS.md` | Agent conduct: Jev routing (`route_subagent.py`), model selection, quota failover |
+| `.agents/AGENTS.md` | Agent conduct: Jev decision routing (`route_subagent.py`) |
 
 ## Global Routing Rules (mandatory)
 
