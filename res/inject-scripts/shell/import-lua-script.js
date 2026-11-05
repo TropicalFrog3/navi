@@ -795,9 +795,7 @@
                         '<span style="position:absolute; left:10px; color:#6b7280; font-size:12px; pointer-events:none;">&#128269;</span>' +
                         '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Search title or AppID..." autocomplete="off">' +
                         '<button id="sls-cfg-cs-search-clear" style="display:none; position:absolute; right:8px; background:none; border:none; color:#9ca3af; font-size:14px; cursor:pointer; padding:0 2px; line-height:1;">&times;</button>' +
-                        '<div id="sls-cfg-cs-search-suggestions" style="display:none; position:absolute; top:36px; left:0; width:300px; max-height:220px; overflow-y:auto; background:#1b2838; border:1px solid #2a475e; border-radius:3px; box-shadow:0 8px 16px rgba(0,0,0,0.5); z-index:100;"></div>' +
                     '</div>' +
-                    '<button id="sls-cfg-add-cloud-app-btn" class="sls-cfg-btn" style="padding: 6px 14px; font-size: 12px; color: #fff; background: #2563eb; cursor: pointer;">Add Game</button>' +
                 '</div>' +
             '</div>' +
             '<div id="sls-cfg-cs-game-toolbar" style="display:none; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:10px 12px; margin-bottom:10px; background:#1b2838; border:1px solid #2a475e; border-radius:2px;"></div>' +
@@ -1636,7 +1634,7 @@
                 }
 
                 if (apps.length === 0) {
-                    appsListContainer.innerHTML = '<div style="color: #8f98a0; font-size: 13px; padding: 28px 16px; text-align: center;">No games found in your Steam Cloud yet. Play a game with Cloud Saves enabled or add an AppID above.</div>';
+                    appsListContainer.innerHTML = '<div style="color: #8f98a0; font-size: 13px; padding: 28px 16px; text-align: center;">No games found in your Steam Cloud yet. Play a game with Cloud Saves enabled.</div>';
                     return;
                 }
 
@@ -1783,48 +1781,9 @@
         }
 
         var addAppInput = document.getElementById('sls-cfg-add-cloud-app-input');
-        var addAppBtn = document.getElementById('sls-cfg-add-cloud-app-btn');
         var searchClearBtn = document.getElementById('sls-cfg-cs-search-clear');
-        var searchSuggBox = document.getElementById('sls-cfg-cs-search-suggestions');
-
-        function performAdd(appIdVal, titleHint) {
-            if (!appIdVal || isNaN(appIdVal) || appIdVal <= 0) {
-                showStatusBanner('Please enter a valid game title or AppID.', '#ff4d4d');
-                return;
-            }
-            if (!cfg.CloudSaves) cfg.CloudSaves = {};
-            if (!Array.isArray(cfg.CloudSaves.ManagedApps)) cfg.CloudSaves.ManagedApps = [];
-            if (cfg.CloudSaves.ManagedApps.indexOf(appIdVal) !== -1 || cfg.CloudSaves.ManagedApps.indexOf(String(appIdVal)) !== -1) {
-                showStatusBanner('AppID ' + appIdVal + (titleHint ? ' (' + titleHint + ')' : '') + ' is already in your Cloud.', '#f59e0b');
-                return;
-            }
-            if (titleHint) {
-                if (!cfg.GameTitles) cfg.GameTitles = {};
-                cfg.GameTitles[String(appIdVal)] = titleHint;
-            }
-            function appAdded() {
-                cfg.CloudSaves.ManagedApps.push(appIdVal);
-                if (addAppInput) addAppInput.value = '';
-                if (searchClearBtn) searchClearBtn.style.display = 'none';
-                if (searchSuggBox) searchSuggBox.style.display = 'none';
-                refreshCloudSavesUI();
-                checkDirty();
-                showStatusBanner((titleHint ? titleHint + ' (' + appIdVal + ')' : 'AppID ' + appIdVal) + ' added to CloudRedirect.', '#2ecc71');
-            }
-            if (window.NaviCloudManager && window.NaviCloudManager.toggleAppRedirect) {
-                window.NaviCloudManager.toggleAppRedirect(appIdVal, true).then(function () {
-                    appAdded();
-                }).catch(function (err) {
-                    showStatusBanner('Error adding game: ' + (err.message || 'Unknown error'), '#ff4d4d');
-                });
-            } else {
-                appAdded();
-            }
-        }
 
         if (addAppInput) {
-            var searchDebounceTimer = null;
-
             addAppInput.oninput = function () {
                 var rawVal = addAppInput.value;
                 var q = rawVal.trim().toLowerCase();
@@ -1832,7 +1791,7 @@
                     searchClearBtn.style.display = q ? 'inline-block' : 'none';
                 }
 
-                // 1. Live table filtering
+                // Live table filtering for games and files
                 var gameRows = container.querySelectorAll('.navi-cloud-game-row');
                 gameRows.forEach(function (r) {
                     var txt = (r.getAttribute('data-search') || r.textContent || '').toLowerCase();
@@ -1844,74 +1803,15 @@
                     var txt = (r.getAttribute('data-search') || r.textContent || '').toLowerCase();
                     r.style.display = (!q || txt.indexOf(q) !== -1) ? '' : 'none';
                 });
-
-                // 2. Autocomplete suggestions for Adding Games (only in games view, when q >= 2)
-                if (searchSuggBox) {
-                    if (csState.selectedAppId || q.length < 2) {
-                        searchSuggBox.style.display = 'none';
-                        searchSuggBox.innerHTML = '';
-                        return;
-                    }
-
-                    clearTimeout(searchDebounceTimer);
-                    searchDebounceTimer = setTimeout(function () {
-                        fetch('https://store.steampowered.com/api/storesearch/?term=' + encodeURIComponent(rawVal.trim()) + '&l=english&cc=US')
-                            .then(function (r) { return r.json(); })
-                            .then(function (data) {
-                                if (!searchSuggBox || addAppInput.value.trim() !== rawVal.trim()) return;
-                                var items = (data && Array.isArray(data.items)) ? data.items : [];
-                                if (items.length === 0) {
-                                    searchSuggBox.style.display = 'none';
-                                    searchSuggBox.innerHTML = '';
-                                    return;
-                                }
-                                searchSuggBox.innerHTML = '';
-                                items.slice(0, 6).forEach(function (item) {
-                                    var row = document.createElement('div');
-                                    row.style.cssText = 'display:flex; align-items:center; gap:8px; padding:6px 10px; cursor:pointer; border-bottom:1px solid rgba(255,255,255,0.06); font-size:12px; color:#c6d4df;';
-                                    row.onmouseenter = function () { row.style.backgroundColor = '#2a475e'; };
-                                    row.onmouseleave = function () { row.style.backgroundColor = 'transparent'; };
-
-                                    var img = document.createElement('img');
-                                    img.src = item.tiny_image || '';
-                                    img.style.cssText = 'width:36px; height:16px; object-fit:cover; border-radius:2px; flex-shrink:0;';
-
-                                    var nameWrap = document.createElement('div');
-                                    nameWrap.style.cssText = 'flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;';
-                                    nameWrap.innerHTML = '<span style="color:#ffffff;">' + escapeHtml(item.name) + '</span> ' +
-                                        '<span style="color:#8f98a0; font-size:11px;">(' + escapeHtml(String(item.id)) + ')</span>';
-
-                                    var addBadge = document.createElement('span');
-                                    addBadge.style.cssText = 'color:#66c0f4; font-size:11px; margin-left:6px; flex-shrink:0; font-weight:500;';
-                                    addBadge.textContent = '+ Add';
-
-                                    row.appendChild(img);
-                                    row.appendChild(nameWrap);
-                                    row.appendChild(addBadge);
-
-                                    row.onclick = function (e) {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        performAdd(item.id, item.name);
-                                    };
-
-                                    searchSuggBox.appendChild(row);
-                                });
-                                searchSuggBox.style.display = 'block';
-                            })
-                            .catch(function () {
-                                if (searchSuggBox) searchSuggBox.style.display = 'none';
-                            });
-                    }, 200);
-                }
             };
 
             addAppInput.onkeydown = function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    if (addAppBtn) addAppBtn.click();
-                } else if (e.key === 'Escape') {
-                    if (searchSuggBox) searchSuggBox.style.display = 'none';
+                } else if (e.key === 'Escape' && addAppInput.value) {
+                    e.preventDefault();
+                    addAppInput.value = '';
+                    addAppInput.dispatchEvent(new Event('input'));
                 }
             };
         }
@@ -1922,47 +1822,6 @@
                 addAppInput.value = '';
                 addAppInput.dispatchEvent(new Event('input'));
                 addAppInput.focus();
-            };
-        }
-
-        document.addEventListener('click', function (e) {
-            if (searchSuggBox && !searchSuggBox.contains(e.target) && e.target !== addAppInput) {
-                searchSuggBox.style.display = 'none';
-            }
-        });
-
-        if (addAppBtn && addAppInput) {
-            addAppBtn.onclick = function (e) {
-                e.preventDefault();
-                var raw = addAppInput.value.trim();
-                if (!raw) {
-                    showStatusBanner('Please enter a game title or AppID.', '#ff4d4d');
-                    return;
-                }
-                var numericId = parseInt(raw, 10);
-                if (!isNaN(numericId) && numericId > 0 && String(numericId) === raw) {
-                    performAdd(numericId);
-                } else {
-                    addAppBtn.disabled = true;
-                    addAppBtn.textContent = 'Searching...';
-                    fetch('https://store.steampowered.com/api/storesearch/?term=' + encodeURIComponent(raw) + '&l=english&cc=US')
-                        .then(function (r) { return r.json(); })
-                        .then(function (data) {
-                            addAppBtn.disabled = false;
-                            addAppBtn.textContent = 'Add Game';
-                            var items = (data && Array.isArray(data.items)) ? data.items : [];
-                            if (items.length > 0) {
-                                performAdd(items[0].id, items[0].name);
-                            } else {
-                                showStatusBanner('No game found matching "' + raw + '". Please enter a valid AppID number.', '#ff4d4d');
-                            }
-                        })
-                        .catch(function () {
-                            addAppBtn.disabled = false;
-                            addAppBtn.textContent = 'Add Game';
-                            showStatusBanner('Search failed. Please enter an AppID number.', '#ff4d4d');
-                        });
-                }
             };
         }
 

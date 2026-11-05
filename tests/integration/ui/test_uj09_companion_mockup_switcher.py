@@ -34,6 +34,11 @@ def test_cloud_drilldown_grouped_file_viewer_collapsed_by_default(
     config_page.open()
     assert config_page.is_open() is True
 
+    # Verify 'Add Game' button and add-game suggestions dropdown are completely removed
+    assert driver.evaluate("document.getElementById('sls-cfg-add-cloud-app-btn') === null") is True
+    assert driver.evaluate("document.getElementById('sls-cfg-cs-search-suggestions') === null") is True
+    assert driver.evaluate("document.getElementById('sls-cfg-add-cloud-app-input') !== null") is True
+
     # 2. Wait for games table in View Steam Cloud and drill down into first game
     driver.wait_for_condition(
         lambda: driver.evaluate("document.querySelector('.navi-steam-cloud-link') !== null") is True,
