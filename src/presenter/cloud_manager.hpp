@@ -134,6 +134,7 @@ public:
 
     ProviderAuthStatus_t CheckAuthStatus(const std::string& provider);
     std::vector<std::string> ListBackups(AppId_t appId);
+    bool DeleteAllBackups();
     uint64_t GetStorageUsageBytes(AppId_t appId);
 
     /// Performs a full cloud + local inventory scan of all apps with cloud files.

@@ -153,53 +153,69 @@
             'details summary { list-style: none !important; }' +
             'details .sls-lua-chevron { transition: transform 0.2s ease; color: rgb(139, 146, 154); }' +
             'details[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 255); }' +
-            '.sls-cfg-pill { background: transparent; border: none; border-radius: 0; color: rgb(184, 188, 191); padding: 10px 12px 10px 24px; height: 40px; box-sizing: border-box; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 14px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: background-color 0.1s ease, color 0.1s ease; user-select: none; outline: none; }' +
-            '.sls-cfg-pill:hover { background-color: rgba(61, 68, 80, 0.5); color: rgb(255, 255, 255); }' +
-            '.sls-cfg-pill.active { background-color: rgb(61, 68, 80); color: rgb(255, 255, 255); }' +
+            '.sls-cfg-shell { background-color: #14171d !important; color: #ffffff !important; }' +
+            '.sls-cfg-sidebar { background-color: #191c24 !important; border-right: 1px solid rgba(255, 255, 255, 0.06) !important; width: 230px !important; }' +
+            '.sls-cfg-pill { background: transparent; border: none; border-left: 3px solid transparent; border-radius: 0; color: #8a929e; padding: 10px 16px 10px 20px; height: 40px; box-sizing: border-box; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: all 0.15s ease; user-select: none; outline: none; }' +
+            '.sls-cfg-pill:hover { background-color: rgba(255, 255, 255, 0.04); color: #ffffff; }' +
+            '.sls-cfg-pill.active { background-color: rgba(26, 159, 255, 0.08) !important; color: #ffffff !important; font-weight: 500 !important; border-left: 3px solid #1a9fff !important; }' +
+            '.sls-cfg-pill.active svg { color: #1a9fff !important; stroke: #1a9fff !important; }' +
+            '.sls-cfg-card, .DialogControlsSection { background-color: #1c202a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 8px !important; padding: 18px 20px !important; margin-top: 18px !important; box-sizing: border-box !important; }' +
+            '.sls-cfg-item { background-color: #171a22 !important; border: 1px solid rgba(255, 255, 255, 0.04) !important; border-radius: 6px !important; padding: 14px 18px !important; margin-top: 8px !important; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; box-sizing: border-box; flex-wrap: wrap; }' +
             '.sls-toggle-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }' +
             '.sls-toggle-switch input { opacity: 0; width: 0; height: 0; }' +
-            '.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: rgba(255, 255, 255, 0.15); transition: .2s; border-radius: 9001px; }' +
-            '.sls-toggle-slider:before { position: absolute; content: ""; height: 22px; width: 22px; left: 0px; bottom: 0px; background-color: rgb(255, 255, 255); transition: .2s; border-radius: 9001px; box-shadow: rgba(0, 0, 0, 0.35) 0px 0px 5px 0px; }' +
-            '.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: rgb(26, 159, 255); }' +
+            '.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2f3a; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 9999px; }' +
+            '.sls-toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #ffffff; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }' +
+            '.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: #1a9fff; }' +
             '.sls-toggle-switch input:checked + .sls-toggle-slider:before { transform: translateX(16px); }' +
-            ':focus-visible { outline: 2px solid rgb(26, 159, 255) !important; outline-offset: 2px !important; }' +
-            '.sls-card-selectable { border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); border-radius: 4px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }' +
+            ':focus-visible { outline: 2px solid #1a9fff !important; outline-offset: 2px !important; }' +
+            '.sls-card-selectable { border: 1px solid rgba(255,255,255,0.08); background: #171a22; border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }' +
             '.sls-card-selectable:hover { border-color: rgba(26, 159, 255, 0.4); background: rgba(26, 159, 255, 0.06); }' +
-            '.sls-card-selectable.active { border-color: rgb(26, 159, 255) !important; background: rgba(26, 159, 255, 0.14) !important; }' +
-            '.sls-preset-chip { background: rgba(59, 63, 72, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 2px; color: rgb(184, 188, 191); padding: 6px 12px; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }' +
-            '.sls-preset-chip:hover { background: rgba(103, 112, 123, 0.5); color: #fff; }' +
-            '.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: rgb(26, 159, 255); color: rgb(26, 159, 255); font-weight: 700; }' +
+            '.sls-card-selectable.active { border-color: #1a9fff !important; background: rgba(26, 159, 255, 0.12) !important; }' +
+            '.sls-preset-chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: #8a929e; padding: 6px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }' +
+            '.sls-preset-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }' +
+            '.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: #1a9fff; color: #1a9fff; font-weight: 600; }' +
             '.sls-step-node { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 120px; }' +
             '.sls-step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: rgb(150, 150, 150); flex-shrink: 0; }' +
-            '.sls-step-node.active .sls-step-circle { background: rgb(26, 159, 255); color: #fff; }' +
-            '.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #2ecc71; color: #fff; }' +
-            '.sls-cfg-input { background-color: rgba(59, 63, 72, 0.5); border: none; color: rgb(223, 227, 230); border-radius: 3px; padding: 7px 12px; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: background-color 0.2s; }' +
-            '.sls-cfg-input:focus { background-color: rgba(59, 63, 72, 0.8); box-shadow: 0 0 0 1px rgb(26, 159, 255); }' +
-            '.sls-cfg-textarea { background-color: rgba(59, 63, 72, 0.5); border: none; color: rgb(223, 227, 230); border-radius: 3px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: background-color 0.2s; box-sizing: border-box; width: 100%; }' +
-            '.sls-cfg-textarea:focus { background-color: rgba(59, 63, 72, 0.8); box-shadow: 0 0 0 1px rgb(26, 159, 255); }' +
-            '.sls-cfg-btn { background-color: rgba(59, 63, 72, 0.5); border: none; border-radius: 2px; color: rgb(223, 227, 230); padding: 8px 14px; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; cursor: pointer; transition: background-color 0.15s ease, color 0.15s ease; outline: none; }' +
-            '.sls-cfg-btn:hover { background-color: rgba(103, 112, 123, 0.5); color: #fff; }' +
-            '.sls-cfg-btn:active { background-color: rgba(103, 112, 123, 0.8); }' +
+            '.sls-step-node.active .sls-step-circle { background: #1a9fff; color: #fff; }' +
+            '.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #22c55e; color: #fff; }' +
+            '.sls-cfg-input { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 7px 12px; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; }' +
+            '.sls-cfg-input:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }' +
+            '.sls-cfg-textarea { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box; width: 100%; }' +
+            '.sls-cfg-textarea:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }' +
+            '.sls-cfg-btn { background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #e2e8f0; padding: 8px 14px; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; cursor: pointer; transition: all 0.15s ease; outline: none; }' +
+            '.sls-cfg-btn:hover { background-color: rgba(255, 255, 255, 0.14); color: #fff; }' +
+            '.sls-cfg-btn:active { background-color: rgba(255, 255, 255, 0.2); }' +
+            '.sls-cfg-btn:disabled, .sls-cfg-btn[disabled] { opacity: 0.45 !important; cursor: not-allowed !important; box-shadow: none !important; }' +
+            '.sls-cfg-btn:disabled:hover, .sls-cfg-btn[disabled]:hover { background-color: rgba(255, 255, 255, 0.08); }' +
+            '.sls-cfg-btn-primary { background: #1a9fff !important; border-color: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }' +
+            '.sls-cfg-btn-primary:hover { background: #38bdf8 !important; border-color: #38bdf8 !important; }' +
+            '.sls-cfg-btn-danger { background: rgba(239, 68, 68, 0.12) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: #f87171 !important; border-radius: 6px !important; }' +
+            '.sls-cfg-btn-danger:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }' +
             '.sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }' +
-            '.sls-cfg-dialog-body::-webkit-scrollbar { width: 12px; }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar { width: 10px; }' +
             '.sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }' +
-            '.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 6px; border: 3px solid transparent; background-clip: content-box; }' +
-            '.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); border: 3px solid transparent; background-clip: content-box; }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 5px; }' +
+            '.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }' +
             '.sls-cloud-view-pill { padding: 5px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #8f98a0; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }' +
             '.sls-cloud-view-pill:hover { background: rgba(255,255,255,0.08); color: #fff; }' +
             '.sls-cloud-view-pill.active { background: #1a9fff !important; border-color: #38bdf8 !important; color: #fff !important; font-weight: 600 !important; }' +
             '.sls-cloud-filter-tab { padding: 7px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-bottom: none; border-radius: 4px 4px 0 0; color: #8f98a0; font-size: 12px; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }' +
             '.sls-cloud-filter-tab:hover { background: rgba(255,255,255,0.06); color: #fff; }' +
             '.sls-cloud-filter-tab.active { background: #172433 !important; color: #66c0f4 !important; border-color: #2a475e !important; border-bottom: 2px solid #1a9fff !important; font-weight: 600 !important; }' +
-            '.sls-cloud-group-card { border: 1px solid #2a475e; border-radius: 4px; background: #141d27; overflow: hidden; margin-bottom: 8px; }' +
-            '.sls-cloud-group-header { display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; background: #1c2837; cursor: pointer; user-select: none; transition: background 0.15s ease; }' +
-            '.sls-cloud-group-header:hover { background: #233346; }' +
-            '.sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }' +
+            '.sls-cloud-group-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: #171a22; overflow: hidden; margin-bottom: 8px; }' +
+            '.sls-cloud-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #1c202a; cursor: pointer; user-select: none; transition: background 0.15s ease; }' +
+            '.sls-cloud-group-header:hover { background: #232834; }' +
+            '.sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }' +
             '.sls-cloud-tree-item:hover { background: rgba(255,255,255,0.06); color: #fff; }' +
-            '.sls-cloud-tree-item.active { background: #2a475e !important; color: #66c0f4 !important; font-weight: 600 !important; }';
+            '.sls-cloud-tree-item.active { background: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }' +
+            '.sls-cfg-danger { border-left: 3px solid #ef4444; border-radius: 6px; background-color: #171a22; padding: 14px 18px; margin-top: 8px; box-sizing: border-box; }' +
+            '.sls-cfg-inline-error { color: #ef4444; font-size: 12px; line-height: 16px; margin-top: 4px; flex-basis: 100%; width: 100%; text-align: left; display: none; }' +
+            '@keyframes sls-cfg-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }' +
+            '.sls-cfg-skeleton { background: rgba(255, 255, 255, 0.07); border-radius: 6px; animation: sls-cfg-pulse 1.4s ease-in-out infinite; }' +
+            '@media (max-width: 1279px) { .sls-cfg-sidebar { width: 200px !important; min-width: 200px !important; } }' +
+            '@media (max-width: 767px) { .sls-cfg-shell { flex-direction: column !important; } .sls-cfg-sidebar { width: 100% !important; min-width: 0 !important; max-width: none !important; height: auto !important; padding: 12px 0 !important; } .sls-cfg-tablist { flex-direction: row !important; overflow-x: auto !important; overflow-y: hidden !important; } .sls-cfg-pill { width: auto !important; white-space: nowrap; padding: 8px 12px !important; } .sls-cfg-dialog-body { padding: 16px !important; } .sls-cfg-item { flex-wrap: wrap !important; } .sls-cfg-saveblock { position: sticky !important; bottom: 0 !important; background: #191c24 !important; padding: 8px 16px 12px 16px !important; } }';
         document.head.appendChild(styleEl);
     }
-
     function showSlsPage() {
         hideConfigPage();
         ensureCustomTabStyles();
@@ -703,22 +719,25 @@
         container.style.overflow = 'hidden';
         container.style.background = 'rgb(23, 29, 37)';
 
-        function makeCard(title, subtitle, contentHtml) {
-            return '<div class="DialogControlsSection" style="margin-top: 20px;">' +
-                (title ? '<div style="color: rgb(255, 255, 255); font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">' + title + '</div>' : '') +
-                (subtitle ? '<div style="color: rgb(139, 146, 154); font-size: 13px; font-weight: 400; line-height: 18px; margin-bottom: 8px;">' + subtitle + '</div>' : '') +
+        function makeCard(title, subtitle, contentHtml, opts) {
+            opts = opts || {};
+            return '<div class="sls-cfg-card DialogControlsSection' + (opts.className ? ' ' + opts.className : '') + '" style="background: #1c202a; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 18px 20px; margin-top: 18px; box-sizing: border-box;">' +
+                (title ? '<div style="color: #ffffff; font-size: 16px; font-weight: 600; line-height: 22px; margin-bottom: 4px;">' + title + '</div>' : '') +
+                (subtitle ? '<div style="color: #8a929e; font-size: 13px; font-weight: 400; line-height: 18px; margin-bottom: 12px;">' + subtitle + '</div>' : '') +
                 contentHtml +
             '</div>';
         }
 
-        function makeSettingRow(label, desc, controlHtml, searchTerms) {
-            return '<div class="sls-cfg-item" data-search="' + escapeHtml((label + ' ' + (desc || '') + ' ' + (searchTerms || '')).toLowerCase()) + '" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; min-height: 40px; box-sizing: border-box; flex-wrap: wrap;">' +
+        function makeSettingRow(label, desc, controlHtml, searchTerms, opts) {
+            opts = opts || {};
+            var errorHtml = opts.errorFor ? '<div class="sls-cfg-inline-error" id="sls-cfg-err-' + opts.errorFor + '" role="alert"></div>' : '';
+            return '<div class="sls-cfg-item" data-search="' + escapeHtml((label + ' ' + (desc || '') + ' ' + (searchTerms || '')).toLowerCase()) + '" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; box-sizing: border-box; flex-wrap: wrap;">' +
                 '<div style="flex: 1 1 260px; min-width: 220px; padding-right: 16px;">' +
-                    '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223); line-height: 18px;">' + label + '</div>' +
-                    (desc ? '<div style="font-size: 13px; font-weight: 400; color: rgb(139, 146, 154); line-height: 18px; margin-top: 4px;">' + desc + '</div>' : '') +
+                    '<div style="font-size: 14px; font-weight: 500; color: #ffffff; line-height: 19px;">' + label + '</div>' +
+                    (desc ? '<div style="font-size: 12.5px; font-weight: 400; color: #8a929e; line-height: 17px; margin-top: 3px;">' + desc + '</div>' : '') +
                 '</div>' +
-                '<div style="flex: 0 1 auto; display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">' +
-                    controlHtml +
+                '<div style="flex: 0 1 auto; display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap; max-width: 100%;">' +
+                    controlHtml + errorHtml +
                 '</div>' +
             '</div>';
         }
@@ -744,15 +763,107 @@
             return lines.join('\n');
         }
 
-        var cs = cfg.CloudSaves || {};
+        function makeTextareaItem(id, label, desc, content, placeholder, rows) {
+            return '<div class="sls-cfg-item" data-search="' + escapeHtml(label.toLowerCase() + ' ' + (desc || '').toLowerCase() + ' ' + id.toLowerCase()) + '" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px;">' +
+                '<div style="font-size: 14px; font-weight: 500; color: #ffffff;">' + label + '</div>' +
+                (desc ? '<div style="font-size: 12.5px; color: #8a929e; margin: 3px 0 10px;">' + desc + '</div>' : '<div style="margin-bottom: 8px;"></div>') +
+                '<textarea id="' + id + '" class="sls-cfg-textarea" rows="' + (rows || 3) + '" placeholder="' + escapeHtml(placeholder || '') + '">' + escapeHtml(content) + '</textarea>' +
+                (id === 'sls-cfg-AppIds' || id === 'sls-cfg-AdditionalApps' || id === 'sls-cfg-FakeOffline' || id === 'sls-cfg-DepotBlacklist'
+                    ? '<div class="sls-cfg-inline-error" id="sls-cfg-err-' + id + '" role="alert"></div>'
+                    : '') +
+            '</div>';
+        }
 
-        var card1Content = makeSettingRow('Master Cloud Saves', 'Enable or disable save redirection globally (requires Steam restart to mount/unmount virtual save layer)', '<button id="sls-cfg-cs-master-btn" class="Focusable" tabindex="-1" role="button" style="height:34px;padding:0 18px;border-radius:2px;border:none;font-weight:600;font-size:13px;cursor:pointer;">Checking...</button>', 'Master Cloud Saves CloudRedirect') +
-            makeSettingRow('Subsystem Health', 'Real-time daemon and operational queue metrics', '<div style="display:flex;align-items:center;gap:10px;"><span id="sls-cfg-cs-engine-badge" role="status" aria-live="polite" style="padding:3px 8px;border-radius:2px;font-size:12px;font-weight:600;background:rgba(172,178,201,0.1);color:#9ca3af;">Checking...</span><span id="sls-cfg-cs-managed-badge" style="padding:3px 8px;border-radius:2px;font-size:12px;background:rgba(26,159,255,0.15);color:#66c0f4;border:1px solid rgba(26,159,255,0.3);">0 Games Managed</span><span id="sls-cfg-cs-pending-badge" style="padding:3px 8px;border-radius:2px;font-size:12px;display:none;"></span></div>', 'status health metrics') +
-            '<div id="sls-cfg-cs-pending-callout" style="display:none;background:linear-gradient(90deg, #78350f, #92400e);border:1px solid #f59e0b;border-radius:3px;padding:10px 14px;margin-top:10px;color:#fef3c7;font-size:12px;align-items:center;justify-content:space-between;gap:10px;"><span>⚠️ Pending cloud operations waiting for Steam restart.</span><button id="sls-cfg-cs-restart-btn" class="sls-cfg-btn" style="background:#f59e0b;color:#1e1e1e;font-weight:700;padding:4px 12px;font-size:12px;">Restart Steam</button></div>' +
-            '<div style="background: rgba(26, 159, 255, 0.08); border: 1px solid rgba(26, 159, 255, 0.2); border-radius: 2px; padding: 10px 14px; font-size: 12px; color: rgb(220, 222, 223); margin-top: 10px;">💡 <b>Pro-Tip:</b> Enable <b>Disable Steam Cloud (Valve)</b> under General &amp; Unlock to suppress Valve remote conflict popups. <a href="#" id="sls-cfg-link-to-general" style="color: rgb(26, 159, 255); text-decoration: underline; margin-left: 4px;">Go to General &amp; Unlock &rarr;</a></div>';
+        function makeApiKeyRow(keyName, label, desc, currentVal, placeholder, bannerId, providerType) {
+            var bannerHtml = bannerId ? '<div id="' + bannerId + '" style="display: none; width: 100%; background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 6px; padding: 10px 14px; margin-top: 8px; color: #fca5a5; font-size: 12px; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">' +
+                '<div style="display: flex; align-items: center; gap: 8px;">' +
+                    '<span style="font-size: 14px;">⚠️</span>' +
+                    '<span>' + label + ' was not accepted by the provider. Copy the full key and paste it again.</span>' +
+                '</div>' +
+                '<button type="button" class="sls-cfg-clear-banner-btn" data-input="sls-cfg-' + keyName + '" data-banner="' + bannerId + '" style="background: none; border: none; color: #f87171; text-decoration: underline; cursor: pointer; padding: 0; font-size: 12px;">Remove key</button>' +
+            '</div>' : '';
+
+            return '<div class="sls-cfg-item" data-search="' + escapeHtml(keyName.toLowerCase() + ' ' + label.toLowerCase() + ' ' + desc.toLowerCase()) + '" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px; display: flex; flex-direction: column; gap: 8px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; flex-wrap: wrap; gap: 12px;">' +
+                    '<div style="flex: 1 1 240px;">' +
+                        '<div style="display: flex; align-items: center; gap: 8px;">' +
+                            '<span style="font-size: 14px; font-weight: 500; color: #ffffff;">' + label + '</span>' +
+                            '<span style="background: rgba(255, 255, 255, 0.08); color: #8a929e; font-size: 10.5px; padding: 2px 6px; border-radius: 3px;">Optional</span>' +
+                        '</div>' +
+                        (desc ? '<div style="font-size: 12.5px; color: #8a929e; margin-top: 3px;">' + desc + '</div>' : '') +
+                    '</div>' +
+                    '<div style="display: gap; gap: 8px; align-items: center; flex-wrap: wrap; display: flex;">' +
+                        '<input type="password" id="sls-cfg-' + keyName + '" class="sls-cfg-input sls-cfg-provider-key" data-provider="' + (providerType || '') + '" data-banner="' + (bannerId || '') + '" style="width: 260px;" value="' + escapeHtml(currentVal || '') + '" placeholder="' + escapeHtml(placeholder || '') + '">' +
+                        '<button id="sls-cfg-toggle-' + keyName + '" type="button" class="sls-cfg-btn" style="padding: 6px 12px; font-size: 12px;">Show</button>' +
+                    '</div>' +
+                '</div>' +
+                bannerHtml +
+            '</div>';
+        }
+
+        function sectionHeader(title, desc) {
+            return '';
+        }
+
+        function makeSection(id, title, desc, bodyHtml, visible) {
+            return '<div id="' + id + '" class="sls-cfg-section" style="display: ' + (visible ? 'block' : 'none') + '; max-width: 980px; width: 100%; box-sizing: border-box;">' +
+                bodyHtml +
+            '</div>';
+        }
+
+        function providerLabel(prov) {
+            if (prov === 'gdrive') return 'Google Drive';
+            if (prov === 'onedrive') return 'Microsoft OneDrive';
+            if (prov === 'r2') return 'Cloudflare R2';
+            if (prov === 's3') return 'Amazon S3';
+            return 'This computer (offline)';
+        }
+
+        function resolveVersionLabel() {
+            var el = document.querySelector('[data-navi-version]');
+            var raw = '';
+            if (el) {
+                raw = (el.getAttribute('data-navi-version') || '').trim();
+                if (!raw) raw = (el.textContent || '').trim();
+            }
+            raw = raw.replace(/·.*$/, '').trim();
+            if (!raw) return '';
+            if (raw.toLowerCase().indexOf('navi') === 0) return raw;
+            return 'Navi ' + raw;
+        }
+
+        var versionLabel = resolveVersionLabel();
+        var contextText = (versionLabel || 'Navi') + ' · Saves to config.json on this computer';
+        var cs = cfg.CloudSaves || {};
+        var managedCount = (cs.ManagedApps && cs.ManagedApps.length) || 0;
+
+        // ---------------------------------------------------------------------
+        // S2 — Cloud saves
+        // ---------------------------------------------------------------------
+        var card1Content = makeSettingRow('Redirect save files', 'Also called CloudRedirect. Turning this on or off needs a Steam restart.',
+                '<div style="display: flex; align-items: center; gap: 10px;">' +
+                    '<span id="sls-cfg-cs-master-status" style="font-size: 13px; color: #8a929e;">' + (cs.Enabled !== false ? 'On · ' + managedCount + ' games' : 'Off') + '</span>' +
+                    '<button id="sls-cfg-cs-master-btn" class="sls-cfg-btn" type="button" style="display: none;">' + (cs.Enabled !== false ? 'Turn off' : 'Turn on') + '</button>' +
+                    makeToggle('sls-cfg-cs-master-toggle', cs.Enabled !== false) +
+                '</div>',
+                'CloudRedirect master redirect save files') +
+            makeSettingRow('Navi service', 'Navi moves saves in and out of Steam Cloud for you.',
+                '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
+                    '<span id="sls-cfg-cs-engine-badge" role="status" aria-live="polite" style="padding: 3px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 600; background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">Not running</span>' +
+                    '<span id="sls-cfg-cs-managed-badge" style="padding: 3px 8px; border-radius: 4px; font-size: 11.5px; background: rgba(26, 159, 255, 0.15); color: #66c0f4; border: 1px solid rgba(26, 159, 255, 0.3);">' + managedCount + ' games redirected</span>' +
+                    '<span id="sls-cfg-cs-pending-badge" style="padding: 3px 8px; border-radius: 4px; font-size: 11.5px; display: none;"></span>' +
+                '</div>', 'service status health managed apps pending operations') +
+            '<div id="sls-cfg-cs-pending-callout" style="display: none; background: linear-gradient(90deg, #78350f, #92400e); border: 1px solid #f59e0b; border-radius: 6px; padding: 10px 14px; margin-top: 10px; color: #fef3c7; font-size: 12px; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">' +
+                '<span id="sls-cfg-cs-pending-text">1 change waits for a restart</span>' +
+                '<button id="sls-cfg-cs-restart-btn" class="sls-cfg-btn" type="button" style="background: #f59e0b; color: #1e1e1e; font-weight: 700; padding: 4px 12px; font-size: 12px; border-radius: 4px;">Restart Steam</button>' +
+            '</div>' +
+            '<div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 6px; padding: 12px 16px; font-size: 12.5px; color: #fef3c7; margin-top: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">' +
+                '<span>Steam Cloud can overwrite redirected saves. Turn off Steam Cloud under Unlocking to stop that.</span>' +
+                '<a href="#" id="sls-cfg-link-to-general" style="color: #38bdf8; text-decoration: underline; white-space: nowrap; font-weight: 500;">Open Unlocking ↗</a>' +
+            '</div>';
 
         var providerOptions = [
-            { val: 'local-only', label: 'Local Diverted Storage (Offline)' },
+            { val: 'local-only', label: 'This computer (offline)' },
             { val: 'gdrive', label: 'Google Drive' },
             { val: 'onedrive', label: 'Microsoft OneDrive' },
             { val: 'r2', label: 'Cloudflare R2' },
@@ -761,158 +872,185 @@
             return '<option value="' + opt.val + '"' + ((cs.Provider || 'local-only') === opt.val ? ' selected' : '') + '>' + opt.label + '</option>';
         }).join('');
 
-        var card2Content = makeSettingRow('Cloud Storage Provider', 'Select offline diverted storage or connect remote cloud providers',
-            '<select id="sls-cfg-cs-provider" class="sls-cfg-input" style="width: 260px;">' + providerOptions + '</select>', 'provider cloud storage') +
-            '<div id="sls-cfg-cs-auth-block" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px;">' +
-                '<div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">' +
-                    '<div style="display:flex; align-items:center; gap:10px;">' +
-                        '<span id="sls-cfg-cs-auth-badge" style="padding: 3px 8px; border-radius: 2px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: rgba(255,255,255,0.06); color: rgb(139, 146, 154); border: 1px solid rgba(255,255,255,0.12);">Offline</span>' +
-                        '<span id="sls-cfg-cs-auth-email" style="font-size: 12px; color: rgb(220, 222, 223); display: none;"></span>' +
+        var card2Content = makeSettingRow('Where saves are stored', 'Pick this computer for offline play, or connect a cloud account to sync between devices.',
+                '<select id="sls-cfg-cs-provider" class="sls-cfg-input" style="width: 240px;">' + providerOptions + '</select>', 'provider cloud storage where saves are stored') +
+            '<div id="sls-cfg-cs-auth-block" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 12px 16px; margin-top: 8px; border-radius: 6px;">' +
+                '<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">' +
+                    '<div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">' +
+                        '<span id="sls-cfg-cs-auth-badge" style="padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700; text-transform: uppercase; background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">Offline</span>' +
+                        '<span id="sls-cfg-cs-auth-email" style="font-size: 12.5px; color: #e2e8f0; display: none;"></span>' +
                     '</div>' +
-                    '<div id="sls-cfg-cs-auth-actions" style="display:flex; gap:8px; align-items:center;"></div>' +
+                    '<div id="sls-cfg-cs-auth-actions" style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;"></div>' +
                 '</div>' +
-                '<div id="sls-cfg-cs-local-info" style="font-size: 12px; color: rgb(139, 146, 154); margin-top: 8px;">' +
-                    'Saves are stored locally in diverted paths (&lt;SteamRoot&gt;/cloud_redirect/storage/). No cloud accounts or network sync needed.' +
+                '<div id="sls-cfg-cs-local-info" style="font-size: 12px; color: #8a929e; margin-top: 8px;">' +
+                    "Saves are kept on this computer, inside Steam\'s cloud_redirect folder. No account or internet needed." +
                 '</div>' +
             '</div>';
 
-        var card3Content = makeSettingRow('Auto-Backup Before Reset', 'Create an automatic tar.gz backup before any game save reset operation',
-            makeToggle('sls-cfg-CloudAutoBackup', cs.AutoBackupBeforeReset !== false), 'AutoBackupBeforeReset CloudAutoBackup') +
-            makeSettingRow('Backup Retention Count', 'Maximum number of automatic save snapshots to retain per game (1 to 100)',
-                '<input type="number" id="sls-cfg-CloudRetention" class="sls-cfg-input" style="width: 120px;" min="1" max="100" value="' + (cs.BackupRetentionCount || 5) + '">', 'BackupRetentionCount CloudRetention');
+        var ps = (cs && cs.PrefixSync) || {};
+        var prefixSyncCard = makeCard('Wine / Emulator save sync', 'PrefixSync synchronizes Goldberg and GSE emulator wineprefix saves outside Steam Cloud.',
+            makeSettingRow('Enable Wine prefix save sync', 'Watches wineprefix emulator saves for managed games.',
+                makeToggle('sls-cfg-PrefixSync-Enabled', ps.Enabled !== false), 'PrefixSync wine emulator prefix') +
+            makeSettingRow('Sync at Steam startup', 'Scans and pulls emulator saves when Steam client starts.',
+                makeToggle('sls-cfg-PrefixSync-Startup', ps.SyncAtStartup !== false), 'PrefixSync startup') +
+            makeSettingRow('Sync on game launch', 'Pulls latest cloud saves before launching an emulator game.',
+                makeToggle('sls-cfg-PrefixSync-Launch', ps.SyncOnLaunch !== false), 'PrefixSync launch') +
+            makeSettingRow('Sync on game exit', 'Pushes save changes to cloud immediately after the game exits.',
+                makeToggle('sls-cfg-PrefixSync-Exit', ps.SyncOnExit !== false), 'PrefixSync exit') +
+            makeSettingRow('Max save file size (MB)', 'Skip individual files larger than this threshold.',
+                '<input type="number" id="sls-cfg-PrefixSync-MaxMb" class="sls-cfg-input" style="width: 100px;" min="1" max="1024" value="' + (typeof ps.MaxFileMb === 'number' ? ps.MaxFileMb : 64) + '">',
+                'PrefixSync MaxFileMb max mb'));
 
-        var card4Content = '<div style="background-color: #16202d; border: 1px solid #2a475e; padding: 16px 18px; margin-top: 6px; border-radius: 2px;">' +
-            '<div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:12px; margin-bottom:12px;">' +
+        var card4Content = '<div style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.06); padding: 16px 18px; margin-top: 8px; border-radius: 6px;">' +
+            '<div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">' +
                 '<div>' +
-                    '<div id="sls-cfg-cs-breadcrumb" style="font-size:11px; color:#8f98a0; margin-bottom:4px; letter-spacing:0.02em;">Home &gt; Account &gt; View Steam Cloud</div>' +
-                    '<div id="sls-cfg-cs-view-heading" style="font-size:20px; font-weight:400; color:#ffffff; line-height:24px;">View Steam Cloud</div>' +
-                    '<div id="sls-cfg-cs-view-subtitle" style="font-size:12px; color:#8f98a0; margin-top:4px;">View game files saved to your Steam Cloud</div>' +
+                    '<div id="sls-cfg-cs-breadcrumb" style="font-size: 11px; color: #8a929e; margin-bottom: 4px; letter-spacing: 0.02em;">Home &gt; Account &gt; Your Steam Cloud</div>' +
+                    '<div id="sls-cfg-cs-view-heading" style="font-size: 18px; font-weight: 600; color: #ffffff;">Your Steam Cloud</div>' +
+                    '<div id="sls-cfg-cs-view-subtitle" style="font-size: 12px; color: #8a929e; margin-top: 2px;">Games and saves stored for your account.</div>' +
                 '</div>' +
-                '<div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap; position:relative;">' +
-                    '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" style="display:none; padding: 6px 12px; font-size: 12px; color: #66c0f4; background: #2a475e; border: 1px solid rgba(102,192,244,0.35); cursor: pointer;">&larr; Back to Games</button>' +
-                    '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" style="padding: 6px 12px; font-size: 12px; color: #c6d4df; background: #273b4b; border: 1px solid rgba(255,255,255,0.12); cursor: pointer;">Refresh Cloud</button>' +
-                    '<div style="position:relative; display:inline-flex; align-items:center;">' +
-                        '<span style="position:absolute; left:10px; color:#6b7280; font-size:12px; pointer-events:none;">&#128269;</span>' +
-                        '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Search title or AppID..." autocomplete="off">' +
-                        '<button id="sls-cfg-cs-search-clear" style="display:none; position:absolute; right:8px; background:none; border:none; color:#9ca3af; font-size:14px; cursor:pointer; padding:0 2px; line-height:1;">&times;</button>' +
+                '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
+                    '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" type="button" style="display: none; padding: 6px 12px; font-size: 12px; color: #38bdf8; background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 6px; cursor: pointer; font-weight: 500;">&larr; Back to Games</button>' +
+                    '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Refresh list</button>' +
+                    '<div style="position: relative; display: inline-flex; align-items: center;">' +
+                        '<span style="position: absolute; left: 10px; color: #626975; font-size: 12px; pointer-events: none;" aria-hidden="true">&#128269;</span>' +
+                        '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Game name or AppID" aria-label="Search saves" autocomplete="off">' +
+                        '<button id="sls-cfg-cs-search-clear" type="button" aria-label="Clear search" style="display: none; position: absolute; right: 8px; background: none; border: none; color: #9ca3af; font-size: 14px; cursor: pointer; padding: 0 2px; line-height: 1;">&times;</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
-            '<div id="sls-cfg-cs-game-toolbar" style="display:none; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; padding:10px 12px; margin-bottom:10px; background:#1b2838; border:1px solid #2a475e; border-radius:2px;"></div>' +
-            '<div id="sls-cfg-managed-apps-list" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="View Steam Cloud" style="max-height: 420px; overflow-y: auto; background: #101822; border: 1px solid #2a475e; border-radius: 2px;"></div>' +
-        '</div>';
+            '<div id="sls-cfg-cs-game-toolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 12px; margin-bottom: 10px; background: #1b2838; border: 1px solid #2a475e; border-radius: 4px;"></div>' +
+            '<div id="sls-cfg-managed-apps-list" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="Your Steam Cloud" style="max-height: 420px; overflow-y: auto; background: #101822; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;"></div>' +
+        '</div>' +
+        '<input type="hidden" id="sls-cfg-CloudRetention" value="' + (typeof cs.BackupRetentionCount === 'number' ? cs.BackupRetentionCount : 5) + '">' +
+        '<input type="checkbox" id="sls-cfg-CloudAutoBackup" style="display: none;" ' + (cs.AutoBackupBeforeReset !== false ? 'checked' : '') + '>';
 
-        var sec1Html = '<div id="sls-cfg-sec-cloudsaves" class="sls-cfg-section" style="display: block; max-width: 980px; width: 100%; box-sizing: border-box;">' +
-            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Cloud Saves (CloudRedirect)</div>' +
-            '<div style="font-size: 13px; color: rgb(139, 146, 154); margin-bottom: 14px;">Intercepts Steam Cloud file I/O to redirect game save files into structured local storage or remote cloud providers for unowned and family-shared games.</div>' +
-            makeCard('CloudRedirect Engine Status', 'Master toggle and runtime execution state', card1Content) +
-            makeCard('Storage Provider & Credentials', 'Select offline diverted storage or connect remote cloud providers', card2Content) +
-            makeCard('Backup & Safety Settings', 'Automatic safety snapshots before destructive operations', card3Content) +
-            makeCard('View Steam Cloud', 'Browse games and individual save files stored in your Steam Cloud', card4Content) +
-        '</div>';
+        var sec1Html = makeSection('sls-cfg-sec-cloudsaves', 'Cloud saves',
+            'Keeps saves for unlocked and family-shared games outside Steam Cloud. Choose this computer, or connect an account to sync between devices.',
+            makeCard('Status', '', card1Content) +
+            makeCard('Where saves are stored', '', card2Content) +
+            prefixSyncCard +
+            makeCard('Your Steam Cloud', '', card4Content),
+            true);
 
-        // SECTION 2: Provider API Keys
-        function makeApiKeyRow(keyName, label, desc, currentVal) {
-            return makeSettingRow(label, desc,
-                '<div style="display: flex; gap: 8px;">' +
-                    '<input type="password" id="sls-cfg-' + keyName + '" class="sls-cfg-input" style="width: 280px;" value="' + escapeHtml(currentVal || '') + '" placeholder="API token or key...">' +
-                    '<button id="sls-cfg-toggle-' + keyName + '" class="sls-cfg-btn" style="padding: 6px 12px; font-size: 12px;">Show</button>' +
-                '</div>', keyName);
-        }
+        // ---------------------------------------------------------------------
+        // S3 — Provider keys
+        // ---------------------------------------------------------------------
+        var apiCards = makeApiKeyRow('RyuuKey', 'Ryuu key', 'Used for Ryuu manifests and depot lists.', cfg.RyuuKey, 'Paste your Ryuu key', 'sls-cfg-ryuu-reject-banner', 'ryuu') +
+            makeApiKeyRow('DepotBoxKey', 'DepotBox key', 'Used for DepotBox manifests and depot lists.', cfg.DepotBoxKey, 'Paste your DepotBox key', 'sls-cfg-depotbox-reject-banner', 'depotbox') +
+            makeApiKeyRow('HubcapKey', 'HubcapDB key', 'Used for HubcapDB manifests and depot lists.', cfg.HubcapKey, 'Paste your HubcapDB key', 'sls-cfg-hubcap-reject-banner', 'hubcap') +
+            '<div style="font-size: 12px; color: #8a929e; margin-top: 10px;">No keys added. Navi works without them — add one only if a provider stops your downloads. Keys stay on this computer and are never shown in logs.</div>';
 
-        var apiCards = makeApiKeyRow('RyuuKey', 'Ryuu API Key', 'Access token for Ryuu manifest and depot index provider', cfg.RyuuKey) +
-            makeApiKeyRow('DepotBoxKey', 'DepotBox API Key', 'Access key for DepotBox depot decryption key database', cfg.DepotBoxKey) +
-            makeApiKeyRow('HubcapKey', 'Hubcap API Key', 'Authentication token for Hubcap community manifest mirror', cfg.HubcapKey);
+        var sec2Html = makeSection('sls-cfg-sec-api', 'Provider keys',
+            'Some providers ask for a key before they\'ll send game files. Keys stay in config.json on this computer and are only sent to the provider that asked.',
+            makeCard('Download providers', 'Optional. Navi works without keys unless a provider blocks your downloads.', apiCards),
+            false);
 
-        var sec2Html = '<div id="sls-cfg-sec-api" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
-            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Provider Keys</div>' +
-            makeCard('External Service Credentials', 'Tokens used by Navi to query manifests and depot AES decryption keys', apiCards) +
-        '</div>';
+        // ---------------------------------------------------------------------
+        // S4 — Unlocking
+        // ---------------------------------------------------------------------
+        var sec3Html = makeSection('sls-cfg-sec-general', 'Unlocking',
+            'Choose which games Navi unlocks and how it behaves with Steam.',
+            makeCard('Library access', '',
+                makeSettingRow('Only unlock the games I list', 'On: just the games in Library. Off: every game except the ones you list.',
+                    makeToggle('sls-cfg-UseWhitelist', cfg.UseWhitelist), 'UseWhitelist whitelist unlock games') +
+                makeSettingRow('Release family sharing lock', 'Lets you and your family play at the same time.',
+                    makeToggle('sls-cfg-DisableFamilyShareLock', cfg.DisableFamilyShareLock), 'DisableFamilyShareLock family sharing') +
+                makeSettingRow('Stop updates for extra games', 'Applies to games you don\'t own. Games you own still update.',
+                    makeToggle('sls-cfg-DisableUpdates', cfg.DisableUpdates), 'DisableUpdates updates')) +
+            makeCard('Steam Cloud', '',
+                makeSettingRow('Turn off Steam Cloud', 'Stops Steam from syncing saves. Recommended if you use Navi cloud saves.',
+                    makeToggle('sls-cfg-DisableCloud', cfg.DisableCloud), 'DisableCloud Steam Cloud Valve') +
+                '<div id="sls-cfg-steam-cloud-note" style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 6px; padding: 12px 16px; font-size: 12.5px; color: #fef3c7; margin-top: 8px; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap;">' +
+                    '<span>Cloud saves are on. Steam Cloud can overwrite them.</span>' +
+                    '<a href="#" id="sls-cfg-link-to-cloudsaves" style="color: #38bdf8; text-decoration: underline; white-space: nowrap; font-weight: 500;">Open Cloud saves ↗</a>' +
+                '</div>') +
+            makeCard('Compatibility', '',
+                makeSettingRow('Safe mode', 'Turns Navi off when this Steam version isn\'t known to work. Recommended on Steam Deck.',
+                    makeToggle('sls-cfg-SafeMode', cfg.SafeMode), 'SafeMode safe mode') +
+                makeSettingRow('Warn me about untested Steam updates', 'Shows a notification when Steam updates to a version Navi hasn\'t been tested with.',
+                    makeToggle('sls-cfg-WarnHashMissmatch', cfg.WarnHashMissmatch), 'WarnHashMissmatch hash warning')) +
+            makeCard('Automation', '',
+                makeSettingRow('Tell me when Navi is ready', 'Shows a notification when Navi finishes loading.',
+                    makeToggle('sls-cfg-NotifyInit', cfg.NotifyInit !== false), 'NotifyInit notification ready') +
+                makeSettingRow('Allow commands from other apps', 'Lets tools send commands to Navi through /tmp/navi.API. Only turn this on if you use such a tool.',
+                    makeToggle('sls-cfg-API', !!cfg.API), 'API command local api') +
+                makeSettingRow('Achievement detail retries', 'How many times Navi asks Steam for achievement details. 0 uses only the saved copy.',
+                    '<input type="number" id="sls-cfg-MaxSchemaTries" class="sls-cfg-input" style="width: 120px;" min="0" max="100" value="' + (typeof cfg.MaxSchemaTries === 'number' ? cfg.MaxSchemaTries : 10) + '">',
+                    'MaxSchemaTries achievement schema retries', { errorFor: 'sls-cfg-MaxSchemaTries' })),
+            false);
 
-        // SECTION 3: General & Unlock Behavior
-        var genCards = makeSettingRow('Disable Family Share Lock', 'Bypasses simultaneous library play locking for yourself and family share members',
-            makeToggle('sls-cfg-DisableFamilyShareLock', cfg.DisableFamilyShareLock), 'DisableFamilyShareLock') +
-            makeSettingRow('Use Whitelist Mode', 'Switches AppID filtering to whitelist mode instead of default blacklist mode',
-                makeToggle('sls-cfg-UseWhitelist', cfg.UseWhitelist), 'UseWhitelist') +
-            makeSettingRow('Disable Steam Cloud (Valve)', 'Suppresses Valve\'s native Steam Cloud sync for unlocked titles. Enable this alongside CloudRedirect to prevent cloud overwrites. <a href="#" id="sls-cfg-link-to-cloudsaves" style="color: rgb(26, 159, 255); text-decoration: underline; margin-left: 4px;">Configure Cloud Saves &rarr;</a>',
-                makeToggle('sls-cfg-DisableCloud', cfg.DisableCloud), 'DisableCloud Steam Valve') +
-            makeSettingRow('Disable Updates', 'Prevents automatic updates for titles specified in AdditionalApps list',
-                makeToggle('sls-cfg-DisableUpdates', cfg.DisableUpdates), 'DisableUpdates') +
-            makeSettingRow('Safe Mode', 'Automatically disables Navi injection when steamclient.so hash differs from known hashes',
-                makeToggle('sls-cfg-SafeMode', cfg.SafeMode), 'SafeMode') +
-            makeSettingRow('Warn Hash Mismatch', 'Display notification warning when steamclient.so binary hash differs from safe list',
-                makeToggle('sls-cfg-WarnHashMissmatch', cfg.WarnHashMissmatch), 'WarnHashMissmatch') +
-            makeSettingRow('Notify Initialization', 'Show a desktop/Steam notification when Navi has successfully initialized hooks',
-                makeToggle('sls-cfg-NotifyInit', cfg.NotifyInit), 'NotifyInit') +
-            makeSettingRow('Enable Local API', 'Enable receiving local command IPC via /tmp/navi.API FIFO pipe',
-                makeToggle('sls-cfg-API', cfg.API), 'API') +
-            makeSettingRow('Max Schema Tries', 'Maximum retry attempts when fetching Achievement schemas directly from Steam CDN (0 to disable)',
-                '<input type="number" id="sls-cfg-MaxSchemaTries" class="sls-cfg-input" style="width: 120px;" min="0" max="100" value="' + (typeof cfg.MaxSchemaTries === 'number' ? cfg.MaxSchemaTries : 10) + '">', 'MaxSchemaTries');
-
-        var sec3Html = '<div id="sls-cfg-sec-general" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
-            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">General &amp; Unlock</div>' +
-            makeCard('Unlock Policies & Security Options', 'Configure family sharing, safe mode, and schema retrieval rules', genCards) +
-        '</div>';
-
-        // SECTION 4: Profile, Status & Spoofing
+        // ---------------------------------------------------------------------
+        // S5 — Account
+        // ---------------------------------------------------------------------
         var idleStatus = cfg.IdleStatus || {};
         var unownedStatus = cfg.UnownedStatus || {};
 
-        var profCards = makeSettingRow('Fake Persona Name', 'Clientside persona display name override (leave blank for native)',
-            '<input type="text" id="sls-cfg-FakeName" class="sls-cfg-input" style="width: 280px;" value="' + escapeHtml(cfg.FakeName || '') + '" placeholder="e.g. Gordon Freeman">', 'FakeName') +
-            makeSettingRow('Fake Account Email', 'Clientside account email override (leave blank to disable)',
-                '<input type="text" id="sls-cfg-FakeEmail" class="sls-cfg-input" style="width: 280px;" value="' + escapeHtml(cfg.FakeEmail || '') + '" placeholder="e.g. user@example.com">', 'FakeEmail') +
-            makeSettingRow('Fake Wallet Balance', 'Clientside wallet balance in currency units or cents (0 to disable)',
-                '<input type="number" id="sls-cfg-FakeWalletBalance" class="sls-cfg-input" style="width: 180px;" value="' + (typeof cfg.FakeWalletBalance === 'number' ? cfg.FakeWalletBalance : 0) + '">', 'FakeWalletBalance') +
-            makeSettingRow('Idle Status Override', 'Custom in-game presence displayed to friends when idle (AppID 0 to disable)',
-                '<div style="display: flex; gap: 8px;">' +
-                    '<input type="number" id="sls-cfg-IdleStatus-AppId" class="sls-cfg-input" style="width: 120px;" placeholder="AppID" value="' + (idleStatus.AppId || 0) + '">' +
-                    '<input type="text" id="sls-cfg-IdleStatus-Title" class="sls-cfg-input" style="width: 220px;" placeholder="Title e.g. In Space" value="' + escapeHtml(idleStatus.Title || '') + '">' +
-                '</div>', 'IdleStatus') +
-            makeSettingRow('Unowned Status Override', 'Custom presence displayed when running unowned games (AppID 0 to disable)',
-                '<div style="display: flex; gap: 8px;">' +
-                    '<input type="number" id="sls-cfg-UnownedStatus-AppId" class="sls-cfg-input" style="width: 120px;" placeholder="AppID" value="' + (unownedStatus.AppId || 0) + '">' +
-                    '<input type="text" id="sls-cfg-UnownedStatus-Title" class="sls-cfg-input" style="width: 220px;" placeholder="Title e.g. Testing" value="' + escapeHtml(unownedStatus.Title || '') + '">' +
-                '</div>', 'UnownedStatus');
+        var sec4Html = makeSection('sls-cfg-sec-profile', 'Account',
+            'These changes are only visible in your Steam client. They are not sent to Steam.',
+            makeCard('Profile', '',
+                makeSettingRow('Display name', 'Replaces your Steam name in this client. Leave empty to use your real name.',
+                    '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
+                        '<input type="text" id="sls-cfg-FakeName" class="sls-cfg-input" style="width: 260px;" value="' + escapeHtml(cfg.FakeName || '') + '" placeholder="TropicalFrog3">' +
+                        '<button id="sls-cfg-clear-FakeName" type="button" class="sls-cfg-btn" style="padding: 6px 12px; font-size: 12px;">Clear</button>' +
+                    '</div>', 'FakeName display name persona') +
+                makeSettingRow('Email', 'Shown in this client only. Leave empty to hide it.',
+                    '<input type="text" id="sls-cfg-FakeEmail" class="sls-cfg-input" style="width: 260px;" value="' + escapeHtml(cfg.FakeEmail || '') + '" placeholder="user@example.com">', 'FakeEmail email') +
+                makeSettingRow('Wallet balance', 'Shown in this client only. Set 0 to hide it.',
+                    '<input type="number" id="sls-cfg-FakeWalletBalance" class="sls-cfg-input" style="width: 160px;" value="' + (typeof cfg.FakeWalletBalance === 'number' ? cfg.FakeWalletBalance : 0) + '">', 'FakeWalletBalance wallet balance')) +
+            makeCard('Spoofing', 'Spoofing makes a game or Steam see different account details. Most people don\'t need this.',
+                makeSettingRow('Steam ID override', 'Only needed when a game reads your Steam ID before Navi can stand in. Leave empty to do this automatically.',
+                    '<input type="text" id="sls-cfg-SteamIdOverride" class="sls-cfg-input" style="width: 280px;" placeholder="Leave empty for automatic" value="' + escapeHtml(typeof cfg.SteamIdOverride === 'object' ? formatKvForEditor(cfg.SteamIdOverride) : (cfg.SteamIdOverride || '')) + '">', 'SteamIdOverride steam id override') +
+                makeSettingRow('Idle status', 'Shows a game as running while you\'re away. Set the game to 0 to turn this off.',
+                    '<div style="display: flex; gap: 8px; flex-wrap: wrap;">' +
+                        '<input type="number" id="sls-cfg-IdleStatus-AppId" class="sls-cfg-input" style="width: 120px;" placeholder="Game" value="' + (idleStatus.AppId || 0) + '">' +
+                        '<input type="text" id="sls-cfg-IdleStatus-Title" class="sls-cfg-input" style="width: 220px;" placeholder="Title shown" value="' + escapeHtml(idleStatus.Title || '') + '">' +
+                    '</div>', 'IdleStatus idle status presence') +
+                makeSettingRow('Unowned status', 'Shown while an unlocked game runs. Set the game to 0 to turn this off.',
+                    '<div style="display: flex; gap: 8px; flex-wrap: wrap;">' +
+                        '<input type="number" id="sls-cfg-UnownedStatus-AppId" class="sls-cfg-input" style="width: 120px;" placeholder="Game" value="' + (unownedStatus.AppId || 0) + '">' +
+                        '<input type="text" id="sls-cfg-UnownedStatus-Title" class="sls-cfg-input" style="width: 220px;" placeholder="Title shown" value="' + escapeHtml(unownedStatus.Title || '') + '">' +
+                    '</div>', 'UnownedStatus unowned status presence') +
+                makeSettingRow('Purchase dates', 'Changes the date a game shows as bought. Games you own only.',
+                    '<input type="text" id="sls-cfg-SubscriptionTimestamps" class="sls-cfg-input" style="width: 280px;" placeholder="AppID: 1709424000" value="' + escapeHtml(typeof cfg.SubscriptionTimestamps === 'object' ? formatKvForEditor(cfg.SubscriptionTimestamps) : (cfg.SubscriptionTimestamps || '')) + '">', 'SubscriptionTimestamps purchase dates')),
+            false);
 
-        var sec4Html = '<div id="sls-cfg-sec-profile" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
-            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Account &amp; Spoofing</div>' +
-            makeCard('Persona & Presence Overrides', 'Clientside spoofing of account info, wallet balance, and rich presence', profCards) +
-        '</div>';
+        // ---------------------------------------------------------------------
+        // S6 — Library
+        // ---------------------------------------------------------------------
+        var appListsContent = '<div class="sls-cfg-item" data-search="unlocked games appids" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
+                    '<div style="font-size: 14px; font-weight: 500; color: #ffffff;">Unlocked games</div>' +
+                    '<button id="sls-cfg-add-app-btn" type="button" class="sls-cfg-btn" style="padding: 4px 10px; font-size: 12px;">+ Add game</button>' +
+                '</div>' +
+                '<div style="font-size: 12.5px; color: #8a929e; margin-bottom: 8px;">One AppID per line. Adding a game also includes its DLC.</div>' +
+                '<textarea id="sls-cfg-AppIds" class="sls-cfg-textarea" rows="4" placeholder="440\n730\n480...">' + escapeHtml(formatArrayForEditor(cfg.AppIds)) + '</textarea>' +
+                '<div class="sls-cfg-inline-error" id="sls-cfg-err-sls-cfg-AppIds" role="alert"></div>' +
+            '</div>' +
+            makeTextareaItem('sls-cfg-AdditionalApps', 'Extra games', 'Games that aren\'t in your library. Use this only for games you don\'t own — downloads of shared games can break.', formatArrayForEditor(cfg.AdditionalApps), '480, 730...', 3) +
+            makeTextareaItem('sls-cfg-FakeOffline', 'Show as offline', 'These games think Steam is offline.', formatArrayForEditor(cfg.FakeOffline), '480, 730...', 3) +
+            makeTextareaItem('sls-cfg-FakeAppIds', 'Play as another game', 'Makes a game report a different AppID so multiplayer works. Never run two games as the same AppID at once.', formatKvForEditor(cfg.FakeAppIds), '480: 440', 3) +
+            makeTextareaItem('sls-cfg-GameTitles', 'Game names', 'Changes the title shown in your library. Games you own only.', formatKvForEditor(cfg.GameTitles), '440: Team Fortress 2 Custom', 3);
 
-        // SECTION 5: App Lists, DLC & Depot Overrides
-        function makeTextareaItem(id, label, desc, content, placeholder, rows) {
-            return '<div class="sls-cfg-item" data-search="' + escapeHtml(label.toLowerCase() + ' ' + (desc || '').toLowerCase() + ' ' + id.toLowerCase()) + '" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px;">' +
-                '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223);">' + label + '</div>' +
-                (desc ? '<div style="font-size: 13px; color: rgb(139, 146, 154); margin: 2px 0 8px;">' + desc + '</div>' : '<div style="margin-bottom: 6px;"></div>') +
-                '<textarea id="' + id + '" class="sls-cfg-textarea" rows="' + (rows || 3) + '" placeholder="' + escapeHtml(placeholder || '') + '">' + escapeHtml(content) + '</textarea>' +
-            '</div>';
-        }
+        var downloadContent = makeTextareaItem('sls-cfg-ManifestIds', 'Lock to a version', 'Keeps a game on one file version. Format: AppID: ManifestID.', formatKvForEditor(cfg.ManifestIds), '441: 123456789012345678', 3) +
+            makeTextareaItem('sls-cfg-DepotBlacklist', 'Skip these depots', 'Navi won\'t download these depots.', formatArrayForEditor(cfg.DepotBlacklist), '228980, 228985...', 3);
 
-        var appListsContent = makeTextareaItem('sls-cfg-AppIds', 'AppIds', 'List of AppIDs to ex-/include individually (comma-separated or one per line)', formatArrayForEditor(cfg.AppIds), '440, 730, 480...') +
-            makeTextareaItem('sls-cfg-AdditionalApps', 'AdditionalApps', 'AppIDs to inject directly into your library licenses', formatArrayForEditor(cfg.AdditionalApps), '3934270, 480...') +
-            makeTextareaItem('sls-cfg-FakeOffline', 'FakeOffline', 'Simulate Steam being offline for specified AppIDs', formatArrayForEditor(cfg.FakeOffline), '480, 730...') +
-            makeTextareaItem('sls-cfg-DepotBlacklist', 'DepotBlacklist', 'Depot IDs to never download or update', formatArrayForEditor(cfg.DepotBlacklist), '228980, 228985...');
+        var advancedContent = makeTextareaItem('sls-cfg-AppTokens', 'App tokens', 'Product info tokens from Steam. Rarely needed.', formatKvForEditor(cfg.AppTokens), '730: 987654321098765432', 3) +
+            makeTextareaItem('sls-cfg-CDKeys', 'Legacy CD keys', 'Required by some older games.', formatKvForEditor(cfg.CDKeys), '440: ABCD-1234-EFGH-5678', 3);
 
-        var kvContent = makeTextareaItem('sls-cfg-FakeAppIds', 'FakeAppIds (AppID -> FakeAppID)', 'Change AppIDs of games to enable networking features (one Key: Value per line)', formatKvForEditor(cfg.FakeAppIds), '480: 440\n123: 456') +
-            makeTextareaItem('sls-cfg-ManifestIds', 'ManifestIds (DepotID -> ManifestID)', 'Lock specific game depots to older manifest versions', formatKvForEditor(cfg.ManifestIds), '441: 123456789012345678') +
-            makeTextareaItem('sls-cfg-AppTokens', 'AppTokens (AppID -> Token)', 'ProductInfo access tokens from Steam servers', formatKvForEditor(cfg.AppTokens), '730: 987654321098765432') +
-            makeTextareaItem('sls-cfg-CDKeys', 'CDKeys (AppID -> CDKey)', 'Legacy CD keys required by older titles', formatKvForEditor(cfg.CDKeys), '440: ABCD-1234-EFGH-5678') +
-            makeTextareaItem('sls-cfg-GameTitles', 'GameTitles (AppID -> Title)', 'Override display titles for owned games', formatKvForEditor(cfg.GameTitles), '440: Team Fortress 2 Custom') +
-            makeTextareaItem('sls-cfg-SubscriptionTimestamps', 'SubscriptionTimestamps (AppID -> Timestamp)', 'Override purchase timestamps (Unix epoch seconds)', formatKvForEditor(cfg.SubscriptionTimestamps), '440: 1600000000') +
-            makeTextareaItem('sls-cfg-SteamIdOverride', 'SteamIdOverride (AppID -> SteamID64)', 'Override SteamID64 an app receives (workaround for locked saves)', formatKvForEditor(cfg.SteamIdOverride), '440: 76561198000000001');
+        var yamlContent = makeTextareaItem('sls-cfg-DlcDataYaml', 'DLC details', 'Extra DLC mapping, only needed when a game reaches Steam\'s 64-DLC limit.', cfg.DlcDataYaml || '', '440:\n  441: "DLC 1 Name"', 4) +
+            makeTextareaItem('sls-cfg-DenuvoGamesYaml', 'Denuvo account locks', 'Blocks these games from unlocking on other accounts.', cfg.DenuvoGamesYaml || '', '76561198000000001:\n  - 440\n  - 730', 4);
 
-        var yamlContent = makeTextareaItem('sls-cfg-DlcDataYaml', 'DlcData (YAML Block)', 'Extra DLC data mapping (ParentAppID -> DLC ID: Name) for games with 64+ DLCs', cfg.DlcDataYaml || '', '440:\n  441: "DLC 1 Name"', 5) +
-            makeTextareaItem('sls-cfg-DenuvoGamesYaml', 'DenuvoGames (YAML Block)', 'Blocks games from unlocking on unauthorized accounts (SteamID64 -> [AppIDs])', cfg.DenuvoGamesYaml || '', '76561198000000001:\n  - 440\n  - 730', 5);
+        var sec5Html = makeSection('sls-cfg-sec-overrides', 'Library',
+            'Games, DLC and download files Navi manages. Lists take one entry per line.',
+            makeCard('Games', '', appListsContent) +
+            makeCard('Downloads', '', downloadContent) +
+            makeCard('Advanced maps', '', advancedContent) +
+            makeCard('Raw YAML', '', yamlContent),
+            false);
 
-        var sec5Html = '<div id="sls-cfg-sec-overrides" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
-            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Library &amp; Depots</div>' +
-            makeCard('Application Lists', 'Configure AppIDs for injection, offline spoofing, and depot blacklisting', appListsContent) +
-            makeCard('Key-Value Overrides', 'Fine-grained key-value maps for manifests, CD keys, and spoofed parameters', kvContent) +
-            makeCard('Complex YAML Blocks', 'Raw YAML definitions for DLC dictionaries and Denuvo account locks', yamlContent) +
-        '</div>';
-
-        // SECTION 6: Logging & Diagnostics
+        // ---------------------------------------------------------------------
+        // S7 — Diagnostics
+        // ---------------------------------------------------------------------
         var LOG_LEVEL_FLAGS = [
             { flag: 0x01, name: 'Trace', hex: '0x01', desc: 'Detailed tracing statements' },
             { flag: 0x02, name: 'Once', hex: '0x02', desc: 'Only log statement once' },
@@ -920,122 +1058,169 @@
             { flag: 0x08, name: 'Warn', hex: '0x08', desc: 'Non-fatal recoverable warnings' },
             { flag: 0x10, name: 'Error', hex: '0x10', desc: 'Fatal unrecoverable errors' },
             { flag: 0x20, name: 'Info', hex: '0x20', desc: 'General informational logs' },
-            { flag: 0x40, name: 'NotifyShort', hex: '0x40', desc: 'Short toast notifications' },
-            { flag: 0x80, name: 'NotifyLong', hex: '0x80', desc: 'Long toast notifications' }
+            { flag: 0x40, name: 'Short notifications', hex: '0x40', desc: 'Short toast notifications' },
+            { flag: 0x80, name: 'Long notifications', hex: '0x80', desc: 'Long toast notifications' }
         ];
 
         var currentLogLevel = typeof cfg.LogLevels === 'number' ? cfg.LogLevels : 255;
         var bitmaskCheckboxes = LOG_LEVEL_FLAGS.map(function (lf) {
             var checked = (currentLogLevel & lf.flag) !== 0;
-            return '<label class="sls-cfg-item" data-search="' + lf.name.toLowerCase() + ' ' + lf.hex + '" style="background-color: rgb(35, 38, 46); padding: 10px 16px; margin-top: 4px; border-radius: 2px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
+            return '<label class="sls-cfg-item" data-search="' + lf.name.toLowerCase() + ' ' + lf.hex + ' ' + lf.desc.toLowerCase() + '" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 10px 16px; margin-top: 6px; border-radius: 6px; display: flex; align-items: center; justify-content: space-between; cursor: pointer;">' +
                 '<div>' +
-                    '<div style="font-size: 13px; font-weight: 400; color: rgb(220, 222, 223);">' + lf.name + ' <span style="color: rgb(26, 159, 255); font-family: monospace; font-size: 12px;">(' + lf.hex + ')</span></div>' +
-                    '<div style="font-size: 12px; color: rgb(139, 146, 154);">' + lf.desc + '</div>' +
+                    '<div style="font-size: 13.5px; font-weight: 500; color: #ffffff;">' + lf.name + ' <span style="color: #38bdf8; font-family: monospace; font-size: 12px;">(' + lf.hex + ')</span></div>' +
+                    '<div style="font-size: 12px; color: #8a929e;">' + lf.desc + '</div>' +
                 '</div>' +
                 '<input type="checkbox" id="sls-cfg-log-0x' + lf.flag.toString(16) + '" class="sls-cfg-log-flag" data-flag="' + lf.flag + '" ' + (checked ? 'checked' : '') + ' style="width: 18px; height: 18px; cursor: pointer;">' +
             '</label>';
         }).join('');
 
         var presetsHtml = '<div style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">' +
-            '<span style="font-size: 12px; font-weight: 500; color: rgb(139, 146, 154); align-self: center; margin-right: 4px;">Presets:</span>' +
-            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 255 ? 'active' : '') + '" data-preset="255">Default (0xFF)</button>' +
-            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 248 ? 'active' : '') + '" data-preset="248">Standard (0xF8)</button>' +
-            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 24 ? 'active' : '') + '" data-preset="24">Quiet (0x18)</button>' +
-            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 0 ? 'active' : '') + '" data-preset="0">Silent (0x00)</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 255 ? 'active' : '') + '" data-preset="255">Normal</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 248 ? 'active' : '') + '" data-preset="248">Fewer messages</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 24 ? 'active' : '') + '" data-preset="24">Problems only</button>' +
+            '<button type="button" class="sls-preset-chip ' + (currentLogLevel === 0 ? 'active' : '') + '" data-preset="0">Silent</button>' +
         '</div>';
 
         var logLevelsCard = presetsHtml +
-            '<div class="sls-cfg-item" data-search="loglevel bitmask hex" style="background-color: rgb(35, 38, 46); padding: 12px 16px; margin-top: 6px; border-radius: 2px; display: flex; align-items: center; justify-content: space-between;">' +
-            '<div>' +
-                '<div style="font-size: 14px; font-weight: 300; color: rgb(220, 222, 223);">Combined Bitmask Value</div>' +
-                '<div style="font-size: 13px; color: rgb(139, 146, 154); margin-top: 2px;">Calculated integer bitmask for active log levels</div>' +
-            '</div>' +
-            '<input type="text" id="sls-cfg-loglevel-hex" class="sls-cfg-input" style="width: 180px; font-family: monospace; font-weight: 700; text-align: center;" value="0x' + currentLogLevel.toString(16).toUpperCase() + ' (' + currentLogLevel + ')">' +
+            makeSettingRow('Log levels', 'Bitmask value. Only change this if you know the flags.',
+                '<input type="text" id="sls-cfg-loglevel-hex" class="sls-cfg-input" style="width: 180px; font-family: monospace; font-weight: 700; text-align: center;" value="0x' + currentLogLevel.toString(16).toUpperCase() + ' (' + currentLogLevel + ')">',
+                'LogLevels log levels bitmask hex') +
+            '<div style="display: flex; flex-direction: column; margin-top: 6px;">' + bitmaskCheckboxes + '</div>';
+
+        var diagCard = makeSettingRow('Log every Steam call', 'Makes the log file very large. Only for debugging.',
+                makeToggle('sls-cfg-ExtendedLogging', cfg.ExtendedLogging), 'ExtendedLogging extended logging') +
+            makeSettingRow('Write Steam\'s interface list to the log', 'Used when you report a problem.',
+                makeToggle('sls-cfg-DumpClientInterfaces', cfg.DumpClientInterfaces), 'DumpClientInterfaces dump interfaces diagnostics');
+
+        var sec6Html = makeSection('sls-cfg-sec-logging', 'Diagnostics',
+            'Logs help you and the Navi team find problems. Leave these on their defaults unless you\'re troubleshooting.',
+            makeCard('Log detail', '', logLevelsCard) +
+            makeCard('Debug tools', '', diagCard),
+            false);
+
+        // ---------------------------------------------------------------------
+        // S8 — Danger zone
+        // ---------------------------------------------------------------------
+        var redirectDescText = (managedCount > 0)
+            ? 'Stops redirecting saves for ' + managedCount + (managedCount === 1 ? ' game.' : ' games.') + ' Files already redirected stay where they are.'
+            : 'No games have redirected saves right now.';
+
+        var sec7Html = makeSection('sls-cfg-sec-danger', 'Danger zone',
+            'These actions change or delete your Navi settings. You can\'t undo them.',
+            makeCard('Reset all settings', 'Puts every setting back to its default: unlocked games, cloud provider, keys and logs. Your Steam account and save files are not touched.',
+                '<div class="sls-cfg-item sls-cfg-danger" data-search="reset all settings danger defaults">' +
+                    '<button id="sls-cfg-reset-btn" class="sls-cfg-btn sls-cfg-btn-danger" type="button" style="padding: 8px 14px;">Reset settings</button>' +
+                '</div>') +
+            makeCard('Remove all save redirections', '',
+                '<div class="sls-cfg-item sls-cfg-danger" data-search="remove all save redirections danger" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">' +
+                    '<div id="sls-cfg-danger-redirect-desc" style="font-size: 13px; color: #8a929e; line-height: 18px; flex: 1 1 320px;">' + redirectDescText + '</div>' +
+                    '<button id="sls-cfg-remove-redirects-btn" class="sls-cfg-btn sls-cfg-btn-danger" type="button"' + (managedCount > 0 ? '' : ' disabled') + ' style="padding: 8px 14px;">Remove redirections</button>' +
+                '</div>') +
+            makeCard('Delete all backups', '',
+                '<div class="sls-cfg-item sls-cfg-danger" data-search="delete all backups danger" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;">' +
+                    '<div style="font-size: 13px; color: #8a929e; line-height: 18px; flex: 1 1 320px;">Deletes saved copies of your saves on this computer. Your current saves and Steam Cloud saves are not touched.</div>' +
+                    '<button id="sls-cfg-delete-backups-btn" class="sls-cfg-btn sls-cfg-btn-danger" type="button" style="padding: 8px 14px;">Delete backups</button>' +
+                '</div>') +
+            '<div style="background: #171a22; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px; padding: 12px 16px; margin-top: 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">' +
+                '<div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: #8a929e;">' +
+                    '<span style="font-size: 14px;">☁️</span>' +
+                    '<span id="sls-cfg-danger-cloud-status">Signed in to ' + providerLabel(cs.Provider) + '. Manage this in Cloud saves.</span>' +
+                '</div>' +
+                '<a href="#" id="sls-cfg-danger-to-cloudsaves" style="color: #38bdf8; text-decoration: underline; font-size: 13px;">Open Cloud saves ↗</a>' +
+            '</div>',
+            false);
+
+        var headerHtml = '<div style="max-width: 980px; width: 100%; box-sizing: border-box; margin: 0 0 16px 0;">' +
+            '<div id="sls-cfg-context" style="margin-bottom: 6px; font-size: 12px; color: #8a929e;">' + escapeHtml(contextText) + '</div>' +
+            '<h1 id="sls-cfg-main-title" style="margin: 0; color: #ffffff; font-size: 26px; font-weight: 700; line-height: 32px;">Cloud saves</h1>' +
+            '<p id="sls-cfg-main-desc" style="margin: 6px 0 0 0; font-size: 13.5px; line-height: 19px; color: #8a929e; max-width: 760px;">Keeps saves for unlocked and family-shared games outside Steam Cloud. Choose this computer, or connect an account to sync between devices.</p>' +
         '</div>' +
-        '<div style="display: flex; flex-direction: column; margin-top: 6px;">' + bitmaskCheckboxes + '</div>';
+        '<div id="sls-cfg-no-results" role="status" aria-live="polite" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box; margin-top: 16px; padding: 16px; background-color: #1c202a; border-radius: 6px; color: #e2e8f0; font-size: 13px;"></div>';
 
-        var diagCard = makeSettingRow('Dump Client Interfaces', 'Dumps all used IClientInterfaceMaps to disk for reverse engineering',
-            makeToggle('sls-cfg-DumpClientInterfaces', cfg.DumpClientInterfaces), 'DumpClientInterfaces') +
-            makeSettingRow('Extended Logging', 'Logs all calls to Steamworks (creates extremely large logfile, only for debugging)',
-                makeToggle('sls-cfg-ExtendedLogging', cfg.ExtendedLogging), 'ExtendedLogging');
-
-        var sec6Html = '<div id="sls-cfg-sec-logging" class="sls-cfg-section" style="display: none; max-width: 980px; width: 100%; box-sizing: border-box;">' +
-            '<div class="DialogHeader" style="color: rgb(255, 255, 255); font-size: 22px; font-weight: 700; line-height: 28px; margin: 8px 0px 12px 0px;">Notifications &amp; Logs</div>' +
-            makeCard('LogLevels Bitmask Configuration', 'Bitwise flags controlling terminal and in-client notification verbosity', logLevelsCard) +
-            makeCard('Engine Diagnostics & Interface Dumps', 'Low-level introspection flags for Navi and Steamworks interfaces', diagCard) +
-        '</div>';
-
-        var sidebarHtml = '<div class="PageListColumn" style="background-color: rgb(42, 45, 52); width: 220px; min-width: 200px; max-width: 240px; height: 100%; padding: 36px 0px 16px 0px; display: flex; flex-direction: column; box-sizing: border-box; flex-shrink: 0; user-select: none;">' +
-            '<div style="color: rgb(26, 159, 255); font-size: 17px; font-weight: 700; text-transform: uppercase; padding: 0px 14px 0px 24px; margin: 0px 0px 14px 0px; line-height: 24px;">NAVI SETTINGS</div>' +
-            '<div style="margin: 0 16px 12px 16px; position: relative;">' +
-                '<input type="text" id="sls-cfg-search" placeholder="Filter settings..." style="width: 100%; background: rgba(23, 29, 37, 0.7); border: none; border-radius: 2px; color: rgb(223, 227, 230); padding: 6px 10px 6px 28px; font-size: 12px; height: 30px; min-height: 30px; outline: none; box-sizing: border-box;">' +
-                '<svg style="position: absolute; left: 8px; top: 7px; width: 14px; height: 14px; color: rgb(139, 146, 154);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>' +
+        var sidebarHtml = '<div class="PageListColumn sls-cfg-sidebar" style="background-color: rgb(42, 45, 52); width: 230px; min-width: 220px; max-width: 240px; height: 100%; padding: 24px 0px 16px 0px; display: flex; flex-direction: column; box-sizing: border-box; flex-shrink: 0; user-select: none;">' +
+            '<div style="color: #ffffff; font-size: 17px; font-weight: 700; padding: 0px 16px 0px 24px; margin: 0px 0px 14px 0px; line-height: 24px;">Navi</div>' +
+            '<div style="margin: 0 16px 12px 16px;">' +
+                '<label for="sls-cfg-search" style="display: block; font-size: 11px; font-weight: 600; color: rgb(139, 146, 154); margin: 0 0 4px 2px;">Search settings</label>' +
+                '<div style="position: relative;">' +
+                    '<input type="text" id="sls-cfg-search" placeholder="Try &quot;backup&quot; or &quot;depot&quot;" style="width: 100%; background: rgba(23, 29, 37, 0.7); border: none; border-radius: 2px; color: rgb(223, 227, 230); padding: 6px 26px 6px 28px; font-size: 12px; height: 30px; min-height: 30px; outline: none; box-sizing: border-box;">' +
+                    '<svg style="position: absolute; left: 8px; top: 8px; width: 14px; height: 14px; color: rgb(139, 146, 154);" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>' +
+                    '<button id="sls-cfg-search-clear" type="button" aria-label="Clear search" style="display: none; position: absolute; right: 6px; top: 5px; background: none; border: none; color: rgb(139, 146, 154); font-size: 16px; line-height: 1; cursor: pointer; padding: 0 2px;">&times;</button>' +
+                '</div>' +
             '</div>' +
-            '<div role="tablist" aria-orientation="vertical" style="display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 0; margin: 0;">' +
+            '<div class="sls-cfg-tablist" role="tablist" aria-orientation="vertical" style="display: flex; flex-direction: column; flex: 1; overflow-y: auto; padding: 0; margin: 0;">' +
                 '<div class="sls-cfg-pill active" role="tab" tabindex="0" aria-selected="true" data-target="sls-cfg-sec-cloudsaves">' +
                     '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/><path d="M12 13v6"/><path d="m9 16 3 3 3-3"/></svg>' +
                     '</div>' +
-                    '<span>Cloud Saves</span>' +
+                    '<span>Cloud saves</span>' +
                 '</div>' +
                 '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-api">' +
                     '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path fill="currentColor" d="M6.05882 7.05042C8.17647 6.59664 10.1429 5.9916 12.1092 5.08403C14.0756 4.02521 16.042 2.81513 17.7059 1.30252C18.0084 1.15126 18.3109 1 18.6134 1C18.916 1 19.2185 1.15126 19.3697 1.30252C21.0336 2.81513 23 4.02521 24.9664 5.08403C26.7815 5.9916 28.8992 6.7479 31.0168 7.05042C31.6218 7.05042 32.0756 7.65546 32.0756 8.2605C32.0756 14.6134 31.1681 19.4538 29.2017 23.3866C27.2353 27.4706 23.9076 30.6471 19.2185 33.6723C19.0672 33.8235 18.7647 33.8235 18.4622 33.8235C18.1597 33.8235 18.0084 33.8235 17.7059 33.6723C13.0168 30.7983 9.68908 27.4706 7.72269 23.3866C5.90756 19.4538 5 14.6134 5 8.2605C5 7.65546 5.45378 7.20168 6.05882 7.05042Z"></path></svg>' +
                     '</div>' +
-                    '<span>Provider Keys</span>' +
+                    '<span>Provider keys</span>' +
                 '</div>' +
                 '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-general">' +
                     '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path d="M34 6H2V28H10.6L9 34H27L25.4 28H34V6ZM30 24H6V10H30V24Z" fill="currentColor"></path></svg>' +
                     '</div>' +
-                    '<span>General &amp; Unlock</span>' +
+                    '<span>Unlocking</span>' +
                 '</div>' +
                 '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-profile">' +
                     '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path d="M2 6.04999V30.05H34V6.04999H2ZM12 9.04999C13.933 9.04999 15.5 10.617 15.5 12.55C15.5 14.483 13.933 16.05 12 16.05C10.067 16.05 8.5 14.483 8.5 12.55C8.5 10.617 10.067 9.04999 12 9.04999ZM5 27.05C5 23.184 8.13401 20.05 12 20.05C15.866 20.05 19 23.184 19 27.05H5ZM30.05 21.05H22.05V17.05H30.05V21.05ZM29.99 14.05H20V10.05H30L29.99 14.05Z" fill="currentColor"></path></svg>' +
                     '</div>' +
-                    '<span>Account &amp; Spoofing</span>' +
+                    '<span>Account</span>' +
                 '</div>' +
                 '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-overrides">' +
                     '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 36 36" fill="none" width="20" height="20"><path fill-rule="evenodd" clip-rule="evenodd" d="M33 19.9286H3L7.35714 6H28.6429L33 19.9286ZM3 31.7143V24.2143H33V31.7143H3Z" fill="currentColor"></path></svg>' +
                     '</div>' +
-                    '<span>Library &amp; Depots</span>' +
+                    '<span>Library</span>' +
                 '</div>' +
                 '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-logging">' +
                     '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
                         '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" width="20" height="20"><path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd" d="M10 1.66666C14.6024 1.66666 18.3334 5.39762 18.3334 10C18.3334 14.6024 14.6024 18.3333 10 18.3333C5.39765 18.3333 1.66669 14.6024 1.66669 10C1.66669 5.39762 5.39765 1.66666 10 1.66666ZM12.2223 5L11.389 10H8.61119L7.77786 5H12.2223ZM10.0001 15C8.92619 15 8.05564 14.1294 8.05564 13.0556C8.05564 11.9817 8.92619 11.1111 10.0001 11.1111C11.074 11.1111 11.9445 11.9817 11.9445 13.0556C11.9445 14.1294 11.074 15 10.0001 15Z"></path></svg>' +
                     '</div>' +
-                    '<span>Notifications &amp; Logs</span>' +
+                    '<span>Diagnostics</span>' +
+                '</div>' +
+                '<div class="sls-cfg-pill" role="tab" tabindex="0" aria-selected="false" data-target="sls-cfg-sec-danger">' +
+                    '<div style="width: 20px; height: 20px; margin-right: 12px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">' +
+                        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"></path><path d="M12 9v4"></path><path d="M12 17h.01"></path></svg>' +
+                    '</div>' +
+                    '<span>Danger zone</span>' +
                 '</div>' +
             '</div>' +
             '<div style="height: 1px; background: rgba(255,255,255,0.08); margin: 12px 16px;"></div>' +
-            '<div style="padding: 0 16px; display: flex; flex-direction: column; gap: 8px;">' +
-                '<div id="sls-cfg-dirty-pill" style="font-size: 11px; font-weight: 500; color: #2ecc71; text-align: center; padding: 2px 0;">✓ All changes saved</div>' +
-                '<button id="sls-cfg-save-btn" class="sls-cfg-btn" style="background: linear-gradient(to right, #47bfff 0%, #1a44c2 60%); color: #fff; border: none; border-radius: 2px; padding: 8px 14px; font-size: 13px; font-weight: 500; cursor: pointer; width: 100%; text-align: center;">Save Changes (Ctrl+S)</button>' +
-                '<button id="sls-cfg-discard-btn" class="sls-cfg-btn" style="display: none; width: 100%; text-align: center;">Discard Changes</button>' +
-                '<button id="sls-cfg-restart-btn" class="sls-cfg-btn" style="background: rgba(255, 77, 77, 0.15); border: 1px solid rgba(255, 77, 77, 0.3); color: #ff6b6b; width: 100%; text-align: center;">Restart Steam</button>' +
+            '<div class="sls-cfg-saveblock" style="padding: 0 16px; display: flex; flex-direction: column; gap: 8px;">' +
+                '<div id="sls-cfg-dirty-pill" role="status" aria-live="polite" style="font-size: 11px; font-weight: 500; color: #2ecc71; text-align: center; padding: 2px 0;">All changes saved</div>' +
+                '<button id="sls-cfg-save-btn" class="sls-cfg-btn" type="button" disabled style="background: rgba(255, 255, 255, 0.08); color: #64748b; border: none; border-radius: 6px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center;">Save changes</button>' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 2px;">' +
+                    '<button id="sls-cfg-discard-btn" type="button" style="display: none; background: none; border: none; color: #8a929e; font-size: 12px; cursor: pointer; padding: 0;">Discard changes</button>' +
+                    '<span style="color: #64748b; font-size: 11px; margin-left: auto;">Ctrl+S</span>' +
+                '</div>' +
+                '<button id="sls-cfg-restart-btn" class="sls-cfg-btn" type="button" style="background: rgba(255, 77, 77, 0.12); border: 1px solid rgba(255, 77, 77, 0.3); color: #ff6b6b; width: 100%; text-align: center; border-radius: 6px; padding: 8px 12px; font-size: 12px; margin-top: 4px;">Restart Steam</button>' +
             '</div>' +
         '</div>';
 
-        var dialogContentHtml = '<div class="DialogContent _DialogLayout" style="background-color: rgb(23, 29, 37); flex: 1; height: 100%; padding: 0; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden;">' +
+        var dialogContentHtml = '<div class="DialogContent _DialogLayout" style="background-color: #14171d; flex: 1; height: 100%; padding: 0; display: flex; flex-direction: column; box-sizing: border-box; overflow: hidden; min-width: 0;">' +
             '<div id="sls-cfg-status-banner" role="status" aria-live="polite" style="display: none; margin: 16px 32px 0 32px; max-width: 980px; border-radius: 2px; padding: 10px 14px; font-size: 13px; font-weight: 500; border: 1px solid transparent; box-sizing: border-box;"></div>' +
             '<div class="sls-cfg-dialog-body" style="overflow-y: auto; padding: 24px 32px 48px 32px; width: 100%; max-width: 100%; flex: 1; display: flex; flex-direction: column; box-sizing: border-box;">' +
+                headerHtml +
                 sec1Html +
                 sec2Html +
                 sec3Html +
                 sec4Html +
                 sec5Html +
                 sec6Html +
+                sec7Html +
             '</div>' +
         '</div>';
 
-        container.innerHTML = '<div style="display: flex; flex-direction: row; width: 100%; height: 100%; overflow: hidden;">' +
+        container.innerHTML = '<div class="sls-cfg-shell" style="display: flex; flex-direction: row; width: 100%; height: 100%; overflow: hidden;">' +
             sidebarHtml +
             dialogContentHtml +
         '</div>';
-
-        // BIND EVENT LISTENERS
         function showStatusBanner(msg, color) {
             var banner = document.getElementById('sls-cfg-status-banner');
             if (!banner) return;
@@ -1049,10 +1234,189 @@
             }, 6000);
         }
 
-        // 1. Category pill switching
+        function slsConfirmDialog(opts) {
+            if (document.getElementById('sls-cfg-dialog-backdrop')) return null;
+            opts = opts || {};
+
+            var backdrop = document.createElement('div');
+            backdrop.id = 'sls-cfg-dialog-backdrop';
+            backdrop.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 1000001; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;';
+
+            var dialog = document.createElement('div');
+            dialog.setAttribute('role', 'dialog');
+            dialog.setAttribute('aria-modal', 'true');
+            dialog.setAttribute('aria-label', opts.title || 'Confirm');
+            dialog.style.cssText = 'background: #23262e; border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; max-width: 460px; width: 100%; box-sizing: border-box; padding: 20px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);';
+            if (opts.danger) dialog.style.borderLeft = '3px solid #ef4444';
+
+            var titleEl = document.createElement('div');
+            titleEl.style.cssText = 'color: #ffffff; font-size: 17px; font-weight: 600; line-height: 22px;';
+            titleEl.textContent = opts.title || 'Confirm';
+            dialog.appendChild(titleEl);
+
+            if (opts.body) {
+                var bodyEl = document.createElement('div');
+                bodyEl.style.cssText = 'color: #94a3b8; font-size: 13px; line-height: 18px;';
+                bodyEl.textContent = opts.body;
+                dialog.appendChild(bodyEl);
+            }
+
+            var inputEl = null;
+            var errorEl = null;
+            if (opts.input) {
+                var fieldLabel = document.createElement('label');
+                fieldLabel.style.cssText = 'display: flex; flex-direction: column; gap: 4px; color: #8a929e; font-size: 12px;';
+                var labelText = document.createElement('span');
+                labelText.textContent = opts.input.label || '';
+                fieldLabel.appendChild(labelText);
+                inputEl = document.createElement('input');
+                inputEl.type = 'text';
+                inputEl.className = 'sls-cfg-input';
+                inputEl.style.width = '100%';
+                inputEl.autocomplete = 'off';
+                inputEl.placeholder = opts.input.placeholder || '';
+                inputEl.setAttribute('aria-label', opts.input.label || '');
+                fieldLabel.appendChild(inputEl);
+                dialog.appendChild(fieldLabel);
+
+                errorEl = document.createElement('div');
+                errorEl.className = 'sls-cfg-inline-error';
+                errorEl.setAttribute('role', 'alert');
+                errorEl.style.display = 'none';
+                dialog.appendChild(errorEl);
+            }
+
+            var buttonRow = document.createElement('div');
+            buttonRow.style.cssText = 'display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; margin-top: 4px;';
+
+            var cancelBtn = document.createElement('button');
+            cancelBtn.type = 'button';
+            cancelBtn.className = 'sls-cfg-btn';
+            cancelBtn.style.cssText = 'padding: 8px 14px;';
+            cancelBtn.textContent = opts.cancelLabel || 'Cancel';
+
+            var confirmBtn = document.createElement('button');
+            confirmBtn.type = 'button';
+            confirmBtn.className = 'sls-cfg-btn';
+            confirmBtn.style.cssText = 'padding: 8px 14px; background: ' + (opts.danger ? 'rgba(239, 68, 68, 0.2)' : '#1a9fff') + '; border: 1px solid ' + (opts.danger ? 'rgba(239, 68, 68, 0.5)' : '#1a9fff') + '; color: #ffffff; font-weight: 600; border-radius: 6px;';
+            confirmBtn.textContent = opts.confirmLabel || 'Confirm';
+            confirmBtn.disabled = !!(opts.input && opts.input.expected);
+
+            buttonRow.appendChild(cancelBtn);
+            buttonRow.appendChild(confirmBtn);
+            dialog.appendChild(buttonRow);
+            backdrop.appendChild(dialog);
+
+            function closeDialog() {
+                document.removeEventListener('keydown', onKeyDown, true);
+                if (backdrop.parentNode) backdrop.parentNode.removeChild(backdrop);
+            }
+
+            function tryConfirm() {
+                if (opts.input && opts.input.expected) {
+                    var expected = opts.input.expected || '';
+                    if (inputEl.value !== expected) {
+                        if (errorEl) {
+                            errorEl.textContent = opts.mismatchMessage || '';
+                            errorEl.style.display = 'block';
+                        }
+                        return;
+                    }
+                }
+                closeDialog();
+                if (typeof opts.onConfirm === 'function') opts.onConfirm(inputEl ? inputEl.value : undefined);
+            }
+
+            function onKeyDown(e) {
+                if (e.key === 'Escape') {
+                    e.preventDefault();
+                    closeDialog();
+                    return;
+                }
+                if (e.key !== 'Tab') return;
+                var focusables = dialog.querySelectorAll('button, input');
+                if (!focusables.length) return;
+                var first = focusables[0];
+                var last = focusables[focusables.length - 1];
+                if (e.shiftKey && document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                } else if (!e.shiftKey && document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+
+            cancelBtn.onclick = closeDialog;
+            confirmBtn.onclick = tryConfirm;
+
+            dialog.vgp_oncancel = closeDialog;
+            backdrop.vgp_oncancel = closeDialog;
+
+            if (inputEl) {
+                inputEl.oninput = function () {
+                    confirmBtn.disabled = opts.input.expected ? (inputEl.value !== opts.input.expected) : false;
+                    if (errorEl) {
+                        errorEl.textContent = '';
+                        errorEl.style.display = 'none';
+                    }
+                };
+                inputEl.onkeydown = function (e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        tryConfirm();
+                    }
+                };
+            }
+
+            document.body.appendChild(backdrop);
+            document.addEventListener('keydown', onKeyDown, true);
+            if (inputEl) inputEl.focus();
+            else confirmBtn.focus();
+
+            return backdrop;
+        }
+
+        // ---------------------------------------------------------------------
+        // Category pill switching + search
+        // ---------------------------------------------------------------------
         var pills = container.querySelectorAll('.sls-cfg-pill');
         var dialogBody = container.querySelector('.sls-cfg-dialog-body');
+        var activeTabId = 'sls-cfg-sec-cloudsaves';
+
+        var TAB_METAS = {
+            'sls-cfg-sec-cloudsaves': {
+                title: 'Cloud saves',
+                desc: 'Keeps saves for unlocked and family-shared games outside Steam Cloud. Choose this computer, or connect an account to sync between devices.'
+            },
+            'sls-cfg-sec-api': {
+                title: 'Provider keys',
+                desc: 'Some providers ask for a key before they\'ll send game files. Keys stay in config.json on this computer and are only sent to the provider that asked. Keys are never shown in logs.'
+            },
+            'sls-cfg-sec-general': {
+                title: 'Unlocking',
+                desc: 'Change how Navi unlocks games, redirects saves and adds features to Steam. You\'ll see it when a change needs a restart.'
+            },
+            'sls-cfg-sec-profile': {
+                title: 'Account',
+                desc: 'These changes are only visible in your Steam client. They are not sent to Steam.'
+            },
+            'sls-cfg-sec-overrides': {
+                title: 'Library',
+                desc: 'Games, DLC and download files Navi manages. Lists take one entry per line.'
+            },
+            'sls-cfg-sec-logging': {
+                title: 'Diagnostics',
+                desc: 'Logs help you and the Navi team find problems. Leave these on their defaults unless you\'re troubleshooting.'
+            },
+            'sls-cfg-sec-danger': {
+                title: 'Danger zone',
+                desc: 'These actions change or delete your Navi settings. You can\'t undo them.'
+            }
+        };
+
         function switchTab(targetId) {
+            activeTabId = targetId;
             pills.forEach(function (p) {
                 var isTarget = p.getAttribute('data-target') === targetId;
                 if (isTarget) {
@@ -1063,14 +1427,28 @@
                     p.setAttribute('aria-selected', 'false');
                 }
             });
-            var sections = container.querySelectorAll('.sls-cfg-section');
-            sections.forEach(function (sec) {
-                sec.style.display = (sec.id === targetId) ? 'block' : 'none';
-            });
+            var meta = TAB_METAS[targetId];
+            if (meta) {
+                var mainTitle = document.getElementById('sls-cfg-main-title');
+                var mainDesc = document.getElementById('sls-cfg-main-desc');
+                if (mainTitle) mainTitle.textContent = meta.title;
+                if (mainDesc) mainDesc.textContent = meta.desc;
+            }
+            var searchBox = document.getElementById('sls-cfg-search');
+            if (searchBox && searchBox.value) {
+                searchBox.value = '';
+                applySearch();
+            } else {
+                var sections = container.querySelectorAll('.sls-cfg-section');
+                sections.forEach(function (sec) {
+                    sec.style.display = (sec.id === targetId) ? 'block' : 'none';
+                });
+            }
             if (dialogBody) {
                 dialogBody.scrollTop = 0;
             }
         }
+
         pills.forEach(function (pill) {
             function activateTab() {
                 switchTab(pill.getAttribute('data-target'));
@@ -1084,36 +1462,71 @@
             };
         });
 
-        // 2. Live search filter
         var searchInput = document.getElementById('sls-cfg-search');
-        if (searchInput) {
-            searchInput.oninput = function () {
-                var q = searchInput.value.trim().toLowerCase();
-                var items = container.querySelectorAll('.sls-cfg-item');
-                items.forEach(function (el) {
-                    if (!q) {
-                        el.style.display = '';
-                        return;
-                    }
-                    var text = (el.getAttribute('data-search') || el.textContent || '').toLowerCase();
-                    el.style.display = (text.indexOf(q) !== -1) ? '' : 'none';
-                });
-                var sections = container.querySelectorAll('.sls-cfg-section');
-                if (!q) {
-                    var activePill = container.querySelector('.sls-cfg-pill.active');
-                    var targetId = activePill ? activePill.getAttribute('data-target') : 'sls-cfg-sec-cloudsaves';
-                    sections.forEach(function (sec) {
-                        sec.style.display = (sec.id === targetId) ? 'block' : 'none';
-                    });
-                } else {
-                    sections.forEach(function (sec) {
-                        var visible = sec.querySelectorAll('.sls-cfg-item:not([style*="display: none"])');
-                        sec.style.display = visible.length > 0 ? 'block' : 'none';
-                    });
-                }
-            };
+        var searchClearBtn = document.getElementById('sls-cfg-search-clear');
+        var noResultsEl = document.getElementById('sls-cfg-no-results');
+
+        function visibleItemCount(sec) {
+            var items = sec.querySelectorAll('.sls-cfg-item');
+            var n = 0;
+            for (var i = 0; i < items.length; i++) {
+                if (items[i].style.display !== 'none') n++;
+            }
+            return n;
         }
 
+        function applySearch() {
+            if (!searchInput) return;
+            var raw = searchInput.value;
+            var q = raw.trim().toLowerCase();
+            if (searchClearBtn) searchClearBtn.style.display = raw ? 'block' : 'none';
+
+            var items = container.querySelectorAll('.sls-cfg-item');
+            items.forEach(function (el) {
+                if (!q) {
+                    el.style.display = '';
+                    return;
+                }
+                var text = (el.getAttribute('data-search') || el.textContent || '').toLowerCase();
+                el.style.display = (text.indexOf(q) !== -1) ? '' : 'none';
+            });
+
+            var sections = container.querySelectorAll('.sls-cfg-section');
+            var anyVisible = false;
+            if (!q) {
+                sections.forEach(function (sec) {
+                    sec.style.display = (sec.id === activeTabId) ? 'block' : 'none';
+                });
+                anyVisible = true;
+            } else {
+                sections.forEach(function (sec) {
+                    var show = visibleItemCount(sec) > 0;
+                    sec.style.display = show ? 'block' : 'none';
+                    if (show) anyVisible = true;
+                });
+            }
+
+            if (noResultsEl) {
+                if (q && !anyVisible) {
+                    noResultsEl.textContent = 'No settings match "' + raw.trim() + '". Try "backup", "saves" or "reset".';
+                    noResultsEl.style.display = 'block';
+                } else {
+                    noResultsEl.style.display = 'none';
+                }
+            }
+        }
+
+        if (searchInput) {
+            searchInput.oninput = applySearch;
+        }
+        if (searchClearBtn && searchInput) {
+            searchClearBtn.onclick = function (e) {
+                e.preventDefault();
+                searchInput.value = '';
+                applySearch();
+                searchInput.focus();
+            };
+        }
         // 3. Cloud Saves (CloudRedirect) event handlers and UI logic
         var csState = { enabled: (cfg.CloudSaves && typeof cfg.CloudSaves.Enabled === 'boolean') ? cfg.CloudSaves.Enabled : true, managedAppsCount: 0, pendingOpsCount: 0 };
 
@@ -1138,37 +1551,45 @@
                 csState.pendingOpsCount = s.pendingOpsCount || 0;
 
                 if (masterBtn) {
-                    if (csState.enabled) {
-                        masterBtn.textContent = 'Enabled';
-                        masterBtn.style.background = '#059669';
-                        masterBtn.style.color = '#ffffff';
-                    } else {
-                        masterBtn.textContent = 'Disabled';
-                        masterBtn.style.background = '#4b5563';
-                        masterBtn.style.color = '#ffffff';
-                    }
+                    masterBtn.textContent = csState.enabled ? 'Turn off' : 'Turn on';
+                    masterBtn.style.background = csState.enabled ? '#1a9fff' : '#4b5563';
+                    masterBtn.style.color = '#ffffff';
                 }
+                var masterToggle = document.getElementById('sls-cfg-cs-master-toggle');
+                if (masterToggle) masterToggle.checked = csState.enabled;
+                var masterStatus = document.getElementById('sls-cfg-cs-master-status');
+                if (masterStatus) masterStatus.textContent = csState.enabled ? ('On · ' + csState.managedAppsCount + ' games') : 'Off';
                 if (engineBadge) {
                     if (csState.enabled) {
-                        engineBadge.textContent = 'Running ✓';
+                        engineBadge.textContent = 'Running';
                         engineBadge.style.background = 'rgba(16, 185, 129, 0.15)';
                         engineBadge.style.color = '#10b981';
                         engineBadge.style.border = '1px solid rgba(16, 185, 129, 0.3)';
                     } else {
-                        engineBadge.textContent = 'Stopped';
+                        engineBadge.textContent = 'Not running';
                         engineBadge.style.background = 'rgba(172, 178, 201, 0.1)';
                         engineBadge.style.color = '#9ca3af';
                         engineBadge.style.border = '1px solid rgba(172, 178, 201, 0.2)';
                     }
                 }
                 if (managedBadge) {
-                    managedBadge.textContent = csState.managedAppsCount + ' Games Managed';
+                    managedBadge.textContent = csState.managedAppsCount + (csState.managedAppsCount === 1 ? ' game redirected' : ' games redirected');
+                }
+                var dangerRedirectDesc = document.getElementById('sls-cfg-danger-redirect-desc');
+                if (dangerRedirectDesc) {
+                    dangerRedirectDesc.textContent = csState.managedAppsCount > 0
+                        ? 'Stops redirecting saves for ' + csState.managedAppsCount + (csState.managedAppsCount === 1 ? ' game.' : ' games.') + ' Files already redirected stay where they are.'
+                        : 'No games have redirected saves right now.';
+                }
+                var removeRedirectsBtnEl = document.getElementById('sls-cfg-remove-redirects-btn');
+                if (removeRedirectsBtnEl) {
+                    removeRedirectsBtnEl.disabled = csState.managedAppsCount === 0;
                 }
                 if (csState.pendingOpsCount > 0) {
                     if (pendingCallout) pendingCallout.style.display = 'flex';
                     if (pendingBadge) {
                         pendingBadge.style.display = 'inline-block';
-                        pendingBadge.textContent = csState.pendingOpsCount + ' Pending Op' + (csState.pendingOpsCount === 1 ? '' : 's');
+                        pendingBadge.textContent = csState.pendingOpsCount + (csState.pendingOpsCount === 1 ? ' change waits for a restart' : ' changes wait for a restart');
                         pendingBadge.style.background = 'rgba(245, 158, 11, 0.15)';
                         pendingBadge.style.color = '#f59e0b';
                         pendingBadge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
@@ -1199,19 +1620,23 @@
             }
 
             var provider = providerSel ? providerSel.value : ((cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only');
+            var dangerCloudStatus = document.getElementById('sls-cfg-danger-cloud-status');
+            if (dangerCloudStatus) {
+                dangerCloudStatus.textContent = 'Signed in to ' + providerLabel(provider) + '. Manage this in Cloud saves.';
+            }
             function renderProviderAuthButtons(prov, isAuthed) {
     if (!authActions) return;
     var isLocal = (prov === 'local-only');
     // Button styles
     var loginStyle = isLocal
-        ? 'background: rgba(37, 99, 235, 0.35); border: 1px solid rgba(59, 130, 246, 0.35); color: rgba(255, 255, 255, 0.6); padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 2px;'
-        : 'background: #2563eb; border: 1px solid #3b82f6; color: #ffffff; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 2px;';
+        ? 'background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.4); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: default; border-radius: 6px;'
+        : 'background: #1c202a; border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;';
     var signOutStyle = isLocal
-        ? 'background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); color: rgba(248, 113, 113, 0.55); padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 2px;'
-        : 'background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; border-radius: 2px;';
+        ? 'background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); color: rgba(248, 113, 113, 0.4); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: default; border-radius: 6px;'
+        : 'background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;';
     authActions.innerHTML =
-        '<button id="sls-cfg-cs-connect-btn" class="sls-cfg-btn" style="' + loginStyle + '">' + (isAuthed ? 'Login / Reconnect' : 'Login') + '</button>' +
-        '<button id="sls-cfg-cs-disconnect-btn" class="sls-cfg-btn" style="' + signOutStyle + '">Sign Out</button>';
+        '<button id="sls-cfg-cs-connect-btn" class="sls-cfg-btn" style="' + loginStyle + '">' + (isAuthed ? 'Reconnect' : 'Connect') + '</button>' +
+        '<button id="sls-cfg-cs-disconnect-btn" class="sls-cfg-btn" style="' + signOutStyle + '">Disconnect</button>';
 
     // Connect button handler
     var cBtn = document.getElementById('sls-cfg-cs-connect-btn');
@@ -1331,7 +1756,7 @@
                                 };
                             }
                         } else {
-                            authActions.innerHTML = '<button id="sls-cfg-cs-connect-btn" class="sls-cfg-btn" style="background: #2563eb; border: none; color: #ffffff; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 2px;">Connect</button>';
+                            authActions.innerHTML = '<button id="sls-cfg-cs-connect-btn" class="sls-cfg-btn" style="background: #1c202a; border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;">Connect</button>';
                             var cBtn = document.getElementById('sls-cfg-cs-connect-btn');
                             if (cBtn) {
                                 cBtn.onclick = function (e) {
@@ -1453,7 +1878,22 @@
             if (csState.selectedAppId) {
                 var selAppId = csState.selectedAppId;
                 var selTitle = resolveTitle(selAppId, csState.selectedGameTitle);
-                if (breadcrumbEl) breadcrumbEl.textContent = 'Home > Account > View Steam Cloud > ' + selTitle;
+
+                function updateDrilldownBreadcrumb(title) {
+                    if (!breadcrumbEl) return;
+                    breadcrumbEl.innerHTML = 'Home &gt; Account &gt; <a href="#" id="sls-cfg-cs-crumb-back" style="color: #38bdf8; text-decoration: none; cursor: pointer;">View Steam Cloud</a> &gt; ' + escapeHtml(title);
+                    var crumbBack = document.getElementById('sls-cfg-cs-crumb-back');
+                    if (crumbBack) {
+                        crumbBack.onclick = function (e) {
+                            e.preventDefault();
+                            csState.selectedAppId = null;
+                            csState.selectedGameTitle = '';
+                            refreshCloudSavesUI();
+                        };
+                    }
+                }
+
+                updateDrilldownBreadcrumb(selTitle);
                 if (headingEl) headingEl.textContent = selTitle;
                 if (subtitleEl) subtitleEl.textContent = 'This game files are saved in your Steam Cloud :';
                 if (backBtnEl) backBtnEl.style.display = 'inline-block';
@@ -1469,7 +1909,7 @@
                                         titleCache[sId] = realName;
                                         try { localStorage.setItem('navi_app_titles_cache', JSON.stringify(titleCache)); } catch (e) {}
                                         if (headingEl) headingEl.textContent = realName;
-                                        if (breadcrumbEl) breadcrumbEl.textContent = 'Home > Account > View Steam Cloud > ' + realName;
+                                        updateDrilldownBreadcrumb(realName);
                                     }
                                 }
                             })
@@ -1480,7 +1920,10 @@
                 if (gameToolbarEl) {
                     gameToolbarEl.style.display = 'flex';
                     gameToolbarEl.innerHTML =
-                        '<div style="font-size:12px; color:#8f98a0;">AppID <b style="color:#fff;">' + escapeHtml(String(selAppId)) + '</b> &bull; Provider: <b style="color:#66c0f4;">' + escapeHtml(provider) + '</b></div>' +
+                        '<div style="display: flex; align-items: center; gap: 10px;">' +
+                            '<button id="sls-cfg-cs-toolbar-back" class="sls-cfg-btn" type="button" style="background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); color: #38bdf8; padding: 5px 11px; font-size: 12px; cursor: pointer; border-radius: 4px; font-weight: 500;">&larr; Back to Games</button>' +
+                            '<div style="font-size: 12px; color: #8a929e;">AppID <b style="color: #fff;">' + escapeHtml(String(selAppId)) + '</b> &bull; Provider: <b style="color: #66c0f4;">' + escapeHtml(provider) + '</b></div>' +
+                        '</div>' +
                         '<div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">' +
                             '<button id="sls-cfg-cs-app-sync" class="sls-cfg-btn" style="background:#2a475e; border:1px solid rgba(102,192,244,0.35); color:#66c0f4; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Sync Now</button>' +
                             '<button id="sls-cfg-cs-app-backup" class="sls-cfg-btn" style="background:#273b4b; border:1px solid rgba(255,255,255,0.14); color:#c6d4df; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Backup</button>' +
@@ -1488,6 +1931,16 @@
                             '<button id="sls-cfg-cs-app-reset" class="sls-cfg-btn" style="background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Reset</button>' +
                             '<button id="sls-cfg-cs-app-remove" class="sls-cfg-btn" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); color:#9ca3af; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Remove Redirect</button>' +
                         '</div>';
+
+                    var btnToolbarBack = document.getElementById('sls-cfg-cs-toolbar-back');
+                    if (btnToolbarBack) {
+                        btnToolbarBack.onclick = function (e) {
+                            e.preventDefault();
+                            csState.selectedAppId = null;
+                            csState.selectedGameTitle = '';
+                            refreshCloudSavesUI();
+                        };
+                    }
 
                     var btnSync = document.getElementById('sls-cfg-cs-app-sync');
                     if (btnSync) {
@@ -1574,7 +2027,7 @@
                     if (csState.selectedAppId !== selAppId) return;
                     var finalTitle = resolveTitle(selAppId, (data && data.gameTitle) ? data.gameTitle : selTitle);
                     if (headingEl) headingEl.textContent = finalTitle;
-                    if (breadcrumbEl) breadcrumbEl.textContent = 'Home > Account > View Steam Cloud > ' + finalTitle;
+                    updateDrilldownBreadcrumb(finalTitle);
 
                     var files = (data && Array.isArray(data.files)) ? data.files : [];
                     if (files.length === 0) {
@@ -1907,10 +2360,121 @@
             };
         }
 
-        // 7. API keys toggle visibility
+        // ---------------------------------------------------------------------
+        // Cloud saves master toggle & cross-links
+        // ---------------------------------------------------------------------
+        var masterToggle = document.getElementById('sls-cfg-cs-master-toggle');
+        var masterBtnEl = document.getElementById('sls-cfg-cs-master-btn');
+        if (masterToggle && masterBtnEl) {
+            masterToggle.onchange = function () {
+                masterBtnEl.click();
+            };
+        }
+
+        var linkToCloudSaves = document.getElementById('sls-cfg-link-to-cloudsaves');
+        if (linkToCloudSaves) {
+            linkToCloudSaves.onclick = function (e) {
+                e.preventDefault();
+                switchTab('sls-cfg-sec-cloudsaves');
+            };
+        }
+
+        var linkToGeneral = document.getElementById('sls-cfg-link-to-general');
+        if (linkToGeneral) {
+            linkToGeneral.onclick = function (e) {
+                e.preventDefault();
+                switchTab('sls-cfg-sec-general');
+            };
+        }
+
+        var disableCloudToggle = document.getElementById('sls-cfg-DisableCloud');
+        function updateCloudConflictNote() {
+            var note = document.getElementById('sls-cfg-steam-cloud-note');
+            if (!note) return;
+            var cloudOn = !(cfg.CloudSaves && cfg.CloudSaves.Enabled === false);
+            var steamOn = !(disableCloudToggle && disableCloudToggle.checked);
+            note.style.display = (cloudOn && steamOn) ? 'flex' : 'none';
+        }
+        if (disableCloudToggle) {
+            disableCloudToggle.addEventListener('change', updateCloudConflictNote);
+        }
+        updateCloudConflictNote();
+
+        // ---------------------------------------------------------------------
+        // Log detail bitmask + presets
+        // ---------------------------------------------------------------------
+        var logFlagInputs = container.querySelectorAll('.sls-cfg-log-flag');
+        var hexInput = document.getElementById('sls-cfg-loglevel-hex');
+        var presetChips = container.querySelectorAll('.sls-preset-chip');
+
+        function updateActivePresetChip(mask) {
+            presetChips.forEach(function (chip) {
+                var p = parseInt(chip.getAttribute('data-preset'), 10);
+                if (p === mask) {
+                    chip.classList.add('active');
+                } else {
+                    chip.classList.remove('active');
+                }
+            });
+        }
+
+        presetChips.forEach(function (chip) {
+            chip.onclick = function () {
+                var pVal = parseInt(chip.getAttribute('data-preset'), 10);
+                currentLogLevel = pVal;
+                logFlagInputs.forEach(function (fi) {
+                    var fl = parseInt(fi.getAttribute('data-flag'), 10);
+                    fi.checked = (pVal & fl) !== 0;
+                });
+                if (hexInput) {
+                    hexInput.value = '0x' + pVal.toString(16).toUpperCase() + ' (' + pVal + ')';
+                }
+                updateActivePresetChip(pVal);
+                checkDirty();
+            };
+        });
+
+        logFlagInputs.forEach(function (inp) {
+            inp.onchange = function () {
+                var newMask = 0;
+                logFlagInputs.forEach(function (fi) {
+                    if (fi.checked) {
+                        newMask |= parseInt(fi.getAttribute('data-flag'), 10);
+                    }
+                });
+                currentLogLevel = newMask;
+                if (hexInput) {
+                    hexInput.value = '0x' + newMask.toString(16).toUpperCase() + ' (' + newMask + ')';
+                }
+                updateActivePresetChip(newMask);
+                checkDirty();
+            };
+        });
+
+        if (hexInput) {
+            hexInput.onchange = function () {
+                var raw = hexInput.value.trim().split(' ')[0];
+                var parsed = parseInt(raw, (raw.startsWith('0x') || raw.startsWith('0X')) ? 16 : 10);
+                if (!isNaN(parsed) && parsed >= 0) {
+                    currentLogLevel = parsed;
+                    logFlagInputs.forEach(function (fi) {
+                        var fl = parseInt(fi.getAttribute('data-flag'), 10);
+                        fi.checked = (parsed & fl) !== 0;
+                    });
+                    hexInput.value = '0x' + parsed.toString(16).toUpperCase() + ' (' + parsed + ')';
+                    updateActivePresetChip(parsed);
+                    checkDirty();
+                }
+            };
+        }
+
+        // ---------------------------------------------------------------------
+        // Provider keys: reveal + clear + live verification
+        // ---------------------------------------------------------------------
         ['RyuuKey', 'DepotBoxKey', 'HubcapKey'].forEach(function (k) {
             var btn = document.getElementById('sls-cfg-toggle-' + k);
             var inp = document.getElementById('sls-cfg-' + k);
+            var clearBtn = document.getElementById('sls-cfg-clear-' + k);
             if (btn && inp) {
                 btn.onclick = function (e) {
                     e.preventDefault();
@@ -1923,39 +2487,107 @@
                     }
                 };
             }
+            if (clearBtn && inp) {
+                clearBtn.onclick = function (e) {
+                    e.preventDefault();
+                    inp.value = '';
+                    checkDirty();
+                };
+            }
         });
 
-        // 8. Legacy sync handlers stripped (Phase 2b)
+        function verifyProviderKey(inp) {
+            if (!inp) return;
+            var prov = inp.getAttribute('data-provider') || '';
+            var bannerId = inp.getAttribute('data-banner') || '';
+            var banner = bannerId ? document.getElementById(bannerId) : null;
+            var val = (inp.value || '').trim();
+            if (!val) {
+                if (banner) banner.style.display = 'none';
+                return;
+            }
+            fetch('http://127.0.0.1:9001/api/keys/verify', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ provider: prov, key: val })
+            }).then(function (r) {
+                return r.json();
+            }).then(function (res) {
+                if (banner) {
+                    if (res && res.valid === false) {
+                        banner.style.display = 'flex';
+                    } else {
+                        banner.style.display = 'none';
+                    }
+                }
+            }).catch(function () {});
+        }
 
+        var keyInputs = container.querySelectorAll('.sls-cfg-provider-key');
+        keyInputs.forEach(function (inp) {
+            inp.addEventListener('blur', function () {
+                verifyProviderKey(inp);
+            });
+        });
 
-
-
-
-        // 9. Header Action Buttons
-        var restartBtn = document.getElementById('sls-cfg-restart-btn');
-        if (restartBtn) {
-            restartBtn.onclick = function (e) {
+        var clearBannerBtns = container.querySelectorAll('.sls-cfg-clear-banner-btn');
+        clearBannerBtns.forEach(function (btn) {
+            btn.onclick = function (e) {
                 e.preventDefault();
-                if (!confirm('Are you sure you want to restart Steam? Navi will cleanly terminate and restart Steam.')) return;
-                fetch('http://127.0.0.1:9001/restart', { method: 'POST' }).then(function () {
-                    showStatusBanner('Restart signal sent to Steam...', '#66c0f4');
-                }).catch(function () {
-                    showStatusBanner('Restart signal sent to Steam...', '#66c0f4');
+                var targetInputId = btn.getAttribute('data-input');
+                var targetBannerId = btn.getAttribute('data-banner');
+                var inp = document.getElementById(targetInputId);
+                var banner = targetBannerId ? document.getElementById(targetBannerId) : null;
+                if (inp) {
+                    inp.value = '';
+                    checkDirty();
+                }
+                if (banner) {
+                    banner.style.display = 'none';
+                }
+            };
+        });
+
+        var clearNameBtn = document.getElementById('sls-cfg-clear-FakeName');
+        if (clearNameBtn) {
+            clearNameBtn.onclick = function (e) {
+                e.preventDefault();
+                var inp = document.getElementById('sls-cfg-FakeName');
+                if (inp) {
+                    inp.value = '';
+                    checkDirty();
+                    inp.focus();
+                }
+            };
+        }
+
+        var addAppBtn = document.getElementById('sls-cfg-add-app-btn');
+        if (addAppBtn) {
+            addAppBtn.onclick = function (e) {
+                e.preventDefault();
+                slsConfirmDialog({
+                    title: 'Add unlocked game',
+                    body: 'Enter the AppID of the game to unlock (adding a game also includes its DLC):',
+                    confirmLabel: 'Add game',
+                    cancelLabel: 'Cancel',
+                    input: { label: 'AppID', placeholder: '440' },
+                    onConfirm: function (val) {
+                        var appIdsEl = document.getElementById('sls-cfg-AppIds');
+                        if (appIdsEl && val && val.trim()) {
+                            var cur = appIdsEl.value.trim();
+                            appIdsEl.value = cur ? (cur + '\n' + val.trim()) : val.trim();
+                            checkDirty();
+                        }
+                    }
                 });
             };
         }
 
-        var discardBtn = document.getElementById('sls-cfg-discard-btn');
-        if (discardBtn) {
-            discardBtn.onclick = function (e) {
-                e.preventDefault();
-                renderConfigPage(container, cfg, sync);
-                showStatusBanner('All unsaved changes discarded.', '#66c0f4');
-            };
-        }
-
-        // 10. Save All Changes & State Tracking
+        // ---------------------------------------------------------------------
+        // Form serialization + dirty tracking
+        // ---------------------------------------------------------------------
         var saveBtn = document.getElementById('sls-cfg-save-btn');
+        var discardBtn = document.getElementById('sls-cfg-discard-btn');
 
         function serializeCurrentForm() {
             function getVal(id) { var el = document.getElementById(id); return el ? el.value : ''; }
@@ -1964,6 +2596,11 @@
                 cloudAutoBackup: getCheckbox('sls-cfg-CloudAutoBackup'),
                 cloudRetention: getVal('sls-cfg-CloudRetention'),
                 cloudProvider: getVal('sls-cfg-cs-provider'),
+                prefixSyncEnabled: getCheckbox('sls-cfg-PrefixSync-Enabled'),
+                prefixSyncStartup: getCheckbox('sls-cfg-PrefixSync-Startup'),
+                prefixSyncLaunch: getCheckbox('sls-cfg-PrefixSync-Launch'),
+                prefixSyncExit: getCheckbox('sls-cfg-PrefixSync-Exit'),
+                prefixSyncMaxMb: getVal('sls-cfg-PrefixSync-MaxMb'),
                 logLevel: currentLogLevel,
                 ryuuKey: getVal('sls-cfg-RyuuKey'),
                 depotBoxKey: getVal('sls-cfg-DepotBoxKey'),
@@ -2006,59 +2643,85 @@
         var isDirty = false;
         var initialFormState = '';
 
-        function checkDirty() {
-            var curr = serializeCurrentForm();
-            if (curr !== initialFormState) {
-                isDirty = true;
-                var pill = document.getElementById('sls-cfg-dirty-pill');
-                if (pill) {
-                    pill.textContent = '● Unsaved changes';
-                    pill.style.color = '#f39c12';
-                }
-                var dBtn = document.getElementById('sls-cfg-discard-btn');
-                if (dBtn) dBtn.style.display = 'block';
-                if (saveBtn) {
-                    saveBtn.style.boxShadow = '0 0 10px rgba(26, 159, 255, 0.6)';
-                }
-            } else {
-                markClean();
+        function countChangedKeys() {
+            if (!initialFormState) return 0;
+            var current;
+            var initial;
+            try {
+                current = JSON.parse(serializeCurrentForm());
+                initial = JSON.parse(initialFormState);
+            } catch (e) {
+                return 0;
             }
+            var keys = {};
+            for (var k in current) { if (Object.prototype.hasOwnProperty.call(current, k)) keys[k] = true; }
+            for (var k2 in initial) { if (Object.prototype.hasOwnProperty.call(initial, k2)) keys[k2] = true; }
+            var changed = 0;
+            for (var key in keys) {
+                if (JSON.stringify(current[key]) !== JSON.stringify(initial[key])) changed++;
+            }
+            return changed;
         }
 
-        function markClean() {
-            isDirty = false;
+        function setDirtyChrome(isDirtyNow, changed) {
             var pill = document.getElementById('sls-cfg-dirty-pill');
             if (pill) {
-                pill.textContent = '✓ All changes saved';
-                pill.style.color = '#2ecc71';
+                if (isDirtyNow) {
+                    pill.innerHTML = '<span style="color: #f1f5f9; font-size: 12px; font-weight: 500;">' + changed + (changed === 1 ? ' unsaved change' : ' unsaved changes') + '</span><span style="background: #f59e0b; color: #1e1e1e; font-weight: 800; font-size: 10px; width: 16px; height: 16px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-left: 6px;">!</span>';
+                    pill.style.display = 'flex';
+                    pill.style.justifyContent = 'space-between';
+                    pill.style.alignItems = 'center';
+                } else {
+                    pill.innerHTML = '<span>All changes saved</span>';
+                    pill.style.display = 'block';
+                    pill.style.textAlign = 'center';
+                    pill.style.color = '#2ecc71';
+                    pill.style.fontSize = '11px';
+                }
             }
-            var dBtn = document.getElementById('sls-cfg-discard-btn');
-            if (dBtn) dBtn.style.display = 'none';
+            if (discardBtn) discardBtn.style.display = isDirtyNow ? 'inline-block' : 'none';
             if (saveBtn) {
-                saveBtn.style.boxShadow = 'none';
+                saveBtn.disabled = !isDirtyNow;
+                saveBtn.style.background = isDirtyNow ? '#1a9fff' : 'rgba(255, 255, 255, 0.08)';
+                saveBtn.style.color = isDirtyNow ? '#ffffff' : '#64748b';
             }
+            window.__naviConfigDirty = isDirtyNow;
+        }
+
+        function checkDirty() {
+            var changed = countChangedKeys();
+            isDirty = changed > 0;
+            setDirtyChrome(isDirty, changed);
+        }
+
+        function markClean(preserveState) {
+            isDirty = false;
+            if (!preserveState) {
+                initialFormState = serializeCurrentForm();
+            }
+            setDirtyChrome(false, 0);
         }
 
         container.addEventListener('input', checkDirty);
         container.addEventListener('change', checkDirty);
 
+        // ---------------------------------------------------------------------
+        // Save pipeline
+        // ---------------------------------------------------------------------
         function collectAndSaveConfig(callback, silent) {
             if (!saveBtn) return;
             saveBtn.disabled = true;
-            saveBtn.textContent = 'Saving...';
+            saveBtn.textContent = 'Saving…';
+            var savingPill = document.getElementById('sls-cfg-dirty-pill');
+            if (savingPill) {
+                savingPill.textContent = 'Saving…';
+                savingPill.style.color = '#66c0f4';
+            }
+            hideStatusBanner();
 
-            function getVal(id) {
-                var el = document.getElementById(id);
-                return el ? el.value : '';
-            }
-            function getInt(id, def) {
-                var v = parseInt(getVal(id), 10);
-                return isNaN(v) ? (def || 0) : v;
-            }
-            function getCheckbox(id) {
-                var el = document.getElementById(id);
-                return el ? el.checked : false;
-            }
+            function getVal(id) { var el = document.getElementById(id); return el ? el.value : ''; }
+            function getInt(id, def) { var v = parseInt(getVal(id), 10); return isNaN(v) ? (def || 0) : v; }
+            function getCheckbox(id) { var el = document.getElementById(id); return el ? el.checked : false; }
             function parseUintArray(id) {
                 var raw = getVal(id);
                 if (!raw) return [];
@@ -2069,17 +2732,6 @@
                     if (!t) return;
                     var n = parseInt(t, 10);
                     if (!isNaN(n) && n >= 0) res.push(n);
-                });
-                return res;
-            }
-            function parseStringArray(id) {
-                var raw = getVal(id);
-                if (!raw) return [];
-                var tokens = raw.split(/[\s,]+/);
-                var res = [];
-                tokens.forEach(function (tok) {
-                    var t = tok.trim();
-                    if (t) res.push(t);
                 });
                 return res;
             }
@@ -2104,6 +2756,7 @@
                 });
                 return map;
             }
+
             var payload = {
                 DisableFamilyShareLock: getCheckbox('sls-cfg-DisableFamilyShareLock'),
                 UseWhitelist: getCheckbox('sls-cfg-UseWhitelist'),
@@ -2149,6 +2802,13 @@
                     Provider: getVal('sls-cfg-cs-provider') || (cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only',
                     AutoBackupBeforeReset: getCheckbox('sls-cfg-CloudAutoBackup'),
                     BackupRetentionCount: getInt('sls-cfg-CloudRetention', 5),
+                    PrefixSync: {
+                        Enabled: getCheckbox('sls-cfg-PrefixSync-Enabled'),
+                        SyncAtStartup: getCheckbox('sls-cfg-PrefixSync-Startup'),
+                        SyncOnLaunch: getCheckbox('sls-cfg-PrefixSync-Launch'),
+                        SyncOnExit: getCheckbox('sls-cfg-PrefixSync-Exit'),
+                        MaxFileMb: getInt('sls-cfg-PrefixSync-MaxMb', 64)
+                    },
                     ManagedApps: (cfg.CloudSaves && cfg.CloudSaves.ManagedApps) || []
                 }
             };
@@ -2160,26 +2820,26 @@
             }).then(function (r) {
                 return r.json();
             }).then(function (res) {
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Save Changes (Ctrl+S)';
-                if (res.success) {
+                saveBtn.textContent = 'Save changes';
+                if (res && res.success) {
                     cfg = JSON.parse(JSON.stringify(payload));
                     initialFormState = serializeCurrentForm();
-                    markClean();
+                    markClean(true);
                     refreshCloudSavesUI();
                     if (!silent) {
-                        showStatusBanner('Configuration saved and reloaded successfully!', '#2ecc71');
+                        showStatusBanner('Saved. Your new settings are active.', '#2ecc71');
                     }
                     if (typeof callback === 'function') callback(null, res);
                 } else {
+                    checkDirty();
                     if (!silent) {
-                        showStatusBanner('Error saving configuration: ' + (res.message || 'Unknown error'), '#ff4d4d');
+                        showStatusBanner('We couldn\'t save your changes. Nothing was lost — they\'re still on this page. ' + ((res && res.message) || 'Unknown error'), '#ff4d4d');
                     }
-                    if (typeof callback === 'function') callback(new Error(res.message || 'Unknown error'));
+                    if (typeof callback === 'function') callback(new Error((res && res.message) || 'Unknown error'));
                 }
             }).catch(function (err) {
-                saveBtn.disabled = false;
-                saveBtn.textContent = 'Save Changes (Ctrl+S)';
+                saveBtn.textContent = 'Save changes';
+                checkDirty();
                 if (!silent) {
                     showStatusBanner('Connection error: ' + err.message, '#ff4d4d');
                 }
@@ -2194,6 +2854,261 @@
             };
         }
 
+        var restartBtn = document.getElementById('sls-cfg-restart-btn');
+        if (restartBtn) {
+            restartBtn.onclick = function (e) {
+                e.preventDefault();
+                slsConfirmDialog({
+                    title: 'Restart Steam now?',
+                    body: 'Games will close and anything you haven\'t saved will be lost.',
+                    confirmLabel: 'Restart Steam',
+                    cancelLabel: 'Not now',
+                    danger: true,
+                    onConfirm: function () {
+                        fetch('http://127.0.0.1:9001/restart', { method: 'POST' }).catch(function () {});
+                    }
+                });
+            };
+        }
+
+        if (discardBtn) {
+            discardBtn.onclick = function (e) {
+                e.preventDefault();
+                slsConfirmDialog({
+                    title: 'Discard your changes?',
+                    body: 'Your settings will go back to how they were before you started. This can\'t be undone.',
+                    confirmLabel: 'Discard changes',
+                    cancelLabel: 'Keep editing',
+                    danger: true,
+                    onConfirm: function () {
+                        fetch('http://127.0.0.1:9001/config/full')
+                            .then(function (r) { return r.json(); })
+                            .then(function (fresh) {
+                                renderConfigPage(container, fresh, sync);
+                                showStatusBanner('All unsaved changes discarded.', '#66c0f4');
+                            }).catch(function (err) {
+                                showStatusBanner('Could not discard changes: ' + err.message, '#ff4d4d');
+                            });
+                    }
+                });
+            };
+        }
+
+        // ---------------------------------------------------------------------
+        // Danger zone actions
+        // ---------------------------------------------------------------------
+        function buildDefaultsPayload() {
+            return {
+                DisableFamilyShareLock: false,
+                UseWhitelist: false,
+                SafeMode: true,
+                WarnHashMissmatch: false,
+                NotifyInit: true,
+                API: false,
+                DisableCloud: false,
+                DisableUpdates: false,
+                DumpClientInterfaces: false,
+                ExtendedLogging: false,
+                MaxSchemaTries: 10,
+                FakeWalletBalance: 0,
+                LogLevels: 255,
+                FakeName: '',
+                FakeEmail: '',
+                RyuuKey: '',
+                DepotBoxKey: '',
+                HubcapKey: '',
+                IdleStatus: { AppId: 0, Title: '' },
+                UnownedStatus: { AppId: 0, Title: '' },
+                AppIds: [],
+                AdditionalApps: [],
+                FakeOffline: [],
+                DepotBlacklist: [],
+                FakeAppIds: {},
+                ManifestIds: {},
+                AppTokens: {},
+                CDKeys: {},
+                GameTitles: {},
+                SubscriptionTimestamps: {},
+                SteamIdOverride: {},
+                DlcDataYaml: '',
+                DenuvoGamesYaml: '',
+                CloudSaves: {
+                    Enabled: true,
+                    Provider: 'local-only',
+                    AutoBackupBeforeReset: true,
+                    BackupRetentionCount: 5,
+                    PrefixSync: {
+                        Enabled: true,
+                        SyncAtStartup: true,
+                        SyncOnLaunch: true,
+                        SyncOnExit: true,
+                        MaxFileMb: 64
+                    }
+                }
+            };
+        }
+
+        var resetBtn = document.getElementById('sls-cfg-reset-btn');
+        if (resetBtn) {
+            resetBtn.onclick = function (e) {
+                e.preventDefault();
+                slsConfirmDialog({
+                    title: 'Reset all Navi settings?',
+                    body: 'Every setting goes back to its default. Your Steam account and save files are not touched. This can\'t be undone.',
+                    confirmLabel: 'Reset settings',
+                    cancelLabel: 'Cancel',
+                    danger: true,
+                    input: { label: 'Type RESET to confirm', placeholder: 'RESET', expected: 'RESET' },
+                    mismatchMessage: 'That doesn\'t match. Type RESET exactly.',
+                    onConfirm: function () {
+                        var payload = buildDefaultsPayload();
+                        fetch('http://127.0.0.1:9001/config/full', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        }).then(function (r) {
+                            return r.json().then(function (data) {
+                                return { ok: r.ok && data && data.success !== false, data: data };
+                            });
+                        }).then(function (res) {
+                            if (!res.ok) {
+                                showStatusBanner('Reset didn\'t finish: ' + ((res.data && res.data.message) || 'unknown error') + '. Nothing was lost — your settings are unchanged.', '#ff4d4d');
+                                return;
+                            }
+                            fetch('http://127.0.0.1:9001/config/full')
+                                .then(function (r) { return r.json(); })
+                                .then(function (fresh) {
+                                    window.__naviConfigPendingBanner = {
+                                        msg: 'Settings reset to default. Restart Steam to finish.',
+                                        color: '#2ecc71'
+                                    };
+                                    renderConfigPage(container, fresh, sync);
+                                }).catch(function (err) {
+                                    showStatusBanner('Reset didn\'t finish: ' + (err.message || 'unknown error') + '. Nothing was lost — your settings are unchanged.', '#ff4d4d');
+                                });
+                        }).catch(function (err) {
+                            showStatusBanner('Reset didn\'t finish: ' + (err.message || 'unknown error') + '. Nothing was lost — your settings are unchanged.', '#ff4d4d');
+                        });
+                    }
+                });
+            };
+        }
+
+        function removeAllRedirections(ids) {
+            var index = 0;
+            var stillRedirected = [];
+            function settle(ok) {
+                if (!ok) stillRedirected.push(ids[index - 1]);
+                step();
+            }
+            function step() {
+                if (index >= ids.length) {
+                    var removed = ids.length - stillRedirected.length;
+                    if (cfg.CloudSaves) cfg.CloudSaves.ManagedApps = stillRedirected.slice();
+                    csState.managedAppsCount = stillRedirected.length;
+                    refreshCloudSavesUI();
+                    checkDirty();
+                    if (stillRedirected.length === 0) {
+                        showStatusBanner('Redirections removed for ' + ids.length + (ids.length === 1 ? ' game.' : ' games.'), '#2ecc71');
+                    } else if (removed === 0) {
+                        showStatusBanner('We couldn\'t remove any redirections. Nothing was lost — try again.', '#ff4d4d');
+                    } else {
+                        showStatusBanner('Redirections removed for ' + removed + ' of ' + ids.length + ' games. ' + stillRedirected.length + ' could not be removed.', '#f59e0b');
+                    }
+                    return;
+                }
+                var appId = ids[index];
+                index++;
+                var p;
+                if (window.NaviCloudManager && window.NaviCloudManager.toggleAppRedirect) {
+                    p = window.NaviCloudManager.toggleAppRedirect(appId, false);
+                } else {
+                    p = fetch('http://127.0.0.1:9001/cloud/apps/' + encodeURIComponent(appId) + '/toggle', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ redirect: false })
+                    }).then(function (r) {
+                        return r.json().then(function (data) {
+                            return { ok: r.ok, data: data };
+                        });
+                    });
+                }
+                if (p && typeof p.then === 'function') {
+                    p.then(function (res) {
+                        var ok = !!(res && (res.redirected === false || (res.ok && res.data && res.data.redirected === false)));
+                        settle(ok);
+                    }).catch(function () {
+                        settle(false);
+                    });
+                } else {
+                    settle(false);
+                }
+            }
+            step();
+        }
+
+        var removeRedirectsBtn = document.getElementById('sls-cfg-remove-redirects-btn');
+        if (removeRedirectsBtn) {
+            removeRedirectsBtn.onclick = function (e) {
+                e.preventDefault();
+                var ids = (cfg.CloudSaves && Array.isArray(cfg.CloudSaves.ManagedApps)) ? cfg.CloudSaves.ManagedApps.slice() : [];
+                if (ids.length === 0) {
+                    showStatusBanner('No save redirections to remove.', '#66c0f4');
+                    return;
+                }
+                slsConfirmDialog({
+                    title: 'Remove redirections for ' + ids.length + (ids.length === 1 ? ' game?' : ' games?'),
+                    body: 'Steam Cloud manages these saves again. No files are deleted.',
+                    confirmLabel: 'Remove redirections',
+                    cancelLabel: 'Cancel',
+                    danger: true,
+                    onConfirm: function () {
+                        removeAllRedirections(ids);
+                    }
+                });
+            };
+        }
+
+        var deleteBackupsBtn = document.getElementById('sls-cfg-delete-backups-btn');
+        if (deleteBackupsBtn) {
+            deleteBackupsBtn.onclick = function (e) {
+                e.preventDefault();
+                slsConfirmDialog({
+                    title: 'Delete all save backups?',
+                    body: 'Deletes saved copies of your saves on this computer. Your current saves and Steam Cloud saves are not touched. This can\'t be undone.',
+                    confirmLabel: 'Delete backups',
+                    cancelLabel: 'Cancel',
+                    danger: true,
+                    onConfirm: function () {
+                        fetch('http://127.0.0.1:9001/cloud/backups/delete-all', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'text/plain' },
+                            body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n'
+                        }).then(function (r) {
+                            return r.json().then(function (data) {
+                                return { ok: r.ok, data: data };
+                            });
+                        }).then(function (res) {
+                            if (res.ok && res.data && res.data.success) {
+                                showStatusBanner('All save backups were deleted.', '#2ecc71');
+                            } else {
+                                showStatusBanner('Could not delete backups: ' + ((res.data && res.data.error) || 'unknown error'), '#ff4d4d');
+                            }
+                        }).catch(function (err) {
+                            showStatusBanner('Could not delete backups: ' + (err.message || 'unknown error'), '#ff4d4d');
+                        });
+                    }
+                });
+            };
+        }
+
+        var dangerToCloudLink = document.getElementById('sls-cfg-danger-to-cloudsaves');
+        if (dangerToCloudLink) {
+            dangerToCloudLink.onclick = function (e) {
+                e.preventDefault();
+                switchTab('sls-cfg-sec-cloudsaves');
+            };
+        }
         // 11. Global Keyboard Shortcuts
         function handleKeyDown(e) {
             if (!container || !container.isConnected || container.style.display === 'none') {
@@ -2226,10 +3141,17 @@
         configKeyDownHandler = handleKeyDown;
         window.addEventListener('keydown', configKeyDownHandler);
 
-        // 12. Initial activation
+        // ---------------------------------------------------------------------
+        // Initial activation
+        // ---------------------------------------------------------------------
+        var pendingBanner = window.__naviConfigPendingBanner;
+        window.__naviConfigPendingBanner = null;
+
         refreshCloudSavesUI();
         initialFormState = serializeCurrentForm();
         markClean();
+        if (pendingBanner) showStatusBanner(pendingBanner.msg, pendingBanner.color);
+
     }
 
     function initManualInstallPage() {

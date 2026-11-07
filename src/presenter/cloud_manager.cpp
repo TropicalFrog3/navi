@@ -471,6 +471,47 @@ std::vector<std::string> CCloudManager::ListBackups(AppId_t appId)
     return backups;
 }
 
+bool CCloudManager::DeleteAllBackups()
+{
+    try
+    {
+        fs::path backupDir = GetBackupDir();
+        std::error_code ec;
+        if (!fs::exists(backupDir, ec))
+        {
+            return true;
+        }
+        if (ec || !fs::is_directory(backupDir, ec))
+        {
+            return false;
+        }
+
+        bool success = true;
+        fs::directory_iterator it(backupDir, ec);
+        if (ec)
+        {
+            return false;
+        }
+
+        fs::directory_iterator end;
+        while (it != end && !ec)
+        {
+            std::error_code rmEc;
+            fs::remove_all(it->path(), rmEc);
+            if (rmEc)
+            {
+                success = false;
+            }
+            it.increment(ec);
+        }
+        return success && !ec;
+    }
+    catch (...)
+    {
+        return false;
+    }
+}
+
 uint64_t CCloudManager::GetStorageUsageBytes(AppId_t appId)
 {
     uint64_t totalBytes = 0;

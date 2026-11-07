@@ -16,6 +16,7 @@
 #include "atomic_file.hpp"
 #include "ticket.hpp"
 #include "paths.hpp"
+#include "curl.hpp"
 #include "cloud_oauth.hpp"
 #include "cloud_manager.hpp"
 #include "cloud_pending_ops.hpp"
@@ -1463,6 +1464,18 @@ namespace StoreInject
                                 sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderPendingOpsJson(ops));
                                 handled = true;
                             }
+                            else if (method == "POST" && (uriPath == "/cloud/backups/delete-all" || uriPath == "/cloud/backups/delete-all/" || uriPath.rfind("/cloud/backups/delete-all?", 0) == 0))
+                            {
+                                if (Navi::CloudRedirect::CCloudManager::Instance().DeleteAllBackups())
+                                {
+                                    sendJsonResponse(new_socket, 200, "OK", "{\"success\":true,\"message\":\"All local backups deleted\"}");
+                                }
+                                else
+                                {
+                                    sendJsonResponse(new_socket, 500, "Internal Server Error", Navi::CloudView::renderErrorJson("Failed to delete all backups"));
+                                }
+                                handled = true;
+                            }
                         }
                         else if (request.find("/set-api-keys") != std::string::npos)
                         {
@@ -1527,6 +1540,76 @@ namespace StoreInject
                                 std::string response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
                                 send(new_socket, response.c_str(), response.size(), 0);
                                 close(new_socket);
+                                handled = true;
+                            }
+                        }
+                        else if (request.find("/api/keys/verify") != std::string::npos)
+                        {
+                            try {
+                                std::string body = extractHttpPostBody(new_socket, request);
+                                std::string provider = Navi::CloudView::parseStringField(body, "provider");
+                                std::string key = Navi::CloudView::parseStringField(body, "key");
+                                std::string provLower = provider;
+                                std::transform(provLower.begin(), provLower.end(), provLower.begin(), ::tolower);
+
+                                bool valid = false;
+                                if (!key.empty())
+                                {
+                                    Curl::HttpRequest_t req;
+                                    req.timeoutSec = 5;
+                                    req.headers.push_back({"User-Agent", "Navi/1.2"});
+
+                                    if (provLower == "ryuu")
+                                    {
+                                        req.method = "GET";
+                                        req.url = "https://generator.ryuu.lol/secure_download?appid=440&source=Navi-0&auth_code=" + key;
+                                        Curl::HttpResponse_t resp;
+                                        if (Curl::request(req, resp))
+                                        {
+                                            valid = (resp.statusCode == 200 || resp.statusCode == 404);
+                                        }
+                                    }
+                                    else if (provLower == "depotbox" || provLower == "dpbx")
+                                    {
+                                        req.method = "GET";
+                                        req.url = "https://depotbox.org/api/direct-download?appid=440";
+                                        req.headers.push_back({"X-API-Key", key});
+                                        Curl::HttpResponse_t resp;
+                                        if (Curl::request(req, resp))
+                                        {
+                                            valid = (resp.statusCode == 200 || resp.statusCode == 404);
+                                        }
+                                    }
+                                    else if (provLower == "hubcap" || provLower == "hubcapdb" || provLower == "morr")
+                                    {
+                                        req.method = "GET";
+                                        req.url = "https://hubcapmanifest.com/api/v1/manifest/440";
+                                        req.headers.push_back({"Authorization", "Bearer " + key});
+                                        Curl::HttpResponse_t resp;
+                                        if (Curl::request(req, resp))
+                                        {
+                                            valid = (resp.statusCode == 200 || resp.statusCode == 404);
+                                        }
+                                    }
+                                }
+
+                                std::string safeProv;
+                                for (char c : provider)
+                                {
+                                    if (c == '"' || c == '\\') continue;
+                                    safeProv += c;
+                                }
+
+                                std::string respBody = "{\"success\":true,\"valid\":" + std::string(valid ? "true" : "false") + ",\"provider\":\"" + safeProv + "\"}";
+                                sendJsonResponse(new_socket, 200, "OK", respBody);
+                                handled = true;
+                            } catch (const std::exception& e) {
+                                std::string respBody = StoreInjectView::renderErrorJson(e.what());
+                                sendJsonResponse(new_socket, 500, "Internal Server Error", respBody);
+                                handled = true;
+                            } catch (...) {
+                                std::string respBody = StoreInjectView::renderErrorJson("Unknown error verifying key");
+                                sendJsonResponse(new_socket, 500, "Internal Server Error", respBody);
                                 handled = true;
                             }
                         }

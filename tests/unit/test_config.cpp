@@ -227,6 +227,8 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
     EXPECT_NE(initialJson.find("\"AutoBackupBeforeReset\": true"), std::string::npos);
     EXPECT_NE(initialJson.find("\"BackupRetentionCount\": 5"), std::string::npos);
     EXPECT_NE(initialJson.find("\"ManagedApps\": []"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"PrefixSync\": {"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"SyncAtStartup\": true"), std::string::npos);
 
     // 2. Apply config update with CloudSaves
     std::string updateJson = R"({
@@ -235,7 +237,14 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
             "Provider": "gdrive",
             "AutoBackupBeforeReset": false,
             "BackupRetentionCount": 10,
-            "ManagedApps": [480, 730]
+            "ManagedApps": [480, 730],
+            "PrefixSync": {
+                "Enabled": true,
+                "SyncAtStartup": false,
+                "SyncOnLaunch": false,
+                "SyncOnExit": true,
+                "MaxFileMb": 128
+            }
         }
     })";
 
@@ -248,6 +257,11 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
     EXPECT_EQ(g_config.cloudSavesProvider.get(), "gdrive");
     EXPECT_FALSE(g_config.cloudAutoBackupBeforeReset.get());
     EXPECT_EQ(g_config.cloudBackupRetentionCount.get(), 10u);
+    EXPECT_TRUE(g_config.cloudPrefixSyncEnabled.get());
+    EXPECT_FALSE(g_config.cloudPrefixSyncAtStartUp.get());
+    EXPECT_FALSE(g_config.cloudPrefixSyncOnLaunch.get());
+    EXPECT_TRUE(g_config.cloudPrefixSyncOnExit.get());
+    EXPECT_EQ(g_config.cloudPrefixSyncMaxFileMb.get(), 128u);
     auto managed = g_config.cloudSavesManagedApps.get();
     EXPECT_EQ(managed.size(), 2u);
     EXPECT_TRUE(managed.contains(480));
@@ -268,6 +282,8 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
     EXPECT_NE(updatedJson.find("\"AutoBackupBeforeReset\": false"), std::string::npos);
     EXPECT_NE(updatedJson.find("\"BackupRetentionCount\": 10"), std::string::npos);
     EXPECT_NE(updatedJson.find("\"ManagedApps\": [480, 730]"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"SyncAtStartup\": false"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"MaxFileMb\": 128"), std::string::npos);
 
     // 3. Provider validation and retention clamping
     std::string clampedJson = R"({

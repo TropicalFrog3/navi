@@ -98,6 +98,23 @@ def test_cloud_drilldown_grouped_file_viewer_collapsed_by_default(
     )
     assert first_collapsed_again is True
 
+    # 7b. Test Back button returns to the games directory overview
+    back_btn_visible = driver.evaluate(
+        "document.getElementById('sls-cfg-cs-back-btn') !== null && "
+        "document.getElementById('sls-cfg-cs-back-btn').style.display !== 'none'"
+    )
+    assert back_btn_visible is True
+    driver.evaluate("document.getElementById('sls-cfg-cs-back-btn').click()")
+    driver.wait_for_condition(
+        lambda: driver.evaluate(
+            "document.getElementById('sls-cloud-drilldown-header') === null && "
+            "document.querySelector('.navi-steam-cloud-link') !== null && "
+            "document.getElementById('sls-cfg-cs-back-btn').style.display === 'none'"
+        ) is True,
+        timeout=5.0,
+        error_message="Clicking back button failed to return to View Steam Cloud games list",
+    )
+
     # 8. Test that prototype banner in Manual Installation page is completely removed
     driver.evaluate("window.__naviShowImportLuaPage()")
     driver.wait_for_condition(

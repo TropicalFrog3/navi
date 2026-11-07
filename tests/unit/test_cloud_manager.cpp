@@ -106,6 +106,36 @@ TEST(CloudManagerTest, ListBackupsDescendingOrder)
     manager.SetBackupDirForTest({});
 }
 
+TEST(CloudManagerTest, DeleteAllBackupsClearsDirectory)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    // 1. If backup dir does not exist, DeleteAllBackups returns true
+    fs::path nonExistent = env.tempDir / "non_existent_backups";
+    manager.SetBackupDirForTest(nonExistent);
+    EXPECT_TRUE(manager.DeleteAllBackups());
+
+    // 2. Populate backup dir with subdirectories and backup files
+    fs::path backupRoot = env.tempDir / "backups";
+    fs::create_directories(backupRoot / "480");
+    fs::create_directories(backupRoot / "730");
+    std::ofstream(backupRoot / "480" / "backup1.tar.gz") << "data";
+    std::ofstream(backupRoot / "730" / "backup2.tar.gz") << "data";
+    std::ofstream(backupRoot / "orphan.txt") << "data";
+
+    manager.SetBackupDirForTest(backupRoot);
+    EXPECT_TRUE(fs::exists(backupRoot / "480"));
+    EXPECT_TRUE(fs::exists(backupRoot / "730"));
+
+    // 3. DeleteAllBackups removes all contents
+    EXPECT_TRUE(manager.DeleteAllBackups());
+    EXPECT_TRUE(fs::exists(backupRoot));
+    EXPECT_TRUE(fs::is_empty(backupRoot));
+
+    manager.SetBackupDirForTest({});
+}
+
 TEST(CloudManagerTest, GetStorageUsageBytesCalculation)
 {
     ScopedCloudManagerTestEnv env;

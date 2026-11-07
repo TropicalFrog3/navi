@@ -108,8 +108,8 @@ def test_uj05_config_editing_barrier_saving_state_and_lock(
     barrier.release()
 
     # 5. Assert save completion
-    config_page.wait_for_status_banner("saved and reloaded", timeout=5.0)
-    assert config_page.is_save_disabled() is False
+    config_page.wait_for_status_banner("saved", timeout=5.0)
+    assert config_page.is_save_disabled() is True
     assert not config_page.is_dirty()
     assert config_page.is_discard_visible() is False
 
@@ -178,7 +178,7 @@ def test_uj05_backup_retention_clamping_and_tab_switching(
     config_page.switch_tab("sls-cfg-sec-cloudsaves")
     config_page.set_field_value("CloudRetention", "0")
     config_page.click_save()
-    config_page.wait_for_status_banner("saved and reloaded", timeout=5.0)
+    config_page.wait_for_status_banner("saved", timeout=5.0)
 
     req = callback_server.last_request("/config/full", method="POST")
     assert req is not None
@@ -190,7 +190,7 @@ def test_uj05_backup_retention_clamping_and_tab_switching(
     # 2. Test upper bound clamping (999 -> 100)
     config_page.set_field_value("CloudRetention", "999")
     config_page.click_save()
-    config_page.wait_for_status_banner("saved and reloaded", timeout=5.0)
+    config_page.wait_for_status_banner("saved", timeout=5.0)
     assert callback_server.config_data["CloudSaves"]["BackupRetentionCount"] == 100
 
     # 3. Tab switching state behavior (#sls-top-tab <-> #sls-config-top-tab)

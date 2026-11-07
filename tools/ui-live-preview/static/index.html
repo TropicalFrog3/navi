@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navi UI Studio - Live Preview & Hot Reload</title>
+    <style>
+        :root {
+            --bg-base: #0e141b;
+            --bg-panel: #171d25;
+            --bg-card: #1e2633;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(26, 159, 255, 0.4);
+            --accent-blue: #1a9fff;
+            --accent-blue-hover: #0080ff;
+            --steam-green: #5c7e10;
+            --steam-green-hover: #75a019;
+            --text-primary: #dcdedf;
+            --text-muted: #8f98a0;
+            --status-green: #10b981;
+            --status-red: #ef4444;
+            --status-yellow: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        /* Top Header */
+        header {
+            height: 52px;
+            background: linear-gradient(180deg, #1b2838 0%, #171d25 100%);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-logo {
+            width: 28px;
+            height: 28px;
+            background: linear-gradient(135deg, #1a9fff 0%, #0056b3 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            font-size: 14px;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(26, 159, 255, 0.4);
+        }
+
+        .brand-title {
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-badge {
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 2px 6px;
+            background: rgba(26, 159, 255, 0.2);
+            color: var(--accent-blue);
+            border-radius: 4px;
+            font-weight: 600;
+            border: 1px solid rgba(26, 159, 255, 0.3);
+        }
+
+        /* Controls Toolbar */
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-group {
+            display: flex;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 2px;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .btn {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            padding: 6px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+        }
+
+        .btn:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .btn.active {
+            color: #fff;
+            background: rgba(26, 159, 255, 0.25);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(26, 159, 255, 0.4);
+        }
+
+        .btn-action {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-action:hover {
+            background: #273142;
+            border-color: var(--border-hover);
+        }
+
+        .btn-reload {
+            background: rgba(92, 126, 16, 0.2);
+            color: #a4d007;
+            border: 1px solid rgba(92, 126, 16, 0.4);
+        }
+
+        .btn-reload:hover {
+            background: rgba(92, 126, 16, 0.4);
+            color: #fff;
+        }
+
+        /* Status & HUD Pill */
+        .header-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 12px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--status-green);
+            transition: background 0.3s;
+        }
+
+        .status-dot.disconnected {
+            background: var(--status-red);
+        }
+
+        .status-dot.pulsing {
+            animation: pulse-dot 0.8s ease infinite alternate;
+        }
+
+        @keyframes pulse-dot {
+            from { transform: scale(0.9); opacity: 0.6; }
+            to { transform: scale(1.3); opacity: 1; }
+        }
+
+        /* Main Workspace Layout */
+        .workspace-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Preview Stage */
+        .preview-stage {
+            flex: 1;
+            background: #0b0f14;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            position: relative;
+            padding: 16px;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        .viewport-wrapper {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-panel);
+            transition: width 0.3s ease, height 0.3s ease;
+        }
+
+        .viewport-header {
+            height: 28px;
+            background: #121820;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-family: monospace;
+        }
+
+        .viewport-controls {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .viewport-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .viewport-iframe {
+            border: none;
+            width: 100%;
+            height: 100%;
+            background: #171d25;
+            display: block;
+        }
+
+        /* Bottom Drawer / HUD */
+        .bottom-hud {
+            height: 220px;
+            background: var(--bg-panel);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: height 0.25s ease;
+        }
+
+        .bottom-hud.collapsed {
+            height: 32px;
+        }
+
+        .hud-header {
+            height: 32px;
+            background: #121820;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 12px;
+        }
+
+        .hud-tabs {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            height: 100%;
+        }
+
+        .hud-tab {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11px;
+            font-weight: 600;
+            padding: 0 12px;
+            height: 100%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .hud-tab:hover {
+            color: #fff;
+        }
+
+        .hud-tab.active {
+            color: var(--accent-blue);
+            border-bottom-color: var(--accent-blue);
+            background: rgba(26, 159, 255, 0.05);
+        }
+
+        .hud-content {
+            flex: 1;
+            overflow: auto;
+            padding: 8px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 11px;
+        }
+
+        /* Log Table */
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .log-table th {
+            color: var(--text-muted);
+            font-size: 10px;
+            text-transform: uppercase;
+            padding: 4px 8px;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(0, 0, 0, 0.2);
+            position: sticky;
+            top: 0;
+        }
+
+        .log-table td {
+            padding: 4px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            white-space: nowrap;
+        }
+
+        .log-table tr:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .badge-method {
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: 700;
+            font-size: 9px;
+        }
+
+        .badge-GET { background: rgba(26, 159, 255, 0.2); color: #60a5fa; }
+        .badge-POST { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .badge-PUT { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+        .badge-DELETE { background: rgba(239, 68, 68, 0.2); color: #f87171; }
+
+        .status-200, .status-202 { color: #34d399; }
+        .status-400, .status-404, .status-500 { color: #f87171; }
+
+        .console-entry {
+            padding: 3px 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            gap: 8px;
+        }
+        .console-entry.info { color: #dcdedf; }
+        .console-entry.warn { color: #fbbf24; }
+        .console-entry.error { color: #f87171; }
+        .console-time { color: var(--text-muted); min-width: 65px; }
+
+        .watched-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 4px 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header & Navigation -->
+    <header>
+        <div class="header-brand">
+            <div class="brand-logo">N</div>
+            <div class="brand-title">
+                NAVI UI STUDIO
+                <span class="brand-badge">Hot Reload</span>
+            </div>
+        </div>
+
+        <!-- Shell Selector -->
+        <div class="toolbar">
+            <div class="btn-group">
+                <button id="shell-library" class="btn active" onclick="switchShell('library')">
+                    <span>📚</span> Library Shell
+                </button>
+                <button id="shell-store" class="btn" onclick="switchShell('store')">
+                    <span>🛒</span> Store Shell
+                </button>
+            </div>
+        </div>
+
+        <!-- Viewport Presets -->
+        <div class="toolbar">
+            <div class="btn-group">
+                <button id="vp-desktop" class="btn active" onclick="setViewport('desktop')">
+                    🖥️ Fluid
+                </button>
+                <button id="vp-deck" class="btn" onclick="setViewport('deck')">
+                    🎮 Steam Deck (1280×800)
+                </button>
+                <button id="vp-fhd" class="btn" onclick="setViewport('fhd')">
+                    📺 Big Picture (1920×1080)
+                </button>
+            </div>
+        </div>
+
+        <!-- Quick Modal Actions -->
+        <div class="toolbar">
+            <button class="btn btn-action" onclick="triggerAction('OPEN_CONFIG_MODAL')" title="Open Navi Config Editor Modal">
+                ⚙️ Config
+            </button>
+            <button class="btn btn-action" onclick="triggerAction('OPEN_CLOUD_MODAL')" title="Open Cloud Save Manager Modal">
+                ☁️ Cloud Saves
+            </button>
+            <button class="btn btn-action" onclick="triggerAction('OPEN_DEPOT_MODAL')" title="Open Depot Selection Modal">
+                📦 Depots
+            </button>
+            <button class="btn btn-action" onclick="triggerAction('OPEN_LUA_IMPORT_MODAL')" title="Open LUA Import Page">
+                📄 LUA
+            </button>
+            <button class="btn btn-reload" onclick="triggerAction('FORCE_RELOAD')" title="Force reload preview iframe">
+                🔄 Reload
+            </button>
+        </div>
+
+        <!-- Connection Status & HUD Trigger -->
+        <div class="header-status">
+            <div class="status-indicator">
+                <div id="connection-dot" class="status-dot"></div>
+                <span id="connection-text">Connected</span>
+            </div>
+            <span id="last-reload-text" style="color:var(--text-muted);">Loaded</span>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <div class="workspace-container">
+        <!-- Preview Stage -->
+        <div class="preview-stage">
+            <div id="viewport-frame" class="viewport-wrapper" style="width: 100%; height: 100%;">
+                <div class="viewport-header">
+                    <div class="viewport-controls">
+                        <span class="viewport-dot" style="background:#ff5f56;"></span>
+                        <span class="viewport-dot" style="background:#ffbd2e;"></span>
+                        <span class="viewport-dot" style="background:#27c93f;"></span>
+                        <span id="active-shell-label" style="margin-left: 8px; font-weight: bold;">Steam Client Library (SP Shell)</span>
+                    </div>
+                    <div id="viewport-dimension-label">Fluid (100% × 100%)</div>
+                </div>
+                <iframe id="preview-iframe" class="viewport-iframe" src="/_preview/shell/library"></iframe>
+            </div>
+        </div>
+
+        <!-- Bottom Drawer HUD -->
+        <div id="bottom-hud" class="bottom-hud">
+            <div class="hud-header">
+                <div class="hud-tabs">
+                    <button class="hud-tab active" onclick="switchHudTab('api')">
+                        📡 API Requests (<span id="api-req-count">0</span>)
+                    </button>
+                    <button class="hud-tab" onclick="switchHudTab('console')">
+                        🖥️ Preview Console (<span id="console-log-count">0</span>)
+                    </button>
+                    <button class="hud-tab" onclick="switchHudTab('files')">
+                        📂 Watched Scripts
+                    </button>
+                    <button class="hud-tab" onclick="switchHudTab('cdp')">
+                        🔌 Steam Client CDP
+                    </button>
+                </div>
+                <div>
+                    <button class="btn" style="padding:2px 8px; font-size:10px;" onclick="clearActiveTabLogs()">Clear</button>
+                    <button class="btn" style="padding:2px 8px; font-size:10px;" onclick="toggleHud()">↕ Collapse</button>
+                </div>
+            </div>
+
+            <!-- Tab Content: API Requests -->
+            <div id="hud-tab-api" class="hud-content">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th style="width:70px;">Time</th>
+                            <th style="width:60px;">Method</th>
+                            <th>Path</th>
+                            <th style="width:60px;">Status</th>
+                            <th style="width:60px;">Latency</th>
+                            <th>Body / Payload</th>
+                        </tr>
+                    </thead>
+                    <tbody id="api-log-rows">
+                        <!-- Populated dynamically -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tab Content: Console Logs -->
+            <div id="hud-tab-console" class="hud-content" style="display:none;">
+                <div id="console-entries"></div>
+            </div>
+
+            <!-- Tab Content: Watched Files -->
+            <div id="hud-tab-files" class="hud-content" style="display:none;">
+                <div id="watched-files-list">
+                    <div style="color:var(--text-muted); padding:4px;">Scanning watched files...</div>
+                </div>
+            </div>
+
+            <!-- Tab Content: Steam Client CDP -->
+            <div id="hud-tab-cdp" class="hud-content" style="display:none;">
+                <div id="cdp-status-panel">
+                    <div style="color:var(--text-muted);">Querying Steam CEF status on port 8080...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Logic Script -->
+    <script>
+        var currentShell = 'library';
+        var currentViewport = 'desktop';
+        var apiRequests = [];
+        var consoleLogs = [];
+
+        var iframe = document.getElementById('preview-iframe');
+        var viewportFrame = document.getElementById('viewport-frame');
+        var dimLabel = document.getElementById('viewport-dimension-label');
+        var shellLabel = document.getElementById('active-shell-label');
+
+        function switchShell(shell) {
+            currentShell = shell;
+            document.getElementById('shell-library').classList.toggle('active', shell === 'library');
+            document.getElementById('shell-store').classList.toggle('active', shell === 'store');
+
+            if (shell === 'library') {
+                iframe.src = '/_preview/shell/library';
+                shellLabel.textContent = 'Steam Client Library (SP Shell)';
+            } else {
+                iframe.src = '/_preview/shell/store';
+                shellLabel.textContent = 'Steam Store Page (App 1443430)';
+            }
+        }
+
+        function setViewport(mode) {
+            currentViewport = mode;
+            document.getElementById('vp-desktop').classList.toggle('active', mode === 'desktop');
+            document.getElementById('vp-deck').classList.toggle('active', mode === 'deck');
+            document.getElementById('vp-fhd').classList.toggle('active', mode === 'fhd');
+
+            if (mode === 'desktop') {
+                viewportFrame.style.width = '100%';
+                viewportFrame.style.height = '100%';
+                dimLabel.textContent = 'Fluid (100% × 100%)';
+            } else if (mode === 'deck') {
+                viewportFrame.style.width = '1280px';
+                viewportFrame.style.height = '800px';
+                dimLabel.textContent = 'Steam Deck (1280 × 800)';
+            } else if (mode === 'fhd') {
+                viewportFrame.style.width = '1920px';
+                viewportFrame.style.height = '1080px';
+                dimLabel.textContent = 'Big Picture (1920 × 1080)';
+            }
+        }
+
+        function triggerAction(actionName) {
+            if (iframe && iframe.contentWindow) {
+                iframe.contentWindow.postMessage({ action: actionName }, '*');
+            }
+        }
+
+        function switchHudTab(tabId) {
+            var tabs = ['api', 'console', 'files', 'cdp'];
+            tabs.forEach(function(t) {
+                var el = document.getElementById('hud-tab-' + t);
+                if (el) el.style.display = (t === tabId) ? 'block' : 'none';
+            });
+
+            var btnTabs = document.querySelectorAll('.hud-tab');
+            btnTabs.forEach(function(btn, i) {
+                btn.classList.toggle('active', tabs[i] === tabId);
+            });
+
+            if (tabId === 'files' || tabId === 'cdp') {
+                fetchStatus();
+            }
+        }
+
+        function toggleHud() {
+            var hud = document.getElementById('bottom-hud');
+            hud.classList.toggle('collapsed');
+        }
+
+        function clearActiveTabLogs() {
+            var activeTab = document.querySelector('.hud-tab.active');
+            if (activeTab && activeTab.textContent.indexOf('API') !== -1) {
+                apiRequests = [];
+                document.getElementById('api-log-rows').innerHTML = '';
+                document.getElementById('api-req-count').textContent = '0';
+                fetch('/_live/api-log?clear=1').catch(function(){});
+            } else {
+                consoleLogs = [];
+                document.getElementById('console-entries').innerHTML = '';
+                document.getElementById('console-log-count').textContent = '0';
+            }
+        }
+
+        // Handle Messages from Iframe
+        window.addEventListener('message', function(e) {
+            if (!e.data || !e.data.type) return;
+
+            if (e.data.type === 'NAVI_PREVIEW_STATUS') {
+                var dot = document.getElementById('connection-dot');
+                var text = document.getElementById('connection-text');
+                if (e.data.connected) {
+                    dot.className = 'status-dot';
+                    text.textContent = 'Connected';
+                } else {
+                    dot.className = 'status-dot disconnected';
+                    text.textContent = 'Disconnected';
+                }
+            }
+
+            if (e.data.type === 'NAVI_RELOAD_OCCURRED') {
+                var reloadText = document.getElementById('last-reload-text');
+                reloadText.textContent = 'Reloaded ' + (e.data.time || new Date().toLocaleTimeString());
+                var dot = document.getElementById('connection-dot');
+                dot.classList.add('pulsing');
+                setTimeout(function() { dot.classList.remove('pulsing'); }, 1500);
+            }
+
+            if (e.data.type === 'NAVI_CONSOLE_LOG') {
+                addConsoleEntry(e.data.time, e.data.level, e.data.message);
+            }
+        });
+
+        function addConsoleEntry(time, level, msg) {
+            consoleLogs.push({ time: time, level: level, msg: msg });
+            if (consoleLogs.length > 200) consoleLogs.shift();
+            document.getElementById('console-log-count').textContent = consoleLogs.length;
+
+            var container = document.getElementById('console-entries');
+            var el = document.createElement('div');
+            el.className = 'console-entry ' + (level || 'info');
+            el.innerHTML = '<span class="console-time">' + time + '</span><span>' + escapeHtml(msg) + '</span>';
+            container.appendChild(el);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        // Poll API Request Logs from Server
+        function pollApiLogs() {
+            fetch('/_live/api-log')
+                .then(function(r) { return r.json(); })
+                .then(function(logs) {
+                    if (Array.isArray(logs)) {
+                        renderApiLogs(logs);
+                    }
+                })
+                .catch(function() {});
+        }
+
+        function renderApiLogs(logs) {
+            var tbody = document.getElementById('api-log-rows');
+            document.getElementById('api-req-count').textContent = logs.length;
+            tbody.innerHTML = '';
+            logs.slice().reverse().forEach(function(item) {
+                var tr = document.createElement('tr');
+                var statusClass = 'status-' + item.status;
+                tr.innerHTML =
+                    '<td>' + item.time_str + '</td>' +
+                    '<td><span class="badge-method badge-' + item.method + '">' + item.method + '</span></td>' +
+                    '<td style="color:#dcdedf;">' + escapeHtml(item.path) + '</td>' +
+                    '<td class="' + statusClass + '" style="font-weight:bold;">' + item.status + '</td>' +
+                    '<td style="color:var(--text-muted);">' + (item.duration_ms || 1) + 'ms</td>' +
+                    '<td style="color:var(--text-muted); max-width:300px; overflow:hidden; text-overflow:ellipsis;">' + escapeHtml(item.body_snippet || '') + '</td>';
+                tbody.appendChild(tr);
+            });
+        }
+
+        function fetchStatus() {
+            fetch('/_live/status')
+                .then(function(r) { return r.json(); })
+                .then(function(status) {
+                    // Render Watched Files
+                    var filesContainer = document.getElementById('watched-files-list');
+                    if (status.watched_files && status.watched_files.length) {
+                        var html = '';
+                        status.watched_files.forEach(function(f) {
+                            html += '<div class="watched-item"><span>' + escapeHtml(f.rel_path) + '</span><span style="color:var(--text-muted);">' + f.mtime_str + '</span></div>';
+                        });
+                        filesContainer.innerHTML = html;
+                    }
+
+                    // Render CDP Status
+                    var cdpPanel = document.getElementById('cdp-status-panel');
+                    var cdp = status.steam_cdp || {};
+                    var cdpHtml = '<div style="margin-bottom:8px;">' +
+                        '<strong>Steam Remote Debugging:</strong> ' +
+                        (cdp.connected ? '<span style="color:#10b981;">ONLINE (Connected)</span>' : '<span style="color:#ef4444;">OFFLINE (Port ' + (cdp.port || 8080) + ')</span>') +
+                        '</div>';
+                    if (cdp.targets && cdp.targets.length) {
+                        cdpHtml += '<div style="margin-bottom:4px; font-weight:bold;">Active Steam CEF Targets:</div>';
+                        cdp.targets.forEach(function(t) {
+                            cdpHtml += '<div style="padding:4px; background:rgba(0,0,0,0.2); margin-bottom:2px; border-radius:3px;">' +
+                                '<strong>' + escapeHtml(t.title || 'Untitled') + '</strong> — <span style="color:var(--text-muted);">' + escapeHtml(t.url || '') + '</span></div>';
+                        });
+                    } else {
+                        cdpHtml += '<div style="color:var(--text-muted); font-size:11px;">To enable live Steam reload, launch Steam with: <code>steam -cef-enable-debugging</code></div>';
+                    }
+                    cdpPanel.innerHTML = cdpHtml;
+                })
+                .catch(function(){});
+        }
+
+        setInterval(pollApiLogs, 800);
+        pollApiLogs();
+    </script>
+</body>
+</html>
+

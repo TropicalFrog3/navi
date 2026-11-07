@@ -511,6 +511,13 @@ std::string renderCheckJson(const CheckViewModel& info) {
             csManagedApps.assign(s.begin(), s.end());
             std::sort(csManagedApps.begin(), csManagedApps.end());
         }
+
+        bool psEnabled = g_config.cloudPrefixSyncEnabled.get();
+        bool psStartup = g_config.cloudPrefixSyncAtStartUp.get();
+        bool psLaunch = g_config.cloudPrefixSyncOnLaunch.get();
+        bool psExit = g_config.cloudPrefixSyncOnExit.get();
+        uint32_t psMaxMb = g_config.cloudPrefixSyncMaxFileMb.get();
+
         if (fileLoaded && node["CloudSaves"] && node["CloudSaves"].IsMap())
         {
             const auto csNode = node["CloudSaves"];
@@ -524,6 +531,35 @@ std::string renderCheckJson(const CheckViewModel& info) {
                     try { csManagedApps.push_back(item.as<uint32_t>()); } catch (...) {}
                 }
                 std::sort(csManagedApps.begin(), csManagedApps.end());
+            }
+
+            if (csNode["PrefixSync"] && csNode["PrefixSync"].IsMap())
+            {
+                const auto psNode = csNode["PrefixSync"];
+                auto getPsBool = [&](const char* k, bool def) {
+                    if (psNode[k])
+                    {
+                        try {
+                            if (psNode[k].IsScalar())
+                            {
+                                const std::string s = psNode[k].Scalar();
+                                if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
+                                    s == "yes" || s == "Yes" || s == "YES" ||
+                                    s == "on" || s == "On" || s == "ON") return true;
+                                if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
+                                    s == "no" || s == "No" || s == "NO" ||
+                                    s == "off" || s == "Off" || s == "OFF") return false;
+                            }
+                            return psNode[k].as<bool>();
+                        } catch (...) {}
+                    }
+                    return def;
+                };
+                psEnabled = getPsBool("Enabled", psEnabled);
+                psStartup = getPsBool("SyncAtStartup", psStartup);
+                psLaunch = getPsBool("SyncOnLaunch", psLaunch);
+                psExit = getPsBool("SyncOnExit", psExit);
+                if (psNode["MaxFileMb"]) { try { psMaxMb = psNode["MaxFileMb"].as<uint32_t>(); } catch (...) {} }
             }
         }
 
@@ -591,7 +627,14 @@ std::string renderCheckJson(const CheckViewModel& info) {
         ss << "    \"Provider\": \"" << escapeJson(csProvider) << "\",\n";
         ss << "    \"AutoBackupBeforeReset\": " << (csAutoBackup ? "true" : "false") << ",\n";
         ss << "    \"BackupRetentionCount\": " << csRetention << ",\n";
-        ss << "    \"ManagedApps\": " << formatUint32Array(csManagedApps) << "\n";
+        ss << "    \"ManagedApps\": " << formatUint32Array(csManagedApps) << ",\n";
+        ss << "    \"PrefixSync\": {\n";
+        ss << "      \"Enabled\": " << (psEnabled ? "true" : "false") << ",\n";
+        ss << "      \"SyncAtStartup\": " << (psStartup ? "true" : "false") << ",\n";
+        ss << "      \"SyncOnLaunch\": " << (psLaunch ? "true" : "false") << ",\n";
+        ss << "      \"SyncOnExit\": " << (psExit ? "true" : "false") << ",\n";
+        ss << "      \"MaxFileMb\": " << psMaxMb << "\n";
+        ss << "    }\n";
         ss << "  }\n";
         ss << "}";
         return ss.str();
@@ -866,6 +909,56 @@ std::string renderCheckJson(const CheckViewModel& info) {
                     try { seq.push_back(item.as<uint32_t>()); } catch (...) {}
                 }
                 csNode["ManagedApps"] = seq;
+            }
+            if (cs["PrefixSync"] && cs["PrefixSync"].IsMap())
+            {
+                const auto& ps = cs["PrefixSync"];
+                YAML::Node psNode;
+                if (csNode["PrefixSync"] && csNode["PrefixSync"].IsMap())
+                {
+                    psNode = csNode["PrefixSync"];
+                }
+                else
+                {
+                    psNode = YAML::Node(YAML::NodeType::Map);
+                }
+
+                auto parseBoolVal = [](const YAML::Node& valNode, bool def) -> bool {
+                    if (valNode.IsScalar())
+                    {
+                        const std::string s = valNode.Scalar();
+                        if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
+                            s == "yes" || s == "Yes" || s == "YES" ||
+                            s == "on" || s == "On" || s == "ON") return true;
+                        if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
+                            s == "no" || s == "No" || s == "NO" ||
+                            s == "off" || s == "Off" || s == "OFF") return false;
+                    }
+                    try { return valNode.as<bool>(); } catch (...) {}
+                    return def;
+                };
+
+                if (ps["Enabled"])
+                {
+                    psNode["Enabled"] = parseBoolVal(ps["Enabled"], true);
+                }
+                if (ps["SyncAtStartup"])
+                {
+                    psNode["SyncAtStartup"] = parseBoolVal(ps["SyncAtStartup"], true);
+                }
+                if (ps["SyncOnLaunch"])
+                {
+                    psNode["SyncOnLaunch"] = parseBoolVal(ps["SyncOnLaunch"], true);
+                }
+                if (ps["SyncOnExit"])
+                {
+                    psNode["SyncOnExit"] = parseBoolVal(ps["SyncOnExit"], true);
+                }
+                if (ps["MaxFileMb"])
+                {
+                    try { psNode["MaxFileMb"] = ps["MaxFileMb"].as<uint32_t>(); } catch (...) {}
+                }
+                csNode["PrefixSync"] = psNode;
             }
             rootNode["CloudSaves"] = csNode;
         }
