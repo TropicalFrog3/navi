@@ -31,6 +31,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <thread>
+#include <mutex>
 #include <atomic>
 #include <chrono>
 #include <filesystem>
@@ -97,6 +98,7 @@ namespace StoreInject
     static std::thread g_workerThread;
     static std::thread g_autoThread;
     static std::set<uint32_t> g_pendingRestartApps;
+    static std::mutex g_pendingRestartAppsMutex;
     static std::atomic<bool> g_shouldStop(false);
     static std::atomic<int> g_serverFd{-1};
     static std::atomic<int> g_wakeFd{-1};
@@ -809,120 +811,36 @@ namespace StoreInject
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
-        int checkCounter = 100;
-        int bridgeCounter = 0;
+        int checkCounter = 10;
 
         while (!g_shouldStop)
         {
-            // Try to connect to CDP 8080 endpoint (dual-stack IPv4/IPv6 with fallback)
-            int sock = CDPInject::tcpConnect("127.0.0.1", 8080, 1);
-            if (sock >= 0)
+            // Serve store-page requests roughly every 500ms
+            pollPageBridge();
+
+            if (g_shouldStop) break;
+
+            // Trigger the C++ CDP injector every 5 seconds to inject new pages
+            if (++checkCounter >= 10)
             {
-                if (g_shouldStop)
-                {
-                    close(sock);
-                    break;
-                }
-
-                // Serve store-page requests roughly every 300ms
-                if (bridgeCounter++ >= 6)
-                {
-                    bridgeCounter = 0;
-                    pollPageBridge();
-                }
-
-                if (g_shouldStop)
-                {
-                    close(sock);
-                    break;
-                }
-
-                // Trigger the C++ CDP injector every 5 seconds to inject new pages
-                if (checkCounter++ >= 100)
-                {
-                    if (g_shouldStop)
-                    {
-                        close(sock);
-                        break;
-                    }
-                    CDPInject::injectStorePages();
-                    if (g_shouldStop)
-                    {
-                        close(sock);
-                        break;
-                    }
-                    RemoveLua::injectRemoveLuaScript();
-                    checkCounter = 0;
-                }
-                close(sock);
+                CDPInject::injectStorePages();
+                if (g_shouldStop) break;
+                RemoveLua::injectRemoveLuaScript();
+                checkCounter = 0;
             }
 
-            for (int i = 0; i < 5 && !g_shouldStop; ++i)
+            for (int i = 0; i < 50 && !g_shouldStop; ++i)
             {
                 std::this_thread::sleep_for(std::chrono::milliseconds(10));
             }
         }
     }
 
-    static void callbackServer()
+    static void handleClient(int new_socket)
     {
-        int server_fd, new_socket;
-        struct sockaddr_in address;
-        int opt = 1;
-        int addrlen = sizeof(address);
-
-        if ((server_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0)) < 0) return;
-        g_serverFd = server_fd;
-        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
-
-        address.sin_family = AF_INET;
-        address.sin_addr.s_addr = INADDR_ANY;
-        address.sin_port = htons(9001);
-
-        if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
-        {
-            int fd = g_serverFd.exchange(-1);
-            if (fd >= 0) close(fd);
-            return;
-        }
-        if (listen(server_fd, 5) < 0)
-        {
-            int fd = g_serverFd.exchange(-1);
-            if (fd >= 0) close(fd);
-            return;
-        }
-
-        int wake_fd = g_wakeFd.load();
-
-        LOG_INFO("StoreInject: Callback server listening on port 9001\n");
-
-        while (!g_shouldStop)
-        {
-            struct pollfd pfds[2];
-            pfds[0].fd = server_fd;
-            pfds[0].events = POLLIN;
-            pfds[0].revents = 0;
-            pfds[1].fd = wake_fd;
-            pfds[1].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
-            pfds[1].revents = 0;
-
-            int ret = poll(pfds, 2, 1000);
-            if (ret > 0)
-            {
-                if (wake_fd >= 0 && (pfds[1].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL)))
-                {
-                    uint64_t val = 0;
-                    (void)read(wake_fd, &val, sizeof(val));
-                    if (g_shouldStop) break;
-                }
-
-                if (pfds[0].revents & POLLIN)
-                {
-                    if ((new_socket = accept4(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen, SOCK_CLOEXEC)) >= 0)
-                    {
-                    std::string request = readFullHttpRequest(new_socket);
-                    bool handled = false;
-                    if (!request.empty())
+        std::string request = readFullHttpRequest(new_socket);
+        bool handled = false;
+        if (!request.empty())
                     {
                         // Handle CORS preflight (OPTIONS) requests for all endpoints
                         if (request.rfind("OPTIONS ", 0) == 0)
@@ -977,6 +895,7 @@ namespace StoreInject
                                     bool enable = Navi::CloudView::parseBoolField(body, "enable", false);
                                     Navi::CloudRedirect::CCloudRedirectBridge::Instance().SetEnabledState(enable);
                                     g_config.cloudSavesEnabled.set(enable);
+                                    Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncEngineConfigFromGlobal();
                                     sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderSuccessJson("Cloud saves " + std::string(enable ? "enabled" : "disabled")));
                                     handled = true;
                                 }
@@ -999,6 +918,39 @@ namespace StoreInject
                                 auto st = Navi::CloudRedirect::CCloudManager::Instance().CheckAuthStatus(provider);
                                 sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderStatusJson(st));
                                 handled = true;
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/provider/credentials" || uriPath.rfind("/cloud/provider/credentials?", 0) == 0))
+                            {
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                auto creds = Navi::CloudRedirect::CCloudManager::Instance().GetProviderCredentials(provider);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderCredentialsJson(creds));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/provider/credentials")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    auto creds = Navi::CloudView::parseProviderCredentialsJson(body);
+                                    std::string outErr;
+                                    if (!Navi::CloudRedirect::CCloudManager::Instance().SaveProviderCredentials(creds, outErr))
+                                    {
+                                        sendJsonResponse(new_socket, 400, "Bad Request", Navi::CloudView::renderErrorJson(outErr));
+                                    }
+                                    else
+                                    {
+                                        Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncEngineConfigFromGlobal();
+                                        auto savedCreds = Navi::CloudRedirect::CCloudManager::Instance().GetProviderCredentials(creds.provider);
+                                        sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderCredentialsJson(savedCreds));
+                                    }
+                                    handled = true;
+                                }
                             }
                             else if (method == "POST" && uriPath == "/cloud/provider/signin")
                             {
@@ -1039,8 +991,15 @@ namespace StoreInject
                                     std::string body = extractHttpPostBody(new_socket, request);
                                     std::string provider = Navi::CloudView::parseStringField(body, "provider");
                                     if (provider.empty()) provider = g_config.cloudSavesProvider.get();
-                                    auto provEnum = Navi::CloudRedirect::StringToOAuthProvider(provider);
-                                    Navi::CloudRedirect::COAuthEngine::Instance().SignOut(provEnum);
+                                    if (provider == "r2" || provider == "s3")
+                                    {
+                                        Navi::CloudRedirect::CCloudManager::Instance().DeleteProviderCredentials(provider);
+                                    }
+                                    else
+                                    {
+                                        auto provEnum = Navi::CloudRedirect::StringToOAuthProvider(provider);
+                                        Navi::CloudRedirect::COAuthEngine::Instance().SignOut(provEnum);
+                                    }
                                     sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderSuccessJson("Signed out"));
                                     handled = true;
                                 }
@@ -1392,6 +1351,9 @@ namespace StoreInject
                                         waitpid(pid, &status, 0);
                                     }
 
+                                    Navi::CloudRedirect::CCloudManager::Instance().PruneBackupsForApp(
+                                        appId, g_config.cloudBackupRetentionCount.get());
+
                                     sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderBackupSuccessJson(appId, backupFile.string()));
                                     handled = true;
                                 }
@@ -1463,6 +1425,109 @@ namespace StoreInject
                                 auto ops = Navi::CloudRedirect::CPendingOpsQueue::Instance().LoadAll();
                                 sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderPendingOpsJson(ops));
                                 handled = true;
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/migrate/scan" || uriPath.rfind("/cloud/migrate/scan?", 0) == 0))
+                            {
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                auto scan = Navi::CloudRedirect::CCloudManager::Instance().ScanProviderForMigration(provider);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderMigrationScanJson(scan));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/migrate")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    std::string srcProv = Navi::CloudView::parseStringField(body, "srcProvider");
+                                    if (srcProv.empty()) srcProv = Navi::CloudView::parseStringField(body, "sourceProvider");
+                                    if (srcProv.empty()) srcProv = Navi::CloudView::parseStringField(body, "src");
+
+                                    std::string dstProv = Navi::CloudView::parseStringField(body, "dstProvider");
+                                    if (dstProv.empty()) dstProv = Navi::CloudView::parseStringField(body, "targetProvider");
+                                    if (dstProv.empty()) dstProv = Navi::CloudView::parseStringField(body, "dst");
+
+                                    bool switchActive = Navi::CloudView::parseBoolField(body, "switchActiveProvider", false);
+                                    if (srcProv.empty() || dstProv.empty())
+                                    {
+                                        sendJsonResponse(new_socket, 400, "Bad Request", Navi::CloudView::renderErrorJson("srcProvider and dstProvider are required"));
+                                    }
+                                    else
+                                    {
+                                        auto res = Navi::CloudRedirect::CCloudManager::Instance().MigrateProviderData(srcProv, dstProv, switchActive);
+                                        if (res.success && switchActive)
+                                        {
+                                            Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncEngineConfigFromGlobal();
+                                        }
+                                        sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderMigrationResultJson(res));
+                                    }
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/orphans" || uriPath.rfind("/cloud/orphans?", 0) == 0))
+                            {
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+                                auto orphans = Navi::CloudRedirect::CCloudManager::Instance().ScanOrphanedSaves(provider, acctId);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderOrphanAppsJson(provider, orphans));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/orphans/clean")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    AppId_t appId = Navi::CloudView::parseUint32Field(body, "appId", 0);
+                                    std::string provider = Navi::CloudView::parseStringField(body, "provider");
+                                    if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                    bool deleteLocal = Navi::CloudView::parseBoolField(
+                                        body, "deleteLocalFiles",
+                                        Navi::CloudView::parseBoolField(body, "deleteFiles", false));
+                                    uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+                                    auto gcRes = Navi::CloudRedirect::CCloudManager::Instance().CleanOrphanedApp(appId, provider, deleteLocal, acctId);
+                                    sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderGcResultJson(gcRes));
+                                    handled = true;
+                                }
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/backups" || uriPath.rfind("/cloud/backups?", 0) == 0))
+                            {
+                                auto backups = Navi::CloudRedirect::CCloudManager::Instance().ListAllBackups();
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderGlobalBackupsJson(backups));
+                                handled = true;
+                            }
+                            else if (method == "POST" && uriPath == "/cloud/backups/delete")
+                            {
+                                if (!verifyNaviAuthToken(request))
+                                {
+                                    sendJsonResponse(new_socket, 401, "Unauthorized", Navi::CloudView::renderErrorJson("Unauthorized: invalid X-Navi-Auth token"));
+                                    handled = true;
+                                }
+                                else
+                                {
+                                    std::string body = extractHttpPostBody(new_socket, request);
+                                    AppId_t appId = Navi::CloudView::parseUint32Field(body, "appId", 0);
+                                    std::string fileName = Navi::CloudView::parseStringField(body, "fileName");
+                                    if (Navi::CloudRedirect::CCloudManager::Instance().DeleteBackup(appId, fileName))
+                                    {
+                                        sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderSuccessJson("Backup deleted"));
+                                    }
+                                    else
+                                    {
+                                        sendJsonResponse(new_socket, 400, "Bad Request", Navi::CloudView::renderErrorJson("Invalid or non-existent backup archive"));
+                                    }
+                                    handled = true;
+                                }
                             }
                             else if (method == "POST" && (uriPath == "/cloud/backups/delete-all" || uriPath == "/cloud/backups/delete-all/" || uriPath.rfind("/cloud/backups/delete-all?", 0) == 0))
                             {
@@ -1698,7 +1763,7 @@ namespace StoreInject
                                         send(new_socket, response.c_str(), response.size(), 0);
                                         close(new_socket);
                                         handled = true;
-                                        continue;
+                                        return;
                                     }
                                     
                                     bool gameExists = Apps::gameFilesExist(appId);
@@ -1721,7 +1786,11 @@ namespace StoreInject
 
                                     // Report exists as true if the Lua plugin exists or if the app is unlocked and has game files
                                     bool exists = (isUnlocked || luaExists) && (gameExists || luaExists);
-                                    bool pending = g_pendingRestartApps.count(appId) > 0;
+                                    bool pending = false;
+                                    {
+                                        std::lock_guard<std::mutex> lock(g_pendingRestartAppsMutex);
+                                        pending = g_pendingRestartApps.count(appId) > 0;
+                                    }
                                     bool downloading = false;
                                     bool onlineFixInstalled = Apps::isOnlineFixInstalled(appId);
                                     bool autoCrackInstalled = Apps::isAutoCrackInstalled(appId);
@@ -1748,8 +1817,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/get-depots?id=") != std::string::npos)
@@ -1770,7 +1839,7 @@ namespace StoreInject
                                         send(new_socket, response.c_str(), response.size(), 0);
                                         close(new_socket);
                                         handled = true;
-                                        continue;
+                                        return;
                                     }
 
                                     std::string pluginDir = g_config.getPluginDir();
@@ -1821,7 +1890,7 @@ namespace StoreInject
                                     close(new_socket);
                                     handled = true;
                                 }
-                            } catch (...) { handled = false; close(new_socket); }
+                            } catch (...) { close(new_socket); return; }
                         }
                         else if (request.find("/start-download?id=") != std::string::npos)
                         {
@@ -1836,7 +1905,7 @@ namespace StoreInject
                                     if (pEndApp == idStr.c_str() || appId == 0) {
                                         close(new_socket);
                                         handled = true;
-                                        continue;
+                                        return;
                                     }
 
                                     if (Apps::isNonSteamApp(appId))
@@ -1846,7 +1915,7 @@ namespace StoreInject
                                         send(new_socket, response.c_str(), response.size(), 0);
                                         close(new_socket);
                                         handled = true;
-                                        continue;
+                                        return;
                                     }
 
                                     std::string depots = "";
@@ -1869,7 +1938,7 @@ namespace StoreInject
                                     close(new_socket);
                                     handled = true;
                                 }
-                            } catch (...) { handled = false; close(new_socket); }
+                            } catch (...) { close(new_socket); return; }
                         }
                         else if (request.find("/cancel-download?id=") != std::string::npos)
                         {
@@ -1890,7 +1959,7 @@ namespace StoreInject
                                     close(new_socket);
                                     handled = true;
                                 }
-                            } catch (...) { handled = false; close(new_socket); }
+                            } catch (...) { close(new_socket); return; }
                         }
                         else if (request.find("/download?") != std::string::npos || request.find("/download ") != std::string::npos)
                         {
@@ -1957,8 +2026,8 @@ namespace StoreInject
                                 close(new_socket);
                                 handled = true;
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/install-fix?id=") != std::string::npos)
@@ -1980,8 +2049,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/remove-fix?id=") != std::string::npos)
@@ -2003,8 +2072,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/install-crack?id=") != std::string::npos || request.find("/install-crack?") != std::string::npos)
@@ -2030,8 +2099,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/remove-crack?id=") != std::string::npos || request.find("/remove-crack?") != std::string::npos)
@@ -2056,8 +2125,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/crack-status?id=") != std::string::npos || request.find("/crack-status?") != std::string::npos)
@@ -2082,8 +2151,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/change-provider?") != std::string::npos)
@@ -2126,8 +2195,8 @@ namespace StoreInject
                                     handled = true;
                                 }
                             } catch (...) {
-                                handled = false;
                                 close(new_socket);
+                                return;
                             }
                         }
                         else if (request.find("/clear-pending?id=") != std::string::npos)
@@ -2138,7 +2207,10 @@ namespace StoreInject
                             {
                                 std::string idStr = request.substr(idPos + 3, endPos - (idPos + 3));
                                 uint32_t appId = std::stoul(idStr);
-                                g_pendingRestartApps.erase(appId);
+                                {
+                                    std::lock_guard<std::mutex> lock(g_pendingRestartAppsMutex);
+                                    g_pendingRestartApps.erase(appId);
+                                }
                                 const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
                                 send(new_socket, response, strlen(response), 0);
                                 close(new_socket);
@@ -2158,7 +2230,10 @@ namespace StoreInject
                                     Paths::clearAppCache(appId);
                                     Ticket::ticketMap.erase(appId);
                                     Ticket::encryptedTicketMap.erase(appId);
-                                    g_pendingRestartApps.erase(appId);
+                                    {
+                                        std::lock_guard<std::mutex> lock(g_pendingRestartAppsMutex);
+                                        g_pendingRestartApps.erase(appId);
+                                    }
                                     LOG_INFO("StoreInject: Cleared cache for AppID %u\n", appId);
                                     std::string respBody = StoreInjectView::renderSuccessJson("Cleared cache for AppID " + idStr);
                                     std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
@@ -2169,7 +2244,7 @@ namespace StoreInject
                                 catch (...)
                                 {
                                     close(new_socket);
-                                    handled = false;
+                                    return;
                                 }
                             }
                         }
@@ -2180,7 +2255,10 @@ namespace StoreInject
                                 Paths::clearAllCache();
                                 Ticket::ticketMap.clear();
                                 Ticket::encryptedTicketMap.clear();
-                                g_pendingRestartApps.clear();
+                                {
+                                    std::lock_guard<std::mutex> lock(g_pendingRestartAppsMutex);
+                                    g_pendingRestartApps.clear();
+                                }
                                 LOG_INFO("StoreInject: Cleared all cache\n");
                                 std::string respBody = StoreInjectView::renderSuccessJson("Cleared all cache");
                                 std::string response = "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
@@ -2191,7 +2269,7 @@ namespace StoreInject
                             catch (...)
                             {
                                 close(new_socket);
-                                handled = false;
+                                return;
                             }
                         }
                         else if (request.find("/remove?id=") != std::string::npos)
@@ -2202,10 +2280,13 @@ namespace StoreInject
                             {
                                 std::string idStr = request.substr(idPos + 3, endPos - (idPos + 3));
                                 uint32_t appId = std::stoul(idStr);
-                                if (request.find("pending=false") != std::string::npos) {
-                                    g_pendingRestartApps.erase(appId);
-                                } else {
-                                    g_pendingRestartApps.insert(appId);
+                                {
+                                    std::lock_guard<std::mutex> lock(g_pendingRestartAppsMutex);
+                                    if (request.find("pending=false") != std::string::npos) {
+                                        g_pendingRestartApps.erase(appId);
+                                    } else {
+                                        g_pendingRestartApps.insert(appId);
+                                    }
                                 }
                                 
                                 bool deleteGame = (request.find("game=true") != std::string::npos);
@@ -2478,16 +2559,76 @@ namespace StoreInject
                         }
                     }
 
-                    if (!handled)
+        if (!handled)
+        {
+            const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
+            send(new_socket, response, strlen(response), 0);
+            close(new_socket);
+        }
+    }
+
+    static void callbackServer()
+    {
+        int server_fd;
+        struct sockaddr_in address;
+        int opt = 1;
+        int addrlen = sizeof(address);
+
+        if ((server_fd = socket(AF_INET, SOCK_STREAM | SOCK_CLOEXEC, 0)) < 0) return;
+        g_serverFd = server_fd;
+        setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &opt, sizeof(opt));
+
+        address.sin_family = AF_INET;
+        address.sin_addr.s_addr = INADDR_ANY;
+        address.sin_port = htons(9001);
+
+        if (bind(server_fd, (struct sockaddr *)&address, sizeof(address)) < 0)
+        {
+            int fd = g_serverFd.exchange(-1);
+            if (fd >= 0) close(fd);
+            return;
+        }
+        if (listen(server_fd, 128) < 0)
+        {
+            int fd = g_serverFd.exchange(-1);
+            if (fd >= 0) close(fd);
+            return;
+        }
+
+        int wake_fd = g_wakeFd.load();
+
+        LOG_INFO("StoreInject: Callback server listening on port 9001\n");
+
+        while (!g_shouldStop)
+        {
+            struct pollfd pfds[2];
+            pfds[0].fd = server_fd;
+            pfds[0].events = POLLIN;
+            pfds[0].revents = 0;
+            pfds[1].fd = wake_fd;
+            pfds[1].events = POLLIN | POLLERR | POLLHUP | POLLNVAL;
+            pfds[1].revents = 0;
+
+            int ret = poll(pfds, 2, 1000);
+            if (ret > 0)
+            {
+                if (wake_fd >= 0 && (pfds[1].revents & (POLLIN | POLLERR | POLLHUP | POLLNVAL)))
+                {
+                    uint64_t val = 0;
+                    (void)read(wake_fd, &val, sizeof(val));
+                    if (g_shouldStop) break;
+                }
+
+                if (pfds[0].revents & POLLIN)
+                {
+                    int new_socket = accept4(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen, SOCK_CLOEXEC);
+                    if (new_socket >= 0)
                     {
-                        const char* response = "HTTP/1.1 200 OK\r\nContent-Length: 0\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n";
-                        send(new_socket, response, strlen(response), 0);
-                        close(new_socket);
+                        std::thread([new_socket]() { handleClient(new_socket); }).detach();
                     }
                 }
             }
         }
-    }
         int fd = g_serverFd.exchange(-1);
         if (fd >= 0) close(fd);
     }

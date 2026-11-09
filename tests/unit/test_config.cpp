@@ -226,6 +226,10 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
     EXPECT_NE(initialJson.find("\"Provider\": \"local-only\""), std::string::npos);
     EXPECT_NE(initialJson.find("\"AutoBackupBeforeReset\": true"), std::string::npos);
     EXPECT_NE(initialJson.find("\"BackupRetentionCount\": 5"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"NotificationsEnabled\": true"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"StatsSync\": {"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"SyncAchievements\": true"), std::string::npos);
+    EXPECT_NE(initialJson.find("\"SyncPlaytime\": true"), std::string::npos);
     EXPECT_NE(initialJson.find("\"ManagedApps\": []"), std::string::npos);
     EXPECT_NE(initialJson.find("\"PrefixSync\": {"), std::string::npos);
     EXPECT_NE(initialJson.find("\"SyncAtStartup\": true"), std::string::npos);
@@ -237,6 +241,12 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
             "Provider": "gdrive",
             "AutoBackupBeforeReset": false,
             "BackupRetentionCount": 10,
+            "NotificationsEnabled": false,
+            "StatsSync": {
+                "Enabled": true,
+                "SyncAchievements": false,
+                "SyncPlaytime": true
+            },
             "ManagedApps": [480, 730],
             "PrefixSync": {
                 "Enabled": true,
@@ -257,6 +267,10 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
     EXPECT_EQ(g_config.cloudSavesProvider.get(), "gdrive");
     EXPECT_FALSE(g_config.cloudAutoBackupBeforeReset.get());
     EXPECT_EQ(g_config.cloudBackupRetentionCount.get(), 10u);
+    EXPECT_FALSE(g_config.cloudNotificationsEnabled.get());
+    EXPECT_TRUE(g_config.cloudStatsSyncEnabled.get());
+    EXPECT_FALSE(g_config.cloudSyncAchievements.get());
+    EXPECT_TRUE(g_config.cloudSyncPlaytime.get());
     EXPECT_TRUE(g_config.cloudPrefixSyncEnabled.get());
     EXPECT_FALSE(g_config.cloudPrefixSyncAtStartUp.get());
     EXPECT_FALSE(g_config.cloudPrefixSyncOnLaunch.get());
@@ -281,6 +295,8 @@ TEST_F(ConfigUnitTest, FullConfigJsonCloudSavesRoundTrip)
     EXPECT_NE(updatedJson.find("\"Provider\": \"gdrive\""), std::string::npos);
     EXPECT_NE(updatedJson.find("\"AutoBackupBeforeReset\": false"), std::string::npos);
     EXPECT_NE(updatedJson.find("\"BackupRetentionCount\": 10"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"NotificationsEnabled\": false"), std::string::npos);
+    EXPECT_NE(updatedJson.find("\"SyncAchievements\": false"), std::string::npos);
     EXPECT_NE(updatedJson.find("\"ManagedApps\": [480, 730]"), std::string::npos);
     EXPECT_NE(updatedJson.find("\"SyncAtStartup\": false"), std::string::npos);
     EXPECT_NE(updatedJson.find("\"MaxFileMb\": 128"), std::string::npos);
@@ -323,7 +339,8 @@ TEST(ShutdownTest, CleanShutdownAndCdpTargetFiltering)
     ASSERT_FALSE(storeInjectSrc.empty());
     EXPECT_NE(storeInjectSrc.find("g_serverFd"), std::string::npos);
     EXPECT_NE(storeInjectSrc.find("shutdown("), std::string::npos);
-    EXPECT_NE(storeInjectSrc.find("checkCounter++ >= 100"), std::string::npos);
+    EXPECT_TRUE(storeInjectSrc.find("checkCounter++ >= 100") != std::string::npos ||
+                storeInjectSrc.find("checkCounter >= 10") != std::string::npos);
 
     std::string cdpInjectSrc = readSrc("src/view/cdpinject.cpp");
     ASSERT_FALSE(cdpInjectSrc.empty());

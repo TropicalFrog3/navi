@@ -203,3 +203,75 @@ def test_uj05_backup_retention_clamping_and_tab_switching(
     driver.click("#sls-config-top-tab")
     config_page.wait_until_open()
     assert import_page.is_open() is False
+
+
+@pytest.mark.ui_p1
+def test_uj05_cloudredirect_ux_parity_controls(
+    config_page: ConfigEditorPage,
+    callback_server: CallbackServerStub,
+    driver: BrowserDriver,
+    repo_paths: dict[str, Path],
+) -> None:
+    """Verify CloudRedirect v2.6.5 UX parity cards (Notifications, Stats Sync, R2/S3 Creds, Migration, Orphans, Backups)."""
+    shell_path = repo_paths["fixtures"] / "steam_library_sp.html"
+    driver.navigate_to_file(shell_path)
+    driver.inject_script(repo_paths["scripts"] / "cloud_manager.js")
+    driver.inject_script(repo_paths["scripts"] / "import-lua-script.js")
+    config_page.open()
+
+    driver.wait_for_condition(lambda: bool(config_page.get_field_value("FakeName")))
+    config_page.switch_tab("sls-cfg-sec-cloudsaves")
+
+    # 1. Verify Launch Notifications & Stats Sync checkboxes exist and round-trip through /config/full
+    assert config_page.is_toggle_checked("CloudSaves-NotificationsEnabled") is True
+    assert config_page.is_toggle_checked("StatsSync-Enabled") is False
+
+    config_page.set_toggle("CloudSaves-NotificationsEnabled", False)
+    config_page.set_toggle("StatsSync-Enabled", True)
+    config_page.set_toggle("StatsSync-Playtime", False)
+    config_page.click_save()
+    config_page.wait_for_status_banner("saved", timeout=5.0)
+
+    req = callback_server.last_request("/config/full", method="POST")
+    assert req is not None
+    body_data = json.loads(req["body"].decode("utf-8"))
+    assert body_data["CloudSaves"]["NotificationsEnabled"] is False
+    assert body_data["CloudSaves"]["StatsSync"]["Enabled"] is True
+    assert body_data["CloudSaves"]["StatsSync"]["SyncPlaytime"] is False
+
+    # 2. Verify R2 / S3 Credentials form visibility when selecting r2 vs s3
+    driver.evaluate(
+        """
+        (() => {
+            const sel = document.getElementById('sls-cfg-cs-provider');
+            sel.value = 'r2';
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+        })()
+        """
+    )
+    driver.wait_for_condition(
+        lambda: driver.evaluate("document.getElementById('sls-cfg-cs-creds-form').style.display !== 'none'"),
+        timeout=5.0,
+    )
+    assert driver.evaluate("document.getElementById('sls-cfg-cs-cred-account-id-wrap').style.display !== 'none'") is True
+
+    # 3. Verify Migration Scan button updates status
+    driver.click("#sls-cfg-cs-migrate-scan-btn")
+    driver.wait_for_condition(
+        lambda: "ready to migrate" in (driver.evaluate("document.getElementById('sls-cfg-cs-migrate-status').textContent") or ""),
+        timeout=5.0,
+    )
+
+    # 4. Verify Scan Orphans button renders orphan panel
+    driver.click("#sls-cfg-cs-scan-orphans-btn")
+    driver.wait_for_condition(
+        lambda: "480" in (driver.evaluate("document.getElementById('sls-cfg-cs-orphans-panel').textContent") or ""),
+        timeout=5.0,
+    )
+
+    # 5. Verify Global Backups table renders stub backup entry
+    driver.wait_for_condition(
+        lambda: "backup_107410_auto_1.tar.gz" in (driver.evaluate("document.getElementById('sls-cfg-cs-backups-list').textContent") or ""),
+        timeout=5.0,
+    )
+

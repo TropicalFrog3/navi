@@ -503,6 +503,7 @@ std::string renderCheckJson(const CheckViewModel& info) {
         // CloudSaves
         bool csEnabled = g_config.cloudSavesEnabled.get();
         std::string csProvider = g_config.cloudSavesProvider.get();
+        bool csNotifications = g_config.cloudNotificationsEnabled.get();
         bool csAutoBackup = g_config.cloudAutoBackupBeforeReset.get();
         uint32_t csRetention = g_config.cloudBackupRetentionCount.get();
         std::vector<uint32_t> csManagedApps;
@@ -518,12 +519,37 @@ std::string renderCheckJson(const CheckViewModel& info) {
         bool psExit = g_config.cloudPrefixSyncOnExit.get();
         uint32_t psMaxMb = g_config.cloudPrefixSyncMaxFileMb.get();
 
+        bool ssEnabled = g_config.cloudStatsSyncEnabled.get();
+        bool ssAchievements = g_config.cloudSyncAchievements.get();
+        bool ssPlaytime = g_config.cloudSyncPlaytime.get();
+
         if (fileLoaded && node["CloudSaves"] && node["CloudSaves"].IsMap())
         {
             const auto csNode = node["CloudSaves"];
-            if (csNode["Enabled"]) { try { csEnabled = csNode["Enabled"].as<bool>(); } catch (...) {} }
+            auto getNodeBool = [](const YAML::Node& parent, const char* k, bool def) {
+                if (parent[k])
+                {
+                    try {
+                        if (parent[k].IsScalar())
+                        {
+                            const std::string s = parent[k].Scalar();
+                            if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
+                                s == "yes" || s == "Yes" || s == "YES" ||
+                                s == "on" || s == "On" || s == "ON") return true;
+                            if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
+                                s == "no" || s == "No" || s == "NO" ||
+                                s == "off" || s == "Off" || s == "OFF") return false;
+                        }
+                        return parent[k].as<bool>();
+                    } catch (...) {}
+                }
+                return def;
+            };
+
+            csEnabled = getNodeBool(csNode, "Enabled", csEnabled);
             if (csNode["Provider"]) { try { csProvider = csNode["Provider"].as<std::string>(); } catch (...) {} }
-            if (csNode["AutoBackupBeforeReset"]) { try { csAutoBackup = csNode["AutoBackupBeforeReset"].as<bool>(); } catch (...) {} }
+            csNotifications = getNodeBool(csNode, "NotificationsEnabled", csNotifications);
+            csAutoBackup = getNodeBool(csNode, "AutoBackupBeforeReset", csAutoBackup);
             if (csNode["BackupRetentionCount"]) { try { csRetention = csNode["BackupRetentionCount"].as<uint32_t>(); } catch (...) {} }
             if (csNode["ManagedApps"] && csNode["ManagedApps"].IsSequence()) {
                 csManagedApps.clear();
@@ -536,30 +562,19 @@ std::string renderCheckJson(const CheckViewModel& info) {
             if (csNode["PrefixSync"] && csNode["PrefixSync"].IsMap())
             {
                 const auto psNode = csNode["PrefixSync"];
-                auto getPsBool = [&](const char* k, bool def) {
-                    if (psNode[k])
-                    {
-                        try {
-                            if (psNode[k].IsScalar())
-                            {
-                                const std::string s = psNode[k].Scalar();
-                                if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
-                                    s == "yes" || s == "Yes" || s == "YES" ||
-                                    s == "on" || s == "On" || s == "ON") return true;
-                                if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
-                                    s == "no" || s == "No" || s == "NO" ||
-                                    s == "off" || s == "Off" || s == "OFF") return false;
-                            }
-                            return psNode[k].as<bool>();
-                        } catch (...) {}
-                    }
-                    return def;
-                };
-                psEnabled = getPsBool("Enabled", psEnabled);
-                psStartup = getPsBool("SyncAtStartup", psStartup);
-                psLaunch = getPsBool("SyncOnLaunch", psLaunch);
-                psExit = getPsBool("SyncOnExit", psExit);
+                psEnabled = getNodeBool(psNode, "Enabled", psEnabled);
+                psStartup = getNodeBool(psNode, "SyncAtStartup", psStartup);
+                psLaunch = getNodeBool(psNode, "SyncOnLaunch", psLaunch);
+                psExit = getNodeBool(psNode, "SyncOnExit", psExit);
                 if (psNode["MaxFileMb"]) { try { psMaxMb = psNode["MaxFileMb"].as<uint32_t>(); } catch (...) {} }
+            }
+
+            if (csNode["StatsSync"] && csNode["StatsSync"].IsMap())
+            {
+                const auto ssNode = csNode["StatsSync"];
+                ssEnabled = getNodeBool(ssNode, "Enabled", ssEnabled);
+                ssAchievements = getNodeBool(ssNode, "SyncAchievements", ssAchievements);
+                ssPlaytime = getNodeBool(ssNode, "SyncPlaytime", ssPlaytime);
             }
         }
 
@@ -625,6 +640,7 @@ std::string renderCheckJson(const CheckViewModel& info) {
         ss << "  \"CloudSaves\": {\n";
         ss << "    \"Enabled\": " << (csEnabled ? "true" : "false") << ",\n";
         ss << "    \"Provider\": \"" << escapeJson(csProvider) << "\",\n";
+        ss << "    \"NotificationsEnabled\": " << (csNotifications ? "true" : "false") << ",\n";
         ss << "    \"AutoBackupBeforeReset\": " << (csAutoBackup ? "true" : "false") << ",\n";
         ss << "    \"BackupRetentionCount\": " << csRetention << ",\n";
         ss << "    \"ManagedApps\": " << formatUint32Array(csManagedApps) << ",\n";
@@ -634,6 +650,11 @@ std::string renderCheckJson(const CheckViewModel& info) {
         ss << "      \"SyncOnLaunch\": " << (psLaunch ? "true" : "false") << ",\n";
         ss << "      \"SyncOnExit\": " << (psExit ? "true" : "false") << ",\n";
         ss << "      \"MaxFileMb\": " << psMaxMb << "\n";
+        ss << "    },\n";
+        ss << "    \"StatsSync\": {\n";
+        ss << "      \"Enabled\": " << (ssEnabled ? "true" : "false") << ",\n";
+        ss << "      \"SyncAchievements\": " << (ssAchievements ? "true" : "false") << ",\n";
+        ss << "      \"SyncPlaytime\": " << (ssPlaytime ? "true" : "false") << "\n";
         ss << "    }\n";
         ss << "  }\n";
         ss << "}";
@@ -874,9 +895,24 @@ std::string renderCheckJson(const CheckViewModel& info) {
                 csNode = YAML::Node(YAML::NodeType::Map);
             }
 
+            auto parseBoolVal = [](const YAML::Node& valNode, bool def) -> bool {
+                if (valNode.IsScalar())
+                {
+                    const std::string s = valNode.Scalar();
+                    if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
+                        s == "yes" || s == "Yes" || s == "YES" ||
+                        s == "on" || s == "On" || s == "ON") return true;
+                    if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
+                        s == "no" || s == "No" || s == "NO" ||
+                        s == "off" || s == "Off" || s == "OFF") return false;
+                }
+                try { return valNode.as<bool>(); } catch (...) {}
+                return def;
+            };
+
             if (cs["Enabled"])
             {
-                try { csNode["Enabled"] = cs["Enabled"].as<bool>(); } catch (...) {}
+                csNode["Enabled"] = parseBoolVal(cs["Enabled"], true);
             }
             if (cs["Provider"])
             {
@@ -888,9 +924,13 @@ std::string renderCheckJson(const CheckViewModel& info) {
                     }
                 } catch (...) {}
             }
+            if (cs["NotificationsEnabled"])
+            {
+                csNode["NotificationsEnabled"] = parseBoolVal(cs["NotificationsEnabled"], true);
+            }
             if (cs["AutoBackupBeforeReset"])
             {
-                try { csNode["AutoBackupBeforeReset"] = cs["AutoBackupBeforeReset"].as<bool>(); } catch (...) {}
+                csNode["AutoBackupBeforeReset"] = parseBoolVal(cs["AutoBackupBeforeReset"], true);
             }
             if (cs["BackupRetentionCount"])
             {
@@ -923,21 +963,6 @@ std::string renderCheckJson(const CheckViewModel& info) {
                     psNode = YAML::Node(YAML::NodeType::Map);
                 }
 
-                auto parseBoolVal = [](const YAML::Node& valNode, bool def) -> bool {
-                    if (valNode.IsScalar())
-                    {
-                        const std::string s = valNode.Scalar();
-                        if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
-                            s == "yes" || s == "Yes" || s == "YES" ||
-                            s == "on" || s == "On" || s == "ON") return true;
-                        if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
-                            s == "no" || s == "No" || s == "NO" ||
-                            s == "off" || s == "Off" || s == "OFF") return false;
-                    }
-                    try { return valNode.as<bool>(); } catch (...) {}
-                    return def;
-                };
-
                 if (ps["Enabled"])
                 {
                     psNode["Enabled"] = parseBoolVal(ps["Enabled"], true);
@@ -960,6 +985,33 @@ std::string renderCheckJson(const CheckViewModel& info) {
                 }
                 csNode["PrefixSync"] = psNode;
             }
+            if (cs["StatsSync"] && cs["StatsSync"].IsMap())
+            {
+                const auto& ss = cs["StatsSync"];
+                YAML::Node ssNode;
+                if (csNode["StatsSync"] && csNode["StatsSync"].IsMap())
+                {
+                    ssNode = csNode["StatsSync"];
+                }
+                else
+                {
+                    ssNode = YAML::Node(YAML::NodeType::Map);
+                }
+
+                if (ss["Enabled"])
+                {
+                    ssNode["Enabled"] = parseBoolVal(ss["Enabled"], false);
+                }
+                if (ss["SyncAchievements"])
+                {
+                    ssNode["SyncAchievements"] = parseBoolVal(ss["SyncAchievements"], true);
+                }
+                if (ss["SyncPlaytime"])
+                {
+                    ssNode["SyncPlaytime"] = parseBoolVal(ss["SyncPlaytime"], true);
+                }
+                csNode["StatsSync"] = ssNode;
+            }
             rootNode["CloudSaves"] = csNode;
         }
 
@@ -979,6 +1031,7 @@ std::string renderCheckJson(const CheckViewModel& info) {
         }
 
         g_config.loadSettings(false);
+        Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncEngineConfigFromGlobal();
         Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncSlsSteamConfig(g_config.GetEffectiveCloudRedirectedApps());
         return true;
     }

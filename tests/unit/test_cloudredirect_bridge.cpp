@@ -280,11 +280,53 @@ TEST(CloudRedirectBridgeTest, EnsureLocalOnlyConfigHandlesMissing)
     std::ifstream ifs(paths.crConfigFile);
     std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
     ifs.close();
-    EXPECT_NE(content.find("\"local-only\""), std::string::npos);
+    EXPECT_NE(content.find("\"local\""), std::string::npos);
 
     // Idempotent
     EXPECT_TRUE(bridge.EnsureLocalOnlyConfig());
     EXPECT_TRUE(fs::exists(paths.crConfigFile));
+}
+
+TEST(CloudRedirectBridgeTest, SyncAndReadEngineConfigRoundTripAndExtraKeyPreservation)
+{
+    ScopedTestEnv env;
+    auto& bridge = Navi::CloudRedirect::CCloudRedirectBridge::Instance();
+    const auto& paths = bridge.GetPaths();
+
+    // Seed an existing config.json with an extra custom key
+    fs::create_directories(paths.crConfigDir);
+    EXPECT_TRUE(AtomicFile::write(paths.crConfigFile, "{\n  \"provider\": \"local\",\n  \"custom_folder_path\": \"/tmp/custom\"\n}\n"));
+
+    Navi::CloudRedirect::EngineConfig_t cfg;
+    cfg.provider = "local-only";
+    cfg.notificationsEnabled = false;
+    cfg.statsSyncEnabled = true;
+    cfg.syncAchievements = false;
+    cfg.syncPlaytime = true;
+
+    EXPECT_TRUE(bridge.SyncEngineConfig(cfg));
+
+    // Read back via ReadEngineConfig
+    auto readCfg = bridge.ReadEngineConfig();
+    EXPECT_EQ(readCfg.provider, "local");
+    EXPECT_FALSE(readCfg.notificationsEnabled);
+    EXPECT_TRUE(readCfg.statsSyncEnabled);
+    EXPECT_FALSE(readCfg.syncAchievements);
+    EXPECT_TRUE(readCfg.syncPlaytime);
+
+    // Verify extra key was preserved and remote providers write their exact name
+    std::ifstream ifs(paths.crConfigFile);
+    std::string raw((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+    ifs.close();
+    EXPECT_NE(raw.find("\"custom_folder_path\": \"/tmp/custom\""), std::string::npos);
+    EXPECT_NE(raw.find("\"provider\": \"local\""), std::string::npos);
+
+    cfg.provider = "r2";
+    cfg.notificationsEnabled = true;
+    EXPECT_TRUE(bridge.SyncEngineConfig(cfg));
+    auto readR2 = bridge.ReadEngineConfig();
+    EXPECT_EQ(readR2.provider, "r2");
+    EXPECT_TRUE(readR2.notificationsEnabled);
 }
 
 TEST(CloudRedirectBridgeTest, DetectStandaloneInstallation)

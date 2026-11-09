@@ -86,10 +86,14 @@ public:
 	// Cloud Saves (CloudRedirect)
 	MTVariable<bool> cloudSavesEnabled{true};
 	MTVariable<std::string> cloudSavesProvider{"local-only"};
+	MTVariable<bool> cloudNotificationsEnabled{true};
 	MTVariable<std::unordered_set<AppId_t>> cloudSavesManagedApps;
 	MTVariable<std::unordered_set<AppId_t>> cloudSavesDisabledApps;
 	MTVariable<bool> cloudAutoBackupBeforeReset{true};
 	MTVariable<uint32_t> cloudBackupRetentionCount{5};
+	MTVariable<bool> cloudStatsSyncEnabled{false};
+	MTVariable<bool> cloudSyncAchievements{true};
+	MTVariable<bool> cloudSyncPlaytime{true};
 
 	// AutoCrack
 	MTVariable<bool> autoCrackEnabled{true};

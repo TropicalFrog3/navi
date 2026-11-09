@@ -116,6 +116,7 @@ DisableCloud: yes
 CloudSaves:
   Enabled: true
   Provider: "local-only"
+  NotificationsEnabled: true
   ManagedApps: []
   AutoBackupBeforeReset: true
   BackupRetentionCount: 5
@@ -125,6 +126,10 @@ CloudSaves:
     SyncOnLaunch: true
     SyncOnExit: true
     MaxFileMb: 64
+  StatsSync:
+    Enabled: false
+    SyncAchievements: true
+    SyncPlaytime: true
 
 #Disable updates for AppIds on AdditionalApps
 #Only works for unowned games, since those do not get any depots from CUserAppManager::BuildDepotDependency.

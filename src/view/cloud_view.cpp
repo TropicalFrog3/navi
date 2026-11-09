@@ -259,9 +259,230 @@ namespace Navi::CloudView
         pos = json.find('"', pos + 1);
         if (pos == std::string::npos) return "";
         ++pos;
-        size_t end = json.find('"', pos);
-        if (end == std::string::npos) return "";
-        return json.substr(pos, end - pos);
+        std::string out;
+        bool esc = false;
+        for (size_t i = pos; i < json.size(); ++i)
+        {
+            char c = json[i];
+            if (esc)
+            {
+                switch (c)
+                {
+                    case '"':  out += '"'; break;
+                    case '\\': out += '\\'; break;
+                    case 'n':  out += '\n'; break;
+                    case 'r':  out += '\r'; break;
+                    case 't':  out += '\t'; break;
+                    default:   out += c; break;
+                }
+                esc = false;
+                continue;
+            }
+            if (c == '\\')
+            {
+                esc = true;
+                continue;
+            }
+            if (c == '"')
+            {
+                break;
+            }
+            out += c;
+        }
+        return out;
+    }
+
+    uint32_t parseUint32Field(const std::string& json, const std::string& key, uint32_t defaultValue)
+    {
+        std::string needle = "\"" + key + "\"";
+        size_t pos = json.find(needle);
+        if (pos == std::string::npos) return defaultValue;
+        pos = json.find(':', pos + needle.size());
+        if (pos == std::string::npos) return defaultValue;
+        ++pos;
+        while (pos < json.size() && (std::isspace(static_cast<unsigned char>(json[pos])) || json[pos] == '"')) ++pos;
+        std::string digits;
+        while (pos < json.size() && std::isdigit(static_cast<unsigned char>(json[pos])))
+        {
+            digits.push_back(json[pos]);
+            ++pos;
+        }
+        if (digits.empty()) return defaultValue;
+        try
+        {
+            return static_cast<uint32_t>(std::stoul(digits));
+        }
+        catch (...)
+        {
+            return defaultValue;
+        }
+    }
+
+    std::string renderProviderCredentialsJson(const CloudRedirect::ProviderCredentials_t& creds)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"success\": true,\n"
+           << "  \"authenticated\": " << (creds.configured ? "true" : "false") << ",\n"
+           << "  \"provider\": \"" << escapeJsonString(creds.provider) << "\",\n"
+           << "  \"configured\": " << (creds.configured ? "true" : "false") << ",\n"
+           << "  \"accountId\": \"" << escapeJsonString(creds.accountId) << "\",\n"
+           << "  \"account_id\": \"" << escapeJsonString(creds.accountId) << "\",\n"
+           << "  \"accessKeyId\": \"" << escapeJsonString(creds.accessKeyId) << "\",\n"
+           << "  \"access_key_id\": \"" << escapeJsonString(creds.accessKeyId) << "\",\n"
+           << "  \"secretAccessKey\": \"" << escapeJsonString(creds.secretAccessKey) << "\",\n"
+           << "  \"hasSecretKey\": " << (creds.hasSecretKey ? "true" : "false") << ",\n"
+           << "  \"bucket\": \"" << escapeJsonString(creds.bucket) << "\",\n"
+           << "  \"region\": \"" << escapeJsonString(creds.region) << "\",\n"
+           << "  \"endpoint\": \"" << escapeJsonString(creds.endpoint) << "\",\n"
+           << "  \"keyPrefix\": \"" << escapeJsonString(creds.keyPrefix) << "\",\n"
+           << "  \"key_prefix\": \"" << escapeJsonString(creds.keyPrefix) << "\"\n"
+           << "}";
+        return ss.str();
+    }
+
+    CloudRedirect::ProviderCredentials_t parseProviderCredentialsJson(const std::string& json)
+    {
+        CloudRedirect::ProviderCredentials_t creds;
+        creds.provider = parseStringField(json, "provider");
+        creds.accountId = parseStringField(json, "accountId");
+        if (creds.accountId.empty()) creds.accountId = parseStringField(json, "account_id");
+        creds.accessKeyId = parseStringField(json, "accessKeyId");
+        if (creds.accessKeyId.empty()) creds.accessKeyId = parseStringField(json, "access_key_id");
+        creds.secretAccessKey = parseStringField(json, "secretAccessKey");
+        if (creds.secretAccessKey.empty()) creds.secretAccessKey = parseStringField(json, "secret_access_key");
+        creds.bucket = parseStringField(json, "bucket");
+        creds.region = parseStringField(json, "region");
+        creds.endpoint = parseStringField(json, "endpoint");
+        creds.keyPrefix = parseStringField(json, "keyPrefix");
+        if (creds.keyPrefix.empty()) creds.keyPrefix = parseStringField(json, "key_prefix");
+        return creds;
+    }
+
+    std::string renderMigrationScanJson(const CloudRedirect::MigrationScanResult_t& scan)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"success\": " << (scan.success ? "true" : "false") << ",\n"
+           << "  \"provider\": \"" << escapeJsonString(scan.provider) << "\",\n"
+           << "  \"totalApps\": " << scan.totalApps << ",\n"
+           << "  \"appCount\": " << scan.totalApps << ",\n"
+           << "  \"totalFiles\": " << scan.totalFiles << ",\n"
+           << "  \"fileCount\": " << scan.totalFiles << ",\n"
+           << "  \"totalBytes\": " << scan.totalBytes << ",\n"
+           << "  \"totalSizeBytes\": " << scan.totalBytes << ",\n"
+           << "  \"apps\": [\n";
+        for (size_t i = 0; i < scan.apps.size(); ++i)
+        {
+            const auto& a = scan.apps[i];
+            if (i > 0) ss << ",\n";
+            ss << "    {\n"
+               << "      \"appId\": " << a.appId << ",\n"
+               << "      \"gameTitle\": \"" << escapeJsonString(a.gameTitle) << "\",\n"
+               << "      \"accountId\": \"" << escapeJsonString(a.accountId) << "\",\n"
+               << "      \"fileCount\": " << a.fileCount << ",\n"
+               << "      \"totalBytes\": " << a.totalBytes << "\n"
+               << "      \"totalBytes\": " << a.totalBytes << ",\n"
+               << "      \"totalSizeBytes\": " << a.totalBytes << "\n"
+               << "    }";
+        }
+        ss << "\n  ]";
+        if (!scan.error.empty())
+        {
+            ss << ",\n  \"error\": \"" << escapeJsonString(scan.error) << "\"";
+        }
+        ss << "\n}";
+        return ss.str();
+    }
+
+    std::string renderMigrationResultJson(const CloudRedirect::MigrationResult_t& res)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"success\": " << (res.success ? "true" : "false") << ",\n"
+           << "  \"srcProvider\": \"" << escapeJsonString(res.srcProvider) << "\",\n"
+           << "  \"dstProvider\": \"" << escapeJsonString(res.dstProvider) << "\",\n"
+           << "  \"migrated\": " << res.migrated << ",\n"
+           << "  \"skipped\": " << res.skipped << ",\n"
+           << "  \"failed\": " << res.failed << ",\n"
+           << "  \"total\": " << res.total << ",\n"
+           << "  \"totalBytes\": " << res.totalBytes;
+        if (!res.error.empty())
+        {
+            ss << ",\n  \"error\": \"" << escapeJsonString(res.error) << "\"";
+        }
+        ss << "\n}";
+        return ss.str();
+    }
+
+    std::string renderOrphanAppsJson(const std::string& provider, const std::vector<CloudRedirect::OrphanAppEntry_t>& orphans)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"success\": true,\n"
+           << "  \"provider\": \"" << escapeJsonString(provider) << "\",\n"
+           << "  \"orphans\": [\n";
+        for (size_t i = 0; i < orphans.size(); ++i)
+        {
+            const auto& o = orphans[i];
+            if (i > 0) ss << ",\n";
+            ss << "    {\n"
+               << "      \"appId\": " << o.appId << ",\n"
+               << "      \"gameTitle\": \"" << escapeJsonString(o.gameTitle) << "\",\n"
+               << "      \"fileCount\": " << o.fileCount << ",\n"
+               << "      \"totalSizeBytes\": " << o.totalSizeBytes << ",\n"
+               << "      \"inRemoteCloud\": " << (o.inRemoteCloud ? "true" : "false") << ",\n"
+               << "      \"inLocalMirror\": " << (o.inLocalMirror ? "true" : "false") << ",\n"
+               << "      \"inLocalStorage\": " << (o.inLocalMirror ? "true" : "false") << ",\n"
+               << "      \"inGoldberg\": " << (o.inGoldberg ? "true" : "false") << ",\n"
+               << "      \"inGoldbergPrefix\": " << (o.inGoldberg ? "true" : "false") << "\n"
+               << "    }";
+        }
+        ss << "\n  ]\n}";
+        return ss.str();
+    }
+
+    std::string renderGcResultJson(const CloudRedirect::GcResult_t& res)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"success\": " << (res.success ? "true" : "false") << ",\n"
+           << "  \"appId\": " << res.appId << ",\n"
+           << "  \"deleted\": " << res.deleted << ",\n"
+           << "  \"blobsDeleted\": " << res.deleted << ",\n"
+           << "  \"kept\": " << res.kept << ",\n"
+           << "  \"failed\": " << res.failed << ",\n"
+           << "  \"localDeleted\": " << (res.localFilesDeleted ? "true" : "false") << ",\n"
+           << "  \"localFilesDeleted\": " << (res.localFilesDeleted ? "true" : "false");
+        if (!res.error.empty())
+        {
+            ss << ",\n  \"error\": \"" << escapeJsonString(res.error) << "\"";
+        }
+        ss << "\n}";
+        return ss.str();
+    }
+
+    std::string renderGlobalBackupsJson(const std::vector<CloudRedirect::GlobalBackupEntry_t>& backups)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"success\": true,\n"
+           << "  \"backups\": [\n";
+        for (size_t i = 0; i < backups.size(); ++i)
+        {
+            const auto& b = backups[i];
+            if (i > 0) ss << ",\n";
+            ss << "    {\n"
+               << "      \"appId\": " << b.appId << ",\n"
+               << "      \"gameTitle\": \"" << escapeJsonString(b.gameTitle) << "\",\n"
+               << "      \"fileName\": \"" << escapeJsonString(b.fileName) << "\",\n"
+               << "      \"fullPath\": \"" << escapeJsonString(b.fullPath) << "\",\n"
+               << "      \"sizeBytes\": " << b.sizeBytes << ",\n"
+               << "      \"timestamp\": " << b.timestamp << "\n"
+               << "    }";
+        }
+        ss << "\n  ]\n}";
+        return ss.str();
     }
 
     bool parseConfirmReset(const std::string& json)

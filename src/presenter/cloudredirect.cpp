@@ -532,6 +532,118 @@ namespace Navi::CloudRedirect
         return AtomicFile::write(paths.slsSteamConfig.string(), out.str());
     }
 
+    static std::string EscapeJsonStr(const std::string& s)
+    {
+        std::string out;
+        out.reserve(s.size() + 4);
+        for (char c : s)
+        {
+            switch (c)
+            {
+                case '"':  out += "\\\""; break;
+                case '\\': out += "\\\\"; break;
+                case '\b': out += "\\b"; break;
+                case '\f': out += "\\f"; break;
+                case '\n': out += "\\n"; break;
+                case '\r': out += "\\r"; break;
+                case '\t': out += "\\t"; break;
+                default:   out += c; break;
+            }
+        }
+        return out;
+    }
+
+    static bool IsNumericScalar(const std::string& s)
+    {
+        if (s.empty()) return false;
+        size_t i = (s[0] == '-') ? 1 : 0;
+        if (i >= s.size()) return false;
+        bool hasDot = false;
+        for (; i < s.size(); ++i)
+        {
+            if (s[i] == '.')
+            {
+                if (hasDot) return false;
+                hasDot = true;
+            }
+            else if (!std::isdigit(static_cast<unsigned char>(s[i])))
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    static void EmitYamlNodeAsJson(std::ostream& os, const YAML::Node& node)
+    {
+        if (!node || node.IsNull())
+        {
+            os << "null";
+            return;
+        }
+        if (node.IsScalar())
+        {
+            const std::string s = node.Scalar();
+            if (node.Tag() != "!" && (s == "true" || s == "false"))
+            {
+                os << s;
+            }
+            else if (node.Tag() != "!" && IsNumericScalar(s))
+            {
+                os << s;
+            }
+            else
+            {
+                os << "\"" << EscapeJsonStr(s) << "\"";
+            }
+            return;
+        }
+        if (node.IsSequence())
+        {
+            os << "[";
+            for (size_t i = 0; i < node.size(); ++i)
+            {
+                if (i > 0) os << ", ";
+                EmitYamlNodeAsJson(os, node[i]);
+            }
+            os << "]";
+            return;
+        }
+        if (node.IsMap())
+        {
+            os << "{";
+            bool first = true;
+            for (auto it = node.begin(); it != node.end(); ++it)
+            {
+                if (!first) os << ", ";
+                first = false;
+                os << "\"" << EscapeJsonStr(it->first.Scalar()) << "\": ";
+                EmitYamlNodeAsJson(os, it->second);
+            }
+            os << "}";
+            return;
+        }
+        os << "null";
+    }
+
+    static bool ParseYamlBoolScalar(const YAML::Node& node, bool defVal)
+    {
+        if (!node || !node.IsScalar()) return defVal;
+        const std::string s = node.Scalar();
+        if (s == "1" || s == "true" || s == "True" || s == "TRUE" ||
+            s == "yes" || s == "Yes" || s == "YES" || s == "on" || s == "On" || s == "ON")
+        {
+            return true;
+        }
+        if (s == "0" || s == "false" || s == "False" || s == "FALSE" ||
+            s == "no" || s == "No" || s == "NO" || s == "off" || s == "Off" || s == "OFF")
+        {
+            return false;
+        }
+        try { return node.as<bool>(); } catch (...) {}
+        return defVal;
+    }
+
     bool CCloudRedirectBridge::EnsureLocalOnlyConfig()
     {
         const auto& paths = GetPaths();
@@ -552,8 +664,115 @@ namespace Navi::CloudRedirect
             }
         }
 
-        const std::string minimalConfig = "{\n  \"provider\": \"local-only\"\n}\n";
+        const std::string minimalConfig = "{\n  \"provider\": \"local\"\n}\n";
         return AtomicFile::write(paths.crConfigFile.string(), minimalConfig);
+    }
+
+    bool CCloudRedirectBridge::SyncEngineConfig(const EngineConfig_t& cfg)
+    {
+        const auto& paths = GetPaths();
+        std::error_code ec;
+
+        if (!std::filesystem::exists(paths.crConfigDir, ec))
+        {
+            std::filesystem::create_directories(paths.crConfigDir, ec);
+            if (ec)
+            {
+                LOG_WARN("Failed to create CloudRedirect config dir: %s\n", ec.message().c_str());
+                return false;
+            }
+        }
+
+        std::string normProv = (cfg.provider.empty() || cfg.provider == "local-only") ? "local" : cfg.provider;
+
+        YAML::Node existingDoc;
+        bool hasExistingMap = false;
+        if (std::filesystem::exists(paths.crConfigFile, ec))
+        {
+            try
+            {
+                existingDoc = YAML::LoadFile(paths.crConfigFile.string());
+                if (existingDoc && existingDoc.IsMap())
+                {
+                    hasExistingMap = true;
+                }
+            }
+            catch (...) {}
+        }
+
+        std::ostringstream out;
+        out << "{\n"
+            << "  \"provider\": \"" << EscapeJsonStr(normProv) << "\",\n"
+            << "  \"notifications_enabled\": " << (cfg.notificationsEnabled ? "true" : "false") << ",\n"
+            << "  \"stats_sync_enabled\": " << (cfg.statsSyncEnabled ? "true" : "false") << ",\n"
+            << "  \"sync_achievements\": " << (cfg.syncAchievements ? "true" : "false") << ",\n"
+            << "  \"sync_playtime\": " << (cfg.syncPlaytime ? "true" : "false");
+
+        if (hasExistingMap)
+        {
+            for (auto it = existingDoc.begin(); it != existingDoc.end(); ++it)
+            {
+                if (!it->first.IsScalar()) continue;
+                const std::string k = it->first.Scalar();
+                if (k == "provider" ||
+                    k == "notifications_enabled" ||
+                    k == "stats_sync_enabled" ||
+                    k == "sync_achievements" ||
+                    k == "sync_playtime")
+                {
+                    continue;
+                }
+                out << ",\n  \"" << EscapeJsonStr(k) << "\": ";
+                EmitYamlNodeAsJson(out, it->second);
+            }
+        }
+
+        out << "\n}\n";
+        return AtomicFile::write(paths.crConfigFile.string(), out.str());
+    }
+
+    EngineConfig_t CCloudRedirectBridge::ReadEngineConfig() const
+    {
+        EngineConfig_t cfg;
+        const auto& paths = GetPaths();
+        std::error_code ec;
+
+        if (!std::filesystem::exists(paths.crConfigFile, ec))
+        {
+            return cfg;
+        }
+
+        try
+        {
+            YAML::Node doc = YAML::LoadFile(paths.crConfigFile.string());
+            if (doc && doc.IsMap())
+            {
+                if (doc["provider"] && doc["provider"].IsScalar())
+                {
+                    std::string p = doc["provider"].as<std::string>();
+                    cfg.provider = (p.empty() || p == "local-only") ? "local" : p;
+                }
+                if (doc["notifications_enabled"])
+                {
+                    cfg.notificationsEnabled = ParseYamlBoolScalar(doc["notifications_enabled"], true);
+                }
+                if (doc["stats_sync_enabled"])
+                {
+                    cfg.statsSyncEnabled = ParseYamlBoolScalar(doc["stats_sync_enabled"], false);
+                }
+                if (doc["sync_achievements"])
+                {
+                    cfg.syncAchievements = ParseYamlBoolScalar(doc["sync_achievements"], true);
+                }
+                if (doc["sync_playtime"])
+                {
+                    cfg.syncPlaytime = ParseYamlBoolScalar(doc["sync_playtime"], true);
+                }
+            }
+        }
+        catch (...) {}
+
+        return cfg;
     }
 
     std::filesystem::path CCloudRedirectBridge::GetTokenPath(const std::string& provider) const

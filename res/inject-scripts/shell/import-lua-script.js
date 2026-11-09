@@ -80,16 +80,14 @@
     }
 
     function setActiveTabStyle(activeTab) {
-        var container = findSuperNavContainer();
-        if (!container) return;
-
-        // Remove active class from all sibling tabs
-        var tabs = container.querySelectorAll('.' + STEAM_TAB_BASE_CLASS);
-        for (var i = 0; i < tabs.length; i++) {
-            tabs[i].classList.remove(STEAM_TAB_ACTIVE_CLASS);
+        var slsTab = document.getElementById('sls-top-tab');
+        var configTab = document.getElementById('sls-config-top-tab');
+        if (slsTab) {
+            slsTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
         }
-
-        // Add active class to the target tab
+        if (configTab) {
+            configTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
+        }
         if (activeTab) {
             activeTab.classList.add(STEAM_TAB_ACTIVE_CLASS);
         }
@@ -220,13 +218,6 @@
         hideConfigPage();
         ensureCustomTabStyles();
 
-        // Use Steam's React Router to navigate to /library/home which hides the browser overlay
-        var history = getSteamHistory();
-        if (history) {
-            window.__slsNavigating = true;
-            history.push('/library/home');
-        }
-
         var container = document.getElementById('sls-page-container');
         if (!container) {
             container = document.createElement('div');
@@ -277,21 +268,6 @@
         container.style.top = getTopBarHeight() + 'px';
         container.style.display = 'block';
 
-        // Register history listener to auto-hide when user navigates away
-        if (!historyUnlisten) {
-            var history = getSteamHistory();
-            if (history) {
-                historyUnlisten = history.listen(function (location) {
-                    if (window.__slsNavigating) {
-                        window.__slsNavigating = false;
-                        return;
-                    }
-                    hideSlsPage();
-                    hideConfigPage();
-                });
-            }
-        }
-
         var slsTab = document.getElementById('sls-top-tab');
         if (slsTab) {
             setActiveTabStyle(slsTab);
@@ -328,12 +304,6 @@
         hideSlsPage();
         ensureCustomTabStyles();
 
-        var history = getSteamHistory();
-        if (history) {
-            window.__slsNavigating = true;
-            history.push('/library/home');
-        }
-
         var container = document.getElementById('sls-config-page-container');
         if (!container) {
             container = document.createElement('div');
@@ -347,20 +317,6 @@
         container.style.top = getTopBarHeight() + 'px';
         container.style.display = 'block';
 
-        if (!historyUnlisten) {
-            var hist = getSteamHistory();
-            if (hist) {
-                historyUnlisten = hist.listen(function (location) {
-                    if (window.__slsNavigating) {
-                        window.__slsNavigating = false;
-                        return;
-                    }
-                    hideSlsPage();
-                    hideConfigPage();
-                });
-            }
-        }
-
         var configTab = document.getElementById('sls-config-top-tab');
         if (configTab) {
             setActiveTabStyle(configTab);
@@ -371,7 +327,7 @@
             '<div style="font-size: 13px; color: rgb(139, 146, 154);">Connecting to Navi backend (http://127.0.0.1:9001)...</div>' +
             '</div>';
 
-        fetch('http://127.0.0.1:9001/config/full')
+        fetch('http://127.0.0.1:9001/config/full', { headers: { 'Connection': 'close' } })
             .then(function (r) { return r.json(); })
             .then(function (cfgData) {
                 renderConfigPage(container, cfgData, {});
@@ -847,6 +803,9 @@
                     makeToggle('sls-cfg-cs-master-toggle', cs.Enabled !== false) +
                 '</div>',
                 'CloudRedirect master redirect save files') +
+            makeSettingRow('Launch notifications', 'Show a desktop notification when CloudRedirect loads into Steam.',
+                makeToggle('sls-cfg-CloudSaves-NotificationsEnabled', cs.NotificationsEnabled !== false),
+                'launch notifications desktop notification CloudRedirect') +
             makeSettingRow('Navi service', 'Navi moves saves in and out of Steam Cloud for you.',
                 '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
                     '<span id="sls-cfg-cs-engine-badge" role="status" aria-live="polite" style="padding: 3px 8px; border-radius: 4px; font-size: 11.5px; font-weight: 600; background: rgba(34, 197, 94, 0.14); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);">Not running</span>' +
@@ -862,16 +821,19 @@
                 '<a href="#" id="sls-cfg-link-to-general" style="color: #38bdf8; text-decoration: underline; white-space: nowrap; font-weight: 500;">Open Unlocking ↗</a>' +
             '</div>';
 
-        var providerOptions = [
+        var providerList = [
             { val: 'local-only', label: 'This computer (offline)' },
             { val: 'gdrive', label: 'Google Drive' },
             { val: 'onedrive', label: 'Microsoft OneDrive' },
             { val: 'r2', label: 'Cloudflare R2' },
             { val: 's3', label: 'Amazon S3' }
-        ].map(function (opt) {
-            return '<option value="' + opt.val + '"' + ((cs.Provider || 'local-only') === opt.val ? ' selected' : '') + '>' + opt.label + '</option>';
+        ];
+        var activeProv = cs.Provider || 'local-only';
+        var providerOptions = providerList.map(function (opt) {
+            return '<option value="' + opt.val + '"' + (activeProv === opt.val ? ' selected' : '') + '>' + opt.label + '</option>';
         }).join('');
 
+        var isS3OrR2 = (activeProv === 'r2' || activeProv === 's3');
         var card2Content = makeSettingRow('Where saves are stored', 'Pick this computer for offline play, or connect a cloud account to sync between devices.',
                 '<select id="sls-cfg-cs-provider" class="sls-cfg-input" style="width: 240px;">' + providerOptions + '</select>', 'provider cloud storage where saves are stored') +
             '<div id="sls-cfg-cs-auth-block" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 12px 16px; margin-top: 8px; border-radius: 6px;">' +
@@ -884,6 +846,45 @@
                 '</div>' +
                 '<div id="sls-cfg-cs-local-info" style="font-size: 12px; color: #8a929e; margin-top: 8px;">' +
                     "Saves are kept on this computer, inside Steam\'s cloud_redirect folder. No account or internet needed." +
+                '</div>' +
+                '<div id="sls-cfg-cs-creds-form" class="sls-cfg-item" data-search="r2 s3 credentials bucket access key secret endpoint cloudflare amazon" style="display: ' + (isS3OrR2 ? 'flex' : 'none') + '; flex-direction: column; align-items: stretch; gap: 10px; margin-top: 12px; padding: 14px; background: #14171d; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px;">' +
+                    '<div style="font-size: 12.5px; color: #8a929e; line-height: 17px;">Credentials are stored locally with <code>0600</code> permissions in <code>~/.config/CloudRedirect/</code> and never written to logs.</div>' +
+                    '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px;">' +
+                        '<div id="sls-cfg-cs-cred-account-id-wrap" style="display: ' + (activeProv === 'r2' ? 'flex' : 'none') + '; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-account-id" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Account ID</label>' +
+                            '<input type="text" id="sls-cfg-cs-cred-account-id" class="sls-cfg-input" style="width: 100%;" placeholder="Cloudflare Account ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-bucket" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Bucket</label>' +
+                            '<input type="text" id="sls-cfg-cs-cred-bucket" class="sls-cfg-input" style="width: 100%;" placeholder="my-cloud-saves" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-access-key" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Access Key ID</label>' +
+                            '<input type="text" id="sls-cfg-cs-cred-access-key" class="sls-cfg-input" style="width: 100%;" placeholder="Access Key ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-secret-key" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Secret Access Key</label>' +
+                            '<div style="display: flex; gap: 6px; align-items: center;">' +
+                                '<input type="password" id="sls-cfg-cs-cred-secret-key" class="sls-cfg-input" style="flex: 1; min-width: 0;" placeholder="Secret Access Key" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                                '<button type="button" id="sls-cfg-cs-cred-secret-toggle" class="sls-cfg-btn" aria-pressed="false" aria-label="Show secret access key" style="padding: 6px 10px; font-size: 12px; flex-shrink: 0;">Show</button>' +
+                            '</div>' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-region" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Region</label>' +
+                            '<input type="text" id="sls-cfg-cs-cred-region" class="sls-cfg-input" style="width: 100%;" placeholder="' + (activeProv === 'r2' ? 'auto' : 'us-east-1') + '" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-endpoint" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Custom Endpoint (optional)</label>' +
+                            '<input type="text" id="sls-cfg-cs-cred-endpoint" class="sls-cfg-input" style="width: 100%;" placeholder="https://..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px;">' +
+                            '<label for="sls-cfg-cs-cred-prefix" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">Key Prefix (optional)</label>' +
+                            '<input type="text" id="sls-cfg-cs-cred-prefix" class="sls-cfg-input" style="width: 100%;" placeholder="CloudRedirect/" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="display: flex; justify-content: flex-end; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px;">' +
+                        '<button type="button" id="sls-cfg-cs-cred-save-btn" class="sls-cfg-btn sls-cfg-btn-primary" style="padding: 7px 14px; font-size: 12.5px;">Save &amp; Test Connection</button>' +
+                    '</div>' +
                 '</div>' +
             '</div>';
 
@@ -901,6 +902,53 @@
                 '<input type="number" id="sls-cfg-PrefixSync-MaxMb" class="sls-cfg-input" style="width: 100px;" min="1" max="1024" value="' + (typeof ps.MaxFileMb === 'number' ? ps.MaxFileMb : 64) + '">',
                 'PrefixSync MaxFileMb max mb'));
 
+        var ss = (cs && cs.StatsSync) || {};
+        var ssEnabled = !!ss.Enabled;
+        var ssAchievements = (typeof ss.SyncAchievements === 'boolean') ? ss.SyncAchievements : true;
+        var ssPlaytime = (typeof ss.SyncPlaytime === 'boolean') ? ss.SyncPlaytime : true;
+        var statsSyncCard = makeCard('Stats sync', 'Synchronize unlocked achievements and total playtime across devices.',
+            '<div style="background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 6px; padding: 10px 14px; font-size: 12.5px; color: #fef3c7; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;">' +
+                '<span aria-hidden="true">⚠️</span>' +
+                '<span>Experimental — synchronizes unlocked achievements and playtime across devices via your cloud provider. Changes require a Steam restart.</span>' +
+            '</div>' +
+            makeSettingRow('Enable Stats Sync', 'Intercepts and syncs Steam UserGameStats and playtime records.',
+                makeToggle('sls-cfg-StatsSync-Enabled', ssEnabled), 'StatsSync enable stats sync achievements playtime') +
+            '<div id="sls-cfg-StatsSync-subrows" style="opacity: ' + (ssEnabled ? '1' : '0.5') + '; transition: opacity 0.15s ease;">' +
+                makeSettingRow('Sync Achievements', 'Merge unlocked achievements across devices.',
+                    makeToggle('sls-cfg-StatsSync-Achievements', ssAchievements), 'StatsSync sync achievements') +
+                makeSettingRow('Sync Playtime', 'Sync total playtime counters across devices.',
+                    makeToggle('sls-cfg-StatsSync-Playtime', ssPlaytime), 'StatsSync sync playtime') +
+            '</div>');
+
+        var defaultDstProv = (activeProv === 'local-only') ? 'gdrive' : 'local-only';
+        var migrateSrcOptions = providerList.map(function (opt) {
+            return '<option value="' + opt.val + '"' + (activeProv === opt.val ? ' selected' : '') + '>' + opt.label + '</option>';
+        }).join('');
+        var migrateDstOptions = providerList.map(function (opt) {
+            return '<option value="' + opt.val + '"' + (defaultDstProv === opt.val ? ' selected' : '') + '>' + opt.label + '</option>';
+        }).join('');
+
+        var migrateCard = makeCard('Migrate cloud saves', 'Copy all redirected cloud save blobs and metadata from one storage provider to another.',
+            '<div class="sls-cfg-item" data-search="migrate cloud saves copy provider source destination" style="flex-direction: column; align-items: stretch; gap: 12px;">' +
+                '<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap;">' +
+                    '<div style="display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; flex: 1 1 420px;">' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 180px;">' +
+                            '<label for="sls-cfg-cs-migrate-src" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">From (source)</label>' +
+                            '<select id="sls-cfg-cs-migrate-src" class="sls-cfg-input" style="width: 100%;">' + migrateSrcOptions + '</select>' +
+                        '</div>' +
+                        '<div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 180px;">' +
+                            '<label for="sls-cfg-cs-migrate-dst" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">To (destination)</label>' +
+                            '<select id="sls-cfg-cs-migrate-dst" class="sls-cfg-input" style="width: 100%;">' + migrateDstOptions + '</select>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
+                        '<button type="button" id="sls-cfg-cs-migrate-scan-btn" class="sls-cfg-btn" style="padding: 7px 14px; font-size: 12.5px;">Scan Source</button>' +
+                        '<button type="button" id="sls-cfg-cs-migrate-start-btn" class="sls-cfg-btn sls-cfg-btn-primary" style="padding: 7px 14px; font-size: 12.5px;">Start Migration</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div id="sls-cfg-cs-migrate-status" role="status" aria-live="polite" style="display: none; padding: 10px 12px; border-radius: 6px; font-size: 12.5px; background: #14171d; border: 1px solid rgba(255, 255, 255, 0.08); color: #cbd5e1;"></div>' +
+            '</div>');
+
         var card4Content = '<div style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.06); padding: 16px 18px; margin-top: 8px; border-radius: 6px;">' +
             '<div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">' +
                 '<div>' +
@@ -910,26 +958,47 @@
                 '</div>' +
                 '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
                     '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" type="button" style="display: none; padding: 6px 12px; font-size: 12px; color: #38bdf8; background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 6px; cursor: pointer; font-weight: 500;">&larr; Back to Games</button>' +
+                    '<button id="sls-cfg-cs-scan-orphans-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Scan Orphans</button>' +
                     '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Refresh list</button>' +
                     '<div style="position: relative; display: inline-flex; align-items: center;">' +
                         '<span style="position: absolute; left: 10px; color: #626975; font-size: 12px; pointer-events: none;" aria-hidden="true">&#128269;</span>' +
-                        '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Game name or AppID" aria-label="Search saves" autocomplete="off">' +
+                        '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Game name or AppID" aria-label="Search saves" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
                         '<button id="sls-cfg-cs-search-clear" type="button" aria-label="Clear search" style="display: none; position: absolute; right: 8px; background: none; border: none; color: #9ca3af; font-size: 14px; cursor: pointer; padding: 0 2px; line-height: 1;">&times;</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
+            '<div id="sls-cfg-cs-orphans-panel" style="display: none; margin-bottom: 12px; padding: 12px 14px; background: #14171d; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;"></div>' +
             '<div id="sls-cfg-cs-game-toolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 12px; margin-bottom: 10px; background: #1b2838; border: 1px solid #2a475e; border-radius: 4px;"></div>' +
             '<div id="sls-cfg-managed-apps-list" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="Your Steam Cloud" style="max-height: 420px; overflow-y: auto; background: #101822; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;"></div>' +
-        '</div>' +
-        '<input type="hidden" id="sls-cfg-CloudRetention" value="' + (typeof cs.BackupRetentionCount === 'number' ? cs.BackupRetentionCount : 5) + '">' +
-        '<input type="checkbox" id="sls-cfg-CloudAutoBackup" style="display: none;" ' + (cs.AutoBackupBeforeReset !== false ? 'checked' : '') + '>';
+        '</div>';
+
+        var backupsCard = makeCard('Backups', 'Automatic and manual .tar.gz archives of your cloud saves.',
+            makeSettingRow('Back up before resetting', 'Automatically create a .tar.gz backup archive before resetting a game\'s saves.',
+                makeToggle('sls-cfg-CloudAutoBackup', cs.AutoBackupBeforeReset !== false),
+                'CloudAutoBackup auto backup before resetting') +
+            makeSettingRow('Backups to keep per game', 'Older backups beyond this limit are pruned automatically.',
+                '<input type="number" id="sls-cfg-CloudRetention" class="sls-cfg-input" style="width: 100px;" min="1" max="100" value="' + (typeof cs.BackupRetentionCount === 'number' ? cs.BackupRetentionCount : 5) + '">',
+                'CloudRetention backup retention count keep per game') +
+            '<div class="sls-cfg-item" data-search="backups browser archive restore delete tar.gz" style="flex-direction: column; align-items: stretch; gap: 10px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">' +
+                    '<div style="font-size: 14px; font-weight: 500; color: #ffffff;">Saved backup archives</div>' +
+                    '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
+                        '<input type="text" id="sls-cfg-cs-backups-search" class="sls-cfg-input" style="width: 250px; height: 32px; font-size: 12px;" placeholder="Search backups by game name or AppID..." aria-label="Search backups" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '<button type="button" id="sls-cfg-cs-backups-refresh" class="sls-cfg-btn" style="padding: 6px 12px; font-size: 12px;">Refresh backups</button>' +
+                    '</div>' +
+                '</div>' +
+                '<div id="sls-cfg-cs-backups-list" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="Global Backups Browser" style="max-height: 320px; overflow-y: auto; background: #101822; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;"></div>' +
+            '</div>');
 
         var sec1Html = makeSection('sls-cfg-sec-cloudsaves', 'Cloud saves',
             'Keeps saves for unlocked and family-shared games outside Steam Cloud. Choose this computer, or connect an account to sync between devices.',
             makeCard('Status', '', card1Content) +
             makeCard('Where saves are stored', '', card2Content) +
             prefixSyncCard +
-            makeCard('Your Steam Cloud', '', card4Content),
+            statsSyncCard +
+            migrateCard +
+            makeCard('Your Steam Cloud', '', card4Content) +
+            backupsCard,
             true);
 
         // ---------------------------------------------------------------------
@@ -1226,12 +1295,20 @@
             if (!banner) return;
             banner.textContent = msg;
             banner.style.display = 'block';
-            banner.style.backgroundColor = color === '#2ecc71' ? 'rgba(46, 204, 113, 0.15)' : (color === '#66c0f4' || color === 'rgb(26, 159, 255)' ? 'rgba(26, 159, 255, 0.15)' : 'rgba(255, 77, 77, 0.15)');
-            banner.style.borderColor = color === '#2ecc71' ? '#2ecc71' : (color === '#66c0f4' || color === 'rgb(26, 159, 255)' ? 'rgb(26, 159, 255)' : '#ff4d4d');
-            banner.style.color = color === '#2ecc71' ? '#2ecc71' : (color === '#66c0f4' || color === 'rgb(26, 159, 255)' ? 'rgb(26, 159, 255)' : '#ff4d4d');
+            var isGreen = (color === '#2ecc71');
+            var isBlue = (color === '#66c0f4' || color === 'rgb(26, 159, 255)');
+            var isAmber = (color === '#f59e0b');
+            banner.style.backgroundColor = isGreen ? 'rgba(46, 204, 113, 0.15)' : (isBlue ? 'rgba(26, 159, 255, 0.15)' : (isAmber ? 'rgba(245, 158, 11, 0.15)' : 'rgba(255, 77, 77, 0.15)'));
+            banner.style.borderColor = isGreen ? '#2ecc71' : (isBlue ? 'rgb(26, 159, 255)' : (isAmber ? '#f59e0b' : '#ff4d4d'));
+            banner.style.color = isGreen ? '#2ecc71' : (isBlue ? 'rgb(26, 159, 255)' : (isAmber ? '#fbbf24' : '#ff4d4d'));
             setTimeout(function () {
                 if (banner) banner.style.display = 'none';
             }, 6000);
+        }
+
+        function hideStatusBanner() {
+            var banner = document.getElementById('sls-cfg-status-banner');
+            if (banner) banner.style.display = 'none';
         }
 
         function slsConfirmDialog(opts) {
@@ -1624,89 +1701,142 @@
             if (dangerCloudStatus) {
                 dangerCloudStatus.textContent = 'Signed in to ' + providerLabel(provider) + '. Manage this in Cloud saves.';
             }
+
+            var credsFormEl = document.getElementById('sls-cfg-cs-creds-form');
+            var credAccountIdWrap = document.getElementById('sls-cfg-cs-cred-account-id-wrap');
+            var credAccountIdEl = document.getElementById('sls-cfg-cs-cred-account-id');
+            var credBucketEl = document.getElementById('sls-cfg-cs-cred-bucket');
+            var credAccessKeyEl = document.getElementById('sls-cfg-cs-cred-access-key');
+            var credSecretKeyEl = document.getElementById('sls-cfg-cs-cred-secret-key');
+            var credRegionEl = document.getElementById('sls-cfg-cs-cred-region');
+            var credEndpointEl = document.getElementById('sls-cfg-cs-cred-endpoint');
+            var credPrefixEl = document.getElementById('sls-cfg-cs-cred-prefix');
+
+            if (credsFormEl) {
+                var showCredsForm = (provider === 'r2' || provider === 's3');
+                credsFormEl.style.display = showCredsForm ? 'flex' : 'none';
+                if (credAccountIdWrap) {
+                    credAccountIdWrap.style.display = (provider === 'r2') ? 'flex' : 'none';
+                }
+                if (credAccountIdEl) {
+                    credAccountIdEl.style.display = (provider === 'r2') ? '' : 'none';
+                }
+                if (credRegionEl) {
+                    credRegionEl.placeholder = (provider === 'r2') ? 'auto' : 'us-east-1';
+                }
+                if (showCredsForm) {
+                    var credsPromise = (window.NaviCloudManager && window.NaviCloudManager.fetchProviderCredentials)
+                        ? window.NaviCloudManager.fetchProviderCredentials(provider)
+                        : fetch('http://127.0.0.1:9001/cloud/provider/credentials?provider=' + encodeURIComponent(provider), { headers: { 'Connection': 'close' } }).then(function (r) { return r.json(); });
+                    credsPromise.then(function (cData) {
+                        if (!cData) return;
+                        if (credAccountIdEl) credAccountIdEl.value = cData.accountId || '';
+                        if (credBucketEl) credBucketEl.value = cData.bucket || '';
+                        if (credAccessKeyEl) credAccessKeyEl.value = cData.accessKeyId || '';
+                        if (credRegionEl) credRegionEl.value = cData.region || '';
+                        if (credEndpointEl) credEndpointEl.value = cData.endpoint || '';
+                        if (credPrefixEl) credPrefixEl.value = cData.keyPrefix || '';
+                        if (credSecretKeyEl) {
+                            credSecretKeyEl.value = '';
+                            credSecretKeyEl.placeholder = cData.hasSecretKey
+                                ? '•••••••• (Saved — leave blank to keep)'
+                                : 'Secret Access Key';
+                            credSecretKeyEl.setAttribute('data-has-secret', cData.hasSecretKey ? 'true' : 'false');
+                        }
+                    }).catch(function (err) {
+                        console.warn('[CloudSaves] fetchProviderCredentials error:', err);
+                    });
+                }
+            }
+
             function renderProviderAuthButtons(prov, isAuthed) {
-    if (!authActions) return;
-    var isLocal = (prov === 'local-only');
-    // Button styles
-    var loginStyle = isLocal
-        ? 'background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.4); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: default; border-radius: 6px;'
-        : 'background: #1c202a; border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;';
-    var signOutStyle = isLocal
-        ? 'background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); color: rgba(248, 113, 113, 0.4); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: default; border-radius: 6px;'
-        : 'background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;';
-    authActions.innerHTML =
-        '<button id="sls-cfg-cs-connect-btn" class="sls-cfg-btn" style="' + loginStyle + '">' + (isAuthed ? 'Reconnect' : 'Connect') + '</button>' +
-        '<button id="sls-cfg-cs-disconnect-btn" class="sls-cfg-btn" style="' + signOutStyle + '">Disconnect</button>';
-
-    // Connect button handler
-    var cBtn = document.getElementById('sls-cfg-cs-connect-btn');
-    if (cBtn) {
-        cBtn.onclick = function (e) {
-            e.preventDefault();
-            var curProv = providerSel ? providerSel.value : prov;
-            if (curProv === 'local-only') {
-                showStatusBanner('Please select a remote Cloud Storage Provider (e.g. Google Drive) from the dropdown first.', '#f59e0b');
-                return;
-            }
-            cBtn.textContent = 'Logging in...';
-            var signIn = (window.NaviCloudManager && window.NaviCloudManager.signInProvider)
-                ? window.NaviCloudManager.signInProvider(curProv)
-                : fetch('http://127.0.0.1:9001/cloud/provider/signin', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ provider: curProv })
-                }).then(r => r.json()).then(d => {
-                    if (d && d.authUrl) window.open(d.authUrl, '_blank');
-                    return d;
-                });
-            signIn.then(function (res) {
-                if (res && res.error) {
-                    showStatusBanner('Provider login failed: ' + res.error, '#ff4d4d');
+                if (!authActions) return;
+                var isLocal = (prov === 'local-only');
+                var isCredProv = (prov === 'r2' || prov === 's3');
+                var loginStyle = isLocal
+                    ? 'background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.4); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: default; border-radius: 6px;'
+                    : 'background: #1c202a; border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;';
+                var signOutStyle = isLocal
+                    ? 'background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.15); color: rgba(248, 113, 113, 0.4); padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: default; border-radius: 6px;'
+                    : 'background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;';
+                if (isCredProv) {
+                    authActions.innerHTML =
+                        '<button id="sls-cfg-cs-disconnect-btn" type="button" class="sls-cfg-btn" style="' + signOutStyle + '">Clear Credentials</button>';
                 } else {
-                    showStatusBanner('Initiated login for ' + curProv + '. Complete authentication in your browser.', '#2ecc71');
+                    authActions.innerHTML =
+                        '<button id="sls-cfg-cs-connect-btn" type="button" class="sls-cfg-btn" style="' + loginStyle + '">' + (isAuthed ? 'Reconnect' : 'Connect') + '</button>' +
+                        '<button id="sls-cfg-cs-disconnect-btn" type="button" class="sls-cfg-btn" style="' + signOutStyle + '">Disconnect</button>';
                 }
-                refreshCloudSavesUI();
-            }).catch(function (err) {
-                console.warn('[CloudSaves] Sign in error:', err);
-                showStatusBanner('Provider login error: ' + (err.message || 'Failed to connect'), '#ff4d4d');
-                refreshCloudSavesUI();
-            });
-        };
-    }
 
-    // Disconnect button handler
-    var dBtn = document.getElementById('sls-cfg-cs-disconnect-btn');
-    if (dBtn) {
-        dBtn.onclick = function (e) {
-            e.preventDefault();
-            var curProv = providerSel ? providerSel.value : prov;
-            if (curProv === 'local-only') {
-                showStatusBanner('Local offline storage does not use an authenticated cloud session.', '#f59e0b');
-                return;
-            }
-            dBtn.textContent = 'Signing out...';
-            var signOut = (window.NaviCloudManager && window.NaviCloudManager.signOutProvider)
-                ? window.NaviCloudManager.signOutProvider(curProv)
-                : fetch('http://127.0.0.1:9001/cloud/provider/signout', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'text/plain' },
-                    body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ provider: curProv })
-                }).then(r => r.json());
-            signOut.then(function (res) {
-                if (res && res.error) {
-                    showStatusBanner('Sign out failed: ' + res.error, '#ff4d4d');
-                } else {
-                    showStatusBanner('Signed out from ' + curProv + '.', '#66c0f4');
+                // Connect button handler
+                var cBtn = document.getElementById('sls-cfg-cs-connect-btn');
+                if (cBtn) {
+                    cBtn.onclick = function (e) {
+                        e.preventDefault();
+                        var curProv = providerSel ? providerSel.value : prov;
+                        if (curProv === 'local-only') {
+                            showStatusBanner('Please select a remote Cloud Storage Provider (e.g. Google Drive) from the dropdown first.', '#f59e0b');
+                            return;
+                        }
+                        cBtn.textContent = 'Logging in...';
+                        var signIn = (window.NaviCloudManager && window.NaviCloudManager.signInProvider)
+                            ? window.NaviCloudManager.signInProvider(curProv)
+                            : fetch('http://127.0.0.1:9001/cloud/provider/signin', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'text/plain' },
+                                body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ provider: curProv })
+                            }).then(function (r) { return r.json(); }).then(function (d) {
+                                if (d && d.authUrl) window.open(d.authUrl, '_blank');
+                                return d;
+                            });
+                        signIn.then(function (res) {
+                            if (res && res.error) {
+                                showStatusBanner('Provider login failed: ' + res.error, '#ff4d4d');
+                            } else {
+                                showStatusBanner('Initiated login for ' + curProv + '. Complete authentication in your browser.', '#2ecc71');
+                            }
+                            refreshCloudSavesUI();
+                        }).catch(function (err) {
+                            console.warn('[CloudSaves] Sign in error:', err);
+                            showStatusBanner('Provider login error: ' + (err.message || 'Failed to connect'), '#ff4d4d');
+                            refreshCloudSavesUI();
+                        });
+                    };
                 }
-                refreshCloudSavesUI();
-            }).catch(function (err) {
-                console.warn('[CloudSaves] Sign out error:', err);
-                showStatusBanner('Sign out error: ' + (err.message || 'Failed to sign out'), '#ff4d4d');
-                refreshCloudSavesUI();
-            });
-        };
-    }
-}
+
+                // Disconnect / Clear Credentials button handler
+                var dBtn = document.getElementById('sls-cfg-cs-disconnect-btn');
+                if (dBtn) {
+                    dBtn.onclick = function (e) {
+                        e.preventDefault();
+                        var curProv = providerSel ? providerSel.value : prov;
+                        if (curProv === 'local-only') {
+                            showStatusBanner('Local offline storage does not use an authenticated cloud session.', '#f59e0b');
+                            return;
+                        }
+                        dBtn.textContent = (curProv === 'r2' || curProv === 's3') ? 'Clearing...' : 'Signing out...';
+                        var signOut = (window.NaviCloudManager && window.NaviCloudManager.signOutProvider)
+                            ? window.NaviCloudManager.signOutProvider(curProv)
+                            : fetch('http://127.0.0.1:9001/cloud/provider/signout', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'text/plain' },
+                                body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ provider: curProv })
+                            }).then(function (r) { return r.json(); });
+                        signOut.then(function (res) {
+                            if (res && res.error) {
+                                showStatusBanner('Sign out failed: ' + res.error, '#ff4d4d');
+                            } else {
+                                showStatusBanner((curProv === 'r2' || curProv === 's3') ? ('Cleared credentials for ' + providerLabel(curProv) + '.') : ('Signed out from ' + curProv + '.'), '#66c0f4');
+                            }
+                            refreshCloudSavesUI();
+                        }).catch(function (err) {
+                            console.warn('[CloudSaves] Sign out error:', err);
+                            showStatusBanner('Sign out error: ' + (err.message || 'Failed to sign out'), '#ff4d4d');
+                            refreshCloudSavesUI();
+                        });
+                    };
+                }
+            }
 
             if (provider === 'local-only') {
                 if (authBadge) {
@@ -1739,36 +1869,6 @@
                         authBadge.style.background = isAuthed ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 158, 11, 0.15)';
                         authBadge.style.color = isAuthed ? '#10b981' : '#f59e0b';
                         authBadge.style.border = isAuthed ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(245, 158, 11, 0.3)';
-                    }
-                    // Update auth actions buttons
-                    if (authActions) {
-                        if (isAuthed) {
-                            authActions.innerHTML = '<button id="sls-cfg-cs-disconnect-btn" class="sls-cfg-btn" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.35); color: #f87171; padding: 6px 14px; font-size: 12px; cursor: pointer; border-radius: 2px;">Disconnect</button>';
-                            var dBtn = document.getElementById('sls-cfg-cs-disconnect-btn');
-                            if (dBtn) {
-                                dBtn.onclick = function (e) {
-                                    e.preventDefault();
-                                    window.NaviCloudManager.signOutProvider(provider).then(function () {
-                                        refreshCloudSavesUI();
-                                    }).catch(function (err) {
-                                        console.warn('[CloudSaves] Sign out error:', err);
-                                    });
-                                };
-                            }
-                        } else {
-                            authActions.innerHTML = '<button id="sls-cfg-cs-connect-btn" class="sls-cfg-btn" style="background: #1c202a; border: 1px solid rgba(255, 255, 255, 0.15); color: #ffffff; padding: 6px 14px; font-size: 12px; font-weight: 500; cursor: pointer; border-radius: 6px;">Connect</button>';
-                            var cBtn = document.getElementById('sls-cfg-cs-connect-btn');
-                            if (cBtn) {
-                                cBtn.onclick = function (e) {
-                                    e.preventDefault();
-                                    window.NaviCloudManager.signInProvider(provider).then(function () {
-                                        refreshCloudSavesUI();
-                                    }).catch(function (err) {
-                                        console.warn('[CloudSaves] Sign in error:', err);
-                                    });
-                                };
-                            }
-                        }
                     }
                     // Update email display
                     if (authEmail) {
@@ -1827,6 +1927,37 @@
                 titleCache = JSON.parse(localStorage.getItem('navi_app_titles_cache') || '{}');
             } catch (e) {}
 
+            var _titleFetchQueue = [];
+            var _activeTitleFetches = 0;
+            function queueTitleFetch(aId, span, rRow) {
+                _titleFetchQueue.push({ appId: aId, span: span, rRow: rRow });
+                processTitleFetchQueue();
+            }
+            function processTitleFetchQueue() {
+                if (_activeTitleFetches >= 3 || _titleFetchQueue.length === 0) return;
+                _activeTitleFetches++;
+                var item = _titleFetchQueue.shift();
+                var sId = String(item.appId);
+                fetch('https://store.steampowered.com/api/appdetails?appids=' + encodeURIComponent(sId))
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (data && data[sId] && data[sId].success && data[sId].data && data[sId].data.name) {
+                            var realName = data[sId].data.name;
+                            if (!isPlaceholderTitle(realName, sId)) {
+                                titleCache[sId] = realName;
+                                try { localStorage.setItem('navi_app_titles_cache', JSON.stringify(titleCache)); } catch (e) {}
+                                if (item.span) item.span.textContent = realName;
+                                if (item.rRow) item.rRow.setAttribute('data-search', (realName + ' ' + sId).toLowerCase());
+                            }
+                        }
+                    })
+                    .catch(function () {})
+                    .finally(function () {
+                        _activeTitleFetches--;
+                        setTimeout(processTitleFetchQueue, 80);
+                    });
+            }
+
             function isPlaceholderTitle(title, appId) {
                 if (!title || typeof title !== 'string') return true;
                 var t = title.trim();
@@ -1855,6 +1986,334 @@
                 }
                 if (backendTitle && !isPlaceholderTitle(backendTitle, sId)) return backendTitle;
                 return backendTitle || ('App ' + appId);
+            }
+
+            function refreshBackupsList() {
+                var backupsListEl = document.getElementById('sls-cfg-cs-backups-list');
+                if (!backupsListEl) return;
+                var backupsSearchInput = document.getElementById('sls-cfg-cs-backups-search');
+                var currentFilter = backupsSearchInput ? backupsSearchInput.value.trim().toLowerCase() : '';
+
+                backupsListEl.innerHTML = '<div style="padding: 20px 16px; text-align: center; color: #8f98a0; font-size: 13px;">Loading backups...</div>';
+
+                var backupsPromise = (window.NaviCloudManager && window.NaviCloudManager.fetchAllBackups)
+                    ? window.NaviCloudManager.fetchAllBackups()
+                    : fetch('http://127.0.0.1:9001/cloud/backups').then(function (r) { return r.json(); });
+
+                backupsPromise.then(function (bData) {
+                    var backups = (bData && Array.isArray(bData.backups)) ? bData.backups : [];
+                    if (backups.length === 0) {
+                        backupsListEl.innerHTML = '<div style="padding: 24px 16px; text-align: center; color: #8f98a0; font-size: 13px;">No backups found. Backups are created automatically before resetting app data or manually from a game\'s toolbar.</div>';
+                        return;
+                    }
+
+                    var bTable = document.createElement('table');
+                    bTable.className = 'navi-steam-cloud-table';
+                    bTable.innerHTML =
+                        '<thead><tr>' +
+                            '<th scope="col">GAME</th>' +
+                            '<th scope="col">BACKUP ARCHIVE</th>' +
+                            '<th scope="col">DATE</th>' +
+                            '<th scope="col">SIZE</th>' +
+                            '<th scope="col" style="text-align: right;">ACTIONS</th>' +
+                        '</tr></thead>';
+
+                    var bTbody = document.createElement('tbody');
+                    backups.forEach(function (b) {
+                        var bAppId = b.appId;
+                        var bTitle = resolveTitle(bAppId, b.gameTitle);
+                        var bFile = b.fileName || (b.fullPath ? b.fullPath.split('/').pop() : '');
+                        var bPath = b.fullPath || bFile;
+
+                        var bTr = document.createElement('tr');
+                        bTr.className = 'navi-cloud-backup-row';
+                        var bSearch = (bTitle + ' ' + bAppId + ' ' + bFile).toLowerCase();
+                        bTr.setAttribute('data-search', bSearch);
+                        if (currentFilter && bSearch.indexOf(currentFilter) === -1) {
+                            bTr.style.display = 'none';
+                        }
+
+                        var tdBGame = document.createElement('td');
+                        tdBGame.setAttribute('data-label', 'GAME');
+                        tdBGame.innerHTML = '<span style="color:#ffffff;font-weight:500;">' + escapeHtml(bTitle) + '</span>' +
+                            '<span style="font-size:11px;color:#8f98a0;margin-left:6px;">(' + escapeHtml(String(bAppId)) + ')</span>';
+
+                        var tdBFile = document.createElement('td');
+                        tdBFile.setAttribute('data-label', 'BACKUP ARCHIVE');
+                        tdBFile.style.fontFamily = 'monospace';
+                        tdBFile.style.fontSize = '12px';
+                        tdBFile.textContent = bFile;
+
+                        var tdBDate = document.createElement('td');
+                        tdBDate.className = 'navi-col-num';
+                        tdBDate.setAttribute('data-label', 'DATE');
+                        tdBDate.textContent = fmtDate(b.timestamp);
+
+                        var tdBSize = document.createElement('td');
+                        tdBSize.className = 'navi-col-num';
+                        tdBSize.setAttribute('data-label', 'SIZE');
+                        tdBSize.textContent = fmtBytes(b.sizeBytes);
+
+                        var tdBActions = document.createElement('td');
+                        tdBActions.setAttribute('data-label', 'ACTIONS');
+                        tdBActions.style.textAlign = 'right';
+                        tdBActions.style.whiteSpace = 'nowrap';
+
+                        var restoreBtn = document.createElement('button');
+                        restoreBtn.type = 'button';
+                        restoreBtn.className = 'sls-cfg-btn';
+                        restoreBtn.style.cssText = 'padding: 4px 10px; font-size: 11.5px; margin-right: 6px; color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); background: rgba(26, 159, 255, 0.12);';
+                        restoreBtn.textContent = 'Restore';
+                        restoreBtn.onclick = function (e) {
+                            e.preventDefault();
+                            restoreBtn.disabled = true;
+                            restoreBtn.textContent = 'Queueing...';
+                            var rProm = (window.NaviCloudManager && window.NaviCloudManager.restoreAppSave)
+                                ? window.NaviCloudManager.restoreAppSave(bAppId, bPath)
+                                : fetch('http://127.0.0.1:9001/cloud/apps/' + encodeURIComponent(bAppId) + '/restore', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'text/plain' },
+                                    body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ backupFile: bPath })
+                                }).then(function (r) { return r.json(); });
+                            rProm.then(function (res) {
+                                restoreBtn.disabled = false;
+                                restoreBtn.textContent = 'Restore';
+                                if (res && res.error) {
+                                    showStatusBanner('Restore failed: ' + res.error, '#ff4d4d');
+                                } else {
+                                    showStatusBanner('Queued restore of ' + bFile + ' for ' + bTitle + '. Restart Steam to apply.', '#2ecc71');
+                                    refreshCloudSavesUI();
+                                }
+                            }).catch(function (err) {
+                                restoreBtn.disabled = false;
+                                restoreBtn.textContent = 'Restore';
+                                showStatusBanner('Restore error: ' + (err.message || 'Unknown error'), '#ff4d4d');
+                            });
+                        };
+
+                        var deleteBtn = document.createElement('button');
+                        deleteBtn.type = 'button';
+                        deleteBtn.className = 'sls-cfg-btn sls-cfg-btn-danger';
+                        deleteBtn.style.cssText = 'padding: 4px 10px; font-size: 11.5px;';
+                        deleteBtn.textContent = 'Delete';
+                        deleteBtn.onclick = function (e) {
+                            e.preventDefault();
+                            deleteBtn.disabled = true;
+                            deleteBtn.textContent = 'Deleting...';
+                            var dProm = (window.NaviCloudManager && window.NaviCloudManager.deleteBackupArchive)
+                                ? window.NaviCloudManager.deleteBackupArchive(bAppId, bFile)
+                                : fetch('http://127.0.0.1:9001/cloud/backups/delete', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'text/plain' },
+                                    body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ appId: Number(bAppId), fileName: bFile })
+                                }).then(function (r) { return r.json(); });
+                            dProm.then(function (res) {
+                                if (res && res.success !== false && !res.error) {
+                                    showStatusBanner('Deleted backup archive ' + bFile + '.', '#66c0f4');
+                                    refreshBackupsList();
+                                } else {
+                                    deleteBtn.disabled = false;
+                                    deleteBtn.textContent = 'Delete';
+                                    showStatusBanner('Could not delete backup: ' + ((res && (res.error || res.message)) || 'Unknown error'), '#ff4d4d');
+                                }
+                            }).catch(function (err) {
+                                deleteBtn.disabled = false;
+                                deleteBtn.textContent = 'Delete';
+                                showStatusBanner('Delete error: ' + (err.message || 'Unknown error'), '#ff4d4d');
+                            });
+                        };
+
+                        tdBActions.appendChild(restoreBtn);
+                        tdBActions.appendChild(deleteBtn);
+                        bTr.appendChild(tdBGame);
+                        bTr.appendChild(tdBFile);
+                        bTr.appendChild(tdBDate);
+                        bTr.appendChild(tdBSize);
+                        bTr.appendChild(tdBActions);
+                        bTbody.appendChild(bTr);
+                    });
+
+                    bTable.appendChild(bTbody);
+                    backupsListEl.innerHTML = '';
+                    backupsListEl.appendChild(bTable);
+                }).catch(function (err) {
+                    backupsListEl.innerHTML = '<div style="padding: 20px; text-align: center; color: #f87171; font-size: 13px;">Failed to load backups: ' + escapeHtml(err.message || 'Unknown error') + '</div>';
+                });
+            }
+
+            refreshBackupsList();
+
+            var backupsRefreshBtn = document.getElementById('sls-cfg-cs-backups-refresh');
+            if (backupsRefreshBtn) {
+                backupsRefreshBtn.onclick = function (e) {
+                    e.preventDefault();
+                    refreshBackupsList();
+                };
+            }
+
+            var scanOrphansBtnEl = document.getElementById('sls-cfg-cs-scan-orphans-btn');
+            var orphansPanelEl = document.getElementById('sls-cfg-cs-orphans-panel');
+
+            function scanOrphansAndRender() {
+                if (!orphansPanelEl) return;
+                orphansPanelEl.style.display = 'block';
+                orphansPanelEl.innerHTML = '<div style="font-size: 12.5px; color: #8a929e; padding: 6px 2px;">Scanning for orphaned save directories and unreferenced cloud blobs...</div>';
+                if (scanOrphansBtnEl) {
+                    scanOrphansBtnEl.disabled = true;
+                    scanOrphansBtnEl.textContent = 'Scanning...';
+                }
+
+                var orphansPromise = (window.NaviCloudManager && window.NaviCloudManager.fetchOrphanedSaves)
+                    ? window.NaviCloudManager.fetchOrphanedSaves(provider)
+                    : fetch('http://127.0.0.1:9001/cloud/orphans?provider=' + encodeURIComponent(provider)).then(function (r) { return r.json(); });
+
+                orphansPromise.then(function (oData) {
+                    if (scanOrphansBtnEl) {
+                        scanOrphansBtnEl.disabled = false;
+                        scanOrphansBtnEl.textContent = 'Scan Orphans';
+                    }
+                    var orphans = (oData && Array.isArray(oData.orphans)) ? oData.orphans : [];
+                    orphansPanelEl.innerHTML = '';
+
+                    var headerRow = document.createElement('div');
+                    headerRow.style.cssText = 'display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px;';
+                    var titleDiv = document.createElement('div');
+                    titleDiv.style.cssText = 'font-size: 13px; font-weight: 600; color: #38bdf8;';
+                    titleDiv.textContent = 'Orphaned saves & unreferenced blobs (' + orphans.length + ')';
+                    var hideBtn = document.createElement('button');
+                    hideBtn.type = 'button';
+                    hideBtn.className = 'sls-cfg-btn';
+                    hideBtn.style.cssText = 'padding: 3px 8px; font-size: 11px;';
+                    hideBtn.textContent = 'Hide';
+                    hideBtn.onclick = function (e) {
+                        e.preventDefault();
+                        orphansPanelEl.style.display = 'none';
+                    };
+                    headerRow.appendChild(titleDiv);
+                    headerRow.appendChild(hideBtn);
+                    orphansPanelEl.appendChild(headerRow);
+
+                    if (orphans.length === 0) {
+                        var emptyMsg = document.createElement('div');
+                        emptyMsg.style.cssText = 'font-size: 12.5px; color: #94a3b8; padding: 6px 2px;';
+                        emptyMsg.textContent = 'No orphaned save directories or unreferenced cloud blobs found.';
+                        orphansPanelEl.appendChild(emptyMsg);
+                        return;
+                    }
+
+                    var listDiv = document.createElement('div');
+                    listDiv.style.cssText = 'display: flex; flex-direction: column; gap: 6px;';
+                    orphans.forEach(function (orph) {
+                        var oAppId = orph.appId;
+                        var oTitle = resolveTitle(oAppId, orph.gameTitle);
+                        var row = document.createElement('div');
+                        row.style.cssText = 'display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 10px; background: #171a22; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 4px;';
+
+                        var infoWrap = document.createElement('div');
+                        infoWrap.style.cssText = 'display: flex; align-items: center; gap: 8px; flex-wrap: wrap;';
+                        var badgesHtml = '';
+                        if (orph.inLocalStorage) {
+                            badgesHtml += '<span style="padding: 2px 6px; border-radius: 3px; font-size: 10.5px; background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);">Local Storage</span>';
+                        }
+                        if (orph.inRemoteCloud) {
+                            badgesHtml += '<span style="padding: 2px 6px; border-radius: 3px; font-size: 10.5px; background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3);">Remote Cloud</span>';
+                        }
+                        if (orph.inGoldbergPrefix) {
+                            badgesHtml += '<span style="padding: 2px 6px; border-radius: 3px; font-size: 10.5px; background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3);">Wine Prefix</span>';
+                        }
+                        infoWrap.innerHTML = '<span style="color: #ffffff; font-weight: 500; font-size: 13px;">' + escapeHtml(oTitle) + '</span>' +
+                            '<span style="color: #8a929e; font-size: 11.5px;">(' + escapeHtml(String(oAppId)) + ')</span>' +
+                            '<span style="color: #cbd5e1; font-size: 12px;">' + (Number(orph.fileCount) || 0) + ' files &bull; ' + fmtBytes(orph.totalSizeBytes) + '</span>' +
+                            badgesHtml;
+
+                        var actionsWrap = document.createElement('div');
+                        actionsWrap.style.cssText = 'display: flex; gap: 6px; align-items: center;';
+
+                        var adoptBtn = document.createElement('button');
+                        adoptBtn.type = 'button';
+                        adoptBtn.className = 'sls-cfg-btn sls-cfg-btn-primary';
+                        adoptBtn.style.cssText = 'padding: 4px 10px; font-size: 11.5px;';
+                        adoptBtn.textContent = 'Adopt (Redirect)';
+                        adoptBtn.onclick = function (e) {
+                            e.preventDefault();
+                            adoptBtn.disabled = true;
+                            adoptBtn.textContent = 'Adopting...';
+                            var aProm = (window.NaviCloudManager && window.NaviCloudManager.toggleAppRedirect)
+                                ? window.NaviCloudManager.toggleAppRedirect(oAppId, true)
+                                : fetch('http://127.0.0.1:9001/cloud/apps/' + encodeURIComponent(oAppId) + '/toggle', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'text/plain' },
+                                    body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ redirect: true })
+                                }).then(function (r) { return r.json(); });
+                            aProm.then(function () {
+                                if (!cfg.CloudSaves) cfg.CloudSaves = {};
+                                if (!Array.isArray(cfg.CloudSaves.ManagedApps)) cfg.CloudSaves.ManagedApps = [];
+                                if (cfg.CloudSaves.ManagedApps.indexOf(Number(oAppId)) === -1) {
+                                    cfg.CloudSaves.ManagedApps.push(Number(oAppId));
+                                }
+                                showStatusBanner('Adopted ' + oTitle + ' (' + oAppId + ') into redirected cloud saves.', '#2ecc71');
+                                scanOrphansAndRender();
+                                refreshCloudSavesUI();
+                            }).catch(function (err) {
+                                adoptBtn.disabled = false;
+                                adoptBtn.textContent = 'Adopt (Redirect)';
+                                showStatusBanner('Failed to adopt app: ' + (err.message || 'Unknown error'), '#ff4d4d');
+                            });
+                        };
+
+                        var cleanBtn = document.createElement('button');
+                        cleanBtn.type = 'button';
+                        cleanBtn.className = 'sls-cfg-btn sls-cfg-btn-danger';
+                        cleanBtn.style.cssText = 'padding: 4px 10px; font-size: 11.5px;';
+                        cleanBtn.textContent = 'Clean / GC';
+                        cleanBtn.onclick = function (e) {
+                            e.preventDefault();
+                            cleanBtn.disabled = true;
+                            cleanBtn.textContent = 'Cleaning...';
+                            var cProm = (window.NaviCloudManager && window.NaviCloudManager.cleanOrphanedApp)
+                                ? window.NaviCloudManager.cleanOrphanedApp(oAppId, provider, false)
+                                : fetch('http://127.0.0.1:9001/cloud/orphans/clean', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'text/plain' },
+                                    body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({ appId: Number(oAppId), provider: provider, deleteFiles: false })
+                                }).then(function (r) { return r.json(); });
+                            cProm.then(function (res) {
+                                if (res && res.success !== false && !res.error) {
+                                    showStatusBanner('Cleaned unreferenced blobs for ' + oTitle + ' (' + (Number(res.blobsDeleted) || 0) + ' blobs removed).', '#66c0f4');
+                                    scanOrphansAndRender();
+                                } else {
+                                    cleanBtn.disabled = false;
+                                    cleanBtn.textContent = 'Clean / GC';
+                                    showStatusBanner('Clean failed: ' + ((res && (res.error || res.message)) || 'Unknown error'), '#ff4d4d');
+                                }
+                            }).catch(function (err) {
+                                cleanBtn.disabled = false;
+                                cleanBtn.textContent = 'Clean / GC';
+                                showStatusBanner('Clean error: ' + (err.message || 'Unknown error'), '#ff4d4d');
+                            });
+                        };
+
+                        actionsWrap.appendChild(adoptBtn);
+                        actionsWrap.appendChild(cleanBtn);
+                        row.appendChild(infoWrap);
+                        row.appendChild(actionsWrap);
+                        listDiv.appendChild(row);
+                    });
+                    orphansPanelEl.appendChild(listDiv);
+                }).catch(function (err) {
+                    if (scanOrphansBtnEl) {
+                        scanOrphansBtnEl.disabled = false;
+                        scanOrphansBtnEl.textContent = 'Scan Orphans';
+                    }
+                    orphansPanelEl.innerHTML = '<div style="font-size: 12.5px; color: #f87171;">Failed to scan orphans: ' + escapeHtml(err.message || 'Unknown error') + '</div>';
+                });
+            }
+
+            if (scanOrphansBtnEl) {
+                scanOrphansBtnEl.onclick = function (e) {
+                    e.preventDefault();
+                    scanOrphansAndRender();
+                };
             }
 
             if (backBtnEl) {
@@ -1971,6 +2430,7 @@
                             if (window.NaviCloudManager && window.NaviCloudManager.backupAppSave) {
                                 window.NaviCloudManager.backupAppSave(selAppId).then(function (res) {
                                     showStatusBanner('Save backup created: ' + ((res && res.backupFile) || ('App ' + selAppId)), '#2ecc71');
+                                    refreshBackupsList();
                                 }).catch(function (err) {
                                     showStatusBanner('Backup failed: ' + (err.message || 'Unknown error'), '#ff4d4d');
                                 });
@@ -2128,23 +2588,7 @@
                     tdGame.appendChild(idSpan);
 
                     if (isPlaceholderTitle(gameTitle, appId)) {
-                        (function (aId, span, rRow) {
-                            var sId = String(aId);
-                            fetch('https://store.steampowered.com/api/appdetails?appids=' + encodeURIComponent(sId))
-                                .then(function (r) { return r.json(); })
-                                .then(function (data) {
-                                    if (data && data[sId] && data[sId].success && data[sId].data && data[sId].data.name) {
-                                        var realName = data[sId].data.name;
-                                        if (!isPlaceholderTitle(realName, sId)) {
-                                            titleCache[sId] = realName;
-                                            try { localStorage.setItem('navi_app_titles_cache', JSON.stringify(titleCache)); } catch (e) {}
-                                            span.textContent = realName;
-                                            rRow.setAttribute('data-search', (realName + ' ' + sId).toLowerCase());
-                                        }
-                                    }
-                                })
-                                .catch(function () {});
-                        })(appId, titleSpan, tr);
+                        queueTitleFetch(appId, titleSpan, tr);
                     }
 
                     var tdCount = document.createElement('td');
@@ -2230,6 +2674,262 @@
                 cfg.CloudSaves.Provider = providerSel.value;
                 refreshCloudSavesUI();
                 checkDirty();
+            };
+        }
+
+        // R2 & S3 Credentials form handlers
+        var credSecretToggleBtn = document.getElementById('sls-cfg-cs-cred-secret-toggle');
+        var credSecretKeyInput = document.getElementById('sls-cfg-cs-cred-secret-key');
+        if (credSecretToggleBtn && credSecretKeyInput) {
+            credSecretToggleBtn.onclick = function (e) {
+                e.preventDefault();
+                var isPwd = (credSecretKeyInput.type === 'password');
+                credSecretKeyInput.type = isPwd ? 'text' : 'password';
+                credSecretToggleBtn.textContent = isPwd ? 'Hide' : 'Show';
+                credSecretToggleBtn.setAttribute('aria-pressed', isPwd ? 'true' : 'false');
+            };
+        }
+
+        var credSaveBtn = document.getElementById('sls-cfg-cs-cred-save-btn');
+        if (credSaveBtn) {
+            credSaveBtn.onclick = function (e) {
+                e.preventDefault();
+                var curProv = providerSel ? providerSel.value : ((cfg.CloudSaves && cfg.CloudSaves.Provider) || 'r2');
+                if (curProv !== 'r2' && curProv !== 's3') return;
+
+                var cAcc = document.getElementById('sls-cfg-cs-cred-account-id');
+                var cBkt = document.getElementById('sls-cfg-cs-cred-bucket');
+                var cAk = document.getElementById('sls-cfg-cs-cred-access-key');
+                var cSk = document.getElementById('sls-cfg-cs-cred-secret-key');
+                var cReg = document.getElementById('sls-cfg-cs-cred-region');
+                var cEnd = document.getElementById('sls-cfg-cs-cred-endpoint');
+                var cPfx = document.getElementById('sls-cfg-cs-cred-prefix');
+
+                var credPayload = {
+                    provider: curProv,
+                    accountId: (cAcc && curProv === 'r2') ? cAcc.value.trim() : '',
+                    bucket: cBkt ? cBkt.value.trim() : '',
+                    accessKeyId: cAk ? cAk.value.trim() : '',
+                    secretAccessKey: cSk ? cSk.value.trim() : '',
+                    region: cReg ? cReg.value.trim() : '',
+                    endpoint: cEnd ? cEnd.value.trim() : '',
+                    keyPrefix: cPfx ? cPfx.value.trim() : ''
+                };
+
+                credSaveBtn.disabled = true;
+                credSaveBtn.textContent = 'Saving & testing...';
+
+                var saveProm = (window.NaviCloudManager && window.NaviCloudManager.saveProviderCredentials)
+                    ? window.NaviCloudManager.saveProviderCredentials(credPayload)
+                    : fetch('http://127.0.0.1:9001/cloud/provider/credentials', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify(credPayload)
+                    }).then(function (r) { return r.json(); });
+
+                saveProm.then(function (res) {
+                    var curBtn = document.getElementById('sls-cfg-cs-cred-save-btn') || credSaveBtn;
+                    if (curBtn) {
+                        curBtn.disabled = false;
+                        curBtn.textContent = 'Save & Test Connection';
+                    }
+                    if (res && res.success !== false && !res.error) {
+                        if (res.authenticated) {
+                            showStatusBanner(res.message || ('Saved ' + providerLabel(curProv) + ' credentials and verified connection.'), '#2ecc71');
+                        } else {
+                            showStatusBanner(res.message || ('Saved ' + providerLabel(curProv) + ' credentials. Connection test reported unauthenticated.'), '#f59e0b');
+                        }
+                        refreshCloudSavesUI();
+                    } else {
+                        showStatusBanner('Could not save credentials: ' + ((res && (res.error || res.message)) || 'Unknown error'), '#ff4d4d');
+                    }
+                }).catch(function (err) {
+                    var curBtn = document.getElementById('sls-cfg-cs-cred-save-btn') || credSaveBtn;
+                    if (curBtn) {
+                        curBtn.disabled = false;
+                        curBtn.textContent = 'Save & Test Connection';
+                    }
+                    showStatusBanner('Error saving credentials: ' + (err.message || 'Unknown error'), '#ff4d4d');
+                });
+            };
+        }
+
+        // Stats Sync sub-toggle dimming
+        var statsSyncMasterToggle = document.getElementById('sls-cfg-StatsSync-Enabled');
+        var statsSyncAchToggle = document.getElementById('sls-cfg-StatsSync-Achievements');
+        var statsSyncPlayToggle = document.getElementById('sls-cfg-StatsSync-Playtime');
+        var statsSyncSubrowsEl = document.getElementById('sls-cfg-StatsSync-subrows');
+
+        function syncStatsSyncSubrowsUI() {
+            var isStatsOn = !!(statsSyncMasterToggle && statsSyncMasterToggle.checked);
+            if (statsSyncSubrowsEl) {
+                statsSyncSubrowsEl.style.opacity = isStatsOn ? '1' : '0.5';
+            }
+            if (statsSyncAchToggle) statsSyncAchToggle.disabled = !isStatsOn;
+            if (statsSyncPlayToggle) statsSyncPlayToggle.disabled = !isStatsOn;
+        }
+        if (statsSyncMasterToggle) {
+            statsSyncMasterToggle.addEventListener('change', syncStatsSyncSubrowsUI);
+        }
+        syncStatsSyncSubrowsUI();
+
+        // Migrate Cloud Saves handlers
+        var migrateSrcSel = document.getElementById('sls-cfg-cs-migrate-src');
+        var migrateDstSel = document.getElementById('sls-cfg-cs-migrate-dst');
+        var migrateScanBtn = document.getElementById('sls-cfg-cs-migrate-scan-btn');
+        var migrateStartBtn = document.getElementById('sls-cfg-cs-migrate-start-btn');
+        var migrateStatusEl = document.getElementById('sls-cfg-cs-migrate-status');
+
+        if (migrateSrcSel && migrateDstSel) {
+            migrateSrcSel.onchange = function () {
+                if (migrateSrcSel.value === migrateDstSel.value) {
+                    migrateDstSel.value = (migrateSrcSel.value === 'local-only') ? 'gdrive' : 'local-only';
+                }
+            };
+        }
+
+        function formatMigrationBytes(b) {
+            if (window.NaviCloudManager && window.NaviCloudManager.formatBytes) {
+                return window.NaviCloudManager.formatBytes(b);
+            }
+            var n = Number(b) || 0;
+            return (n / (1024 * 1024)).toFixed(2).replace(/\.00$/, '') + ' MB';
+        }
+
+        if (migrateScanBtn) {
+            migrateScanBtn.onclick = function (e) {
+                e.preventDefault();
+                var srcProv = migrateSrcSel ? migrateSrcSel.value : 'local-only';
+                migrateScanBtn.disabled = true;
+                migrateScanBtn.textContent = 'Scanning...';
+                if (migrateStatusEl) {
+                    migrateStatusEl.style.display = 'block';
+                    migrateStatusEl.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+                    migrateStatusEl.style.color = '#cbd5e1';
+                    migrateStatusEl.textContent = 'Scanning ' + providerLabel(srcProv) + '...';
+                }
+
+                var scanProm = (window.NaviCloudManager && window.NaviCloudManager.scanMigrationSource)
+                    ? window.NaviCloudManager.scanMigrationSource(srcProv)
+                    : fetch('http://127.0.0.1:9001/cloud/migrate/scan?provider=' + encodeURIComponent(srcProv)).then(function (r) { return r.json(); });
+
+                scanProm.then(function (data) {
+                    migrateScanBtn.disabled = false;
+                    migrateScanBtn.textContent = 'Scan Source';
+                    if (!migrateStatusEl) return;
+                    if (data && data.success !== false && !data.error) {
+                        var gCount = Number(data.appCount) || (Array.isArray(data.apps) ? data.apps.length : 0);
+                        var fCount = Number(data.fileCount) || 0;
+                        var mbStr = formatMigrationBytes(Number(data.totalSizeBytes) || 0);
+                        migrateStatusEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+                        migrateStatusEl.style.color = '#e2e8f0';
+                        migrateStatusEl.textContent = gCount + ' games · ' + fCount + ' files · ' + mbStr + ' ready to migrate';
+                    } else {
+                        migrateStatusEl.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                        migrateStatusEl.style.color = '#fca5a5';
+                        migrateStatusEl.textContent = 'Scan error: ' + ((data && (data.error || data.message)) || 'Could not scan source provider');
+                    }
+                }).catch(function (err) {
+                    migrateScanBtn.disabled = false;
+                    migrateScanBtn.textContent = 'Scan Source';
+                    if (migrateStatusEl) {
+                        migrateStatusEl.style.display = 'block';
+                        migrateStatusEl.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                        migrateStatusEl.style.color = '#fca5a5';
+                        migrateStatusEl.textContent = 'Scan failed: ' + (err.message || 'Unknown error');
+                    }
+                });
+            };
+        }
+
+        if (migrateStartBtn) {
+            migrateStartBtn.onclick = function (e) {
+                e.preventDefault();
+                var srcProv = migrateSrcSel ? migrateSrcSel.value : 'local-only';
+                var dstProv = migrateDstSel ? migrateDstSel.value : 'gdrive';
+                if (srcProv === dstProv) {
+                    if (migrateStatusEl) {
+                        migrateStatusEl.style.display = 'block';
+                        migrateStatusEl.style.borderColor = 'rgba(245, 158, 11, 0.4)';
+                        migrateStatusEl.style.color = '#fde68a';
+                        migrateStatusEl.textContent = 'Source and destination providers must be different.';
+                    }
+                    showStatusBanner('Select different source and destination providers to migrate.', '#f59e0b');
+                    return;
+                }
+
+                migrateStartBtn.disabled = true;
+                migrateStartBtn.textContent = 'Migrating...';
+                if (migrateStatusEl) {
+                    migrateStatusEl.style.display = 'block';
+                    migrateStatusEl.style.borderColor = 'rgba(56, 189, 248, 0.35)';
+                    migrateStatusEl.style.color = '#cbd5e1';
+                    migrateStatusEl.textContent = 'Migrating cloud saves from ' + providerLabel(srcProv) + ' to ' + providerLabel(dstProv) + '...';
+                }
+
+                var migProm = (window.NaviCloudManager && window.NaviCloudManager.migrateProviderData)
+                    ? window.NaviCloudManager.migrateProviderData(srcProv, dstProv, true)
+                    : fetch('http://127.0.0.1:9001/cloud/migrate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'text/plain' },
+                        body: 'X-Navi-Auth: ' + (window.__naviAuthToken || '') + '\r\n' + JSON.stringify({
+                            sourceProvider: srcProv,
+                            targetProvider: dstProv,
+                            switchActiveProvider: true
+                        })
+                    }).then(function (r) { return r.json(); });
+
+                migProm.then(function (res) {
+                    migrateStartBtn.disabled = false;
+                    migrateStartBtn.textContent = 'Start Migration';
+                    if (res && res.success !== false && !res.error) {
+                        var nMig = Number(res.migrated) || 0;
+                        var nSkip = Number(res.skipped) || 0;
+                        var nFail = Number(res.failed) || 0;
+                        if (migrateStatusEl) {
+                            migrateStatusEl.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                            migrateStatusEl.style.color = '#4ade80';
+                            migrateStatusEl.textContent = 'Migrated ' + nMig + ' files (' + nSkip + ' skipped, ' + nFail + ' failed)';
+                        }
+                        if (!cfg.CloudSaves) cfg.CloudSaves = {};
+                        cfg.CloudSaves.Provider = dstProv;
+                        if (providerSel) providerSel.value = dstProv;
+                        initialFormState = serializeCurrentForm();
+                        markClean(true);
+                        refreshCloudSavesUI();
+                        showStatusBanner('Migrated ' + nMig + ' files to ' + providerLabel(dstProv) + '.', '#2ecc71');
+                    } else {
+                        if (migrateStatusEl) {
+                            migrateStatusEl.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                            migrateStatusEl.style.color = '#fca5a5';
+                            migrateStatusEl.textContent = 'Migration failed: ' + ((res && (res.error || res.message)) || 'Unknown error');
+                        }
+                        showStatusBanner('Migration failed: ' + ((res && (res.error || res.message)) || 'Unknown error'), '#ff4d4d');
+                    }
+                }).catch(function (err) {
+                    migrateStartBtn.disabled = false;
+                    migrateStartBtn.textContent = 'Start Migration';
+                    if (migrateStatusEl) {
+                        migrateStatusEl.style.display = 'block';
+                        migrateStatusEl.style.borderColor = 'rgba(239, 68, 68, 0.4)';
+                        migrateStatusEl.style.color = '#fca5a5';
+                        migrateStatusEl.textContent = 'Migration error: ' + (err.message || 'Unknown error');
+                    }
+                    showStatusBanner('Migration error: ' + (err.message || 'Unknown error'), '#ff4d4d');
+                });
+            };
+        }
+
+        // Backups search filter
+        var backupsSearchEl = document.getElementById('sls-cfg-cs-backups-search');
+        if (backupsSearchEl) {
+            backupsSearchEl.oninput = function () {
+                var q = (backupsSearchEl.value || '').trim().toLowerCase();
+                var bRows = container.querySelectorAll('.navi-cloud-backup-row');
+                bRows.forEach(function (r) {
+                    var txt = (r.getAttribute('data-search') || r.textContent || '').toLowerCase();
+                    r.style.display = (!q || txt.indexOf(q) !== -1) ? '' : 'none';
+                });
             };
         }
 
@@ -2596,11 +3296,15 @@
                 cloudAutoBackup: getCheckbox('sls-cfg-CloudAutoBackup'),
                 cloudRetention: getVal('sls-cfg-CloudRetention'),
                 cloudProvider: getVal('sls-cfg-cs-provider'),
+                cloudNotificationsEnabled: getCheckbox('sls-cfg-CloudSaves-NotificationsEnabled'),
                 prefixSyncEnabled: getCheckbox('sls-cfg-PrefixSync-Enabled'),
                 prefixSyncStartup: getCheckbox('sls-cfg-PrefixSync-Startup'),
                 prefixSyncLaunch: getCheckbox('sls-cfg-PrefixSync-Launch'),
                 prefixSyncExit: getCheckbox('sls-cfg-PrefixSync-Exit'),
                 prefixSyncMaxMb: getVal('sls-cfg-PrefixSync-MaxMb'),
+                statsSyncEnabled: getCheckbox('sls-cfg-StatsSync-Enabled'),
+                statsSyncAchievements: getCheckbox('sls-cfg-StatsSync-Achievements'),
+                statsSyncPlaytime: getCheckbox('sls-cfg-StatsSync-Playtime'),
                 logLevel: currentLogLevel,
                 ryuuKey: getVal('sls-cfg-RyuuKey'),
                 depotBoxKey: getVal('sls-cfg-DepotBoxKey'),
@@ -2800,6 +3504,7 @@
                 CloudSaves: {
                     Enabled: (cfg.CloudSaves && typeof cfg.CloudSaves.Enabled === 'boolean') ? cfg.CloudSaves.Enabled : true,
                     Provider: getVal('sls-cfg-cs-provider') || (cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only',
+                    NotificationsEnabled: getCheckbox('sls-cfg-CloudSaves-NotificationsEnabled'),
                     AutoBackupBeforeReset: getCheckbox('sls-cfg-CloudAutoBackup'),
                     BackupRetentionCount: getInt('sls-cfg-CloudRetention', 5),
                     PrefixSync: {
@@ -2809,13 +3514,18 @@
                         SyncOnExit: getCheckbox('sls-cfg-PrefixSync-Exit'),
                         MaxFileMb: getInt('sls-cfg-PrefixSync-MaxMb', 64)
                     },
+                    StatsSync: {
+                        Enabled: getCheckbox('sls-cfg-StatsSync-Enabled'),
+                        SyncAchievements: getCheckbox('sls-cfg-StatsSync-Achievements'),
+                        SyncPlaytime: getCheckbox('sls-cfg-StatsSync-Playtime')
+                    },
                     ManagedApps: (cfg.CloudSaves && cfg.CloudSaves.ManagedApps) || []
                 }
             };
 
             fetch('http://127.0.0.1:9001/config/full', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Connection': 'close' },
                 body: JSON.stringify(payload)
             }).then(function (r) {
                 return r.json();
@@ -2881,7 +3591,7 @@
                     cancelLabel: 'Keep editing',
                     danger: true,
                     onConfirm: function () {
-                        fetch('http://127.0.0.1:9001/config/full')
+                        fetch('http://127.0.0.1:9001/config/full', { headers: { 'Connection': 'close' } })
                             .then(function (r) { return r.json(); })
                             .then(function (fresh) {
                                 renderConfigPage(container, fresh, sync);
@@ -2935,6 +3645,7 @@
                 CloudSaves: {
                     Enabled: true,
                     Provider: 'local-only',
+                    NotificationsEnabled: true,
                     AutoBackupBeforeReset: true,
                     BackupRetentionCount: 5,
                     PrefixSync: {
@@ -2943,6 +3654,11 @@
                         SyncOnLaunch: true,
                         SyncOnExit: true,
                         MaxFileMb: 64
+                    },
+                    StatsSync: {
+                        Enabled: false,
+                        SyncAchievements: true,
+                        SyncPlaytime: true
                     }
                 }
             };
@@ -2975,7 +3691,7 @@
                                 showStatusBanner('Reset didn\'t finish: ' + ((res.data && res.data.message) || 'unknown error') + '. Nothing was lost — your settings are unchanged.', '#ff4d4d');
                                 return;
                             }
-                            fetch('http://127.0.0.1:9001/config/full')
+                            fetch('http://127.0.0.1:9001/config/full', { headers: { 'Connection': 'close' } })
                                 .then(function (r) { return r.json(); })
                                 .then(function (fresh) {
                                     window.__naviConfigPendingBanner = {
@@ -4030,6 +4746,43 @@
         };
     }
 
+    function createSuperNavTab(id, text, clickHandler) {
+        var tab = document.createElement('div');
+        tab.id = id;
+        tab.className = STEAM_TAB_BASE_CLASS + ' _7AlhCx3XGzBeIrQaCneUD';
+        tab.style.cursor = 'pointer';
+        tab.style.userSelect = 'none';
+
+        var textDiv = document.createElement('div');
+        textDiv.className = STEAM_TAB_TEXT_CLASS;
+        textDiv.textContent = text;
+        tab.appendChild(textDiv);
+
+        function stopNavEvents(e) {
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        }
+
+        var navEvents = [
+            'pointerdown', 'pointerup', 'pointermove', 'pointerover', 'pointerenter', 'pointerleave',
+            'mousedown', 'mouseup', 'mouseover', 'mouseenter', 'mouseout', 'mouseleave',
+            'contextmenu'
+        ];
+        for (var i = 0; i < navEvents.length; i++) {
+            tab.addEventListener(navEvents[i], stopNavEvents, true);
+            tab.addEventListener(navEvents[i], stopNavEvents, false);
+        }
+
+        tab.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+            clickHandler();
+        }, true);
+
+        return tab;
+    }
+
     function addSlsTab() {
         var container = findSuperNavContainer();
         if (!container) return;
@@ -4038,86 +4791,20 @@
         var hasConfigTab = !!document.getElementById('sls-config-top-tab');
         if (hasSlsTab && hasConfigTab) return;
 
-        // Find one of the existing tab divs (Store, Community, etc.) to clone
-        var siblingTab = container.querySelector('.' + STEAM_TAB_BASE_CLASS);
-        if (!siblingTab) {
-            // Last resort: pick a child that is a DIV
-            for (var i = 0; i < container.children.length; i++) {
-                if (container.children[i].tagName === 'DIV') {
-                    siblingTab = container.children[i];
-                    break;
-                }
-            }
-        }
-        if (!siblingTab) return;
-
         if (!hasSlsTab) {
-            // Clone the tab and strip inherited event listeners by round-tripping through HTML
-            var rawClone = siblingTab.cloneNode(true);
-            var slsTab = document.createElement('div');
-            slsTab.className = rawClone.className;
-            slsTab.innerHTML = rawClone.innerHTML;
-            slsTab.id = 'sls-top-tab';
-            // Remove active class if cloned tab had it
-            slsTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
-
-            // Set the text to 'Import Lua files' inside the known text container class
-            var textEl = slsTab.querySelector('.' + STEAM_TAB_TEXT_CLASS);
-            if (textEl) {
-                textEl.textContent = 'Import Lua files';
-            } else {
-                // Fallback: find a span or the deepest text node
-                textEl = slsTab.querySelector('span') || slsTab.querySelector('div') || slsTab;
-                textEl.textContent = 'Import Lua files';
-            }
-
-            // Remove any href/navigation attributes from child anchors
-            var anchors = slsTab.querySelectorAll('a');
-            for (var ai = 0; ai < anchors.length; ai++) {
-                anchors[ai].removeAttribute('href');
-                anchors[ai].style.cursor = 'pointer';
-            }
-
+            var slsTab = createSuperNavTab('sls-top-tab', 'Import Lua files', function () {
+                (window.__naviShowImportLuaPage || showSlsPage)();
+            });
             container.appendChild(slsTab);
             log('Added Import Lua files tab to top bar');
-
-            slsTab.onclick = function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                (window.__naviShowImportLuaPage || showSlsPage)();
-            };
         }
 
         if (!hasConfigTab) {
-            var rawCloneCfg = siblingTab.cloneNode(true);
-            var configTab = document.createElement('div');
-            configTab.className = rawCloneCfg.className;
-            configTab.innerHTML = rawCloneCfg.innerHTML;
-            configTab.id = 'sls-config-top-tab';
-            configTab.classList.remove(STEAM_TAB_ACTIVE_CLASS);
-
-            var textElCfg = configTab.querySelector('.' + STEAM_TAB_TEXT_CLASS);
-            if (textElCfg) {
-                textElCfg.textContent = 'Navi Config';
-            } else {
-                textElCfg = configTab.querySelector('span') || configTab.querySelector('div') || configTab;
-                textElCfg.textContent = 'Navi Config';
-            }
-
-            var anchorsCfg = configTab.querySelectorAll('a');
-            for (var aiCfg = 0; aiCfg < anchorsCfg.length; aiCfg++) {
-                anchorsCfg[aiCfg].removeAttribute('href');
-                anchorsCfg[aiCfg].style.cursor = 'pointer';
-            }
-
+            var configTab = createSuperNavTab('sls-config-top-tab', 'Navi Config', function () {
+                (window.__naviShowConfigPage || showConfigPage)();
+            });
             container.appendChild(configTab);
             log('Added Navi Config tab to top bar');
-
-            configTab.onclick = function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                (window.__naviShowConfigPage || showConfigPage)();
-            };
         }
     }
 
@@ -4147,6 +4834,7 @@
     }
 
     // Expose helpers globally on window
+    window.__naviRenderConfigPage = renderConfigPage;
     window.__naviShowConfigPage = showConfigPage;
     window.__naviHideConfigPage = hideConfigPage;
     window.__naviShowImportLuaPage = showSlsPage;
@@ -4163,7 +4851,16 @@
         });
     }
 
-    var observer = new MutationObserver(debouncedAddButtons);
+    var observer = new MutationObserver(function (mutations) {
+        for (var mi = 0; mi < mutations.length; mi++) {
+            var t = mutations[mi].target;
+            if (t && t.closest && (t.closest('#sls-config-page-container') || t.closest('#sls-page-container') || t.closest('.sls-cfg-shell'))) {
+                continue;
+            }
+            debouncedAddButtons();
+            break;
+        }
+    });
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
     initSlsTabAndPage();
 })();

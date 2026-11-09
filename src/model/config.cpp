@@ -432,6 +432,14 @@ bool CConfig::loadSettings(bool firstLoad)
 	{
 		cloudSavesEnabled.set(getSetting<bool>(cloudSavesNode, "Enabled", true));
 		cloudSavesProvider.set(getSetting<std::string>(cloudSavesNode, "Provider", "local-only"));
+		if (cloudSavesNode["NotificationsEnabled"])
+		{
+			cloudNotificationsEnabled.set(getSetting<bool>(cloudSavesNode, "NotificationsEnabled", true));
+		}
+		else
+		{
+			cloudNotificationsEnabled.set(true);
+		}
 		cloudAutoBackupBeforeReset.set(getSetting<bool>(cloudSavesNode, "AutoBackupBeforeReset", true));
 		cloudBackupRetentionCount.set(getSetting<uint32_t>(cloudSavesNode, "BackupRetentionCount", 5));
 		cloudSavesManagedApps.set(getList<AppId_t>(cloudSavesNode, "ManagedApps"));
@@ -461,11 +469,26 @@ bool CConfig::loadSettings(bool firstLoad)
 			cloudPrefixSyncOnExit.set(true);
 			cloudPrefixSyncMaxFileMb.set(64);
 		}
+
+		const auto statsSyncNode = cloudSavesNode["StatsSync"];
+		if (statsSyncNode)
+		{
+			cloudStatsSyncEnabled.set(getSetting<bool>(statsSyncNode, "Enabled", false));
+			cloudSyncAchievements.set(getSetting<bool>(statsSyncNode, "SyncAchievements", true));
+			cloudSyncPlaytime.set(getSetting<bool>(statsSyncNode, "SyncPlaytime", true));
+		}
+		else
+		{
+			cloudStatsSyncEnabled.set(false);
+			cloudSyncAchievements.set(true);
+			cloudSyncPlaytime.set(true);
+		}
 	}
 	else
 	{
 		cloudSavesEnabled.set(true);
 		cloudSavesProvider.set("local-only");
+		cloudNotificationsEnabled.set(true);
 		cloudAutoBackupBeforeReset.set(true);
 		cloudBackupRetentionCount.set(5);
 		cloudSavesManagedApps.set({});
@@ -476,6 +499,10 @@ bool CConfig::loadSettings(bool firstLoad)
 		cloudPrefixSyncOnLaunch.set(true);
 		cloudPrefixSyncOnExit.set(true);
 		cloudPrefixSyncMaxFileMb.set(64);
+
+		cloudStatsSyncEnabled.set(false);
+		cloudSyncAchievements.set(true);
+		cloudSyncPlaytime.set(true);
 	}
 
 	const auto autoCrackNode = node["autocrack"];
@@ -514,7 +541,26 @@ bool CConfig::loadSettings(bool firstLoad)
 		#pragma GCC diagnostic pop
 	}
 
+	Navi::CloudRedirect::EngineConfig_t engCfg;
+	engCfg.provider = cloudSavesProvider.get();
+	engCfg.notificationsEnabled = cloudNotificationsEnabled.get();
+	engCfg.statsSyncEnabled = cloudStatsSyncEnabled.get();
+	engCfg.syncAchievements = cloudSyncAchievements.get();
+	engCfg.syncPlaytime = cloudSyncPlaytime.get();
+	Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncEngineConfig(engCfg);
+
 	return true;
+}
+
+bool Navi::CloudRedirect::CCloudRedirectBridge::SyncEngineConfigFromGlobal()
+{
+	Navi::CloudRedirect::EngineConfig_t cfg;
+	cfg.provider = g_config.cloudSavesProvider.get();
+	cfg.notificationsEnabled = g_config.cloudNotificationsEnabled.get();
+	cfg.statsSyncEnabled = g_config.cloudStatsSyncEnabled.get();
+	cfg.syncAchievements = g_config.cloudSyncAchievements.get();
+	cfg.syncPlaytime = g_config.cloudSyncPlaytime.get();
+	return SyncEngineConfig(cfg);
 }
 
 bool CConfig::isAddedAppId(const AppId_t appId)

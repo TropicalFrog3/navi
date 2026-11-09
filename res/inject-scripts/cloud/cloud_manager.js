@@ -98,6 +98,7 @@
         var method = String(opts.method || 'GET').toUpperCase();
         var headers = Object.assign({}, opts.headers || {});
         headers['X-Navi-Auth'] = window.__naviAuthToken || '';
+        headers['Connection'] = 'close';
         if (opts.body && typeof opts.body === 'string' && !headers['Content-Type']) {
             headers['Content-Type'] = 'application/json';
         }
@@ -913,16 +914,125 @@
     }
 
     /**
+     * Fetch R2/S3 provider credentials (masked secret)
+     */
+    function fetchProviderCredentials(provider) {
+        var p = provider || state.provider || 'r2';
+        return secureFetch('/cloud/provider/credentials?provider=' + encodeURIComponent(p), {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Save R2/S3 provider credentials and verify connection
+     */
+    function saveProviderCredentials(payload) {
+        return secureFetch('/cloud/provider/credentials', {
+            method: 'POST',
+            body: JSON.stringify(payload || {})
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Pre-flight scan of a cloud save provider for migration
+     */
+    function scanMigrationSource(provider) {
+        var p = provider || state.provider || 'local-only';
+        return secureFetch('/cloud/migrate/scan?provider=' + encodeURIComponent(p), {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Migrate cloud save blobs from sourceProvider to targetProvider
+     */
+    function migrateProviderData(sourceProvider, targetProvider, switchActiveProvider) {
+        return secureFetch('/cloud/migrate', {
+            method: 'POST',
+            body: JSON.stringify({
+                sourceProvider: String(sourceProvider || ''),
+                targetProvider: String(targetProvider || ''),
+                switchActiveProvider: switchActiveProvider !== false
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Scan for orphaned save directories and unreferenced cloud blobs
+     */
+    function fetchOrphanedSaves(provider) {
+        var p = provider || state.provider || 'local-only';
+        return secureFetch('/cloud/orphans?provider=' + encodeURIComponent(p), {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Garbage-collect unreferenced blobs or clean orphaned save directory for an appId
+     */
+    function cleanOrphanedApp(appId, provider, deleteFiles) {
+        return secureFetch('/cloud/orphans/clean', {
+            method: 'POST',
+            body: JSON.stringify({
+                appId: Number(appId) || 0,
+                provider: String(provider || state.provider || 'local-only'),
+                deleteFiles: !!deleteFiles
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Fetch global list of all .tar.gz save backups across all games
+     */
+    function fetchAllBackups() {
+        return secureFetch('/cloud/backups', {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
+     * Delete a specific .tar.gz backup archive for an appId
+     */
+    function deleteBackupArchive(appId, fileName) {
+        return secureFetch('/cloud/backups/delete', {
+            method: 'POST',
+            body: JSON.stringify({
+                appId: Number(appId) || 0,
+                fileName: String(fileName || '')
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    /**
      * Inject shared Steam Cloud table styles following modern-web-guidance responsive-table pattern
      */
     function ensureSteamCloudTableStyles(targetDoc) {
         var doc = targetDoc || document;
-        if (!doc || !doc.head || doc.getElementById('navi-steam-cloud-table-styles')) return;
+        if (!doc || !doc.head) return;
+        var existing = doc.getElementById('navi-steam-cloud-table-styles');
+        if (existing) {
+            existing.remove();
+        }
         var style = doc.createElement('style');
         style.id = 'navi-steam-cloud-table-styles';
         style.textContent = [
             '.navi-cloud-table-region {',
-            '  container-type: inline-size;',
             '  overflow-x: auto;',
             '  max-width: 100%;',
             '  border: 1px solid #2a475e;',
@@ -990,7 +1100,7 @@
             '  color: #66c0f4;',
             '  text-decoration: underline;',
             '}',
-            '@container (width < 560px) {',
+            '@media (max-width: 560px) {',
             '  .navi-steam-cloud-table thead {',
             '    position: absolute;',
             '    width: 1px;',
@@ -1329,6 +1439,14 @@
         fetchPendingOps: fetchPendingOps,
         toggleMaster: toggleMaster,
         fetchProviderStatus: fetchProviderStatus,
+        fetchProviderCredentials: fetchProviderCredentials,
+        saveProviderCredentials: saveProviderCredentials,
+        scanMigrationSource: scanMigrationSource,
+        migrateProviderData: migrateProviderData,
+        fetchOrphanedSaves: fetchOrphanedSaves,
+        cleanOrphanedApp: cleanOrphanedApp,
+        fetchAllBackups: fetchAllBackups,
+        deleteBackupArchive: deleteBackupArchive,
         signInProvider: signInProvider,
         signOutProvider: signOutProvider,
         restartSteam: restartSteam,

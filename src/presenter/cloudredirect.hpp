@@ -37,6 +37,15 @@ namespace Navi::CloudRedirect
         std::filesystem::path cliBin;
     };
 
+    struct EngineConfig_t
+    {
+        std::string provider{"local"};
+        bool notificationsEnabled{true};
+        bool statsSyncEnabled{false};
+        bool syncAchievements{true};
+        bool syncPlaytime{true};
+    };
+
     class CCloudRedirectBridge
     {
     public:
@@ -51,6 +60,9 @@ namespace Navi::CloudRedirect
         bool SyncSlsSteamConfig(const std::unordered_set<AppId_t>& managedApps);
         bool RevertSlsSteamConfig(const std::unordered_set<AppId_t>& managedApps);
         bool EnsureLocalOnlyConfig();
+        bool SyncEngineConfig(const EngineConfig_t& cfg);
+        EngineConfig_t ReadEngineConfig() const;
+        bool SyncEngineConfigFromGlobal();
         std::filesystem::path GetTokenPath(const std::string& provider) const;
 
     private:

@@ -3,6 +3,7 @@
 #include "paths.hpp"
 #include "lua_parser.hpp"
 #include "config.hpp"
+#include "atomic_file.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -14,8 +15,10 @@
 #include <unordered_map>
 #include <atomic>
 #include <sys/poll.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <yaml-cpp/yaml.h>
 
 namespace
 {
@@ -2430,14 +2433,27 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
     const bool isRemoteProvider = (!provider.empty() && provider != "local-only");
     if (isRemoteProvider)
     {
-        for (uint32_t acct : accounts)
+        bool hasCustomCli = false;
         {
-            std::string out = RunCliCommand({"list-remote-app-ids", provider, std::to_string(acct)}, 15000);
+            std::lock_guard<std::mutex> lock(m_mutex);
+            hasCustomCli = !m_cliPath.empty();
+        }
+
+        if (hasCustomCli || CheckAuthStatus(provider).authenticated)
+        {
+            for (uint32_t acct : accounts)
+            {
+            std::string out = RunCliCommand({"list-remote-app-ids", provider, std::to_string(acct)}, 5000);
             std::string jsonStr = ExtractJsonSubstring(out);
             if (jsonStr.empty())
             {
-                out = RunCliCommand({"list-remote-apps", provider, std::to_string(acct)}, 15000);
-                jsonStr = ExtractJsonSubstring(out);
+                std::string lowerOut = out;
+                std::transform(lowerOut.begin(), lowerOut.end(), lowerOut.begin(), [](unsigned char c) { return std::tolower(c); });
+                if (lowerOut.find("unknown command") != std::string::npos || lowerOut.find("invalid command") != std::string::npos)
+                {
+                    out = RunCliCommand({"list-remote-apps", provider, std::to_string(acct)}, 5000);
+                    jsonStr = ExtractJsonSubstring(out);
+                }
             }
             if (jsonStr.empty()) continue;
 
@@ -2512,6 +2528,7 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
             }
 
             break; // First valid response from active account is authoritative
+        }
         }
 
         // Strict remote filtering: when a remote provider is selected, ONLY return apps
@@ -4101,6 +4118,998 @@ bool CCloudManager::SyncAppToCloudAndUpdateCatalog(AppId_t appId, const std::str
     }
 
     return UpdateAndPublishCloudCatalog(provider, acct);
+}
+
+void CCloudManager::SetCredentialsDirForTest(const fs::path& path)
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_credentialsDir = path;
+}
+
+fs::path CCloudManager::GetCredentialsDir() const
+{
+    std::lock_guard<std::mutex> lock(m_mutex);
+    if (!m_credentialsDir.empty())
+    {
+        return m_credentialsDir;
+    }
+    return CCloudRedirectBridge::Instance().GetPaths().crConfigDir;
+}
+
+ProviderCredentials_t CCloudManager::GetProviderCredentials(const std::string& provider) const
+{
+    ProviderCredentials_t creds;
+    creds.provider = provider;
+    creds.configured = false;
+    creds.hasSecretKey = false;
+    creds.region = (provider == "r2") ? "auto" : ((provider == "s3") ? "us-east-1" : "");
+
+    if (provider != "r2" && provider != "s3")
+    {
+        return creds;
+    }
+
+    const fs::path credFile = GetCredentialsDir() / (provider + "_credentials.json");
+    std::error_code ec;
+    if (!fs::exists(credFile, ec) || !fs::is_regular_file(credFile, ec))
+    {
+        return creds;
+    }
+
+    std::string rawSecret;
+    try
+    {
+        YAML::Node root = YAML::LoadFile(credFile.string());
+        if (root && root.IsMap())
+        {
+            if (root["account_id"] && root["account_id"].IsScalar())
+                creds.accountId = root["account_id"].as<std::string>("");
+            if (root["access_key_id"] && root["access_key_id"].IsScalar())
+                creds.accessKeyId = root["access_key_id"].as<std::string>("");
+            if (root["secret_access_key"] && root["secret_access_key"].IsScalar())
+                rawSecret = root["secret_access_key"].as<std::string>("");
+            if (root["bucket"] && root["bucket"].IsScalar())
+                creds.bucket = root["bucket"].as<std::string>("");
+            if (root["region"] && root["region"].IsScalar())
+            {
+                std::string reg = root["region"].as<std::string>("");
+                if (!reg.empty()) creds.region = reg;
+            }
+            if (root["endpoint"] && root["endpoint"].IsScalar())
+                creds.endpoint = root["endpoint"].as<std::string>("");
+            if (root["key_prefix"] && root["key_prefix"].IsScalar())
+                creds.keyPrefix = root["key_prefix"].as<std::string>("");
+        }
+    }
+    catch (...)
+    {
+        std::ifstream in(credFile);
+        std::ostringstream ss;
+        ss << in.rdbuf();
+        std::string content = ss.str();
+        creds.accountId = ExtractCatalogJsonString(content, "account_id");
+        creds.accessKeyId = ExtractCatalogJsonString(content, "access_key_id");
+        rawSecret = ExtractCatalogJsonString(content, "secret_access_key");
+        creds.bucket = ExtractCatalogJsonString(content, "bucket");
+        std::string reg = ExtractCatalogJsonString(content, "region");
+        if (!reg.empty()) creds.region = reg;
+        creds.endpoint = ExtractCatalogJsonString(content, "endpoint");
+        creds.keyPrefix = ExtractCatalogJsonString(content, "key_prefix");
+    }
+
+    if (!rawSecret.empty())
+    {
+        creds.hasSecretKey = true;
+        creds.secretAccessKey = "********";
+    }
+    else
+    {
+        creds.hasSecretKey = false;
+        creds.secretAccessKey.clear();
+    }
+
+    const bool hasR2EndpointOrAcct = (provider != "r2") || !creds.accountId.empty() || !creds.endpoint.empty();
+    creds.configured = !creds.bucket.empty() && !creds.accessKeyId.empty() && creds.hasSecretKey && hasR2EndpointOrAcct;
+    return creds;
+}
+
+bool CCloudManager::SaveProviderCredentials(const ProviderCredentials_t& creds, std::string& outError)
+{
+    outError.clear();
+    if (creds.provider != "r2" && creds.provider != "s3")
+    {
+        outError = "Unsupported provider for credentials (must be r2 or s3)";
+        return false;
+    }
+
+    const fs::path credDir = GetCredentialsDir();
+    const fs::path credFile = credDir / (creds.provider + "_credentials.json");
+
+    std::string secretKey = creds.secretAccessKey;
+    if (secretKey.empty() || secretKey == "********")
+    {
+        secretKey.clear();
+        std::error_code ec;
+        if (fs::exists(credFile, ec) && fs::is_regular_file(credFile, ec))
+        {
+            try
+            {
+                YAML::Node existing = YAML::LoadFile(credFile.string());
+                if (existing && existing.IsMap() && existing["secret_access_key"] && existing["secret_access_key"].IsScalar())
+                {
+                    secretKey = existing["secret_access_key"].as<std::string>("");
+                }
+            }
+            catch (...)
+            {
+                std::ifstream in(credFile);
+                std::ostringstream ss;
+                ss << in.rdbuf();
+                secretKey = ExtractCatalogJsonString(ss.str(), "secret_access_key");
+            }
+        }
+    }
+
+    if (creds.bucket.empty())
+    {
+        outError = "Bucket name is required";
+        return false;
+    }
+    if (creds.accessKeyId.empty())
+    {
+        outError = "Access Key ID is required";
+        return false;
+    }
+    if (secretKey.empty())
+    {
+        outError = "Secret Access Key is required";
+        return false;
+    }
+    if (creds.provider == "r2" && creds.accountId.empty() && creds.endpoint.empty())
+    {
+        outError = "Account ID or Endpoint URL is required for Cloudflare R2";
+        return false;
+    }
+
+    std::string region = creds.region;
+    if (region.empty())
+    {
+        region = (creds.provider == "r2") ? "auto" : "us-east-1";
+    }
+
+    std::string endpoint = creds.endpoint;
+    if (creds.provider == "r2" && endpoint.empty() && !creds.accountId.empty())
+    {
+        endpoint = "https://" + creds.accountId + ".r2.cloudflarestorage.com";
+    }
+
+    std::ostringstream js;
+    js << "{\n";
+    if (creds.provider == "r2" || !creds.accountId.empty())
+    {
+        js << "  \"account_id\": \"" << EscapeCatalogJsonString(creds.accountId) << "\",\n";
+    }
+    js << "  \"access_key_id\": \"" << EscapeCatalogJsonString(creds.accessKeyId) << "\",\n"
+       << "  \"secret_access_key\": \"" << EscapeCatalogJsonString(secretKey) << "\",\n"
+       << "  \"bucket\": \"" << EscapeCatalogJsonString(creds.bucket) << "\",\n"
+       << "  \"region\": \"" << EscapeCatalogJsonString(region) << "\",\n"
+       << "  \"endpoint\": \"" << EscapeCatalogJsonString(endpoint) << "\",\n"
+       << "  \"key_prefix\": \"" << EscapeCatalogJsonString(creds.keyPrefix) << "\"\n"
+       << "}\n";
+
+    std::error_code ec;
+    fs::create_directories(credDir, ec);
+    if (!AtomicFile::write(credFile, js.str()))
+    {
+        outError = "Failed to write credentials file";
+        return false;
+    }
+
+    ::chmod(credFile.c_str(), 0600);
+    return true;
+}
+
+bool CCloudManager::DeleteProviderCredentials(const std::string& provider)
+{
+    if (provider != "r2" && provider != "s3")
+    {
+        return false;
+    }
+
+    const fs::path credFile = GetCredentialsDir() / (provider + "_credentials.json");
+    std::error_code ec;
+    if (!fs::exists(credFile, ec))
+    {
+        return true;
+    }
+    fs::remove(credFile, ec);
+    return !ec;
+}
+
+MigrationScanResult_t CCloudManager::ScanProviderForMigration(const std::string& provider)
+{
+    MigrationScanResult_t result;
+    result.provider = provider;
+
+    const std::string normProv = (provider.empty() || provider == "local-only") ? "local" : provider;
+    const std::string out = RunCliCommand({"scan-all", normProv}, 30000);
+    if (out.empty())
+    {
+        result.error = "Failed to execute cloud_redirect_cli scan-all";
+        return result;
+    }
+
+    std::string completeJson;
+    std::string errorJson;
+    {
+        std::istringstream iss(out);
+        std::string line;
+        while (std::getline(iss, line))
+        {
+            if (line.find("\"type\":\"complete\"") != std::string::npos ||
+                line.find("\"type\": \"complete\"") != std::string::npos)
+            {
+                completeJson = line;
+            }
+            else if (line.find("\"type\":\"error\"") != std::string::npos ||
+                     line.find("\"type\": \"error\"") != std::string::npos)
+            {
+                errorJson = line;
+            }
+        }
+    }
+
+    if (completeJson.empty() && errorJson.empty())
+    {
+        std::string extracted = ExtractJsonSubstring(out);
+        if (extracted.find("\"type\":\"error\"") != std::string::npos ||
+            extracted.find("\"type\": \"error\"") != std::string::npos)
+        {
+            errorJson = extracted;
+        }
+        else if (extracted.find("\"apps\"") != std::string::npos ||
+                 extracted.find("\"total_apps\"") != std::string::npos)
+        {
+            completeJson = extracted;
+        }
+    }
+
+    if (completeJson.empty())
+    {
+        result.success = false;
+        if (!errorJson.empty())
+        {
+            result.error = ExtractCatalogJsonString(errorJson, "message");
+            if (result.error.empty()) result.error = ExtractCatalogJsonString(errorJson, "error");
+        }
+        if (result.error.empty())
+        {
+            result.error = "Provider scan did not return completion payload";
+        }
+        return result;
+    }
+
+    result.totalApps = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "total_apps", 0));
+    result.totalFiles = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "total_files", 0));
+    result.totalBytes = ExtractJsonUint64(completeJson, "total_bytes", 0);
+
+    const auto knownTitles = g_config.gameTitles.get();
+    const auto appObjs = SplitCatalogJsonObjectArray(completeJson, "apps");
+    uint32_t sumFiles = 0;
+    uint64_t sumBytes = 0;
+
+    for (const auto& appObj : appObjs)
+    {
+        std::string appIdStr = ExtractCatalogJsonString(appObj, "app_id");
+        AppId_t appId = 0;
+        if (!appIdStr.empty() && IsDigitsOnly(appIdStr))
+        {
+            appId = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
+        }
+        else
+        {
+            appId = static_cast<AppId_t>(ExtractJsonUint64(appObj, "app_id", ExtractJsonUint64(appObj, "appId", 0)));
+        }
+
+        if (appId == 0 || appId == kCloudCatalogAppId)
+        {
+            continue;
+        }
+
+        MigrationAppEntry_t entry;
+        entry.appId = appId;
+        entry.accountId = ExtractCatalogJsonString(appObj, "account_id");
+        if (entry.accountId.empty())
+        {
+            uint64_t acctNum = ExtractJsonUint64(appObj, "account_id", 0);
+            if (acctNum != 0) entry.accountId = std::to_string(acctNum);
+        }
+        entry.fileCount = static_cast<uint32_t>(ExtractJsonUint64(appObj, "file_count", ExtractJsonUint64(appObj, "fileCount", 0)));
+        entry.totalBytes = ExtractJsonUint64(appObj, "total_bytes", ExtractJsonUint64(appObj, "totalSizeBytes", 0));
+        entry.totalSizeBytes = entry.totalBytes;
+
+        auto tIt = knownTitles.find(appId);
+        if (tIt != knownTitles.end() && !tIt->second.empty())
+        {
+            entry.gameTitle = tIt->second;
+        }
+        else
+        {
+            entry.gameTitle = ResolveAppTitleFromManifests(appId);
+        }
+        if (entry.gameTitle.empty())
+        {
+            entry.gameTitle = "App " + std::to_string(appId);
+        }
+
+        sumFiles += entry.fileCount;
+        sumBytes += entry.totalBytes;
+        result.apps.push_back(std::move(entry));
+    }
+
+    if (result.totalApps == 0 && !result.apps.empty())
+    {
+        result.totalApps = static_cast<uint32_t>(result.apps.size());
+    }
+    if (result.totalFiles == 0 && sumFiles > 0)
+    {
+        result.totalFiles = sumFiles;
+    }
+    if (result.totalBytes == 0 && sumBytes > 0)
+    {
+        result.totalBytes = sumBytes;
+    }
+    result.appCount = result.totalApps;
+    result.fileCount = result.totalFiles;
+    result.totalSizeBytes = result.totalBytes;
+
+    result.success = true;
+    return result;
+}
+
+MigrationResult_t CCloudManager::MigrateProviderData(const std::string& srcProvider,
+                                                     const std::string& dstProvider,
+                                                     bool switchActiveProvider)
+{
+    MigrationResult_t result;
+    result.srcProvider = srcProvider;
+    result.dstProvider = dstProvider;
+    result.sourceProvider = srcProvider;
+    result.targetProvider = dstProvider;
+
+    const std::string normSrc = (srcProvider.empty() || srcProvider == "local-only") ? "local" : srcProvider;
+    const std::string normDst = (dstProvider.empty() || dstProvider == "local-only") ? "local" : dstProvider;
+    if (normSrc == normDst)
+    {
+        result.error = "Source and destination providers must be different";
+        return result;
+    }
+
+    const std::string out = RunCliCommand({"migrate", normSrc, normDst}, 120000);
+    if (out.empty())
+    {
+        result.error = "Failed to execute cloud_redirect_cli migrate";
+        return result;
+    }
+
+    std::string completeJson;
+    std::string errorJson;
+    {
+        std::istringstream iss(out);
+        std::string line;
+        while (std::getline(iss, line))
+        {
+            if (line.find("\"type\":\"complete\"") != std::string::npos ||
+                line.find("\"type\": \"complete\"") != std::string::npos)
+            {
+                completeJson = line;
+            }
+            else if (line.find("\"type\":\"error\"") != std::string::npos ||
+                     line.find("\"type\": \"error\"") != std::string::npos)
+            {
+                errorJson = line;
+            }
+        }
+    }
+
+    if (completeJson.empty() && errorJson.empty())
+    {
+        std::string extracted = ExtractJsonSubstring(out);
+        if (extracted.find("\"type\":\"error\"") != std::string::npos ||
+            extracted.find("\"type\": \"error\"") != std::string::npos)
+        {
+            errorJson = extracted;
+        }
+        else if (extracted.find("\"migrated\"") != std::string::npos)
+        {
+            completeJson = extracted;
+        }
+    }
+
+    if (completeJson.empty())
+    {
+        result.success = false;
+        if (!errorJson.empty())
+        {
+            result.error = ExtractCatalogJsonString(errorJson, "message");
+            if (result.error.empty()) result.error = ExtractCatalogJsonString(errorJson, "error");
+        }
+        if (result.error.empty())
+        {
+            result.error = "Migration did not return completion payload";
+        }
+        return result;
+    }
+
+    result.success = true;
+    result.migrated = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "migrated", 0));
+    result.skipped = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "skipped", 0));
+    result.failed = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "failed", 0));
+    result.total = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "total", result.migrated + result.skipped + result.failed));
+    result.totalBytes = ExtractJsonUint64(completeJson, "total_bytes", 0);
+
+    if (switchActiveProvider)
+    {
+        const std::string cfgProv = (dstProvider == "local") ? "local-only" : dstProvider;
+        g_config.cloudSavesProvider = cfgProv;
+
+        EngineConfig_t ecfg;
+        ecfg.provider = cfgProv;
+        ecfg.notificationsEnabled = g_config.cloudNotificationsEnabled.get();
+        ecfg.statsSyncEnabled = g_config.cloudStatsSyncEnabled.get();
+        ecfg.syncAchievements = g_config.cloudSyncAchievements.get();
+        ecfg.syncPlaytime = g_config.cloudSyncPlaytime.get();
+        CCloudRedirectBridge::Instance().SyncEngineConfig(ecfg);
+    }
+
+    InvalidateCloudCatalogCache();
+    return result;
+}
+
+std::vector<OrphanAppEntry_t> CCloudManager::ScanOrphanedSaves(const std::string& provider, uint32_t accountId)
+{
+    std::unordered_map<AppId_t, OrphanAppEntry_t> orphanMap;
+    const auto knownTitles = g_config.gameTitles.get();
+
+    auto resolveTitle = [&](AppId_t appId, const std::string& existingTitle) -> std::string {
+        if (!existingTitle.empty() && !IsPlaceholderAppTitle(existingTitle, appId))
+        {
+            return existingTitle;
+        }
+        auto tIt = knownTitles.find(appId);
+        if (tIt != knownTitles.end() && !tIt->second.empty())
+        {
+            return tIt->second;
+        }
+        std::string resolved = ResolveAppTitleFromManifests(appId);
+        if (!resolved.empty())
+        {
+            return resolved;
+        }
+        return "App " + std::to_string(appId);
+    };
+
+    // 1. Scan via ListCloudApps(provider, accountId)
+    for (const auto& summary : ListCloudApps(provider, accountId))
+    {
+        if (summary.appId == 0 || summary.appId == kCloudCatalogAppId) continue;
+        if (g_config.IsAppCloudRedirected(summary.appId)) continue;
+        if (summary.fileCount == 0) continue;
+
+        OrphanAppEntry_t entry;
+        entry.appId = summary.appId;
+        entry.gameTitle = resolveTitle(summary.appId, summary.gameTitle);
+        entry.fileCount = summary.fileCount;
+        entry.totalSizeBytes = summary.totalSizeBytes;
+        entry.inRemoteCloud = summary.inRemoteCloud;
+        entry.inLocalMirror = summary.inLocalMirror;
+        entry.inLocalStorage = summary.inLocalMirror;
+        entry.inGoldberg = false;
+        entry.inGoldbergPrefix = false;
+        orphanMap[summary.appId] = std::move(entry);
+    }
+
+    // 2. Scan local <storageDir>/<acctId>/* directly (catches local mirror orphans even when provider is remote)
+    std::error_code ec;
+    const fs::path storageRoot = GetStorageDir();
+    std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accountId == 0 && fs::is_directory(storageRoot, ec))
+    {
+        for (const auto& entry : fs::directory_iterator(storageRoot, ec))
+        {
+            if (!entry.is_directory(ec)) continue;
+            std::string name = entry.path().filename().string();
+            if (IsDigitsOnly(name))
+            {
+                uint32_t id = static_cast<uint32_t>(std::strtoul(name.c_str(), nullptr, 10));
+                if (id != 0 && std::find(accounts.begin(), accounts.end(), id) == accounts.end())
+                {
+                    accounts.push_back(id);
+                }
+            }
+        }
+    }
+
+    if (fs::is_directory(storageRoot, ec))
+    {
+        for (uint32_t acct : accounts)
+        {
+            const fs::path acctDir = storageRoot / std::to_string(acct);
+            if (!fs::is_directory(acctDir, ec)) continue;
+            for (const auto& appEntry : fs::directory_iterator(acctDir, ec))
+            {
+                if (!appEntry.is_directory(ec)) continue;
+                const std::string appName = appEntry.path().filename().string();
+                if (!IsDigitsOnly(appName)) continue;
+
+                AppId_t rawId = static_cast<AppId_t>(std::strtoul(appName.c_str(), nullptr, 10));
+                if (rawId == 0 || rawId == kCloudCatalogAppId) continue;
+
+                AppId_t parentId = GetParentAppIdForDepot(rawId);
+                AppId_t appId = (parentId != 0 && parentId != kCloudCatalogAppId) ? parentId : rawId;
+                if (g_config.IsAppCloudRedirected(appId) || g_config.IsAppCloudRedirected(rawId)) continue;
+
+                uint32_t fCount = 0;
+                uint64_t fBytes = 0;
+                for (auto it = fs::recursive_directory_iterator(appEntry.path(), fs::directory_options::skip_permission_denied, ec);
+                     !ec && it != fs::recursive_directory_iterator(); it.increment(ec))
+                {
+                    std::error_code fEc;
+                    if (!it->is_regular_file(fEc) || fEc) continue;
+                    fs::path rel = fs::relative(it->path(), appEntry.path(), fEc);
+                    if (fEc || rel.empty()) continue;
+                    std::string relStr = rel.generic_string();
+                    if (rel.has_parent_path() && IsHexHashSegment(it->path().filename().string()))
+                    {
+                        relStr = rel.parent_path().generic_string();
+                    }
+                    if (IsInternalMetadataRelPath(relStr)) continue;
+                    ++fCount;
+                    fBytes += static_cast<uint64_t>(it->file_size(fEc));
+                }
+
+                if (fCount == 0) continue;
+
+                auto& item = orphanMap[appId];
+                if (item.appId == 0)
+                {
+                    item.appId = appId;
+                    item.gameTitle = resolveTitle(appId, "");
+                    item.fileCount = fCount;
+                    item.totalSizeBytes = fBytes;
+                }
+                else if (!item.inLocalMirror)
+                {
+                    item.fileCount = std::max(item.fileCount, fCount);
+                    item.totalSizeBytes = std::max(item.totalSizeBytes, fBytes);
+                }
+                item.inLocalMirror = true;
+                item.inLocalStorage = true;
+            }
+        }
+    }
+
+    // 3. Scan Goldberg/GSE save directories
+    auto scanGoldbergAppDir = [&](AppId_t appId, const fs::path& remoteDir) {
+        if (appId == 0 || appId == kCloudCatalogAppId) return;
+        if (g_config.IsAppCloudRedirected(appId)) return;
+        std::error_code gEc;
+        if (!fs::is_directory(remoteDir, gEc)) return;
+
+        uint32_t fCount = 0;
+        uint64_t fBytes = 0;
+        for (auto it = fs::recursive_directory_iterator(remoteDir, fs::directory_options::skip_permission_denied, gEc);
+             !gEc && it != fs::recursive_directory_iterator(); it.increment(gEc))
+        {
+            std::error_code fEc;
+            if (!it->is_regular_file(fEc) || fEc) continue;
+            fs::path rel = fs::relative(it->path(), remoteDir, fEc);
+            if (fEc || rel.empty()) continue;
+            if (IsInternalMetadataRelPath(rel.generic_string())) continue;
+            ++fCount;
+            fBytes += static_cast<uint64_t>(it->file_size(fEc));
+        }
+        if (fCount == 0) return;
+
+        auto& item = orphanMap[appId];
+        if (item.appId == 0)
+        {
+            item.appId = appId;
+            item.gameTitle = resolveTitle(appId, "");
+            item.fileCount = fCount;
+            item.totalSizeBytes = fBytes;
+        }
+        else if (!item.inGoldberg && !item.inLocalMirror)
+        {
+            item.fileCount = std::max(item.fileCount, fCount);
+            item.totalSizeBytes = std::max(item.totalSizeBytes, fBytes);
+        }
+        item.inGoldberg = true;
+        item.inGoldbergPrefix = true;
+        item.inLocalMirror = true;
+        item.inLocalStorage = true;
+    };
+
+    static const char* kEmuFolders[] = {"GSE Saves", "Goldberg SteamEmu Saves"};
+    static const char* kAppDataCats[] = {"Roaming", "Local", "LocalLow"};
+
+    const fs::path steamRoot = GetSteamRoot();
+    if (!steamRoot.empty() && (m_storageDir.empty() || !m_steamRoot.empty()))
+    {
+        const fs::path compatRoot = steamRoot / "steamapps" / "compatdata";
+        if (fs::is_directory(compatRoot, ec))
+        {
+            for (const auto& cEntry : fs::directory_iterator(compatRoot, fs::directory_options::skip_permission_denied, ec))
+            {
+                if (!cEntry.is_directory(ec)) continue;
+                std::string appIdStr = cEntry.path().filename().string();
+                if (!IsDigitsOnly(appIdStr)) continue;
+                AppId_t appId = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
+                if (appId == 0 || appId == kCloudCatalogAppId || g_config.IsAppCloudRedirected(appId)) continue;
+
+                const fs::path usersDir = cEntry.path() / "pfx" / "drive_c" / "users";
+                if (!fs::is_directory(usersDir, ec)) continue;
+                for (const auto& uEntry : fs::directory_iterator(usersDir, fs::directory_options::skip_permission_denied, ec))
+                {
+                    if (!uEntry.is_directory(ec)) continue;
+                    for (const char* cat : kAppDataCats)
+                    {
+                        for (const char* emu : kEmuFolders)
+                        {
+                            scanGoldbergAppDir(appId, uEntry.path() / "AppData" / cat / emu / appIdStr / "remote");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    std::vector<OrphanAppEntry_t> results;
+    results.reserve(orphanMap.size());
+    for (auto& [_, entry] : orphanMap)
+    {
+        if (entry.fileCount > 0 && !g_config.IsAppCloudRedirected(entry.appId))
+        {
+            results.push_back(std::move(entry));
+        }
+    }
+
+    std::sort(results.begin(), results.end(), [](const OrphanAppEntry_t& a, const OrphanAppEntry_t& b) {
+        if (!a.gameTitle.empty() && !b.gameTitle.empty() && a.gameTitle != b.gameTitle)
+        {
+            return a.gameTitle < b.gameTitle;
+        }
+        return a.appId < b.appId;
+    });
+
+    return results;
+}
+
+GcResult_t CCloudManager::GarbageCollectAppBlobs(AppId_t appId, const std::string& provider, uint32_t accountId)
+{
+    GcResult_t result;
+    result.appId = appId;
+    if (appId == 0 || appId == kCloudCatalogAppId)
+    {
+        result.error = "Invalid app ID";
+        return result;
+    }
+
+    uint32_t acctId = accountId;
+    if (acctId == 0)
+    {
+        const auto accounts = ResolveCandidateAccountIds(0);
+        if (!accounts.empty()) acctId = accounts.front();
+    }
+
+    const std::string normProv = (provider.empty() || provider == "local-only") ? "local" : provider;
+    if (normProv == "local")
+    {
+        result.success = true;
+        return result;
+    }
+
+    const fs::path storageRoot = GetStorageDir();
+    const std::string out = RunCliCommand(
+        {"gc-blobs", normProv, std::to_string(acctId), std::to_string(appId), storageRoot.string()},
+        30000);
+
+    if (out.empty())
+    {
+        result.error = "Failed to execute cloud_redirect_cli gc-blobs";
+        return result;
+    }
+
+    std::string completeJson;
+    std::string errorJson;
+    {
+        std::istringstream iss(out);
+        std::string line;
+        while (std::getline(iss, line))
+        {
+            if (line.find("\"type\":\"complete\"") != std::string::npos ||
+                line.find("\"type\": \"complete\"") != std::string::npos)
+            {
+                completeJson = line;
+            }
+            else if (line.find("\"type\":\"error\"") != std::string::npos ||
+                     line.find("\"type\": \"error\"") != std::string::npos)
+            {
+                errorJson = line;
+            }
+        }
+    }
+
+    if (completeJson.empty() && errorJson.empty())
+    {
+        std::string extracted = ExtractJsonSubstring(out);
+        if (extracted.find("\"type\":\"error\"") != std::string::npos ||
+            extracted.find("\"type\": \"error\"") != std::string::npos)
+        {
+            errorJson = extracted;
+        }
+        else if (extracted.find("\"deleted\"") != std::string::npos)
+        {
+            completeJson = extracted;
+        }
+    }
+
+    if (completeJson.empty())
+    {
+        result.success = false;
+        if (!errorJson.empty())
+        {
+            result.error = ExtractCatalogJsonString(errorJson, "message");
+            if (result.error.empty()) result.error = ExtractCatalogJsonString(errorJson, "error");
+        }
+        if (result.error.empty())
+        {
+            result.error = "gc-blobs did not return completion payload";
+        }
+        return result;
+    }
+
+    result.success = true;
+    result.deleted = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "deleted", 0));
+    result.kept = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "kept", 0));
+    result.failed = static_cast<uint32_t>(ExtractJsonUint64(completeJson, "failed", 0));
+    result.blobsDeleted = result.deleted;
+    result.totalBlobs = result.deleted + result.kept + result.failed;
+    return result;
+}
+
+GcResult_t CCloudManager::CleanOrphanedApp(AppId_t appId,
+                                           const std::string& provider,
+                                           bool deleteLocalFiles,
+                                           uint32_t accountId)
+{
+    GcResult_t result = GarbageCollectAppBlobs(appId, provider, accountId);
+    if (appId == 0 || appId == kCloudCatalogAppId)
+    {
+        return result;
+    }
+
+    if (deleteLocalFiles)
+    {
+        if (g_config.IsAppCloudRedirected(appId))
+        {
+            if (result.error.empty())
+            {
+                result.error = "Refusing to delete local mirror for actively redirected app";
+            }
+            result.localFilesDeleted = false;
+            result.localDeleted = false;
+            return result;
+        }
+
+        std::error_code ec;
+        const fs::path storageRoot = GetStorageDir();
+        std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+        if (accountId == 0 && fs::is_directory(storageRoot, ec))
+        {
+            for (const auto& entry : fs::directory_iterator(storageRoot, ec))
+            {
+                if (!entry.is_directory(ec)) continue;
+                std::string name = entry.path().filename().string();
+                if (IsDigitsOnly(name))
+                {
+                    uint32_t id = static_cast<uint32_t>(std::strtoul(name.c_str(), nullptr, 10));
+                    if (id != 0 && std::find(accounts.begin(), accounts.end(), id) == accounts.end())
+                    {
+                        accounts.push_back(id);
+                    }
+                }
+            }
+        }
+
+        bool rmSuccess = true;
+        for (uint32_t acct : accounts)
+        {
+            const fs::path appDir = storageRoot / std::to_string(acct) / std::to_string(appId);
+            if (fs::exists(appDir, ec))
+            {
+                fs::remove_all(appDir, ec);
+                if (ec) rmSuccess = false;
+            }
+        }
+        result.localFilesDeleted = rmSuccess;
+        result.localDeleted = rmSuccess;
+        InvalidateCloudCatalogCache();
+    }
+
+    return result;
+}
+
+namespace
+{
+    uint64_t ParseBackupTimestamp(const fs::path& filePath)
+    {
+        const std::string fn = filePath.filename().string();
+        if (fn.ends_with(".tar.gz") && fn.size() > 7)
+        {
+            const std::string stem = fn.substr(0, fn.size() - 7);
+            size_t digitEnd = stem.size();
+            size_t digitStart = digitEnd;
+            while (digitStart > 0 && std::isdigit(static_cast<unsigned char>(stem[digitStart - 1])))
+            {
+                --digitStart;
+            }
+            if (digitStart < digitEnd)
+            {
+                try
+                {
+                    uint64_t parsed = std::stoull(stem.substr(digitStart, digitEnd - digitStart));
+                    if (parsed > 0) return parsed;
+                }
+                catch (...) {}
+            }
+        }
+
+        std::error_code ec;
+        auto ftime = fs::last_write_time(filePath, ec);
+        if (!ec)
+        {
+            auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(ftime);
+            return static_cast<uint64_t>(
+                std::chrono::duration_cast<std::chrono::seconds>(sctp.time_since_epoch()).count());
+        }
+        return 0;
+    }
+} // namespace
+
+std::vector<GlobalBackupEntry_t> CCloudManager::ListAllBackups()
+{
+    std::vector<GlobalBackupEntry_t> results;
+    const fs::path backupRoot = GetBackupDir();
+    std::error_code ec;
+    if (!fs::exists(backupRoot, ec) || !fs::is_directory(backupRoot, ec))
+    {
+        return results;
+    }
+
+    const auto knownTitles = g_config.gameTitles.get();
+    for (const auto& appDirEntry : fs::directory_iterator(backupRoot, ec))
+    {
+        if (!appDirEntry.is_directory(ec)) continue;
+        const std::string appIdStr = appDirEntry.path().filename().string();
+        if (!IsDigitsOnly(appIdStr)) continue;
+
+        const AppId_t appId = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
+        if (appId == 0) continue;
+
+        std::string title;
+        auto tIt = knownTitles.find(appId);
+        if (tIt != knownTitles.end() && !tIt->second.empty())
+        {
+            title = tIt->second;
+        }
+        else
+        {
+            title = ResolveAppTitleFromManifests(appId);
+        }
+        if (title.empty())
+        {
+            title = "App " + std::to_string(appId);
+        }
+
+        std::error_code fEc;
+        for (const auto& fileEntry : fs::directory_iterator(appDirEntry.path(), fEc))
+        {
+            if (!fileEntry.is_regular_file(fEc)) continue;
+            const std::string fn = fileEntry.path().filename().string();
+            if (!fn.ends_with(".tar.gz")) continue;
+
+            GlobalBackupEntry_t b;
+            b.appId = appId;
+            b.gameTitle = title;
+            b.fileName = fn;
+            b.fullPath = fileEntry.path().string();
+            b.sizeBytes = static_cast<uint64_t>(fileEntry.file_size(fEc));
+            b.timestamp = ParseBackupTimestamp(fileEntry.path());
+            results.push_back(std::move(b));
+        }
+    }
+
+    std::sort(results.begin(), results.end(), [](const GlobalBackupEntry_t& a, const GlobalBackupEntry_t& b) {
+        if (a.timestamp != b.timestamp) return a.timestamp > b.timestamp;
+        if (a.fileName != b.fileName) return a.fileName > b.fileName;
+        return a.appId < b.appId;
+    });
+
+    return results;
+}
+
+bool CCloudManager::DeleteBackup(AppId_t appId, const std::string& fileName)
+{
+    if (appId == 0 || fileName.empty())
+    {
+        return false;
+    }
+    if (fileName.find('/') != std::string::npos ||
+        fileName.find('\\') != std::string::npos ||
+        fileName.find("..") != std::string::npos ||
+        !fileName.ends_with(".tar.gz"))
+    {
+        return false;
+    }
+
+    const fs::path target = GetBackupDir() / std::to_string(appId) / fileName;
+    std::error_code ec;
+    if (!fs::exists(target, ec) || !fs::is_regular_file(target, ec))
+    {
+        return false;
+    }
+    return fs::remove(target, ec) && !ec;
+}
+
+uint32_t CCloudManager::PruneBackupsForApp(AppId_t appId, uint32_t keepCount)
+{
+    if (appId == 0 || keepCount == 0)
+    {
+        return 0;
+    }
+
+    const fs::path appBackupDir = GetBackupDir() / std::to_string(appId);
+    std::error_code ec;
+    if (!fs::exists(appBackupDir, ec) || !fs::is_directory(appBackupDir, ec))
+    {
+        return 0;
+    }
+
+    struct BackupCandidate
+    {
+        std::string fileName;
+        uint64_t timestamp{0};
+    };
+    std::vector<BackupCandidate> candidates;
+
+    for (const auto& entry : fs::directory_iterator(appBackupDir, ec))
+    {
+        if (!entry.is_regular_file(ec)) continue;
+        const std::string fn = entry.path().filename().string();
+        if (!fn.ends_with(".tar.gz")) continue;
+        candidates.push_back(BackupCandidate{fn, ParseBackupTimestamp(entry.path())});
+    }
+
+    if (candidates.size() <= keepCount)
+    {
+        return 0;
+    }
+
+    std::sort(candidates.begin(), candidates.end(), [](const BackupCandidate& a, const BackupCandidate& b) {
+        if (a.timestamp != b.timestamp) return a.timestamp > b.timestamp;
+        return a.fileName > b.fileName;
+    });
+
+    uint32_t deletedCount = 0;
+    for (size_t i = keepCount; i < candidates.size(); ++i)
+    {
+        if (DeleteBackup(appId, candidates[i].fileName))
+        {
+            ++deletedCount;
+        }
+    }
+    return deletedCount;
 }
 
 } // namespace Navi::CloudRedirect

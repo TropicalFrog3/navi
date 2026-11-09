@@ -117,8 +117,14 @@ class CallbackServerStub:
             "CloudSaves": {
                 "Enabled": True,
                 "Provider": "local-only",
+                "NotificationsEnabled": True,
                 "AutoBackupBeforeReset": True,
                 "BackupRetentionCount": 5,
+                "StatsSync": {
+                    "Enabled": False,
+                    "SyncAchievements": True,
+                    "SyncPlaytime": True,
+                },
                 "ManagedApps": [1443430],
             },
         }
@@ -372,6 +378,107 @@ class CallbackServerStub:
         # /cloud/pending-ops
         if clean_path == "/cloud/pending-ops":
             return json_resp({"pending": []})
+
+        # /cloud/provider/credentials
+        if clean_path == "/cloud/provider/credentials":
+            prov = query.get("provider", ["r2"])[0]
+            return json_resp({
+                "success": True,
+                "authenticated": True,
+                "provider": prov,
+                "configured": True,
+                "accountId": "stub_r2_acc",
+                "accessKeyId": "AKIASTUBKEY",
+                "secretAccessKey": "********",
+                "hasSecretKey": True,
+                "bucket": "stub-bucket",
+                "region": "auto" if prov == "r2" else "us-east-1",
+                "endpoint": "https://stub_r2_acc.r2.cloudflarestorage.com",
+                "keyPrefix": "saves/",
+            })
+
+        # /cloud/migrate/scan
+        if clean_path == "/cloud/migrate/scan":
+            prov = query.get("provider", ["local-only"])[0]
+            return json_resp({
+                "success": True,
+                "provider": prov,
+                "totalApps": 2,
+                "appCount": 2,
+                "totalFiles": 6,
+                "fileCount": 6,
+                "totalBytes": 8232084,
+                "totalSizeBytes": 8232084,
+                "apps": [
+                    {"appId": 107410, "gameTitle": "Arma 3", "fileCount": 4, "totalBytes": 8221844, "totalSizeBytes": 8221844},
+                    {"appId": 1443430, "gameTitle": "Test Game", "fileCount": 2, "totalBytes": 10240, "totalSizeBytes": 10240},
+                ],
+            })
+
+        # /cloud/migrate
+        if clean_path == "/cloud/migrate":
+            return json_resp({
+                "success": True,
+                "migrated": 6,
+                "skipped": 0,
+                "failed": 0,
+                "total": 6,
+                "totalBytes": 8232084,
+            })
+
+        # /cloud/orphans
+        if clean_path == "/cloud/orphans":
+            prov = query.get("provider", ["local-only"])[0]
+            return json_resp({
+                "success": True,
+                "provider": prov,
+                "orphans": [
+                    {
+                        "appId": 480,
+                        "gameTitle": "Spacewar",
+                        "fileCount": 2,
+                        "totalSizeBytes": 4096,
+                        "inRemoteCloud": False,
+                        "inLocalMirror": True,
+                        "inLocalStorage": True,
+                        "inGoldberg": False,
+                        "inGoldbergPrefix": False,
+                    }
+                ],
+            })
+
+        # /cloud/orphans/clean
+        if clean_path == "/cloud/orphans/clean":
+            return json_resp({
+                "success": True,
+                "appId": 480,
+                "deleted": 2,
+                "blobsDeleted": 2,
+                "kept": 0,
+                "failed": 0,
+                "localDeleted": False,
+                "localFilesDeleted": False,
+            })
+
+        # /cloud/backups
+        if clean_path == "/cloud/backups":
+            return json_resp({
+                "success": True,
+                "backups": [
+                    {
+                        "appId": 107410,
+                        "gameTitle": "Arma 3",
+                        "fileName": "backup_107410_auto_1.tar.gz",
+                        "fullPath": "/storage/107410/backups/backup_107410_auto_1.tar.gz",
+                        "sizeBytes": 524288,
+                        "timestamp": 1730582400,
+                    }
+                ],
+            })
+
+        # /cloud/backups/delete
+        if clean_path == "/cloud/backups/delete":
+            return json_resp({"success": True, "message": "Backup deleted"})
 
         # /config and /config/full
         if clean_path in ["/config", "/config/full"]:

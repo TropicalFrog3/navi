@@ -45,6 +45,96 @@ struct CloudAppSummary_t
     std::vector<AppId_t> childAppIds;
 };
 
+struct ProviderCredentials_t
+{
+    std::string provider;        // "r2" or "s3"
+    bool configured{false};
+    std::string accountId;       // R2 only
+    std::string accessKeyId;
+    std::string secretAccessKey; // Masked ("********") on GET; written on POST if non-empty and not masked
+    bool hasSecretKey{false};
+    std::string bucket;
+    std::string region;
+    std::string endpoint;
+    std::string keyPrefix;
+};
+
+struct MigrationAppEntry_t
+{
+    std::string accountId;
+    AppId_t appId{0};
+    std::string gameTitle;
+    uint32_t fileCount{0};
+    uint64_t totalSizeBytes{0};
+    uint64_t totalBytes{0};
+};
+
+struct MigrationScanResult_t
+{
+    bool success{false};
+    std::string provider;
+    uint32_t appCount{0};
+    uint32_t totalApps{0};
+    uint32_t fileCount{0};
+    uint32_t totalFiles{0};
+    uint64_t totalSizeBytes{0};
+    uint64_t totalBytes{0};
+    std::vector<MigrationAppEntry_t> apps;
+    std::string error;
+};
+
+struct MigrationResult_t
+{
+    bool success{false};
+    std::string sourceProvider;
+    std::string targetProvider;
+    std::string srcProvider;
+    std::string dstProvider;
+    uint32_t migrated{0};
+    uint32_t skipped{0};
+    uint32_t failed{0};
+    uint32_t total{0};
+    uint64_t totalBytes{0};
+    std::string error;
+};
+
+struct OrphanAppEntry_t
+{
+    AppId_t appId{0};
+    std::string gameTitle;
+    uint32_t fileCount{0};
+    uint64_t totalSizeBytes{0};
+    bool inLocalStorage{false};
+    bool inLocalMirror{false};
+    bool inRemoteCloud{false};
+    bool inGoldbergPrefix{false};
+    bool inGoldberg{false};
+};
+
+struct GcResult_t
+{
+    bool success{false};
+    AppId_t appId{0};
+    uint32_t blobsDeleted{0};
+    uint32_t totalBlobs{0};
+    uint32_t deleted{0};
+    uint32_t kept{0};
+    uint32_t failed{0};
+    bool localDeleted{false};
+    bool localFilesDeleted{false};
+    std::string error;
+};
+
+struct GlobalBackupEntry_t
+{
+    AppId_t appId{0};
+    std::string gameTitle;
+    std::string fileName;
+    std::string fullPath;
+    uint64_t sizeBytes{0};
+    uint64_t timestamp{0};
+};
+
 /// Parsed summary of one stplug-in lua plugin collected during the single
 /// library pass. Mirrors exactly what the legacy per-candidate scans needed:
 /// ownership facts (depots/dlcs/manifests), child ids, the fallback-3 title
@@ -133,7 +223,21 @@ public:
     static CCloudManager& Instance();
 
     ProviderAuthStatus_t CheckAuthStatus(const std::string& provider);
+    ProviderCredentials_t GetProviderCredentials(const std::string& provider) const;
+    bool SaveProviderCredentials(const ProviderCredentials_t& creds, std::string& outError);
+    bool DeleteProviderCredentials(const std::string& provider);
+
+    MigrationScanResult_t ScanProviderForMigration(const std::string& provider);
+    MigrationResult_t MigrateProviderData(const std::string& srcProvider, const std::string& dstProvider, bool switchActiveProvider = true);
+
+    std::vector<OrphanAppEntry_t> ScanOrphanedSaves(const std::string& provider, uint32_t accountId = 0);
+    GcResult_t CleanOrphanedApp(AppId_t appId, const std::string& provider, bool deleteLocalFiles, uint32_t accountId = 0);
+    GcResult_t GarbageCollectAppBlobs(AppId_t appId, const std::string& provider, uint32_t accountId = 0);
+
     std::vector<std::string> ListBackups(AppId_t appId);
+    std::vector<GlobalBackupEntry_t> ListAllBackups();
+    bool DeleteBackup(AppId_t appId, const std::string& fileName);
+    uint32_t PruneBackupsForApp(AppId_t appId, uint32_t keepCount);
     bool DeleteAllBackups();
     uint64_t GetStorageUsageBytes(AppId_t appId);
 
@@ -185,6 +289,7 @@ public:
     void SetCliPathForTest(const fs::path& path);
     void SetBackupDirForTest(const fs::path& path);
     void SetStorageDirForTest(const fs::path& path);
+    void SetCredentialsDirForTest(const fs::path& path);
     /// Override the steamapps root used by ResolveGoldbergSavePaths in tests.
     void SetSteamAppsRootForTest(const fs::path& path);
     /// Override the steam root used for scanning stplug-in, depotcache, and userdata in tests.
@@ -205,6 +310,7 @@ private:
     fs::path GetCliPath() const;
     fs::path GetBackupDir() const;
     fs::path GetStorageDir() const;
+    fs::path GetCredentialsDir() const;
     fs::path GetSteamRoot() const;
     std::string RunCliCommand(const std::vector<std::string>& args, int timeoutMs = 15000) const;
     std::vector<uint32_t> ResolveCandidateAccountIds(uint32_t preferredAccountId) const;
@@ -249,6 +355,7 @@ private:
     fs::path m_cliPath;
     fs::path m_backupDir;
     fs::path m_storageDir;
+    fs::path m_credentialsDir;
     fs::path m_steamAppsRoot; ///< Override for tests; empty = auto-resolve
     fs::path m_steamRoot;     ///< Override for tests; empty = auto-resolve
 

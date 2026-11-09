@@ -198,7 +198,8 @@ TEST(CloudManagerTest, ListRemoteCloudAppsAndFilesFiltersMetadataAndNormalizesBl
             << "]}'\n"
             << "  exit 0\n"
             << "fi\n"
-            << "exit 0\n";
+            << "echo \"Unknown command: $1\"\n"
+            << "exit 1\n";
     }
     chmod(mockCli.c_str(), 0755);
 
@@ -1175,6 +1176,83 @@ TEST(CloudManagerTest, RemoteProviderUsesCloudCatalogAndFiltersOutLocalOnlyApps)
 
     manager.SetSteamRootForTest({});
     manager.SetStorageDirForTest({});
+    manager.SetCliPathForTest({});
+}
+
+TEST(CloudManagerTest, ListCloudAppsFallbackOnlyOnUnknownCommand)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path logFile = env.tempDir / "cli_calls.log";
+    fs::path mockCli = env.tempDir / "mock_cli_fallback_test.sh";
+
+    // Test case A: list-remote-app-ids fails with network error / timeout message -> no fallback to list-remote-apps
+    {
+        std::ofstream ofs(mockCli);
+        ofs << "#!/bin/sh\n"
+            << "echo \"$1\" >> \"" << logFile.string() << "\"\n"
+            << "if [ \"$1\" = \"list-remote-app-ids\" ]; then\n"
+            << "  echo 'Connection timed out or network error'\n"
+            << "  exit 1\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"list-remote-apps\" ]; then\n"
+            << "  echo '{\"success\":true,\"apps\":[]}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "exit 1\n";
+    }
+    chmod(mockCli.c_str(), 0755);
+
+    manager.SetCliPathForTest(mockCli);
+    auto apps = manager.ListCloudApps("gdrive", 999001);
+    EXPECT_TRUE(apps.empty());
+
+    // Verify list-remote-apps was NOT called
+    {
+        std::ifstream ifs(logFile);
+        std::string line;
+        bool calledFallback = false;
+        while (std::getline(ifs, line))
+        {
+            if (line == "list-remote-apps") calledFallback = true;
+        }
+        EXPECT_FALSE(calledFallback);
+    }
+
+    // Test case B: list-remote-app-ids fails with Unknown command -> fallback IS called
+    std::filesystem::remove(logFile);
+    {
+        std::ofstream ofs(mockCli);
+        ofs << "#!/bin/sh\n"
+            << "echo \"$1\" >> \"" << logFile.string() << "\"\n"
+            << "if [ \"$1\" = \"list-remote-app-ids\" ]; then\n"
+            << "  echo 'Unknown command: list-remote-app-ids'\n"
+            << "  exit 1\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"list-remote-apps\" ]; then\n"
+            << "  echo '{\"success\":true,\"apps\":[]}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "exit 1\n";
+    }
+    chmod(mockCli.c_str(), 0755);
+
+    apps = manager.ListCloudApps("gdrive", 999001);
+    EXPECT_TRUE(apps.empty());
+
+    // Verify list-remote-apps WAS called
+    {
+        std::ifstream ifs(logFile);
+        std::string line;
+        bool calledFallback = false;
+        while (std::getline(ifs, line))
+        {
+            if (line == "list-remote-apps") calledFallback = true;
+        }
+        EXPECT_TRUE(calledFallback);
+    }
+
     manager.SetCliPathForTest({});
 }
 
