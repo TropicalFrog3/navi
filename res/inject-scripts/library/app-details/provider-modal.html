@@ -1,0 +1,15 @@
+<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-provider-card">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+        <div>
+            <h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Change Provider</h2>
+            <p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: {{APPID}}</p>
+        </div>
+        <button id="sls-prov-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>
+    </div>
+    <div id="sls-provider-list" style="max-height:320px;overflow-y:auto;margin-bottom:16px;">{{ROWS}}</div>
+    <div id="sls-prov-status" role="status" aria-live="polite" style="display:none;text-align:center;padding:12px;font-size:14px;color:#dcdedf;background:rgba(172,178,201,0.1);border-radius:2px;margin-bottom:16px;"></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button id="sls-prov-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>
+    </div>
+</div>
+

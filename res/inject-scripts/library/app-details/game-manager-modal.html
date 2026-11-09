@@ -1,0 +1,24 @@
+<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">
+    <!-- Title bar -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+            <h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">SLS Game Manager</h2>
+            <p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: {{APPID}}</p>
+        </div>
+        <button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>
+    </div>
+    <!-- Administrative Tools Section -->
+    <div id="sls-content-admin" style="display:block; margin-bottom:24px;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
+            <!-- Online Fix -->
+            <button id="sls-btn-fix" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%;">Checking Fix status...</button>
+            <!-- Auto Crack -->
+            <button id="sls-btn-crack" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%;">Checking Crack status...</button>
+        </div>
+    </div>
+    <!-- Footer Actions -->
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="sls-btn-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>
+    </div>
+</div>
+

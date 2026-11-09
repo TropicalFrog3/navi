@@ -8,6 +8,25 @@
         fetch('http://127.0.0.1:9001/log?msg=' + encodeURIComponent('[RemoveLua] ' + m)).catch(function(){});
     }
 
+    // Inlined Styles & Templates
+    var SLS_STYLES = "/* SLS App Details & Modals Styles */\n\n.sls-btn-action {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    background: rgba(172, 178, 201, 0.14);\n    color: rgb(220, 222, 223);\n    border: none;\n    border-radius: 2px;\n    padding: 8px 16px;\n    font-size: 16px;\n    font-weight: 400;\n    font-family: \"Motiva Sans\", sans-serif;\n    height: 48px;\n    box-sizing: border-box;\n    cursor: pointer;\n    text-decoration: none;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-action:hover,\n.sls-btn-action:not(:disabled):hover {\n    background: rgba(172, 178, 201, 0.25);\n}\n\n.sls-btn-action:active,\n.sls-btn-action:not(:disabled):active {\n    background: rgba(172, 178, 201, 0.30);\n}\n\n.sls-btn-close {\n    background: transparent;\n    border: none;\n    color: #969696;\n    font-size: 24px;\n    cursor: pointer;\n    width: 32px;\n    height: 32px;\n    border-radius: 2px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-close:hover {\n    background: rgba(172, 178, 201, 0.14);\n    color: #fff;\n}\n\n#sls-remove-confirm:hover {\n    background: rgba(220, 38, 38, 1) !important;\n}\n\n.sls-btn-restore-item {\n    background: #2563eb;\n    color: #fff;\n    border: none;\n    border-radius: 2px;\n    padding: 6px 14px;\n    font-size: 13px;\n    cursor: pointer;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-restore-item:hover {\n    background: #1d4ed8;\n}\n\n/* Modal overlays */\n#sls-overlay-modal,\n#sls-provider-modal,\n#sls-remove-modal,\n#sls-restore-modal,\n#sls-reset-modal,\n#sls-navi-modal {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background: rgba(0, 0, 0, 0.8);\n    z-index: 999999;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    backdrop-filter: blur(8px);\n}\n\n#sls-restore-modal,\n#sls-reset-modal {\n    background: rgba(0, 0, 0, 0.82);\n}\n\n";
+    var GAME_MANAGER_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-modal-card\">\n    <!-- Title bar -->\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">SLS Game Manager</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-close-x\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <!-- Administrative Tools Section -->\n    <div id=\"sls-content-admin\" style=\"display:block; margin-bottom:24px;\">\n        <div style=\"display:flex; flex-direction:column; gap:8px;\">\n            <!-- Online Fix -->\n            <button id=\"sls-btn-fix\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%;\">Checking Fix status...</button>\n            <!-- Auto Crack -->\n            <button id=\"sls-btn-crack\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%;\">Checking Crack status...</button>\n        </div>\n    </div>\n    <!-- Footer Actions -->\n    <div style=\"display:flex; justify-content:flex-end; gap:10px;\">\n        <button id=\"sls-btn-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n\n";
+    var PROVIDER_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-provider-card\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">Change Provider</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-prov-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <div id=\"sls-provider-list\" style=\"max-height:320px;overflow-y:auto;margin-bottom:16px;\">{{ROWS}}</div>\n    <div id=\"sls-prov-status\" role=\"status\" aria-live=\"polite\" style=\"display:none;text-align:center;padding:12px;font-size:14px;color:#dcdedf;background:rgba(172,178,201,0.1);border-radius:2px;margin-bottom:16px;\"></div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-prov-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n\n";
+    var REMOVE_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <h2 style=\"margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Remove Lua</h2>\n    <p style=\"margin:0 0 24px;font-size:16px;color:#969696;\">Remove Lua and Game files for AppID <b>{{APPID}}</b>?</p>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-remove-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Cancel</button>\n        <button id=\"sls-remove-confirm\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;\">Remove</button>\n    </div>\n</div>\n\n";
+    var RESTORE_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Restore Cloud Save</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-restore-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <div id=\"sls-restore-body\" style=\"max-height:300px;overflow-y:auto;margin-bottom:20px;\">\n        <div style=\"text-align:center;padding:24px;color:#969696;\">Loading backups...</div>\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Close</button>\n    </div>\n</div>\n\n";
+    var RESET_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;\">Reset Cloud Save</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-reset-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <div style=\"background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;\">\n        <p style=\"margin:0;font-size:13px;line-height:1.5;color:#fca5a5;\">\n            \u26a0\ufe0f <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.\n        </p>\n    </div>\n    <div style=\"margin-bottom:20px;\">\n        <label style=\"display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;\">\n            To confirm, type <b style=\"color:#fff;letter-spacing:1px;\">RESET</b> into the box below:\n        </label>\n        <input type=\"text\" id=\"sls-reset-input\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"Type RESET to confirm\"\n            style=\"width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;\" />\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Cancel</button>\n        <button id=\"sls-modal-confirm\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" disabled style=\"height:36px;padding:0 20px;background:#dc2626;color:#fff;cursor:default;opacity:0.4;font-weight:600;\">Confirm Reset</button>\n    </div>\n</div>\n\n";
+    var NAVI_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-navi-card\">\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">Navi Menu</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-navi-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <div style=\"display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;\">\n        <span style=\"font-size:14px; color:rgb(139, 147, 164);\">Current Provider</span>\n        <span id=\"sls-navi-modal-provider\" style=\"font-size:15px; font-weight:500; color:#fff;\">{{PROVIDER}}</span>\n    </div>\n    <div style=\"display:flex; flex-direction:column; gap:10px; margin-bottom:20px;\">\n        <button id=\"sls-navi-btn-provider\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n            <span>Change Provider</span>\n        </button>\n        <button id=\"sls-navi-btn-config\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n            <span>Config (Fix / Auto Crack)</span>\n        </button>\n        <button id=\"sls-navi-btn-cloud-toggle\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n            <span>Cloud Save</span><span id=\"sls-navi-cloud-badge\" style=\"font-size:13px; font-weight:600; color:#9ca3af;\">Checking...</span>\n        </button>\n        <button id=\"sls-navi-btn-cloud-files\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n            <span>View Cloud Files</span><span id=\"sls-navi-cloud-files-badge\" style=\"font-size:12px; color:#66c0f4;\">Steam Cloud &rarr;</span>\n        </button>\n        <button id=\"sls-navi-btn-cloud-backup\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n            <span>Backup Cloud Save</span>\n        </button>\n        <button id=\"sls-navi-btn-cloud-restore\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n            <span>Restore Cloud Save</span>\n        </button>\n        <button id=\"sls-navi-btn-cloud-reset\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;\">\n            <span>Reset Cloud Save</span>\n        </button>\n        <button id=\"sls-navi-btn-remove\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px; {{REMOVE_BTN_STYLE}}\">\n            <span>{{REMOVE_LABEL}}</span>\n        </button>\n    </div>\n    <div style=\"display:flex; justify-content:flex-end;\">\n        <button id=\"sls-navi-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n\n";
+
+    function ensureStyles() {
+        if (document.getElementById('sls-app-details-styles')) return;
+        var style = document.createElement('style');
+        style.id = 'sls-app-details-styles';
+        style.textContent = SLS_STYLES;
+        var target = document.head || document.body || document.documentElement;
+        if (target) target.appendChild(style);
+    }
+
+    // --- gamepad.js ---
     function registerSteamFocusNode(element, properties) {
         if (!properties) properties = { focusable: true };
         if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1');
@@ -45,7 +64,7 @@
     function trapSteamGamepadModal(overlay, buttons) {
         var activeIdx = 0;
         function updateFocus() {
-            for (var i=0; i<buttons.length; i++) {
+            for (var i = 0; i < buttons.length; i++) {
                 if (!buttons[i]) continue;
                 if (i === activeIdx) {
                     buttons[i].style.outline = '3px solid #fff';
@@ -58,7 +77,7 @@
             }
         }
         setTimeout(updateFocus, 100);
-        
+
         function cleanup() {
             window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
             window.removeEventListener('vgp_onok', okCatcher, true);
@@ -69,24 +88,31 @@
                 cleanup();
                 return;
             }
-            e.stopPropagation(); if(e.cancelable) e.preventDefault();
+            e.stopPropagation();
+            if (e.cancelable) e.preventDefault();
             var dir = e.detail ? e.detail.button : null;
             var startIdx = activeIdx;
             if (dir === 9 || dir === 11) { // Up or Left
-                do { activeIdx = (activeIdx > 0) ? activeIdx - 1 : buttons.length - 1; } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
+                do {
+                    activeIdx = (activeIdx > 0) ? activeIdx - 1 : buttons.length - 1;
+                } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
             } else if (dir === 10 || dir === 12) { // Down or Right
-                do { activeIdx = (activeIdx < buttons.length - 1) ? activeIdx + 1 : 0; } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
+                do {
+                    activeIdx = (activeIdx < buttons.length - 1) ? activeIdx + 1 : 0;
+                } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
             }
             updateFocus();
         }
         function okCatcher(e) {
             if (!document.body.contains(overlay)) { cleanup(); return; }
-            e.stopPropagation(); if(e.cancelable) e.preventDefault();
+            e.stopPropagation();
+            if (e.cancelable) e.preventDefault();
             if (buttons[activeIdx] && !buttons[activeIdx].disabled) buttons[activeIdx].click();
         }
         function cancelCatcher(e) {
             if (!document.body.contains(overlay)) { cleanup(); return; }
-            e.stopPropagation(); if(e.cancelable) e.preventDefault();
+            e.stopPropagation();
+            if (e.cancelable) e.preventDefault();
             var cancelBtn = overlay.querySelector('#sls-btn-cancel, #sls-prov-cancel, #sls-close-x, #sls-prov-close, #sls-remove-cancel, #sls-navi-cancel, #sls-navi-close');
             if (cancelBtn) cancelBtn.click(); else overlay.remove();
         }
@@ -95,6 +121,8 @@
         window.addEventListener('vgp_oncancel', cancelCatcher, true);
     }
 
+
+    // --- appid.js ---
     function extractAppId(manageBtn) {
         var appid = null;
         var curr = manageBtn;
@@ -109,11 +137,11 @@
 
         if (!appid) {
             try {
-                var curr = manageBtn;
-                while (curr && curr !== document.body && !appid) {
-                    for (var key in curr) {
+                var currFiber = manageBtn;
+                while (currFiber && currFiber !== document.body && !appid) {
+                    for (var key in currFiber) {
                         if (key.startsWith('__reactInternalInstance$') || key.startsWith('__reactFiber$')) {
-                            var fiber = curr[key];
+                            var fiber = currFiber[key];
                             while (fiber) {
                                 if (fiber.memoizedProps) {
                                     if (fiber.memoizedProps.appid) { appid = String(fiber.memoizedProps.appid); break; }
@@ -128,7 +156,7 @@
                         }
                         if (appid) break;
                     }
-                    curr = curr.parentElement;
+                    currFiber = currFiber.parentElement;
                 }
             } catch(e) {}
         }
@@ -159,47 +187,46 @@
         return appid;
     }
 
-    var noLuaAppIds = {};
-    var pendingChecks = {}; // keyed by appid + '_' + container-random-key
 
-    function checkAndCreateButton(manageContainer, appid, retryCount) {
-        if (!retryCount) retryCount = 0;
-
-        var parentNode = manageContainer.parentNode;
-        var containerKey = appid + '_' + (parentNode ? parentNode.dataset.slsKey : appid);
-
-        if (retryCount > 5) {
-            delete pendingChecks[containerKey];
-            return;
+    // --- cloud-api.js ---
+    function fetchAppCloudStatus(appId) {
+        if (window.NaviCloudManager && window.NaviCloudManager.fetchAppStatus) {
+            return window.NaviCloudManager.fetchAppStatus(appId);
         }
-
-        fetch('http://127.0.0.1:9001/check?id=' + appid)
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                delete pendingChecks[containerKey];
-
-                if (data.exists || data.hasLua || (data.provider && data.provider.length > 0) || data.pending) {
-                    if (parentNode) delete parentNode.dataset.slsNoLua;
-                    createRemoveButton(manageContainer, appid, data.pending, data.onlineFixInstalled, data.autoCrackInstalled, data.provider);
-                } else {
-                    if (parentNode) parentNode.dataset.slsNoLua = appid;
-                }
-            })
-            .catch(function() {
-                var delay = Math.min(1000 * Math.pow(2, retryCount), 8000);
-                log('check failed for ' + appid + ', retry #' + (retryCount + 1) + ' in ' + delay + 'ms');
-                setTimeout(function() {
-                    if (manageContainer.parentNode) {
-                        checkAndCreateButton(manageContainer, appid, retryCount + 1);
-                    } else {
-                        delete pendingChecks[containerKey];
-                    }
-                }, delay);
-            });
+        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/status', {
+            headers: { 'X-Navi-Auth': window.__naviAuthToken || '' }
+        }).then(function(r) { return r.json(); });
     }
 
+    function toggleAppCloudRedirect(appId, redirect) {
+        if (window.NaviCloudManager && window.NaviCloudManager.toggleAppRedirect) {
+            return window.NaviCloudManager.toggleAppRedirect(appId, redirect);
+        }
+        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/toggle', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Navi-Auth': window.__naviAuthToken || ''
+            },
+            body: JSON.stringify({ redirect: !!redirect })
+        }).then(function(r) { return r.json(); });
+    }
+
+    function backupAppCloudSave(appId) {
+        if (window.NaviCloudManager && window.NaviCloudManager.backupAppSave) {
+            return window.NaviCloudManager.backupAppSave(appId);
+        }
+        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/backup', {
+            method: 'POST',
+            headers: { 'X-Navi-Auth': window.__naviAuthToken || '' }
+        }).then(function(r) { return r.json(); });
+    }
+
+
+    // --- game-manager-modal.js ---
     function openSlsConfig(appid) {
         if (document.getElementById('sls-overlay-modal')) return;
+        ensureStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
         overlay.setAttribute('role', 'dialog');
@@ -207,39 +234,8 @@
         overlay.setAttribute('data-testid', 'sls-overlay-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);transition:all 0.3s ease;opacity:0;';
 
-        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">' +
-            '<!-- Title bar -->' +
-            '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">' +
-                '<div>' +
-                    '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">SLS Game Manager</h2>' +
-                    '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
-                '</div>' +
-                '<button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
-            '</div>' +
-            '<!-- Administrative Tools Section -->' +
-            '<div id="sls-content-admin" style="display:block; margin-bottom:24px;">' +
-                '<div style="display:flex; flex-direction:column; gap:8px;">' +
-                    '<!-- Online Fix -->' +
-                    '<button id="sls-btn-fix" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%;">Checking Fix status...</button>' +
-                    '<!-- Auto Crack -->' +
-                    '<button id="sls-btn-crack" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%;">Checking Crack status...</button>' +
-                '</div>' +
-            '</div>' +
-            '<!-- Footer Actions -->' +
-            '<div style="display:flex; justify-content:flex-end; gap:10px;">' +
-                '<button id="sls-btn-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>' +
-            '</div>' +
-        '</div>';
-
+        var cardHtml = GAME_MANAGER_MODAL_HTML.replace(/\{\{APPID\}\}/g, appid);
         overlay.innerHTML = cardHtml;
-        var style = document.createElement('style');
-        style.textContent = ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-            ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
-            ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
-            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
-            ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }';
-
-        overlay.appendChild(style);
         document.body.appendChild(overlay);
 
         requestAnimationFrame(function() {
@@ -425,6 +421,8 @@
             });
     }
 
+
+    // --- provider-modal.js ---
     var luaProviders = [
         { name: 'Ryuu' },
         { name: 'DepotBox' },
@@ -434,6 +432,7 @@
 
     function openChangeProviderModal(appid, currentProvider) {
         if (document.getElementById('sls-provider-modal')) return;
+        ensureStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-provider-modal';
         overlay.setAttribute('role', 'dialog');
@@ -454,30 +453,10 @@
             '</div>';
         }
 
-        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-provider-card">' +
-            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">' +
-                '<div>' +
-                    '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Change Provider</h2>' +
-                    '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
-                '</div>' +
-                '<button id="sls-prov-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
-            '</div>' +
-            '<div id="sls-provider-list" style="max-height:320px;overflow-y:auto;margin-bottom:16px;">' + rows + '</div>' +
-            '<div id="sls-prov-status" role="status" aria-live="polite" style="display:none;text-align:center;padding:12px;font-size:14px;color:#dcdedf;background:rgba(172,178,201,0.1);border-radius:2px;margin-bottom:16px;"></div>' +
-            '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-                '<button id="sls-prov-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>' +
-            '</div>' +
-        '</div>';
-
+        var cardHtml = PROVIDER_MODAL_HTML
+            .replace(/\{\{APPID\}\}/g, appid)
+            .replace('{{ROWS}}', rows);
         overlay.innerHTML = cardHtml;
-
-        var style = document.createElement('style');
-        style.textContent = ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-            ' .sls-btn-action:not(:disabled):hover { background: rgba(172, 178, 201, 0.25); }' +
-            ' .sls-btn-action:not(:disabled):active { background: rgba(172, 178, 201, 0.30); }' +
-            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
-            ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }';
-        overlay.appendChild(style);
         document.body.appendChild(overlay);
 
         requestAnimationFrame(function() {
@@ -497,7 +476,7 @@
         document.getElementById('sls-prov-cancel').onclick = closeModal;
 
         var provBtns = overlay.querySelectorAll('[data-sls-provider-idx]');
-        
+
         var modalButtons = [document.getElementById('sls-prov-close')];
         provBtns.forEach(function(b) { modalButtons.push(b); });
         modalButtons.push(document.getElementById('sls-prov-cancel'));
@@ -521,7 +500,7 @@
                             statusEl.style.background = 'rgba(16,185,129,0.1)';
                             statusEl.style.borderColor = 'rgba(16,185,129,0.3)';
                             statusEl.style.color = '#6ee7b7';
-                            
+
                             var pollCount = 0;
                             var lastStatus = '';
                             var timer = setInterval(function() {
@@ -531,7 +510,7 @@
                                 if (currentStatus && currentStatus !== lastStatus) {
                                     lastStatus = currentStatus;
                                     statusEl.innerText = currentStatus;
-                                    
+
                                     if (/installed!?/i.test(currentStatus)) {
                                         clearInterval(timer);
                                         statusEl.style.color = '#34d399';
@@ -568,29 +547,21 @@
         });
     }
 
+
+    // --- remove-modal.js ---
     function openRemoveConfirmModal(appid, onConfirmed) {
         log('Remove clicked for ' + appid);
-        
+        ensureStyles();
         var modalOverlay = document.createElement('div');
         modalOverlay.id = 'sls-remove-modal';
+        modalOverlay.setAttribute('role', 'dialog');
+        modalOverlay.setAttribute('aria-modal', 'true');
+        modalOverlay.setAttribute('data-testid', 'sls-remove-modal');
         modalOverlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
-        modalOverlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
-            '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
-            '<p style="margin:0 0 24px;font-size:16px;color:#969696;">Remove Lua and Game files for AppID <b>' + appid + '</b>?</p>' +
-            '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-                '<button id="sls-remove-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
-                '<button id="sls-remove-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;">Remove</button>' +
-            '</div>' +
-            '<style>' +
-            ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-            ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
-            ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
-            ' #sls-remove-confirm:hover { background: rgba(220, 38, 38, 1) !important; }' +
-            '</style>' +
-        '</div>';
-        
+        modalOverlay.innerHTML = REMOVE_MODAL_HTML.replace(/\{\{APPID\}\}/g, appid);
+
         document.body.appendChild(modalOverlay);
-        
+
         var cancelBtn = document.getElementById('sls-remove-cancel');
         var confirmBtn = document.getElementById('sls-remove-confirm');
         trapSteamGamepadModal(modalOverlay, [cancelBtn, confirmBtn]);
@@ -600,7 +571,7 @@
             confirmBtn.innerText = 'Processing...';
             confirmBtn.style.opacity = '0.5';
             confirmBtn.style.pointerEvents = 'none';
-            
+
             try {
                 if (window.SteamClient && window.SteamClient.Apps && window.SteamClient.Apps.SetAppHidden) {
                     window.SteamClient.Apps.SetAppHidden(appid, true);
@@ -619,65 +590,21 @@
         };
     }
 
-    function fetchAppCloudStatus(appId) {
-        if (window.NaviCloudManager && window.NaviCloudManager.fetchAppStatus) {
-            return window.NaviCloudManager.fetchAppStatus(appId);
-        }
-        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/status', {
-            headers: { 'X-Navi-Auth': window.__naviAuthToken || '' }
-        }).then(function(r) { return r.json(); });
-    }
 
-    function toggleAppCloudRedirect(appId, redirect) {
-        if (window.NaviCloudManager && window.NaviCloudManager.toggleAppRedirect) {
-            return window.NaviCloudManager.toggleAppRedirect(appId, redirect);
-        }
-        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/toggle', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Navi-Auth': window.__naviAuthToken || ''
-            },
-            body: JSON.stringify({ redirect: !!redirect })
-        }).then(function(r) { return r.json(); });
-    }
-
-    function backupAppCloudSave(appId) {
-        if (window.NaviCloudManager && window.NaviCloudManager.backupAppSave) {
-            return window.NaviCloudManager.backupAppSave(appId);
-        }
-        return fetch('http://127.0.0.1:9001/cloud/apps/' + appId + '/backup', {
-            method: 'POST',
-            headers: { 'X-Navi-Auth': window.__naviAuthToken || '' }
-        }).then(function(r) { return r.json(); });
-    }
-
+    // --- restore-modal.js ---
     function openRestoreModal(appId, onCompleted) {
         if (window.NaviCloudManager && window.NaviCloudManager.openRestoreModal) {
             return window.NaviCloudManager.openRestoreModal(appId, onCompleted);
         }
         if (document.getElementById('sls-restore-modal')) return;
+        ensureStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-restore-modal';
         overlay.setAttribute('role', 'dialog');
         overlay.setAttribute('aria-modal', 'true');
         overlay.setAttribute('data-testid', 'sls-restore-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
-        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
-            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
-                '<div>' +
-                    '<h2 style="margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;">Restore Cloud Save</h2>' +
-                    '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
-                '</div>' +
-                '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
-            '</div>' +
-            '<div id="sls-restore-body" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' +
-                '<div style="text-align:center;padding:24px;color:#969696;">Loading backups...</div>' +
-            '</div>' +
-            '<div style="display:flex;justify-content:flex-end;">' +
-                '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Close</button>' +
-            '</div>' +
-        '</div>';
+        overlay.innerHTML = RESTORE_MODAL_HTML.replace(/\{\{APPID\}\}/g, appId);
         document.body.appendChild(overlay);
 
         var closeBtn = overlay.querySelector('#sls-restore-close');
@@ -753,39 +680,18 @@
         });
     }
 
+
+    // --- reset-modal.js ---
     function openResetModal(appId, onCompleted) {
         if (document.getElementById('sls-reset-modal')) return;
+        ensureStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-reset-modal';
         overlay.setAttribute('role', 'dialog');
         overlay.setAttribute('aria-modal', 'true');
         overlay.setAttribute('data-testid', 'sls-reset-modal');
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
-        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
-            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
-                '<div>' +
-                    '<h2 style="margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;">Reset Cloud Save</h2>' +
-                    '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
-                '</div>' +
-                '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
-            '</div>' +
-            '<div style="background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;">' +
-                '<p style="margin:0;font-size:13px;line-height:1.5;color:#fca5a5;">' +
-                    '⚠️ <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.' +
-                '</p>' +
-            '</div>' +
-            '<div style="margin-bottom:20px;">' +
-                '<label style="display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;">' +
-                    'To confirm, type <b style="color:#fff;letter-spacing:1px;">RESET</b> into the box below:' +
-                '</label>' +
-                '<input type="text" id="sls-reset-input" autocomplete="off" spellcheck="false" placeholder="Type RESET to confirm" ' +
-                    'style="width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;" />' +
-            '</div>' +
-            '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-                '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Cancel</button>' +
-                '<button id="sls-modal-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" disabled style="height:36px;padding:0 20px;background:#dc2626;color:#fff;cursor:default;opacity:0.4;font-weight:600;">Confirm Reset</button>' +
-            '</div>' +
-        '</div>';
+        overlay.innerHTML = RESET_MODAL_HTML.replace(/\{\{APPID\}\}/g, appId);
         document.body.appendChild(overlay);
 
         var closeBtn = overlay.querySelector('#sls-reset-close');
@@ -833,8 +739,11 @@
         setTimeout(function() { input.focus(); }, 100);
     }
 
+
+    // --- navi-modal.js ---
     function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart) {
         if (document.getElementById('sls-navi-modal')) return;
+        ensureStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-navi-modal';
         overlay.setAttribute('role', 'dialog');
@@ -848,57 +757,13 @@
             ? 'background:rgba(234,179,8,0.2);color:#fde047;'
             : 'color:#f87171;';
 
-        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-navi-card">' +
-            '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;">' +
-                '<div>' +
-                    '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Navi Menu</h2>' +
-                    '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
-                '</div>' +
-                '<button id="sls-navi-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
-            '</div>' +
-            '<div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;">' +
-                '<span style="font-size:14px; color:rgb(139, 147, 164);">Current Provider</span>' +
-                '<span id="sls-navi-modal-provider" style="font-size:15px; font-weight:500; color:#fff;">' + provText + '</span>' +
-            '</div>' +
-            '<div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">' +
-                '<button id="sls-navi-btn-provider" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
-                    '<span>Change Provider</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-config" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
-                    '<span>Config (Fix / Auto Crack)</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-cloud-toggle" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">' +
-                    '<span>Cloud Save</span><span id="sls-navi-cloud-badge" style="font-size:13px; font-weight:600; color:#9ca3af;">Checking...</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-cloud-files" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">' +
-                    '<span>View Cloud Files</span><span id="sls-navi-cloud-files-badge" style="font-size:12px; color:#66c0f4;">Steam Cloud &rarr;</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-cloud-backup" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
-                    '<span>Backup Cloud Save</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-cloud-restore" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">' +
-                    '<span>Restore Cloud Save</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-cloud-reset" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;">' +
-                    '<span>Reset Cloud Save</span>' +
-                '</button>' +
-                '<button id="sls-navi-btn-remove" class="sls-btn-action Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; ' + removeBtnStyle + '">' +
-                    '<span>' + removeLabel + '</span>' +
-                '</button>' +
-            '</div>' +
-            '<div style="display:flex; justify-content:flex-end;">' +
-                '<button id="sls-navi-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Close</button>' +
-            '</div>' +
-        '</div>';
+        var cardHtml = NAVI_MODAL_HTML
+            .replace(/\{\{APPID\}\}/g, appid)
+            .replace('{{PROVIDER}}', provText)
+            .replace('{{REMOVE_BTN_STYLE}}', removeBtnStyle)
+            .replace('{{REMOVE_LABEL}}', removeLabel);
 
         overlay.innerHTML = cardHtml;
-        var style = document.createElement('style');
-        style.textContent = ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-            ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
-            ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
-            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
-            ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }';
-        overlay.appendChild(style);
         document.body.appendChild(overlay);
 
         requestAnimationFrame(function() {
@@ -1032,6 +897,60 @@
         trapSteamGamepadModal(overlay, [provBtn, confBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, remBtn, cancelBtn, closeX]);
     }
 
+
+    // --- buttons.js ---
+    function makeSteamButton(appid, className, text, extraAttrs) {
+        var isDesktop = !!((document.body && document.body.classList.contains('DesktopUI')) || document.querySelector('.DesktopUI'));
+        var isDeckOrBigPicture = !isDesktop;
+        var buttonMargin = 'margin-right: 10px;';
+        var buttonHeight = isDeckOrBigPicture ? '48px' : '32px';
+        var buttonPadding = isDeckOrBigPicture ? '8px 16px' : '0 16px';
+
+        var steamBtnStyle = 'display: flex; align-items: center; justify-content: center; ' +
+            'background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); ' +
+            'border: none; border-radius: 2px; padding: ' + buttonPadding + '; ' + buttonMargin + ' ' +
+            'font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; ' +
+            'height: ' + buttonHeight + '; box-sizing: border-box; cursor: pointer; ' +
+            'text-decoration: none; transition: background 0.1s ease;';
+
+        var btn = document.createElement('div');
+        btn.className = className + ' Focusable';
+        btn.setAttribute('tabindex', '-1');
+        btn.setAttribute('role', 'button');
+        btn.dataset.slsAppid = appid;
+        btn.dataset.slsAppId = appid;
+        btn.style.cssText = steamBtnStyle;
+        if (extraAttrs) {
+            for (var k in extraAttrs) btn.setAttribute(k, extraAttrs[k]);
+        }
+
+        var label = document.createElement('span');
+        label.style.cssText = 'white-space: nowrap;';
+        label.innerText = text;
+        btn.appendChild(label);
+
+        // Gamepad focus styling (match Steam's focus ring)
+        btn.addEventListener('vgp_onfocus', function() {
+            btn.style.background = 'rgba(172, 178, 201, 0.30)';
+            btn.style.outline = '2px solid white';
+            btn.style.outlineOffset = '2px';
+        });
+        btn.addEventListener('vgp_onblur', function() {
+            btn.style.background = 'rgba(172, 178, 201, 0.14)';
+            btn.style.outline = 'none';
+        });
+
+        // Hover styling
+        btn.addEventListener('mouseenter', function() {
+            btn.style.background = 'rgba(172, 178, 201, 0.25)';
+        });
+        btn.addEventListener('mouseleave', function() {
+            btn.style.background = 'rgba(172, 178, 201, 0.14)';
+        });
+
+        return btn;
+    }
+
     function createRemoveButton(manageContainer, appid, isPending, onlineFixInstalled, autoCrackInstalled, provider) {
         var parentNode = manageContainer.parentNode;
 
@@ -1045,59 +964,11 @@
         var isDeckOrBigPicture = !isDesktop;
         var buttonMargin = 'margin-right: 10px;';
         var buttonHeight = isDeckOrBigPicture ? '48px' : '32px';
-        var buttonPadding = isDeckOrBigPicture ? '8px 16px' : '0 16px';
-
-        // --- Steam-native button style ---
-        var steamBtnStyle = 'display: flex; align-items: center; justify-content: center; ' +
-            'background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); ' +
-            'border: none; border-radius: 2px; padding: ' + buttonPadding + '; ' + buttonMargin + ' ' +
-            'font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; ' +
-            'height: ' + buttonHeight + '; box-sizing: border-box; cursor: pointer; ' +
-            'text-decoration: none; transition: background 0.1s ease;';
-
-        function makeSteamButton(className, text, extraAttrs) {
-            var btn = document.createElement('div');
-            btn.className = className + ' Focusable';
-            btn.setAttribute('tabindex', '-1');
-            btn.setAttribute('role', 'button');
-            btn.dataset.slsAppid = appid;
-            btn.dataset.slsAppId = appid;
-            btn.style.cssText = steamBtnStyle;
-            if (extraAttrs) {
-                for (var k in extraAttrs) btn.setAttribute(k, extraAttrs[k]);
-            }
-
-            var label = document.createElement('span');
-            label.style.cssText = 'white-space: nowrap;';
-            label.innerText = text;
-            btn.appendChild(label);
-
-            // Gamepad focus styling (match Steam's focus ring)
-            btn.addEventListener('vgp_onfocus', function() {
-                btn.style.background = 'rgba(172, 178, 201, 0.30)';
-                btn.style.outline = '2px solid white';
-                btn.style.outlineOffset = '2px';
-            });
-            btn.addEventListener('vgp_onblur', function() {
-                btn.style.background = 'rgba(172, 178, 201, 0.14)';
-                btn.style.outline = 'none';
-            });
-
-            // Hover styling
-            btn.addEventListener('mouseenter', function() {
-                btn.style.background = 'rgba(172, 178, 201, 0.25)';
-            });
-            btn.addEventListener('mouseleave', function() {
-                btn.style.background = 'rgba(172, 178, 201, 0.14)';
-            });
-
-            return btn;
-        }
 
         // On Big Picture / Steam Deck, use a single compact "Navi" menu button
         // to prevent overflowing the action row and covering other elements.
         if (isDeckOrBigPicture) {
-            var naviBtn = makeSteamButton('sls-navi-btn sls-lua-btn', isPending ? 'Navi (Restart)' : 'Navi');
+            var naviBtn = makeSteamButton(appid, 'sls-navi-btn sls-lua-btn', isPending ? 'Navi (Restart)' : 'Navi');
             naviBtn.dataset.slsProvider = provider || '';
             if (isPending) {
                 naviBtn.dataset.slsPending = 'true';
@@ -1139,7 +1010,7 @@
         }
 
         // 1. Remove Lua Button (Desktop Mode)
-        var removeBtn = makeSteamButton('sls-remove-lua-btn sls-lua-btn', 'Remove Lua');
+        var removeBtn = makeSteamButton(appid, 'sls-remove-lua-btn sls-lua-btn', 'Remove Lua');
         var removeBtnLabel = removeBtn.querySelector('span');
 
         removeBtn.addEventListener('vgp_onok', function(e) {
@@ -1148,7 +1019,7 @@
         });
 
         // 2. Config Button (Desktop Mode)
-        var configBtn = makeSteamButton('sls-config-btn', 'Config');
+        var configBtn = makeSteamButton(appid, 'sls-config-btn', 'Config');
 
         configBtn.addEventListener('vgp_onok', function(e) {
             e.preventDefault(); e.stopPropagation();
@@ -1183,7 +1054,7 @@
         };
 
         // 3. Change Provider Button (Desktop Mode)
-        var changeProvBtn = makeSteamButton('sls-change-provider-btn', 'Change Provider');
+        var changeProvBtn = makeSteamButton(appid, 'sls-change-provider-btn', 'Change Provider');
 
         changeProvBtn.addEventListener('vgp_onok', function(e) {
             e.preventDefault(); e.stopPropagation();
@@ -1209,10 +1080,10 @@
         }
 
         // 5. Cloud Save Redirection Controls (Desktop Mode)
-        var cloudToggleBtn = makeSteamButton('sls-cloud-toggle-btn', 'Cloud Save: ...');
-        var cloudBackupBtn = makeSteamButton('sls-cloud-backup-btn', 'Backup Save');
-        var cloudRestoreBtn = makeSteamButton('sls-cloud-restore-btn', 'Restore Save');
-        var cloudResetBtn = makeSteamButton('sls-cloud-reset-btn', 'Reset Save');
+        var cloudToggleBtn = makeSteamButton(appid, 'sls-cloud-toggle-btn', 'Cloud Save: ...');
+        var cloudBackupBtn = makeSteamButton(appid, 'sls-cloud-backup-btn', 'Backup Save');
+        var cloudRestoreBtn = makeSteamButton(appid, 'sls-cloud-restore-btn', 'Restore Save');
+        var cloudResetBtn = makeSteamButton(appid, 'sls-cloud-reset-btn', 'Reset Save');
         cloudResetBtn.style.color = '#f87171';
 
         var isRowCloudActive = false;
@@ -1300,7 +1171,7 @@
         parentNode.insertBefore(configBtn, parentNode.firstChild);
         parentNode.insertBefore(removeBtn, parentNode.firstChild);
         if (provider) parentNode.insertBefore(providerLabel, parentNode.firstChild);
-        
+
         // Register for Gamepad Focus
         setTimeout(function() {
             registerSteamFocusNode(removeBtn);
@@ -1313,9 +1184,50 @@
         }, 10);
     }
 
+
+    // --- main.js ---
+    var noLuaAppIds = {};
+    var pendingChecks = {}; // keyed by appid + '_' + container-random-key
+
+    function checkAndCreateButton(manageContainer, appid, retryCount) {
+        if (!retryCount) retryCount = 0;
+
+        var parentNode = manageContainer.parentNode;
+        var containerKey = appid + '_' + (parentNode ? parentNode.dataset.slsKey : appid);
+
+        if (retryCount > 5) {
+            delete pendingChecks[containerKey];
+            return;
+        }
+
+        fetch('http://127.0.0.1:9001/check?id=' + appid)
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                delete pendingChecks[containerKey];
+
+                if (data.exists || data.hasLua || (data.provider && data.provider.length > 0) || data.pending) {
+                    if (parentNode) delete parentNode.dataset.slsNoLua;
+                    createRemoveButton(manageContainer, appid, data.pending, data.onlineFixInstalled, data.autoCrackInstalled, data.provider);
+                } else {
+                    if (parentNode) parentNode.dataset.slsNoLua = appid;
+                }
+            })
+            .catch(function() {
+                var delay = Math.min(1000 * Math.pow(2, retryCount), 8000);
+                log('check failed for ' + appid + ', retry #' + (retryCount + 1) + ' in ' + delay + 'ms');
+                setTimeout(function() {
+                    if (manageContainer.parentNode) {
+                        checkAndCreateButton(manageContainer, appid, retryCount + 1);
+                    } else {
+                        delete pendingChecks[containerKey];
+                    }
+                }, delay);
+            });
+    }
+
     function addRemoveLuaButton() {
         var btns = document.querySelectorAll('div[aria-label="Manage"]');
-        
+
         btns.forEach(function(manageBtn) {
             var manageContainer = manageBtn.parentNode;
             if (!manageContainer || !manageContainer.parentNode) return;
@@ -1340,7 +1252,6 @@
         });
     }
 
-
     var debounceTimer = null;
     function debouncedAddButtons() {
         if (debounceTimer) return;
@@ -1363,5 +1274,7 @@
 
     var observer = new MutationObserver(debouncedAddButtons);
     if (document.body) observer.observe(document.body, { childList: true, subtree: true });
+    ensureStyles();
     addRemoveLuaButton();
+
 })();

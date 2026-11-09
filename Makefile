@@ -177,7 +177,10 @@ test-ui-a11y:
 
 test-all: test
 
-audit-libs:
+bundle-scripts:
+	python3 tools/bundle-app-details.py
+
+audit-libs: bundle-scripts
 	$(MAKE) -j $(JOBS) $(NAVISO) bin/library-inject.so
 	$(MAKE) link-bins
 
@@ -308,11 +311,12 @@ zips-config:
 
 
 clean: clean-libs clean-tools
-build: audit-libs tools
+build: bundle-scripts audit-libs tools
 rebuild: clean build
 release: rebuild zips
 
 .PHONY: \
+	bundle-scripts \
 	audit-libs \
 	tools \
 	link-bins \

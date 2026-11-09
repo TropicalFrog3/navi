@@ -1,0 +1,3971 @@
+.
+├── .agents
+│   ├── AGENTS.md
+│   ├── mcp_config.json
+│   ├── rules
+│   │   ├── cpp_hooking_patterns.md
+│   │   ├── devtools_interaction.md
+│   │   ├── steam_cef_ui_patterns.md
+│   │   ├── steam_controller_mapping.md
+│   │   └── test-regression.md
+│   ├── scripts
+│   │   └── route_subagent.py
+│   └── skills
+│       ├── cef-cdp-injection
+│       │   └── SKILL.md
+│       ├── deep-reasoning
+│       │   └── SKILL.md.disabled
+│       ├── handover
+│       │   └── SKILL.md.disabled
+│       ├── jev
+│       │   ├── assets
+│       │   │   ├── batch-triage.json
+│       │   │   ├── browser-route.json
+│       │   │   ├── checkpoint.json
+│       │   │   ├── completion.json
+│       │   │   ├── context.json
+│       │   │   ├── document-block.json
+│       │   │   ├── prompt-conversion-cases.json
+│       │   │   ├── prompt-to-jev.json
+│       │   │   ├── prompt_to_jev.py
+│       │   │   ├── routing.json
+│       │   │   ├── rubric.json
+│       │   │   ├── semantic-rules.json
+│       │   │   ├── span-selection.json
+│       │   │   ├── support-labels.json
+│       │   │   ├── triage.json
+│       │   │   └── voice-style.json
+│       │   ├── references
+│       │   │   ├── agent-recipes.md
+│       │   │   ├── api.md
+│       │   │   ├── calibration.md
+│       │   │   ├── checkpoints.md
+│       │   │   ├── community.md
+│       │   │   ├── context-and-throughput.md
+│       │   │   ├── context.md
+│       │   │   ├── customization.md
+│       │   │   ├── decision-datasets.md
+│       │   │   ├── ecosystem.md
+│       │   │   ├── guide.md
+│       │   │   ├── human-recipes.md
+│       │   │   ├── implementation-patterns.md
+│       │   │   ├── index.md
+│       │   │   ├── intake-2026-09-21.md
+│       │   │   ├── intake-2026-09-22.md
+│       │   │   ├── pitfalls.md
+│       │   │   ├── prompt-to-jev.md
+│       │   │   ├── question-design.md
+│       │   │   ├── routing.md
+│       │   │   ├── scenarios.md
+│       │   │   ├── setup.md
+│       │   │   ├── simulation.md
+│       │   │   ├── twitter-workflows.md
+│       │   │   └── x-intake-2026-09-20.md
+│       │   ├── scripts
+│       │   │   └── jev.py
+│       │   ├── .setup.json
+│       │   └── SKILL.md
+│       ├── jev-act
+│       │   ├── assets
+│       │   │   ├── example.json
+│       │   │   └── world.json
+│       │   ├── references
+│       │   │   ├── scenarios.md
+│       │   │   ├── ui.md
+│       │   │   └── world.md
+│       │   └── SKILL.md
+│       ├── jev-documents
+│       │   ├── assets
+│       │   │   ├── example.json
+│       │   │   └── find-code.json
+│       │   ├── references
+│       │   │   ├── find-code.md
+│       │   │   └── scenarios.md
+│       │   └── SKILL.md
+│       ├── jev-eval
+│       │   ├── agents
+│       │   │   └── openai.yaml
+│       │   ├── assets
+│       │   │   ├── code-review.json
+│       │   │   ├── example.json
+│       │   │   └── transcripts.jsonl
+│       │   ├── references
+│       │   │   ├── code-review.md
+│       │   │   ├── safety.md
+│       │   │   ├── scenarios.md
+│       │   │   └── workflows.md
+│       │   ├── scripts
+│       │   │   └── prepare.py
+│       │   └── SKILL.md
+│       ├── jev-triage
+│       │   ├── assets
+│       │   │   └── example.json
+│       │   ├── references
+│       │   │   ├── scenarios.md
+│       │   │   └── smoke-test.md
+│       │   └── SKILL.md
+│       ├── linux-elf-reversing
+│       │   └── SKILL.md
+│       ├── plans-pipeline
+│       │   └── SKILL.md
+│       ├── project-structure-cleaner
+│       │   └── SKILL.md
+│       ├── release-workflow
+│       │   └── SKILL.md
+│       ├── routing-docs-maintainer
+│       │   └── SKILL.md
+│       ├── steamdeck-wireless-workflow
+│       │   └── SKILL.md
+│       ├── steam-native-hooking
+│       │   └── SKILL.md
+│       ├── steam-version-update
+│       │   ├── scripts
+│       │   │   ├── audit_client_hash.py
+│       │   │   ├── audit_vftable.py
+│       │   │   └── __pycache__
+│       │   │       ├── audit_client_hash.cpython-312.pyc
+│       │   │       └── audit_vftable.cpython-312.pyc
+│       │   └── SKILL.md
+│       ├── vibe-implement-annotations
+│       │   └── SKILL.md
+│       └── vibe-server-setup
+│           └── SKILL.md
+├── AGENTS.md
+├── .antigravityignore
+├── API.md
+├── .archify
+│   ├── architecture-navi-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-architecture.browser-check.json
+│   │   ├── navi-architecture.delivery.json
+│   │   ├── navi-architecture.finalize.json
+│   │   ├── navi-architecture.finalize-summary.json
+│   │   ├── navi-architecture.html
+│   │   └── review-2
+│   │       ├── navi-architecture.browser-check.json
+│   │       ├── navi-architecture.finalize.json
+│   │       └── navi-architecture.finalize-summary.json
+│   ├── class-navi-core-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-class.browser-check.json
+│   │   ├── navi-class.delivery.json
+│   │   ├── navi-class.finalize.json
+│   │   ├── navi-class.finalize-summary.json
+│   │   └── navi-class.html
+│   ├── dataflow-manifest-saves-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-dataflow.browser-check.json
+│   │   ├── navi-dataflow.delivery.json
+│   │   ├── navi-dataflow.finalize.json
+│   │   ├── navi-dataflow.finalize-summary.json
+│   │   └── navi-dataflow.html
+│   ├── erd-navi-data-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-erd.browser-check.json
+│   │   ├── navi-erd.delivery.json
+│   │   ├── navi-erd.finalize.json
+│   │   ├── navi-erd.finalize-summary.json
+│   │   └── navi-erd.html
+│   ├── lifecycle-app-cloudsync-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-lifecycle.browser-check.json
+│   │   ├── navi-lifecycle.delivery.json
+│   │   ├── navi-lifecycle.finalize.json
+│   │   ├── navi-lifecycle.finalize-summary.json
+│   │   └── navi-lifecycle.html
+│   ├── sequence-install-cloudredirect-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-sequence.browser-check.json
+│   │   ├── navi-sequence.delivery.json
+│   │   ├── navi-sequence.finalize.json
+│   │   ├── navi-sequence.finalize-summary.json
+│   │   └── navi-sequence.html
+│   ├── timeline-navi-evolution-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-timeline.browser-check.json
+│   │   ├── navi-timeline.delivery.json
+│   │   ├── navi-timeline.finalize.json
+│   │   ├── navi-timeline.finalize-summary.json
+│   │   └── navi-timeline.html
+│   ├── tree-repository-layout-20261101-184500
+│   │   ├── candidate.json
+│   │   ├── navi-tree.browser-check.json
+│   │   ├── navi-tree.delivery.json
+│   │   ├── navi-tree.finalize.json
+│   │   ├── navi-tree.finalize-summary.json
+│   │   └── navi-tree.html
+│   └── workflow-staged-gates-20261101-184500
+│       ├── candidate.json
+│       ├── navi-workflow.browser-check.json
+│       ├── navi-workflow.delivery.json
+│       ├── navi-workflow.finalize.json
+│       ├── navi-workflow.finalize-summary.json
+│       └── navi-workflow.html
+├── artifacts
+│   ├── README.md
+│   └── test-runs
+│       ├── test_uj06_error_recovery_and_rollback_on_server_fault
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj07_out_of_order_async_response_protection
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       └── test_uj08_semantic_accessibility_audit
+│           ├── console-and-network.json
+│           ├── dom-snapshot.html
+│           └── failure-screenshot.png
+├── bin
+│   ├── libnavi-19ab648e49e73faa5ff06aaefc052d320b3cfd343edf7332ce42090156cd90e2.so
+│   ├── libnavi-96e71e5ed0f5bac5b2a5d3214fd5c49cd5d000664222a67c32c46c76d07820a7.so
+│   ├── libnavi-c5d90e85a78fc4b0db60b59e6806b489047ad187ea3219753c0f7be8d03a1c85.so
+│   ├── libnavi.so
+│   ├── library-inject.so
+│   ├── navi-cloud-apply-pending
+│   ├── unit_tests
+│   ├── unit_tests_cov
+│   ├── unit_tests_cov.ltrans0.ltrans.gcno
+│   ├── unit_tests_cov.ltrans10.ltrans.gcno
+│   ├── unit_tests_cov.ltrans11.ltrans.gcno
+│   ├── unit_tests_cov.ltrans12.ltrans.gcno
+│   ├── unit_tests_cov.ltrans13.ltrans.gcno
+│   ├── unit_tests_cov.ltrans14.ltrans.gcno
+│   ├── unit_tests_cov.ltrans15.ltrans.gcno
+│   ├── unit_tests_cov.ltrans16.ltrans.gcno
+│   ├── unit_tests_cov.ltrans17.ltrans.gcno
+│   ├── unit_tests_cov.ltrans18.ltrans.gcno
+│   ├── unit_tests_cov.ltrans19.ltrans.gcno
+│   ├── unit_tests_cov.ltrans1.ltrans.gcno
+│   ├── unit_tests_cov.ltrans20.ltrans.gcno
+│   ├── unit_tests_cov.ltrans21.ltrans.gcno
+│   ├── unit_tests_cov.ltrans22.ltrans.gcno
+│   ├── unit_tests_cov.ltrans23.ltrans.gcno
+│   ├── unit_tests_cov.ltrans24.ltrans.gcno
+│   ├── unit_tests_cov.ltrans25.ltrans.gcno
+│   ├── unit_tests_cov.ltrans26.ltrans.gcno
+│   ├── unit_tests_cov.ltrans27.ltrans.gcno
+│   ├── unit_tests_cov.ltrans28.ltrans.gcno
+│   ├── unit_tests_cov.ltrans29.ltrans.gcno
+│   ├── unit_tests_cov.ltrans2.ltrans.gcno
+│   ├── unit_tests_cov.ltrans30.ltrans.gcno
+│   ├── unit_tests_cov.ltrans31.ltrans.gcno
+│   ├── unit_tests_cov.ltrans32.ltrans.gcno
+│   ├── unit_tests_cov.ltrans33.ltrans.gcno
+│   ├── unit_tests_cov.ltrans34.ltrans.gcno
+│   ├── unit_tests_cov.ltrans35.ltrans.gcno
+│   ├── unit_tests_cov.ltrans36.ltrans.gcno
+│   ├── unit_tests_cov.ltrans37.ltrans.gcno
+│   ├── unit_tests_cov.ltrans38.ltrans.gcno
+│   ├── unit_tests_cov.ltrans39.ltrans.gcno
+│   ├── unit_tests_cov.ltrans3.ltrans.gcno
+│   ├── unit_tests_cov.ltrans40.ltrans.gcno
+│   ├── unit_tests_cov.ltrans41.ltrans.gcno
+│   ├── unit_tests_cov.ltrans42.ltrans.gcno
+│   ├── unit_tests_cov.ltrans43.ltrans.gcno
+│   ├── unit_tests_cov.ltrans44.ltrans.gcno
+│   ├── unit_tests_cov.ltrans45.ltrans.gcno
+│   ├── unit_tests_cov.ltrans46.ltrans.gcno
+│   ├── unit_tests_cov.ltrans47.ltrans.gcno
+│   ├── unit_tests_cov.ltrans48.ltrans.gcno
+│   ├── unit_tests_cov.ltrans49.ltrans.gcno
+│   ├── unit_tests_cov.ltrans4.ltrans.gcno
+│   ├── unit_tests_cov.ltrans50.ltrans.gcno
+│   ├── unit_tests_cov.ltrans51.ltrans.gcno
+│   ├── unit_tests_cov.ltrans52.ltrans.gcno
+│   ├── unit_tests_cov.ltrans53.ltrans.gcno
+│   ├── unit_tests_cov.ltrans54.ltrans.gcno
+│   ├── unit_tests_cov.ltrans5.ltrans.gcno
+│   ├── unit_tests_cov.ltrans6.ltrans.gcno
+│   ├── unit_tests_cov.ltrans7.ltrans.gcno
+│   ├── unit_tests_cov.ltrans8.ltrans.gcno
+│   ├── unit_tests_cov.ltrans9.ltrans.gcno
+│   └── unit_tests_cov.wpa.gcno
+├── docker
+│   ├── build.sh
+│   └── Dockerfile
+├── docs
+│   ├── api
+│   │   ├── ipc.md
+│   │   └── rest.md
+│   ├── cloud-saves.md
+│   ├── CONTEXT.md
+│   ├── LICENSE
+│   │   ├── base64
+│   │   ├── libmem
+│   │   ├── navi
+│   │   ├── protobuf
+│   │   └── yaml-cpp
+│   ├── navi_agent_cheat_sheet.md
+│   ├── references
+│   │   ├── cloud-redirect-architecture.md
+│   │   ├── cloud-redirect-backends.md
+│   │   └── cloud-redirect-runbook.md
+│   └── THIRD_PARTY.md
+├── embed-config.sh
+├── embed-version.sh
+├── flake.lock
+├── flake.nix
+├── .gitignore
+├── .gitmodules
+├── include
+│   ├── base64
+│   │   └── base64.hpp
+│   ├── google
+│   │   └── protobuf
+│   │       ├── any.cc
+│   │       ├── any.h
+│   │       ├── any_lite.cc
+│   │       ├── any.pb.cc
+│   │       ├── any.pb.h
+│   │       ├── any.proto
+│   │       ├── any_test.cc
+│   │       ├── any_test.proto
+│   │       ├── api.pb.cc
+│   │       ├── api.pb.h
+│   │       ├── api.proto
+│   │       ├── arena.cc
+│   │       ├── arena.h
+│   │       ├── arena_impl.h
+│   │       ├── arenastring.cc
+│   │       ├── arenastring.h
+│   │       ├── arenastring_unittest.cc
+│   │       ├── arena_test_util.cc
+│   │       ├── arena_test_util.h
+│   │       ├── arena_unittest.cc
+│   │       ├── compiler
+│   │       │   ├── annotation_test_util.cc
+│   │       │   ├── annotation_test_util.h
+│   │       │   ├── code_generator.cc
+│   │       │   ├── code_generator.h
+│   │       │   ├── command_line_interface.cc
+│   │       │   ├── command_line_interface.h
+│   │       │   ├── command_line_interface_unittest.cc
+│   │       │   ├── cpp
+│   │       │   │   ├── cpp_bootstrap_unittest.cc
+│   │       │   │   ├── cpp_enum.cc
+│   │       │   │   ├── cpp_enum_field.cc
+│   │       │   │   ├── cpp_enum_field.h
+│   │       │   │   ├── cpp_enum.h
+│   │       │   │   ├── cpp_extension.cc
+│   │       │   │   ├── cpp_extension.h
+│   │       │   │   ├── cpp_field.cc
+│   │       │   │   ├── cpp_field.h
+│   │       │   │   ├── cpp_file.cc
+│   │       │   │   ├── cpp_file.h
+│   │       │   │   ├── cpp_generator.cc
+│   │       │   │   ├── cpp_generator.h
+│   │       │   │   ├── cpp_helpers.cc
+│   │       │   │   ├── cpp_helpers.h
+│   │       │   │   ├── cpp_map_field.cc
+│   │       │   │   ├── cpp_map_field.h
+│   │       │   │   ├── cpp_message.cc
+│   │       │   │   ├── cpp_message_field.cc
+│   │       │   │   ├── cpp_message_field.h
+│   │       │   │   ├── cpp_message.h
+│   │       │   │   ├── cpp_message_layout_helper.h
+│   │       │   │   ├── cpp_move_unittest.cc
+│   │       │   │   ├── cpp_names.h
+│   │       │   │   ├── cpp_options.h
+│   │       │   │   ├── cpp_padding_optimizer.cc
+│   │       │   │   ├── cpp_padding_optimizer.h
+│   │       │   │   ├── cpp_plugin_unittest.cc
+│   │       │   │   ├── cpp_primitive_field.cc
+│   │       │   │   ├── cpp_primitive_field.h
+│   │       │   │   ├── cpp_service.cc
+│   │       │   │   ├── cpp_service.h
+│   │       │   │   ├── cpp_string_field.cc
+│   │       │   │   ├── cpp_string_field.h
+│   │       │   │   ├── cpp_test_bad_identifiers.proto
+│   │       │   │   ├── cpp_test_large_enum_value.proto
+│   │       │   │   ├── cpp_unittest.cc
+│   │       │   │   ├── cpp_unittest.h
+│   │       │   │   ├── cpp_unittest.inc
+│   │       │   │   └── metadata_test.cc
+│   │       │   ├── csharp
+│   │       │   │   ├── csharp_bootstrap_unittest.cc
+│   │       │   │   ├── csharp_doc_comment.cc
+│   │       │   │   ├── csharp_doc_comment.h
+│   │       │   │   ├── csharp_enum.cc
+│   │       │   │   ├── csharp_enum_field.cc
+│   │       │   │   ├── csharp_enum_field.h
+│   │       │   │   ├── csharp_enum.h
+│   │       │   │   ├── csharp_field_base.cc
+│   │       │   │   ├── csharp_field_base.h
+│   │       │   │   ├── csharp_generator.cc
+│   │       │   │   ├── csharp_generator.h
+│   │       │   │   ├── csharp_generator_unittest.cc
+│   │       │   │   ├── csharp_helpers.cc
+│   │       │   │   ├── csharp_helpers.h
+│   │       │   │   ├── csharp_map_field.cc
+│   │       │   │   ├── csharp_map_field.h
+│   │       │   │   ├── csharp_message.cc
+│   │       │   │   ├── csharp_message_field.cc
+│   │       │   │   ├── csharp_message_field.h
+│   │       │   │   ├── csharp_message.h
+│   │       │   │   ├── csharp_names.h
+│   │       │   │   ├── csharp_options.h
+│   │       │   │   ├── csharp_primitive_field.cc
+│   │       │   │   ├── csharp_primitive_field.h
+│   │       │   │   ├── csharp_reflection_class.cc
+│   │       │   │   ├── csharp_reflection_class.h
+│   │       │   │   ├── csharp_repeated_enum_field.cc
+│   │       │   │   ├── csharp_repeated_enum_field.h
+│   │       │   │   ├── csharp_repeated_message_field.cc
+│   │       │   │   ├── csharp_repeated_message_field.h
+│   │       │   │   ├── csharp_repeated_primitive_field.cc
+│   │       │   │   ├── csharp_repeated_primitive_field.h
+│   │       │   │   ├── csharp_source_generator_base.cc
+│   │       │   │   ├── csharp_source_generator_base.h
+│   │       │   │   ├── csharp_wrapper_field.cc
+│   │       │   │   └── csharp_wrapper_field.h
+│   │       │   ├── importer.cc
+│   │       │   ├── importer.h
+│   │       │   ├── importer_unittest.cc
+│   │       │   ├── java
+│   │       │   │   ├── java_context.cc
+│   │       │   │   ├── java_context.h
+│   │       │   │   ├── java_doc_comment.cc
+│   │       │   │   ├── java_doc_comment.h
+│   │       │   │   ├── java_doc_comment_unittest.cc
+│   │       │   │   ├── java_enum.cc
+│   │       │   │   ├── java_enum_field.cc
+│   │       │   │   ├── java_enum_field.h
+│   │       │   │   ├── java_enum_field_lite.cc
+│   │       │   │   ├── java_enum_field_lite.h
+│   │       │   │   ├── java_enum.h
+│   │       │   │   ├── java_enum_lite.cc
+│   │       │   │   ├── java_enum_lite.h
+│   │       │   │   ├── java_extension.cc
+│   │       │   │   ├── java_extension.h
+│   │       │   │   ├── java_extension_lite.cc
+│   │       │   │   ├── java_extension_lite.h
+│   │       │   │   ├── java_field.cc
+│   │       │   │   ├── java_field.h
+│   │       │   │   ├── java_file.cc
+│   │       │   │   ├── java_file.h
+│   │       │   │   ├── java_generator.cc
+│   │       │   │   ├── java_generator_factory.cc
+│   │       │   │   ├── java_generator_factory.h
+│   │       │   │   ├── java_generator.h
+│   │       │   │   ├── java_helpers.cc
+│   │       │   │   ├── java_helpers.h
+│   │       │   │   ├── java_map_field.cc
+│   │       │   │   ├── java_map_field.h
+│   │       │   │   ├── java_map_field_lite.cc
+│   │       │   │   ├── java_map_field_lite.h
+│   │       │   │   ├── java_message_builder.cc
+│   │       │   │   ├── java_message_builder.h
+│   │       │   │   ├── java_message_builder_lite.cc
+│   │       │   │   ├── java_message_builder_lite.h
+│   │       │   │   ├── java_message.cc
+│   │       │   │   ├── java_message_field.cc
+│   │       │   │   ├── java_message_field.h
+│   │       │   │   ├── java_message_field_lite.cc
+│   │       │   │   ├── java_message_field_lite.h
+│   │       │   │   ├── java_message.h
+│   │       │   │   ├── java_message_lite.cc
+│   │       │   │   ├── java_message_lite.h
+│   │       │   │   ├── java_name_resolver.cc
+│   │       │   │   ├── java_name_resolver.h
+│   │       │   │   ├── java_names.h
+│   │       │   │   ├── java_options.h
+│   │       │   │   ├── java_plugin_unittest.cc
+│   │       │   │   ├── java_primitive_field.cc
+│   │       │   │   ├── java_primitive_field.h
+│   │       │   │   ├── java_primitive_field_lite.cc
+│   │       │   │   ├── java_primitive_field_lite.h
+│   │       │   │   ├── java_service.cc
+│   │       │   │   ├── java_service.h
+│   │       │   │   ├── java_shared_code_generator.cc
+│   │       │   │   ├── java_shared_code_generator.h
+│   │       │   │   ├── java_string_field.cc
+│   │       │   │   ├── java_string_field.h
+│   │       │   │   ├── java_string_field_lite.cc
+│   │       │   │   └── java_string_field_lite.h
+│   │       │   ├── js
+│   │       │   │   ├── js_generator.cc
+│   │       │   │   ├── js_generator.h
+│   │       │   │   ├── well_known_types_embed.cc
+│   │       │   │   └── well_known_types_embed.h
+│   │       │   ├── main.cc
+│   │       │   ├── mock_code_generator.cc
+│   │       │   ├── mock_code_generator.h
+│   │       │   ├── objectivec
+│   │       │   │   ├── objectivec_enum.cc
+│   │       │   │   ├── objectivec_enum_field.cc
+│   │       │   │   ├── objectivec_enum_field.h
+│   │       │   │   ├── objectivec_enum.h
+│   │       │   │   ├── objectivec_extension.cc
+│   │       │   │   ├── objectivec_extension.h
+│   │       │   │   ├── objectivec_field.cc
+│   │       │   │   ├── objectivec_field.h
+│   │       │   │   ├── objectivec_file.cc
+│   │       │   │   ├── objectivec_file.h
+│   │       │   │   ├── objectivec_generator.cc
+│   │       │   │   ├── objectivec_generator.h
+│   │       │   │   ├── objectivec_helpers.cc
+│   │       │   │   ├── objectivec_helpers.h
+│   │       │   │   ├── objectivec_helpers_unittest.cc
+│   │       │   │   ├── objectivec_map_field.cc
+│   │       │   │   ├── objectivec_map_field.h
+│   │       │   │   ├── objectivec_message.cc
+│   │       │   │   ├── objectivec_message_field.cc
+│   │       │   │   ├── objectivec_message_field.h
+│   │       │   │   ├── objectivec_message.h
+│   │       │   │   ├── objectivec_nsobject_methods.h
+│   │       │   │   ├── objectivec_oneof.cc
+│   │       │   │   ├── objectivec_oneof.h
+│   │       │   │   ├── objectivec_primitive_field.cc
+│   │       │   │   └── objectivec_primitive_field.h
+│   │       │   ├── package_info.h
+│   │       │   ├── parser.cc
+│   │       │   ├── parser.h
+│   │       │   ├── parser_unittest.cc
+│   │       │   ├── php
+│   │       │   │   ├── php_generator.cc
+│   │       │   │   └── php_generator.h
+│   │       │   ├── plugin.cc
+│   │       │   ├── plugin.h
+│   │       │   ├── plugin.pb.cc
+│   │       │   ├── plugin.pb.h
+│   │       │   ├── plugin.proto
+│   │       │   ├── python
+│   │       │   │   ├── python_generator.cc
+│   │       │   │   ├── python_generator.h
+│   │       │   │   └── python_plugin_unittest.cc
+│   │       │   ├── ruby
+│   │       │   │   ├── ruby_generated_code_pb.rb
+│   │       │   │   ├── ruby_generated_code.proto
+│   │       │   │   ├── ruby_generated_code_proto2_pb.rb
+│   │       │   │   ├── ruby_generated_code_proto2.proto
+│   │       │   │   ├── ruby_generated_pkg_explicit_legacy_pb.rb
+│   │       │   │   ├── ruby_generated_pkg_explicit_legacy.proto
+│   │       │   │   ├── ruby_generated_pkg_explicit_pb.rb
+│   │       │   │   ├── ruby_generated_pkg_explicit.proto
+│   │       │   │   ├── ruby_generated_pkg_implicit_pb.rb
+│   │       │   │   ├── ruby_generated_pkg_implicit.proto
+│   │       │   │   ├── ruby_generator.cc
+│   │       │   │   ├── ruby_generator.h
+│   │       │   │   └── ruby_generator_unittest.cc
+│   │       │   ├── scc.h
+│   │       │   ├── subprocess.cc
+│   │       │   ├── subprocess.h
+│   │       │   ├── test_plugin.cc
+│   │       │   ├── zip_output_unittest.sh
+│   │       │   ├── zip_writer.cc
+│   │       │   └── zip_writer.h
+│   │       ├── descriptor.cc
+│   │       ├── descriptor_database.cc
+│   │       ├── descriptor_database.h
+│   │       ├── descriptor_database_unittest.cc
+│   │       ├── descriptor.h
+│   │       ├── descriptor.pb.cc
+│   │       ├── descriptor.pb.h
+│   │       ├── descriptor.proto
+│   │       ├── descriptor_unittest.cc
+│   │       ├── drop_unknown_fields_test.cc
+│   │       ├── duration.pb.cc
+│   │       ├── duration.pb.h
+│   │       ├── duration.proto
+│   │       ├── dynamic_message.cc
+│   │       ├── dynamic_message.h
+│   │       ├── dynamic_message_unittest.cc
+│   │       ├── empty.pb.cc
+│   │       ├── empty.pb.h
+│   │       ├── empty.proto
+│   │       ├── extension_set.cc
+│   │       ├── extension_set.h
+│   │       ├── extension_set_heavy.cc
+│   │       ├── extension_set_inl.h
+│   │       ├── extension_set_unittest.cc
+│   │       ├── field_mask.pb.cc
+│   │       ├── field_mask.pb.h
+│   │       ├── field_mask.proto
+│   │       ├── generated_enum_reflection.h
+│   │       ├── generated_enum_util.cc
+│   │       ├── generated_enum_util.h
+│   │       ├── generated_message_reflection.cc
+│   │       ├── generated_message_reflection.h
+│   │       ├── generated_message_reflection_unittest.cc
+│   │       ├── generated_message_table_driven.cc
+│   │       ├── generated_message_table_driven.h
+│   │       ├── generated_message_table_driven_lite.cc
+│   │       ├── generated_message_table_driven_lite.h
+│   │       ├── generated_message_util.cc
+│   │       ├── generated_message_util.h
+│   │       ├── has_bits.h
+│   │       ├── implicit_weak_message.cc
+│   │       ├── implicit_weak_message.h
+│   │       ├── io
+│   │       │   ├── coded_stream.cc
+│   │       │   ├── coded_stream.h
+│   │       │   ├── coded_stream_unittest.cc
+│   │       │   ├── gzip_stream.cc
+│   │       │   ├── gzip_stream.h
+│   │       │   ├── gzip_stream_unittest.sh
+│   │       │   ├── io_win32.cc
+│   │       │   ├── io_win32.h
+│   │       │   ├── io_win32_unittest.cc
+│   │       │   ├── package_info.h
+│   │       │   ├── printer.cc
+│   │       │   ├── printer.h
+│   │       │   ├── printer_unittest.cc
+│   │       │   ├── strtod.cc
+│   │       │   ├── strtod.h
+│   │       │   ├── tokenizer.cc
+│   │       │   ├── tokenizer.h
+│   │       │   ├── tokenizer_unittest.cc
+│   │       │   ├── zero_copy_stream.cc
+│   │       │   ├── zero_copy_stream.h
+│   │       │   ├── zero_copy_stream_impl.cc
+│   │       │   ├── zero_copy_stream_impl.h
+│   │       │   ├── zero_copy_stream_impl_lite.cc
+│   │       │   ├── zero_copy_stream_impl_lite.h
+│   │       │   └── zero_copy_stream_unittest.cc
+│   │       ├── lite_arena_unittest.cc
+│   │       ├── lite_unittest.cc
+│   │       ├── map.cc
+│   │       ├── map_entry.h
+│   │       ├── map_entry_lite.h
+│   │       ├── map_field.cc
+│   │       ├── map_field.h
+│   │       ├── map_field_inl.h
+│   │       ├── map_field_lite.h
+│   │       ├── map_field_test.cc
+│   │       ├── map.h
+│   │       ├── map_lite_test_util.cc
+│   │       ├── map_lite_test_util.h
+│   │       ├── map_lite_unittest.proto
+│   │       ├── map_proto2_unittest.proto
+│   │       ├── map_test.cc
+│   │       ├── map_test_util.h
+│   │       ├── map_test_util_impl.h
+│   │       ├── map_test_util.inc
+│   │       ├── map_type_handler.h
+│   │       ├── map_unittest.proto
+│   │       ├── message.cc
+│   │       ├── message.h
+│   │       ├── message_lite.cc
+│   │       ├── message_lite.h
+│   │       ├── message_unittest.cc
+│   │       ├── message_unittest.inc
+│   │       ├── metadata.h
+│   │       ├── metadata_lite.h
+│   │       ├── no_field_presence_test.cc
+│   │       ├── package_info.h
+│   │       ├── parse_context.cc
+│   │       ├── parse_context.h
+│   │       ├── port_def.inc
+│   │       ├── port.h
+│   │       ├── port_undef.inc
+│   │       ├── preserve_unknown_enum_test.cc
+│   │       ├── proto3_arena_lite_unittest.cc
+│   │       ├── proto3_arena_unittest.cc
+│   │       ├── proto3_lite_unittest.cc
+│   │       ├── proto3_lite_unittest.inc
+│   │       ├── reflection.h
+│   │       ├── reflection_internal.h
+│   │       ├── reflection_ops.cc
+│   │       ├── reflection_ops.h
+│   │       ├── reflection_ops_unittest.cc
+│   │       ├── repeated_field.cc
+│   │       ├── repeated_field.h
+│   │       ├── repeated_field_reflection_unittest.cc
+│   │       ├── repeated_field_unittest.cc
+│   │       ├── service.cc
+│   │       ├── service.h
+│   │       ├── source_context.pb.cc
+│   │       ├── source_context.pb.h
+│   │       ├── source_context.proto
+│   │       ├── struct.pb.cc
+│   │       ├── struct.pb.h
+│   │       ├── struct.proto
+│   │       ├── stubs
+│   │       │   ├── bytestream.cc
+│   │       │   ├── bytestream.h
+│   │       │   ├── bytestream_unittest.cc
+│   │       │   ├── callback.h
+│   │       │   ├── casts.h
+│   │       │   ├── common.cc
+│   │       │   ├── common.h
+│   │       │   ├── common_unittest.cc
+│   │       │   ├── hash.h
+│   │       │   ├── int128.cc
+│   │       │   ├── int128.h
+│   │       │   ├── int128_unittest.cc
+│   │       │   ├── logging.h
+│   │       │   ├── macros.h
+│   │       │   ├── map_util.h
+│   │       │   ├── mathutil.h
+│   │       │   ├── mutex.h
+│   │       │   ├── once.h
+│   │       │   ├── platform_macros.h
+│   │       │   ├── port.h
+│   │       │   ├── status.cc
+│   │       │   ├── status.h
+│   │       │   ├── status_macros.h
+│   │       │   ├── statusor.cc
+│   │       │   ├── statusor.h
+│   │       │   ├── statusor_test.cc
+│   │       │   ├── status_test.cc
+│   │       │   ├── stl_util.h
+│   │       │   ├── stringpiece.cc
+│   │       │   ├── stringpiece.h
+│   │       │   ├── stringpiece_unittest.cc
+│   │       │   ├── stringprintf.cc
+│   │       │   ├── stringprintf.h
+│   │       │   ├── stringprintf_unittest.cc
+│   │       │   ├── structurally_valid.cc
+│   │       │   ├── structurally_valid_unittest.cc
+│   │       │   ├── strutil.cc
+│   │       │   ├── strutil.h
+│   │       │   ├── strutil_unittest.cc
+│   │       │   ├── substitute.cc
+│   │       │   ├── substitute.h
+│   │       │   ├── template_util.h
+│   │       │   ├── template_util_unittest.cc
+│   │       │   ├── time.cc
+│   │       │   ├── time.h
+│   │       │   └── time_test.cc
+│   │       ├── testdata
+│   │       │   ├── bad_utf8_string
+│   │       │   ├── golden_message
+│   │       │   ├── golden_message_maps
+│   │       │   ├── golden_message_oneof_implemented
+│   │       │   ├── golden_message_proto3
+│   │       │   ├── golden_packed_fields_message
+│   │       │   ├── map_test_data.txt
+│   │       │   ├── text_format_unittest_data_oneof_implemented.txt
+│   │       │   ├── text_format_unittest_data_pointy_oneof.txt
+│   │       │   ├── text_format_unittest_data_pointy.txt
+│   │       │   ├── text_format_unittest_data.txt
+│   │       │   ├── text_format_unittest_extensions_data_pointy.txt
+│   │       │   └── text_format_unittest_extensions_data.txt
+│   │       ├── testing
+│   │       │   ├── file.cc
+│   │       │   ├── file.h
+│   │       │   ├── googletest.cc
+│   │       │   ├── googletest.h
+│   │       │   ├── zcgunzip.cc
+│   │       │   └── zcgzip.cc
+│   │       ├── test_messages_proto2.proto
+│   │       ├── test_messages_proto3.proto
+│   │       ├── test_util2.h
+│   │       ├── test_util.cc
+│   │       ├── test_util.h
+│   │       ├── test_util.inc
+│   │       ├── test_util_lite.cc
+│   │       ├── test_util_lite.h
+│   │       ├── text_format.cc
+│   │       ├── text_format.h
+│   │       ├── text_format_unittest.cc
+│   │       ├── timestamp.pb.cc
+│   │       ├── timestamp.pb.h
+│   │       ├── timestamp.proto
+│   │       ├── type.pb.cc
+│   │       ├── type.pb.h
+│   │       ├── type.proto
+│   │       ├── unittest_arena.proto
+│   │       ├── unittest_custom_options.proto
+│   │       ├── unittest_drop_unknown_fields.proto
+│   │       ├── unittest_embed_optimize_for.proto
+│   │       ├── unittest_empty.proto
+│   │       ├── unittest_enormous_descriptor.proto
+│   │       ├── unittest_import_lite.proto
+│   │       ├── unittest_import.proto
+│   │       ├── unittest_import_public_lite.proto
+│   │       ├── unittest_import_public.proto
+│   │       ├── unittest_lazy_dependencies_custom_option.proto
+│   │       ├── unittest_lazy_dependencies_enum.proto
+│   │       ├── unittest_lazy_dependencies.proto
+│   │       ├── unittest_lite_imports_nonlite.proto
+│   │       ├── unittest_lite.proto
+│   │       ├── unittest_mset.proto
+│   │       ├── unittest_mset_wire_format.proto
+│   │       ├── unittest_no_field_presence.proto
+│   │       ├── unittest_no_generic_services.proto
+│   │       ├── unittest_optimize_for.proto
+│   │       ├── unittest_preserve_unknown_enum2.proto
+│   │       ├── unittest_preserve_unknown_enum.proto
+│   │       ├── unittest.proto
+│   │       ├── unittest_proto3_arena_lite.proto
+│   │       ├── unittest_proto3_arena.proto
+│   │       ├── unittest_proto3_lite.proto
+│   │       ├── unittest_proto3_optional.proto
+│   │       ├── unittest_proto3.proto
+│   │       ├── unittest_well_known_types.proto
+│   │       ├── unknown_field_set.cc
+│   │       ├── unknown_field_set.h
+│   │       ├── unknown_field_set_unittest.cc
+│   │       ├── util
+│   │       │   ├── delimited_message_util.cc
+│   │       │   ├── delimited_message_util.h
+│   │       │   ├── delimited_message_util_test.cc
+│   │       │   ├── field_comparator.cc
+│   │       │   ├── field_comparator.h
+│   │       │   ├── field_comparator_test.cc
+│   │       │   ├── field_mask_util.cc
+│   │       │   ├── field_mask_util.h
+│   │       │   ├── field_mask_util_test.cc
+│   │       │   ├── internal
+│   │       │   │   ├── constants.h
+│   │       │   │   ├── datapiece.cc
+│   │       │   │   ├── datapiece.h
+│   │       │   │   ├── default_value_objectwriter.cc
+│   │       │   │   ├── default_value_objectwriter.h
+│   │       │   │   ├── default_value_objectwriter_test.cc
+│   │       │   │   ├── error_listener.cc
+│   │       │   │   ├── error_listener.h
+│   │       │   │   ├── expecting_objectwriter.h
+│   │       │   │   ├── field_mask_utility.cc
+│   │       │   │   ├── field_mask_utility.h
+│   │       │   │   ├── json_escaping.cc
+│   │       │   │   ├── json_escaping.h
+│   │       │   │   ├── json_objectwriter.cc
+│   │       │   │   ├── json_objectwriter.h
+│   │       │   │   ├── json_objectwriter_test.cc
+│   │       │   │   ├── json_stream_parser.cc
+│   │       │   │   ├── json_stream_parser.h
+│   │       │   │   ├── json_stream_parser_test.cc
+│   │       │   │   ├── location_tracker.h
+│   │       │   │   ├── mock_error_listener.h
+│   │       │   │   ├── object_location_tracker.h
+│   │       │   │   ├── object_source.h
+│   │       │   │   ├── object_writer.cc
+│   │       │   │   ├── object_writer.h
+│   │       │   │   ├── protostream_objectsource.cc
+│   │       │   │   ├── protostream_objectsource.h
+│   │       │   │   ├── protostream_objectsource_test.cc
+│   │       │   │   ├── protostream_objectwriter.cc
+│   │       │   │   ├── protostream_objectwriter.h
+│   │       │   │   ├── protostream_objectwriter_test.cc
+│   │       │   │   ├── proto_writer.cc
+│   │       │   │   ├── proto_writer.h
+│   │       │   │   ├── structured_objectwriter.h
+│   │       │   │   ├── testdata
+│   │       │   │   │   ├── anys.proto
+│   │       │   │   │   ├── books.proto
+│   │       │   │   │   ├── default_value.proto
+│   │       │   │   │   ├── default_value_test.proto
+│   │       │   │   │   ├── field_mask.proto
+│   │       │   │   │   ├── maps.proto
+│   │       │   │   │   ├── oneofs.proto
+│   │       │   │   │   ├── proto3.proto
+│   │       │   │   │   ├── struct.proto
+│   │       │   │   │   ├── timestamp_duration.proto
+│   │       │   │   │   └── wrappers.proto
+│   │       │   │   ├── type_info.cc
+│   │       │   │   ├── type_info.h
+│   │       │   │   ├── type_info_test_helper.cc
+│   │       │   │   ├── type_info_test_helper.h
+│   │       │   │   ├── utility.cc
+│   │       │   │   └── utility.h
+│   │       │   ├── json_format.proto
+│   │       │   ├── json_format_proto3.proto
+│   │       │   ├── json_util.cc
+│   │       │   ├── json_util.h
+│   │       │   ├── json_util_test.cc
+│   │       │   ├── message_differencer.cc
+│   │       │   ├── message_differencer.h
+│   │       │   ├── message_differencer_unittest.cc
+│   │       │   ├── message_differencer_unittest.proto
+│   │       │   ├── package_info.h
+│   │       │   ├── time_util.cc
+│   │       │   ├── time_util.h
+│   │       │   ├── time_util_test.cc
+│   │       │   ├── type_resolver.h
+│   │       │   ├── type_resolver_util.cc
+│   │       │   ├── type_resolver_util.h
+│   │       │   └── type_resolver_util_test.cc
+│   │       ├── well_known_types_unittest.cc
+│   │       ├── wire_format.cc
+│   │       ├── wire_format.h
+│   │       ├── wire_format_lite.cc
+│   │       ├── wire_format_lite.h
+│   │       ├── wire_format_unittest.cc
+│   │       ├── wrappers.pb.cc
+│   │       ├── wrappers.pb.h
+│   │       └── wrappers.proto
+│   ├── libmem
+│   │   ├── api.h
+│   │   ├── libmem.h
+│   │   └── libmem.hpp
+│   └── yaml-cpp
+│       ├── anchor.h
+│       ├── binary.h
+│       ├── contrib
+│       │   ├── anchordict.h
+│       │   └── graphbuilder.h
+│       ├── depthguard.h
+│       ├── dll.h
+│       ├── emitfromevents.h
+│       ├── emitterdef.h
+│       ├── emitter.h
+│       ├── emittermanip.h
+│       ├── emitterstyle.h
+│       ├── eventhandler.h
+│       ├── exceptions.h
+│       ├── fptostring.h
+│       ├── mark.h
+│       ├── node
+│       │   ├── convert.h
+│       │   ├── detail
+│       │   │   ├── impl.h
+│       │   │   ├── iterator_fwd.h
+│       │   │   ├── iterator.h
+│       │   │   ├── memory.h
+│       │   │   ├── node_data.h
+│       │   │   ├── node.h
+│       │   │   ├── node_iterator.h
+│       │   │   └── node_ref.h
+│       │   ├── emit.h
+│       │   ├── impl.h
+│       │   ├── iterator.h
+│       │   ├── node.h
+│       │   ├── parse.h
+│       │   ├── ptr.h
+│       │   └── type.h
+│       ├── noexcept.h
+│       ├── null.h
+│       ├── ostream_wrapper.h
+│       ├── parser.h
+│       ├── stlemitter.h
+│       ├── traits.h
+│       └── yaml.h
+├── install.sh
+├── lib
+│   ├── liblibmem.a
+│   ├── libprotobuf.a
+│   └── libyaml-cpp.a
+├── LICENSE
+├── .mailmap
+├── Makefile
+├── navi.sln
+├── nix-modules
+│   ├── default.nix
+│   ├── deps.json
+│   ├── home.nix
+│   ├── schema-grabber.nix
+│   ├── ticket-grabber.nix
+│   └── wrapped.nix
+├── obj
+│   ├── 19ab648e49e73faa5ff06aaefc052d320b3cfd343edf7332ce42090156cd90e2
+│   │   ├── core
+│   │   │   ├── api.o
+│   │   │   ├── cloud_oauth.o
+│   │   │   ├── curl.o
+│   │   │   ├── decompiler.o
+│   │   │   ├── filewatcher.o
+│   │   │   ├── globals.o
+│   │   │   ├── log.o
+│   │   │   ├── memhlp.o
+│   │   │   ├── patterns.o
+│   │   │   ├── utils.o
+│   │   │   ├── vftableinfo.o
+│   │   │   └── zip.o
+│   │   ├── gtest
+│   │   │   ├── gtest-all.o
+│   │   │   └── gtest_main.o
+│   │   ├── model
+│   │   │   ├── achievement_merger.o
+│   │   │   ├── config.o
+│   │   │   ├── depotkeys.o
+│   │   │   ├── lua_parser.o
+│   │   │   ├── manifestcode.o
+│   │   │   ├── migrations
+│   │   │   │   ├── cache_migration.o
+│   │   │   │   ├── config_migration.o
+│   │   │   │   └── legacy_migration.o
+│   │   │   ├── paths.o
+│   │   │   ├── sdk
+│   │   │   │   ├── binarykv.o
+│   │   │   │   ├── CAPIJob.o
+│   │   │   │   ├── CClientUnifiedServiceTransport.o
+│   │   │   │   ├── CCMInterface.o
+│   │   │   │   ├── CNetPacket.o
+│   │   │   │   ├── CSteamEngine.o
+│   │   │   │   ├── CUser.o
+│   │   │   │   ├── CUtl.o
+│   │   │   │   ├── CWebSocketConnection.o
+│   │   │   │   ├── IClientAppManager.o
+│   │   │   │   ├── IClientApps.o
+│   │   │   │   ├── IClientCompat.o
+│   │   │   │   ├── IClientUser.o
+│   │   │   │   ├── IClientUtils.o
+│   │   │   │   ├── protobufs
+│   │   │   │   │   ├── encrypted_app_ticket.pb.o
+│   │   │   │   │   ├── enums_clientserver.pb.o
+│   │   │   │   │   ├── enums.pb.o
+│   │   │   │   │   ├── steammessages_base.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_2.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_appinfo.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_friends.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_login.pb.o
+│   │   │   │   │   ├── steammessages_clientserver.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_userstats.pb.o
+│   │   │   │   │   ├── steammessages_player.steamclient.pb.o
+│   │   │   │   │   └── steammessages_unified_base.steamclient.pb.o
+│   │   │   │   └── steam.o
+│   │   │   └── vdf.o
+│   │   ├── presenter
+│   │   │   ├── achievements.o
+│   │   │   ├── apps.o
+│   │   │   ├── autocrack_manager.o
+│   │   │   ├── autoupdate.o
+│   │   │   ├── cloud_manager.o
+│   │   │   ├── cloud_pending_ops.o
+│   │   │   ├── cloudredirect.o
+│   │   │   ├── dlc.o
+│   │   │   ├── fakeappid.o
+│   │   │   ├── hooks.o
+│   │   │   ├── licenses.o
+│   │   │   ├── luadownload.o
+│   │   │   ├── luagenerator.o
+│   │   │   ├── main.o
+│   │   │   ├── misc.o
+│   │   │   ├── nativeinstall.o
+│   │   │   ├── process_lock.o
+│   │   │   ├── removelua.o
+│   │   │   ├── storeinject.o
+│   │   │   ├── ticket.o
+│   │   │   ├── tier0hook.o
+│   │   │   └── update.o
+│   │   ├── tests
+│   │   │   └── unit
+│   │   │       ├── test_cloud_manager.o
+│   │   │       ├── test_cloud_oauth.o
+│   │   │       ├── test_cloud_pending_ops.o
+│   │   │       ├── test_cloudredirect_bridge.o
+│   │   │       ├── test_config.o
+│   │   │       ├── test_depotkeys.o
+│   │   │       ├── test_manifest_and_native.o
+│   │   │       ├── test_migration.o
+│   │   │       ├── test_patterns_and_utils.o
+│   │   │       ├── test_stubs_appinfo.o
+│   │   │       ├── test_stubs.o
+│   │   │       ├── test_stubs_player.o
+│   │   │       ├── test_stubs_unified.o
+│   │   │       ├── test_vdf_and_lua.o
+│   │   │       └── test_zip_and_atomic.o
+│   │   ├── tools
+│   │   │   └── cloud_pending
+│   │   │       └── main.o
+│   │   └── view
+│   │       ├── cdpinject.o
+│   │       ├── cefsizefix.o
+│   │       ├── cloud_view.o
+│   │       └── storeinject_view.o
+│   ├── 695e86ce5bd909454dc51b41424736b510630175d92f81e16c38fce1e17dc65e
+│   │   ├── core
+│   │   │   ├── api.o
+│   │   │   ├── cloud_oauth.o
+│   │   │   ├── curl.o
+│   │   │   ├── decompiler.o
+│   │   │   ├── filewatcher.o
+│   │   │   ├── globals.o
+│   │   │   ├── log.o
+│   │   │   ├── memhlp.o
+│   │   │   ├── patterns.o
+│   │   │   ├── utils.o
+│   │   │   ├── vftableinfo.o
+│   │   │   └── zip.o
+│   │   ├── model
+│   │   │   ├── achievement_merger.o
+│   │   │   ├── config.o
+│   │   │   ├── depotkeys.o
+│   │   │   ├── lua_parser.o
+│   │   │   ├── manifestcode.o
+│   │   │   ├── migrations
+│   │   │   │   ├── cache_migration.o
+│   │   │   │   ├── config_migration.o
+│   │   │   │   └── legacy_migration.o
+│   │   │   ├── paths.o
+│   │   │   ├── sdk
+│   │   │   │   ├── binarykv.o
+│   │   │   │   ├── CAPIJob.o
+│   │   │   │   ├── CClientUnifiedServiceTransport.o
+│   │   │   │   ├── CCMInterface.o
+│   │   │   │   ├── CNetPacket.o
+│   │   │   │   ├── CSteamEngine.o
+│   │   │   │   ├── CUser.o
+│   │   │   │   ├── CUtl.o
+│   │   │   │   ├── CWebSocketConnection.o
+│   │   │   │   ├── IClientAppManager.o
+│   │   │   │   ├── IClientApps.o
+│   │   │   │   ├── IClientCompat.o
+│   │   │   │   ├── IClientUser.o
+│   │   │   │   ├── IClientUtils.o
+│   │   │   │   ├── protobufs
+│   │   │   │   │   ├── encrypted_app_ticket.pb.o
+│   │   │   │   │   ├── enums_clientserver.pb.o
+│   │   │   │   │   ├── enums.pb.o
+│   │   │   │   │   ├── steammessages_base.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_2.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_appinfo.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_friends.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_login.pb.o
+│   │   │   │   │   ├── steammessages_clientserver.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_userstats.pb.o
+│   │   │   │   │   ├── steammessages_player.steamclient.pb.o
+│   │   │   │   │   └── steammessages_unified_base.steamclient.pb.o
+│   │   │   │   └── steam.o
+│   │   │   └── vdf.o
+│   │   ├── presenter
+│   │   │   ├── achievements.o
+│   │   │   ├── apps.o
+│   │   │   ├── autocrack_manager.o
+│   │   │   ├── autoupdate.o
+│   │   │   ├── cloud_manager.o
+│   │   │   ├── cloud_pending_ops.o
+│   │   │   ├── cloudredirect.o
+│   │   │   ├── dlc.o
+│   │   │   ├── fakeappid.o
+│   │   │   ├── hooks.o
+│   │   │   ├── licenses.o
+│   │   │   ├── luadownload.o
+│   │   │   ├── luagenerator.o
+│   │   │   ├── main.o
+│   │   │   ├── misc.o
+│   │   │   ├── nativeinstall.o
+│   │   │   ├── process_lock.o
+│   │   │   ├── removelua.o
+│   │   │   ├── storeinject.o
+│   │   │   ├── ticket.o
+│   │   │   ├── tier0hook.o
+│   │   │   └── update.o
+│   │   └── view
+│   │       ├── cdpinject.o
+│   │       ├── cefsizefix.o
+│   │       ├── cloud_view.o
+│   │       └── storeinject_view.o
+│   ├── 96e71e5ed0f5bac5b2a5d3214fd5c49cd5d000664222a67c32c46c76d07820a7
+│   │   ├── core
+│   │   │   ├── api.d
+│   │   │   ├── api.o
+│   │   │   ├── cloud_oauth.d
+│   │   │   ├── cloud_oauth.o
+│   │   │   ├── curl.d
+│   │   │   ├── curl.o
+│   │   │   ├── decompiler.d
+│   │   │   ├── decompiler.o
+│   │   │   ├── filewatcher.d
+│   │   │   ├── filewatcher.o
+│   │   │   ├── globals.d
+│   │   │   ├── globals.o
+│   │   │   ├── log.d
+│   │   │   ├── log.o
+│   │   │   ├── memhlp.d
+│   │   │   ├── memhlp.o
+│   │   │   ├── patterns.d
+│   │   │   ├── patterns.o
+│   │   │   ├── utils.d
+│   │   │   ├── utils.o
+│   │   │   ├── vftableinfo.d
+│   │   │   ├── vftableinfo.o
+│   │   │   ├── zip.d
+│   │   │   └── zip.o
+│   │   ├── gtest
+│   │   │   ├── gtest-all.o
+│   │   │   └── gtest_main.o
+│   │   ├── model
+│   │   │   ├── achievement_merger.d
+│   │   │   ├── achievement_merger.o
+│   │   │   ├── config.d
+│   │   │   ├── config.o
+│   │   │   ├── depotkeys.d
+│   │   │   ├── depotkeys.o
+│   │   │   ├── lua_parser.d
+│   │   │   ├── lua_parser.o
+│   │   │   ├── manifestcode.d
+│   │   │   ├── manifestcode.o
+│   │   │   ├── migrations
+│   │   │   │   ├── cache_migration.d
+│   │   │   │   ├── cache_migration.o
+│   │   │   │   ├── config_migration.d
+│   │   │   │   ├── config_migration.o
+│   │   │   │   ├── legacy_migration.d
+│   │   │   │   └── legacy_migration.o
+│   │   │   ├── paths.d
+│   │   │   ├── paths.o
+│   │   │   ├── sdk
+│   │   │   │   ├── binarykv.d
+│   │   │   │   ├── binarykv.o
+│   │   │   │   ├── CAPIJob.d
+│   │   │   │   ├── CAPIJob.o
+│   │   │   │   ├── CClientUnifiedServiceTransport.d
+│   │   │   │   ├── CClientUnifiedServiceTransport.o
+│   │   │   │   ├── CCMInterface.d
+│   │   │   │   ├── CCMInterface.o
+│   │   │   │   ├── CNetPacket.d
+│   │   │   │   ├── CNetPacket.o
+│   │   │   │   ├── CSteamEngine.d
+│   │   │   │   ├── CSteamEngine.o
+│   │   │   │   ├── CUser.d
+│   │   │   │   ├── CUser.o
+│   │   │   │   ├── CUtl.d
+│   │   │   │   ├── CUtl.o
+│   │   │   │   ├── CWebSocketConnection.d
+│   │   │   │   ├── CWebSocketConnection.o
+│   │   │   │   ├── IClientAppManager.d
+│   │   │   │   ├── IClientAppManager.o
+│   │   │   │   ├── IClientApps.d
+│   │   │   │   ├── IClientApps.o
+│   │   │   │   ├── IClientCompat.d
+│   │   │   │   ├── IClientCompat.o
+│   │   │   │   ├── IClientUser.d
+│   │   │   │   ├── IClientUser.o
+│   │   │   │   ├── IClientUtils.d
+│   │   │   │   ├── IClientUtils.o
+│   │   │   │   ├── protobufs
+│   │   │   │   │   ├── encrypted_app_ticket.pb.d
+│   │   │   │   │   ├── encrypted_app_ticket.pb.o
+│   │   │   │   │   ├── enums_clientserver.pb.d
+│   │   │   │   │   ├── enums_clientserver.pb.o
+│   │   │   │   │   ├── enums.pb.d
+│   │   │   │   │   ├── enums.pb.o
+│   │   │   │   │   ├── steammessages_base.pb.d
+│   │   │   │   │   ├── steammessages_base.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_2.pb.d
+│   │   │   │   │   ├── steammessages_clientserver_2.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_appinfo.pb.d
+│   │   │   │   │   ├── steammessages_clientserver_appinfo.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_friends.pb.d
+│   │   │   │   │   ├── steammessages_clientserver_friends.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_login.pb.d
+│   │   │   │   │   ├── steammessages_clientserver_login.pb.o
+│   │   │   │   │   ├── steammessages_clientserver.pb.d
+│   │   │   │   │   ├── steammessages_clientserver.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_userstats.pb.d
+│   │   │   │   │   ├── steammessages_clientserver_userstats.pb.o
+│   │   │   │   │   ├── steammessages_player.steamclient.pb.d
+│   │   │   │   │   ├── steammessages_player.steamclient.pb.o
+│   │   │   │   │   ├── steammessages_unified_base.steamclient.pb.d
+│   │   │   │   │   └── steammessages_unified_base.steamclient.pb.o
+│   │   │   │   ├── steam.d
+│   │   │   │   └── steam.o
+│   │   │   ├── vdf.d
+│   │   │   └── vdf.o
+│   │   ├── presenter
+│   │   │   ├── achievements.d
+│   │   │   ├── achievements.o
+│   │   │   ├── apps.d
+│   │   │   ├── apps.o
+│   │   │   ├── autocrack_manager.d
+│   │   │   ├── autocrack_manager.o
+│   │   │   ├── autoupdate.d
+│   │   │   ├── autoupdate.o
+│   │   │   ├── cloud_manager.d
+│   │   │   ├── cloud_manager.o
+│   │   │   ├── cloud_pending_ops.d
+│   │   │   ├── cloud_pending_ops.o
+│   │   │   ├── cloudredirect.d
+│   │   │   ├── cloudredirect.o
+│   │   │   ├── dlc.d
+│   │   │   ├── dlc.o
+│   │   │   ├── fakeappid.d
+│   │   │   ├── fakeappid.o
+│   │   │   ├── hooks.d
+│   │   │   ├── hooks.o
+│   │   │   ├── licenses.d
+│   │   │   ├── licenses.o
+│   │   │   ├── luadownload.d
+│   │   │   ├── luadownload.o
+│   │   │   ├── luagenerator.d
+│   │   │   ├── luagenerator.o
+│   │   │   ├── main.d
+│   │   │   ├── main.o
+│   │   │   ├── misc.d
+│   │   │   ├── misc.o
+│   │   │   ├── nativeinstall.d
+│   │   │   ├── nativeinstall.o
+│   │   │   ├── prefix_bucket_sync.d
+│   │   │   ├── prefix_bucket_sync.o
+│   │   │   ├── process_lock.d
+│   │   │   ├── process_lock.o
+│   │   │   ├── removelua.d
+│   │   │   ├── removelua.o
+│   │   │   ├── storeinject.d
+│   │   │   ├── storeinject.o
+│   │   │   ├── ticket.d
+│   │   │   ├── ticket.o
+│   │   │   ├── tier0hook.d
+│   │   │   ├── tier0hook.o
+│   │   │   ├── update.d
+│   │   │   └── update.o
+│   │   ├── tests
+│   │   │   └── unit
+│   │   │       ├── test_cloud_manager.d
+│   │   │       ├── test_cloud_manager.o
+│   │   │       ├── test_cloud_oauth.d
+│   │   │       ├── test_cloud_oauth.o
+│   │   │       ├── test_cloud_pending_ops.d
+│   │   │       ├── test_cloud_pending_ops.o
+│   │   │       ├── test_cloudredirect_bridge.d
+│   │   │       ├── test_cloudredirect_bridge.o
+│   │   │       ├── test_config.d
+│   │   │       ├── test_config.o
+│   │   │       ├── test_depotkeys.d
+│   │   │       ├── test_depotkeys.o
+│   │   │       ├── test_manifest_and_native.d
+│   │   │       ├── test_manifest_and_native.o
+│   │   │       ├── test_migration.d
+│   │   │       ├── test_migration.o
+│   │   │       ├── test_patterns_and_utils.d
+│   │   │       ├── test_patterns_and_utils.o
+│   │   │       ├── test_prefix_bucket_sync.d
+│   │   │       ├── test_prefix_bucket_sync.o
+│   │   │       ├── test_stubs_appinfo.d
+│   │   │       ├── test_stubs_appinfo.o
+│   │   │       ├── test_stubs.d
+│   │   │       ├── test_stubs.o
+│   │   │       ├── test_stubs_player.d
+│   │   │       ├── test_stubs_player.o
+│   │   │       ├── test_stubs_unified.d
+│   │   │       ├── test_stubs_unified.o
+│   │   │       ├── test_vdf_and_lua.d
+│   │   │       ├── test_vdf_and_lua.o
+│   │   │       ├── test_zip_and_atomic.d
+│   │   │       └── test_zip_and_atomic.o
+│   │   ├── tools
+│   │   │   └── cloud_pending
+│   │   │       ├── main.d
+│   │   │       └── main.o
+│   │   └── view
+│   │       ├── cdpinject.d
+│   │       ├── cdpinject.o
+│   │       ├── cefsizefix.d
+│   │       ├── cefsizefix.o
+│   │       ├── cloud_view.d
+│   │       ├── cloud_view.o
+│   │       ├── storeinject_view.d
+│   │       └── storeinject_view.o
+│   ├── c5d90e85a78fc4b0db60b59e6806b489047ad187ea3219753c0f7be8d03a1c85
+│   │   ├── core
+│   │   │   ├── api.o
+│   │   │   ├── cloud_oauth.o
+│   │   │   ├── curl.o
+│   │   │   ├── decompiler.o
+│   │   │   ├── filewatcher.o
+│   │   │   ├── globals.o
+│   │   │   ├── log.o
+│   │   │   ├── memhlp.o
+│   │   │   ├── patterns.o
+│   │   │   ├── utils.o
+│   │   │   ├── vftableinfo.o
+│   │   │   └── zip.o
+│   │   ├── gtest
+│   │   │   ├── gtest-all.o
+│   │   │   └── gtest_main.o
+│   │   ├── model
+│   │   │   ├── achievement_merger.o
+│   │   │   ├── config.o
+│   │   │   ├── depotkeys.o
+│   │   │   ├── lua_parser.o
+│   │   │   ├── manifestcode.o
+│   │   │   ├── migrations
+│   │   │   │   ├── cache_migration.o
+│   │   │   │   ├── config_migration.o
+│   │   │   │   └── legacy_migration.o
+│   │   │   ├── paths.o
+│   │   │   ├── sdk
+│   │   │   │   ├── binarykv.o
+│   │   │   │   ├── CAPIJob.o
+│   │   │   │   ├── CClientUnifiedServiceTransport.o
+│   │   │   │   ├── CCMInterface.o
+│   │   │   │   ├── CNetPacket.o
+│   │   │   │   ├── CSteamEngine.o
+│   │   │   │   ├── CUser.o
+│   │   │   │   ├── CUtl.o
+│   │   │   │   ├── CWebSocketConnection.o
+│   │   │   │   ├── IClientAppManager.o
+│   │   │   │   ├── IClientApps.o
+│   │   │   │   ├── IClientCompat.o
+│   │   │   │   ├── IClientUser.o
+│   │   │   │   ├── IClientUtils.o
+│   │   │   │   ├── protobufs
+│   │   │   │   │   ├── encrypted_app_ticket.pb.o
+│   │   │   │   │   ├── enums_clientserver.pb.o
+│   │   │   │   │   ├── enums.pb.o
+│   │   │   │   │   ├── steammessages_base.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_2.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_appinfo.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_friends.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_login.pb.o
+│   │   │   │   │   ├── steammessages_clientserver.pb.o
+│   │   │   │   │   ├── steammessages_clientserver_userstats.pb.o
+│   │   │   │   │   ├── steammessages_player.steamclient.pb.o
+│   │   │   │   │   └── steammessages_unified_base.steamclient.pb.o
+│   │   │   │   └── steam.o
+│   │   │   └── vdf.o
+│   │   ├── presenter
+│   │   │   ├── achievements.o
+│   │   │   ├── apps.o
+│   │   │   ├── autocrack_manager.o
+│   │   │   ├── autoupdate.o
+│   │   │   ├── cloud_manager.o
+│   │   │   ├── cloud_pending_ops.o
+│   │   │   ├── cloudredirect.o
+│   │   │   ├── dlc.o
+│   │   │   ├── fakeappid.o
+│   │   │   ├── hooks.o
+│   │   │   ├── licenses.o
+│   │   │   ├── luadownload.o
+│   │   │   ├── luagenerator.o
+│   │   │   ├── main.o
+│   │   │   ├── misc.o
+│   │   │   ├── nativeinstall.o
+│   │   │   ├── prefix_bucket_sync.o
+│   │   │   ├── process_lock.o
+│   │   │   ├── removelua.o
+│   │   │   ├── storeinject.o
+│   │   │   ├── ticket.o
+│   │   │   ├── tier0hook.o
+│   │   │   └── update.o
+│   │   ├── tests
+│   │   │   └── unit
+│   │   │       ├── test_cloud_manager.o
+│   │   │       ├── test_cloud_oauth.o
+│   │   │       ├── test_cloud_pending_ops.o
+│   │   │       ├── test_cloudredirect_bridge.o
+│   │   │       ├── test_config.o
+│   │   │       ├── test_depotkeys.o
+│   │   │       ├── test_manifest_and_native.o
+│   │   │       ├── test_migration.o
+│   │   │       ├── test_patterns_and_utils.o
+│   │   │       ├── test_prefix_bucket_sync.o
+│   │   │       ├── test_stubs_appinfo.o
+│   │   │       ├── test_stubs.o
+│   │   │       ├── test_stubs_player.o
+│   │   │       ├── test_stubs_unified.o
+│   │   │       ├── test_vdf_and_lua.o
+│   │   │       └── test_zip_and_atomic.o
+│   │   ├── tools
+│   │   │   └── cloud_pending
+│   │   │       └── main.o
+│   │   └── view
+│   │       ├── cdpinject.o
+│   │       ├── cefsizefix.o
+│   │       ├── cloud_view.o
+│   │       └── storeinject_view.o
+│   ├── cov
+│   │   ├── core
+│   │   │   ├── cloud_oauth.d
+│   │   │   ├── cloud_oauth.gcda
+│   │   │   ├── cloud_oauth.gcno
+│   │   │   ├── cloud_oauth.o
+│   │   │   ├── curl.gcda
+│   │   │   ├── curl.gcno
+│   │   │   ├── curl.o
+│   │   │   ├── decompiler.gcda
+│   │   │   ├── decompiler.gcno
+│   │   │   ├── decompiler.o
+│   │   │   ├── filewatcher.gcda
+│   │   │   ├── filewatcher.gcno
+│   │   │   ├── filewatcher.o
+│   │   │   ├── memhlp.gcda
+│   │   │   ├── memhlp.gcno
+│   │   │   ├── memhlp.o
+│   │   │   ├── patterns.gcda
+│   │   │   ├── patterns.gcno
+│   │   │   ├── patterns.o
+│   │   │   ├── utils.gcda
+│   │   │   ├── utils.gcno
+│   │   │   ├── utils.o
+│   │   │   ├── vftableinfo.gcda
+│   │   │   ├── vftableinfo.gcno
+│   │   │   ├── vftableinfo.o
+│   │   │   ├── zip.gcda
+│   │   │   ├── zip.gcno
+│   │   │   └── zip.o
+│   │   ├── model
+│   │   │   ├── achievement_merger.gcda
+│   │   │   ├── achievement_merger.gcno
+│   │   │   ├── achievement_merger.o
+│   │   │   ├── config.d
+│   │   │   ├── config.gcda
+│   │   │   ├── config.gcno
+│   │   │   ├── config.o
+│   │   │   ├── depotkeys.gcda
+│   │   │   ├── depotkeys.gcno
+│   │   │   ├── depotkeys.o
+│   │   │   ├── lua_parser.gcda
+│   │   │   ├── lua_parser.gcno
+│   │   │   ├── lua_parser.o
+│   │   │   ├── manifestcode.gcda
+│   │   │   ├── manifestcode.gcno
+│   │   │   ├── manifestcode.o
+│   │   │   ├── migrations
+│   │   │   │   ├── cache_migration.gcda
+│   │   │   │   ├── cache_migration.gcno
+│   │   │   │   ├── cache_migration.o
+│   │   │   │   ├── config_migration.gcda
+│   │   │   │   ├── config_migration.gcno
+│   │   │   │   ├── config_migration.o
+│   │   │   │   ├── legacy_migration.gcda
+│   │   │   │   ├── legacy_migration.gcno
+│   │   │   │   └── legacy_migration.o
+│   │   │   ├── paths.gcda
+│   │   │   ├── paths.gcno
+│   │   │   ├── paths.o
+│   │   │   ├── vdf.gcda
+│   │   │   ├── vdf.gcno
+│   │   │   └── vdf.o
+│   │   ├── presenter
+│   │   │   ├── apps.d
+│   │   │   ├── apps.gcda
+│   │   │   ├── apps.gcno
+│   │   │   ├── apps.o
+│   │   │   ├── autocrack_manager.gcda
+│   │   │   ├── autocrack_manager.gcno
+│   │   │   ├── autocrack_manager.o
+│   │   │   ├── autoupdate.gcda
+│   │   │   ├── autoupdate.gcno
+│   │   │   ├── autoupdate.o
+│   │   │   ├── cloud_manager.d
+│   │   │   ├── cloud_manager.gcda
+│   │   │   ├── cloud_manager.gcno
+│   │   │   ├── cloud_manager.o
+│   │   │   ├── cloud_pending_ops.d
+│   │   │   ├── cloud_pending_ops.gcda
+│   │   │   ├── cloud_pending_ops.gcno
+│   │   │   ├── cloud_pending_ops.o
+│   │   │   ├── cloudredirect.d
+│   │   │   ├── cloudredirect.gcda
+│   │   │   ├── cloudredirect.gcno
+│   │   │   ├── cloudredirect.o
+│   │   │   ├── luagenerator.gcda
+│   │   │   ├── luagenerator.gcno
+│   │   │   ├── luagenerator.o
+│   │   │   ├── nativeinstall.gcda
+│   │   │   ├── nativeinstall.gcno
+│   │   │   ├── nativeinstall.o
+│   │   │   ├── prefix_bucket_sync.d
+│   │   │   ├── prefix_bucket_sync.gcda
+│   │   │   ├── prefix_bucket_sync.gcno
+│   │   │   ├── prefix_bucket_sync.o
+│   │   │   ├── process_lock.gcda
+│   │   │   ├── process_lock.gcno
+│   │   │   └── process_lock.o
+│   │   └── view
+│   │       ├── cloud_view.d
+│   │       ├── cloud_view.gcda
+│   │       ├── cloud_view.gcno
+│   │       ├── cloud_view.o
+│   │       ├── storeinject_view.d
+│   │       ├── storeinject_view.gcda
+│   │       ├── storeinject_view.gcno
+│   │       └── storeinject_view.o
+│   └── f3f494d1de1f98e3ef9d08db976a0ad3a37863a17a2b589e6d053137a70585eb
+│       ├── core
+│       │   ├── api.d
+│       │   ├── api.o
+│       │   ├── cloud_oauth.d
+│       │   ├── cloud_oauth.o
+│       │   ├── curl.d
+│       │   ├── curl.o
+│       │   ├── decompiler.d
+│       │   ├── decompiler.o
+│       │   ├── filewatcher.d
+│       │   ├── filewatcher.o
+│       │   ├── globals.d
+│       │   ├── globals.o
+│       │   ├── log.d
+│       │   ├── log.o
+│       │   ├── memhlp.d
+│       │   ├── memhlp.o
+│       │   ├── patterns.d
+│       │   ├── patterns.o
+│       │   ├── utils.d
+│       │   ├── utils.o
+│       │   ├── vftableinfo.d
+│       │   ├── vftableinfo.o
+│       │   ├── zip.d
+│       │   └── zip.o
+│       ├── model
+│       │   ├── achievement_merger.d
+│       │   ├── achievement_merger.o
+│       │   ├── config.d
+│       │   ├── config.o
+│       │   ├── depotkeys.d
+│       │   ├── depotkeys.o
+│       │   ├── lua_parser.d
+│       │   ├── lua_parser.o
+│       │   ├── manifestcode.d
+│       │   ├── manifestcode.o
+│       │   ├── migrations
+│       │   │   ├── cache_migration.d
+│       │   │   ├── cache_migration.o
+│       │   │   ├── config_migration.d
+│       │   │   ├── config_migration.o
+│       │   │   ├── legacy_migration.d
+│       │   │   └── legacy_migration.o
+│       │   ├── paths.d
+│       │   ├── paths.o
+│       │   ├── sdk
+│       │   │   ├── binarykv.d
+│       │   │   ├── binarykv.o
+│       │   │   ├── CAPIJob.d
+│       │   │   ├── CAPIJob.o
+│       │   │   ├── CClientUnifiedServiceTransport.d
+│       │   │   ├── CClientUnifiedServiceTransport.o
+│       │   │   ├── CCMInterface.d
+│       │   │   ├── CCMInterface.o
+│       │   │   ├── CNetPacket.d
+│       │   │   ├── CNetPacket.o
+│       │   │   ├── CSteamEngine.d
+│       │   │   ├── CSteamEngine.o
+│       │   │   ├── CUser.d
+│       │   │   ├── CUser.o
+│       │   │   ├── CUtl.d
+│       │   │   ├── CUtl.o
+│       │   │   ├── CWebSocketConnection.d
+│       │   │   ├── CWebSocketConnection.o
+│       │   │   ├── IClientAppManager.d
+│       │   │   ├── IClientAppManager.o
+│       │   │   ├── IClientApps.d
+│       │   │   ├── IClientApps.o
+│       │   │   ├── IClientCompat.d
+│       │   │   ├── IClientCompat.o
+│       │   │   ├── IClientUser.d
+│       │   │   ├── IClientUser.o
+│       │   │   ├── IClientUtils.d
+│       │   │   ├── IClientUtils.o
+│       │   │   ├── protobufs
+│       │   │   │   ├── encrypted_app_ticket.pb.d
+│       │   │   │   ├── encrypted_app_ticket.pb.o
+│       │   │   │   ├── enums_clientserver.pb.d
+│       │   │   │   ├── enums_clientserver.pb.o
+│       │   │   │   ├── enums.pb.d
+│       │   │   │   ├── enums.pb.o
+│       │   │   │   ├── steammessages_base.pb.d
+│       │   │   │   ├── steammessages_base.pb.o
+│       │   │   │   ├── steammessages_clientserver_2.pb.d
+│       │   │   │   ├── steammessages_clientserver_2.pb.o
+│       │   │   │   ├── steammessages_clientserver_appinfo.pb.d
+│       │   │   │   ├── steammessages_clientserver_appinfo.pb.o
+│       │   │   │   ├── steammessages_clientserver_friends.pb.d
+│       │   │   │   ├── steammessages_clientserver_friends.pb.o
+│       │   │   │   ├── steammessages_clientserver_login.pb.d
+│       │   │   │   ├── steammessages_clientserver_login.pb.o
+│       │   │   │   ├── steammessages_clientserver.pb.d
+│       │   │   │   ├── steammessages_clientserver.pb.o
+│       │   │   │   ├── steammessages_clientserver_userstats.pb.d
+│       │   │   │   ├── steammessages_clientserver_userstats.pb.o
+│       │   │   │   ├── steammessages_player.steamclient.pb.d
+│       │   │   │   ├── steammessages_player.steamclient.pb.o
+│       │   │   │   ├── steammessages_unified_base.steamclient.pb.d
+│       │   │   │   └── steammessages_unified_base.steamclient.pb.o
+│       │   │   ├── steam.d
+│       │   │   └── steam.o
+│       │   ├── vdf.d
+│       │   └── vdf.o
+│       ├── presenter
+│       │   ├── achievements.d
+│       │   ├── achievements.o
+│       │   ├── apps.d
+│       │   ├── apps.o
+│       │   ├── autocrack_manager.d
+│       │   ├── autocrack_manager.o
+│       │   ├── autoupdate.d
+│       │   ├── autoupdate.o
+│       │   ├── cloud_manager.d
+│       │   ├── cloud_pending_ops.d
+│       │   ├── cloud_pending_ops.o
+│       │   ├── cloudredirect.d
+│       │   ├── cloudredirect.o
+│       │   ├── dlc.d
+│       │   ├── dlc.o
+│       │   ├── fakeappid.d
+│       │   ├── fakeappid.o
+│       │   ├── hooks.d
+│       │   ├── hooks.o
+│       │   ├── licenses.d
+│       │   ├── licenses.o
+│       │   ├── luadownload.d
+│       │   ├── luadownload.o
+│       │   ├── luagenerator.d
+│       │   ├── luagenerator.o
+│       │   ├── main.d
+│       │   ├── main.o
+│       │   ├── misc.d
+│       │   ├── misc.o
+│       │   ├── nativeinstall.d
+│       │   ├── nativeinstall.o
+│       │   ├── prefix_bucket_sync.d
+│       │   ├── prefix_bucket_sync.o
+│       │   ├── process_lock.d
+│       │   ├── process_lock.o
+│       │   ├── removelua.d
+│       │   ├── removelua.o
+│       │   ├── storeinject.d
+│       │   ├── storeinject.o
+│       │   ├── ticket.d
+│       │   ├── ticket.o
+│       │   ├── tier0hook.d
+│       │   ├── tier0hook.o
+│       │   ├── update.d
+│       │   └── update.o
+│       └── view
+│           ├── cdpinject.d
+│           ├── cdpinject.o
+│           ├── cefsizefix.d
+│           ├── cefsizefix.o
+│           ├── cloud_view.d
+│           ├── cloud_view.o
+│           ├── storeinject_view.d
+│           └── storeinject_view.o
+├── pkg
+│   ├── autocrack
+│   │   ├── AuthenticodeExaminer.dll
+│   │   ├── createdump
+│   │   ├── FuzzySharp.dll
+│   │   ├── Goldberg
+│   │   │   ├── CHANGELOG.md
+│   │   │   ├── CREDITS.md
+│   │   │   ├── experimental
+│   │   │   │   ├── README.experimental.md
+│   │   │   │   ├── x64
+│   │   │   │   │   ├── steam_api64.dll
+│   │   │   │   │   └── steamclient64.dll
+│   │   │   │   └── x86
+│   │   │   │       ├── steam_api.dll
+│   │   │   │       └── steamclient.dll
+│   │   │   ├── README.release.md
+│   │   │   ├── regular
+│   │   │   │   ├── x64
+│   │   │   │   │   └── steam_api64.dll
+│   │   │   │   └── x86
+│   │   │   │       └── steam_api.dll
+│   │   │   ├── steamclient_experimental
+│   │   │   │   ├── ColdClientLoader.ini
+│   │   │   │   ├── dll_injection.EXAMPLE
+│   │   │   │   │   ├── extra_dlls.EXAMPLE
+│   │   │   │   │   │   ├── 1_my_first_dll.dll
+│   │   │   │   │   │   ├── 2_my_second_dll.dll
+│   │   │   │   │   │   ├── dlls_subdir
+│   │   │   │   │   │   │   └── 3_my_third_dll.dll
+│   │   │   │   │   │   └── load_order.txt
+│   │   │   │   │   └── README.md
+│   │   │   │   ├── extra_dlls
+│   │   │   │   │   ├── steamclient_extra_x64.dll
+│   │   │   │   │   └── steamclient_extra_x86.dll
+│   │   │   │   ├── GameOverlayRenderer64.dll
+│   │   │   │   ├── GameOverlayRenderer.dll
+│   │   │   │   ├── README.experimental_steamclient.md
+│   │   │   │   ├── steamclient64.dll
+│   │   │   │   ├── steamclient.dll
+│   │   │   │   ├── steamclient_loader_x64.exe
+│   │   │   │   └── steamclient_loader_x86.exe
+│   │   │   ├── steam_old_lib
+│   │   │   │   ├── README.steam_old_lib.md
+│   │   │   │   └── Steam.dll
+│   │   │   ├── steam_settings.EXAMPLE
+│   │   │   │   ├── account_avatar_default.EXAMPLE.jpg
+│   │   │   │   ├── account_avatar.EXAMPLE.jpg
+│   │   │   │   ├── achievements_EXAMPLE.json
+│   │   │   │   ├── auto_accept_invite.EXAMPLE.txt
+│   │   │   │   ├── branches.EXAMPLE.json
+│   │   │   │   ├── configs.app.EXAMPLE.ini
+│   │   │   │   ├── configs.main.EXAMPLE.ini
+│   │   │   │   ├── configs.overlay.EXAMPLE.ini
+│   │   │   │   ├── configs.user.EXAMPLE.ini
+│   │   │   │   ├── controller.EXAMPLE
+│   │   │   │   │   ├── glyphs
+│   │   │   │   │   │   ├── button_a.png
+│   │   │   │   │   │   ├── button_b.png
+│   │   │   │   │   │   ├── button_x.png
+│   │   │   │   │   │   ├── button_y.png
+│   │   │   │   │   │   ├── shoulder_l.png
+│   │   │   │   │   │   ├── shoulder_r.png
+│   │   │   │   │   │   ├── stick_dpad_e.png
+│   │   │   │   │   │   ├── stick_dpad_n.png
+│   │   │   │   │   │   ├── stick_dpad_s.png
+│   │   │   │   │   │   ├── stick_dpad_w.png
+│   │   │   │   │   │   ├── stick_l_click.png
+│   │   │   │   │   │   ├── stick_l_move.png
+│   │   │   │   │   │   ├── stick_r_click.png
+│   │   │   │   │   │   ├── stick_r_move.png
+│   │   │   │   │   │   ├── trigger_l_click.png
+│   │   │   │   │   │   ├── trigger_l_pull.png
+│   │   │   │   │   │   ├── trigger_r_click.png
+│   │   │   │   │   │   ├── trigger_r_pull.png
+│   │   │   │   │   │   ├── xbox_button_dpad_e.png
+│   │   │   │   │   │   ├── xbox_button_dpad_move.png
+│   │   │   │   │   │   ├── xbox_button_dpad_n.png
+│   │   │   │   │   │   ├── xbox_button_dpad_s.png
+│   │   │   │   │   │   ├── xbox_button_dpad_w.png
+│   │   │   │   │   │   ├── xbox_button_select.png
+│   │   │   │   │   │   └── xbox_button_start.png
+│   │   │   │   │   ├── InGameControls.txt
+│   │   │   │   │   └── MenuControls.txt
+│   │   │   │   ├── custom_broadcasts.EXAMPLE.txt
+│   │   │   │   ├── default_items.EXAMPLE.json
+│   │   │   │   ├── depots.EXAMPLE.txt
+│   │   │   │   ├── fonts.EXAMPLE
+│   │   │   │   │   ├── README.md
+│   │   │   │   │   ├── Roboto-Medium-LICENSE.txt
+│   │   │   │   │   └── Roboto-Medium.ttf
+│   │   │   │   ├── gc.EXAMPLE.json
+│   │   │   │   ├── http.EXAMPLE
+│   │   │   │   │   └── accounts.starbreeze.com
+│   │   │   │   │       └── iam
+│   │   │   │   │           └── oauth
+│   │   │   │   │               └── token
+│   │   │   │   ├── installed_app_ids.EXAMPLE.txt
+│   │   │   │   ├── items.EXAMPLE.json
+│   │   │   │   ├── leaderboards.EXAMPLE.txt
+│   │   │   │   ├── mod_images.EXAMPLE
+│   │   │   │   │   └── 12345
+│   │   │   │   │       ├── my_preview_image.jpg
+│   │   │   │   │       └── README.md
+│   │   │   │   ├── mods.EXAMPLE
+│   │   │   │   │   └── 12345
+│   │   │   │   │       ├── mod_file1
+│   │   │   │   │       ├── mod_file2
+│   │   │   │   │       ├── random_mod_file
+│   │   │   │   │       └── Readme.txt
+│   │   │   │   ├── mods.EXAMPLE.json
+│   │   │   │   ├── purchased_keys.EXAMPLE.txt
+│   │   │   │   ├── sounds.EXAMPLE
+│   │   │   │   │   ├── LICENSE.md
+│   │   │   │   │   ├── overlay_achievement_notification.wav
+│   │   │   │   │   ├── overlay_friend_notification.wav
+│   │   │   │   │   └── README.md
+│   │   │   │   ├── stats.EXAMPLE.json
+│   │   │   │   ├── steam_appid.EXAMPLE.txt
+│   │   │   │   ├── steam_interfaces.EXAMPLE.txt
+│   │   │   │   ├── subscribed_groups_clans.EXAMPLE.txt
+│   │   │   │   ├── subscribed_groups.EXAMPLE.txt
+│   │   │   │   └── supported_languages.EXAMPLE.txt
+│   │   │   ├── tools
+│   │   │   │   ├── generate_interfaces
+│   │   │   │   │   ├── generate_interfaces_x64.exe
+│   │   │   │   │   ├── generate_interfaces_x86.exe
+│   │   │   │   │   └── README.generate_interfaces.md
+│   │   │   │   └── lobby_connect
+│   │   │   │       ├── lobby_connect_x64.exe
+│   │   │   │       ├── lobby_connect_x86.exe
+│   │   │   │       └── README.lobby_connect.md
+│   │   │   └── version
+│   │   ├── Iced.dll
+│   │   ├── IniFile.dll
+│   │   ├── libclrgcexp.so
+│   │   ├── libclrgc.so
+│   │   ├── libclrjit.so
+│   │   ├── libcoreclr.so
+│   │   ├── libcoreclrtraceptprovider.so
+│   │   ├── libe_sqlite3.a
+│   │   ├── libe_sqlite3.so
+│   │   ├── libhostfxr.so
+│   │   ├── libhostpolicy.so
+│   │   ├── libmscordaccore.so
+│   │   ├── libmscordbi.so
+│   │   ├── libSystem.Globalization.Native.so
+│   │   ├── libSystem.IO.Compression.Native.so
+│   │   ├── libSystem.Native.so
+│   │   ├── libSystem.Net.Security.Native.so
+│   │   ├── libSystem.Security.Cryptography.Native.OpenSsl.so
+│   │   ├── Microsoft.CSharp.dll
+│   │   ├── Microsoft.VisualBasic.Core.dll
+│   │   ├── Microsoft.VisualBasic.dll
+│   │   ├── Microsoft.Win32.Primitives.dll
+│   │   ├── Microsoft.Win32.Registry.dll
+│   │   ├── mscorlib.dll
+│   │   ├── netstandard.dll
+│   │   ├── NinjaNye.SearchExtensions.dll
+│   │   ├── protobuf-net.Core.dll
+│   │   ├── protobuf-net.dll
+│   │   ├── Serilog.dll
+│   │   ├── Serilog.Expressions.dll
+│   │   ├── Serilog.Sinks.Console.dll
+│   │   ├── Serilog.Sinks.File.dll
+│   │   ├── SharpCompress.dll
+│   │   ├── SQLite-net.dll
+│   │   ├── SQLitePCLRaw.core.dll
+│   │   ├── SQLitePCLRaw.provider.e_sqlite3.dll
+│   │   ├── SteamAPICheckBypass
+│   │   │   ├── SteamAPICheckBypass.dll
+│   │   │   └── SteamAPICheckBypass_x32.dll
+│   │   ├── SteamAutoCrack.CLI
+│   │   ├── SteamAutoCrack.CLI.deps.json
+│   │   ├── SteamAutoCrack.CLI.dll
+│   │   ├── SteamAutoCrack.CLI.pdb
+│   │   ├── SteamAutoCrack.CLI.runtimeconfig.json
+│   │   ├── SteamAutoCrack.Core.dll
+│   │   ├── SteamAutoCrack.Core.pdb
+│   │   ├── SteamKit2.dll
+│   │   ├── Steamless.API.dll
+│   │   ├── Steamless.API.pdb
+│   │   ├── Steamless.Unpacker.Variant10.x86.dll
+│   │   ├── Steamless.Unpacker.Variant10.x86.pdb
+│   │   ├── Steamless.Unpacker.Variant20.x86.dll
+│   │   ├── Steamless.Unpacker.Variant20.x86.pdb
+│   │   ├── Steamless.Unpacker.Variant21.x86.dll
+│   │   ├── Steamless.Unpacker.Variant21.x86.pdb
+│   │   ├── Steamless.Unpacker.Variant30.x64.dll
+│   │   ├── Steamless.Unpacker.Variant30.x64.pdb
+│   │   ├── Steamless.Unpacker.Variant30.x86.dll
+│   │   ├── Steamless.Unpacker.Variant30.x86.pdb
+│   │   ├── Steamless.Unpacker.Variant31.x64.dll
+│   │   ├── Steamless.Unpacker.Variant31.x64.pdb
+│   │   ├── Steamless.Unpacker.Variant31.x86.dll
+│   │   ├── Steamless.Unpacker.Variant31.x86.pdb
+│   │   ├── System.AppContext.dll
+│   │   ├── System.Buffers.dll
+│   │   ├── System.Collections.Concurrent.dll
+│   │   ├── System.Collections.dll
+│   │   ├── System.Collections.Immutable.dll
+│   │   ├── System.Collections.NonGeneric.dll
+│   │   ├── System.Collections.Specialized.dll
+│   │   ├── System.CommandLine.dll
+│   │   ├── System.ComponentModel.Annotations.dll
+│   │   ├── System.ComponentModel.DataAnnotations.dll
+│   │   ├── System.ComponentModel.dll
+│   │   ├── System.ComponentModel.EventBasedAsync.dll
+│   │   ├── System.ComponentModel.Primitives.dll
+│   │   ├── System.ComponentModel.TypeConverter.dll
+│   │   ├── System.Configuration.dll
+│   │   ├── System.Console.dll
+│   │   ├── System.Core.dll
+│   │   ├── System.Data.Common.dll
+│   │   ├── System.Data.DataSetExtensions.dll
+│   │   ├── System.Data.dll
+│   │   ├── System.Diagnostics.Contracts.dll
+│   │   ├── System.Diagnostics.Debug.dll
+│   │   ├── System.Diagnostics.DiagnosticSource.dll
+│   │   ├── System.Diagnostics.FileVersionInfo.dll
+│   │   ├── System.Diagnostics.Process.dll
+│   │   ├── System.Diagnostics.StackTrace.dll
+│   │   ├── System.Diagnostics.TextWriterTraceListener.dll
+│   │   ├── System.Diagnostics.Tools.dll
+│   │   ├── System.Diagnostics.TraceSource.dll
+│   │   ├── System.Diagnostics.Tracing.dll
+│   │   ├── System.dll
+│   │   ├── System.Drawing.dll
+│   │   ├── System.Drawing.Primitives.dll
+│   │   ├── System.Dynamic.Runtime.dll
+│   │   ├── System.Formats.Asn1.dll
+│   │   ├── System.Formats.Tar.dll
+│   │   ├── System.Globalization.Calendars.dll
+│   │   ├── System.Globalization.dll
+│   │   ├── System.Globalization.Extensions.dll
+│   │   ├── System.IO.Compression.Brotli.dll
+│   │   ├── System.IO.Compression.dll
+│   │   ├── System.IO.Compression.FileSystem.dll
+│   │   ├── System.IO.Compression.ZipFile.dll
+│   │   ├── System.IO.dll
+│   │   ├── System.IO.FileSystem.AccessControl.dll
+│   │   ├── System.IO.FileSystem.dll
+│   │   ├── System.IO.FileSystem.DriveInfo.dll
+│   │   ├── System.IO.FileSystem.Primitives.dll
+│   │   ├── System.IO.FileSystem.Watcher.dll
+│   │   ├── System.IO.Hashing.dll
+│   │   ├── System.IO.IsolatedStorage.dll
+│   │   ├── System.IO.MemoryMappedFiles.dll
+│   │   ├── System.IO.Packaging.dll
+│   │   ├── System.IO.Pipelines.dll
+│   │   ├── System.IO.Pipes.AccessControl.dll
+│   │   ├── System.IO.Pipes.dll
+│   │   ├── System.IO.UnmanagedMemoryStream.dll
+│   │   ├── System.Linq.AsyncEnumerable.dll
+│   │   ├── System.Linq.dll
+│   │   ├── System.Linq.Expressions.dll
+│   │   ├── System.Linq.Parallel.dll
+│   │   ├── System.Linq.Queryable.dll
+│   │   ├── System.Memory.dll
+│   │   ├── System.Net.dll
+│   │   ├── System.Net.Http.dll
+│   │   ├── System.Net.Http.Json.dll
+│   │   ├── System.Net.HttpListener.dll
+│   │   ├── System.Net.Mail.dll
+│   │   ├── System.Net.NameResolution.dll
+│   │   ├── System.Net.NetworkInformation.dll
+│   │   ├── System.Net.Ping.dll
+│   │   ├── System.Net.Primitives.dll
+│   │   ├── System.Net.Quic.dll
+│   │   ├── System.Net.Requests.dll
+│   │   ├── System.Net.Security.dll
+│   │   ├── System.Net.ServerSentEvents.dll
+│   │   ├── System.Net.ServicePoint.dll
+│   │   ├── System.Net.Sockets.dll
+│   │   ├── System.Net.WebClient.dll
+│   │   ├── System.Net.WebHeaderCollection.dll
+│   │   ├── System.Net.WebProxy.dll
+│   │   ├── System.Net.WebSockets.Client.dll
+│   │   ├── System.Net.WebSockets.dll
+│   │   ├── System.Numerics.dll
+│   │   ├── System.Numerics.Vectors.dll
+│   │   ├── System.ObjectModel.dll
+│   │   ├── System.Private.CoreLib.dll
+│   │   ├── System.Private.DataContractSerialization.dll
+│   │   ├── System.Private.Uri.dll
+│   │   ├── System.Private.Xml.dll
+│   │   ├── System.Private.Xml.Linq.dll
+│   │   ├── System.Reflection.DispatchProxy.dll
+│   │   ├── System.Reflection.dll
+│   │   ├── System.Reflection.Emit.dll
+│   │   ├── System.Reflection.Emit.ILGeneration.dll
+│   │   ├── System.Reflection.Emit.Lightweight.dll
+│   │   ├── System.Reflection.Extensions.dll
+│   │   ├── System.Reflection.Metadata.dll
+│   │   ├── System.Reflection.Primitives.dll
+│   │   ├── System.Reflection.TypeExtensions.dll
+│   │   ├── System.Resources.Reader.dll
+│   │   ├── System.Resources.ResourceManager.dll
+│   │   ├── System.Resources.Writer.dll
+│   │   ├── System.Runtime.CompilerServices.Unsafe.dll
+│   │   ├── System.Runtime.CompilerServices.VisualC.dll
+│   │   ├── System.Runtime.dll
+│   │   ├── System.Runtime.Extensions.dll
+│   │   ├── System.Runtime.Handles.dll
+│   │   ├── System.Runtime.InteropServices.dll
+│   │   ├── System.Runtime.InteropServices.JavaScript.dll
+│   │   ├── System.Runtime.InteropServices.RuntimeInformation.dll
+│   │   ├── System.Runtime.Intrinsics.dll
+│   │   ├── System.Runtime.Loader.dll
+│   │   ├── System.Runtime.Numerics.dll
+│   │   ├── System.Runtime.Serialization.dll
+│   │   ├── System.Runtime.Serialization.Formatters.dll
+│   │   ├── System.Runtime.Serialization.Json.dll
+│   │   ├── System.Runtime.Serialization.Primitives.dll
+│   │   ├── System.Runtime.Serialization.Xml.dll
+│   │   ├── System.Security.AccessControl.dll
+│   │   ├── System.Security.Claims.dll
+│   │   ├── System.Security.Cryptography.Algorithms.dll
+│   │   ├── System.Security.Cryptography.Cng.dll
+│   │   ├── System.Security.Cryptography.Csp.dll
+│   │   ├── System.Security.Cryptography.dll
+│   │   ├── System.Security.Cryptography.Encoding.dll
+│   │   ├── System.Security.Cryptography.OpenSsl.dll
+│   │   ├── System.Security.Cryptography.Pkcs.dll
+│   │   ├── System.Security.Cryptography.Primitives.dll
+│   │   ├── System.Security.Cryptography.X509Certificates.dll
+│   │   ├── System.Security.Cryptography.Xml.dll
+│   │   ├── System.Security.dll
+│   │   ├── System.Security.Principal.dll
+│   │   ├── System.Security.Principal.Windows.dll
+│   │   ├── System.Security.SecureString.dll
+│   │   ├── System.ServiceModel.Web.dll
+│   │   ├── System.ServiceProcess.dll
+│   │   ├── System.Text.Encoding.CodePages.dll
+│   │   ├── System.Text.Encoding.dll
+│   │   ├── System.Text.Encoding.Extensions.dll
+│   │   ├── System.Text.Encodings.Web.dll
+│   │   ├── System.Text.Json.dll
+│   │   ├── System.Text.RegularExpressions.dll
+│   │   ├── System.Threading.AccessControl.dll
+│   │   ├── System.Threading.Channels.dll
+│   │   ├── System.Threading.dll
+│   │   ├── System.Threading.Overlapped.dll
+│   │   ├── System.Threading.Tasks.Dataflow.dll
+│   │   ├── System.Threading.Tasks.dll
+│   │   ├── System.Threading.Tasks.Extensions.dll
+│   │   ├── System.Threading.Tasks.Parallel.dll
+│   │   ├── System.Threading.Thread.dll
+│   │   ├── System.Threading.ThreadPool.dll
+│   │   ├── System.Threading.Timer.dll
+│   │   ├── System.Transactions.dll
+│   │   ├── System.Transactions.Local.dll
+│   │   ├── System.ValueTuple.dll
+│   │   ├── System.Web.dll
+│   │   ├── System.Web.HttpUtility.dll
+│   │   ├── System.Windows.dll
+│   │   ├── System.Xml.dll
+│   │   ├── System.Xml.Linq.dll
+│   │   ├── System.Xml.ReaderWriter.dll
+│   │   ├── System.Xml.Serialization.dll
+│   │   ├── System.Xml.XDocument.dll
+│   │   ├── System.Xml.XmlDocument.dll
+│   │   ├── System.Xml.XmlSerializer.dll
+│   │   ├── System.Xml.XPath.dll
+│   │   ├── System.Xml.XPath.XDocument.dll
+│   │   ├── TEMP
+│   │   │   └── Goldberg.7z
+│   │   ├── ValveKeyValue.dll
+│   │   ├── WindowsBase.dll
+│   │   └── ZstdSharp.dll
+│   ├── navi
+│   │   └── PKGBUILD
+│   └── navi-git
+│       └── PKGBUILD
+├── plans
+│   ├── 01-backlog
+│   │   └── dev-plan.md
+│   ├── 02-specs
+│   ├── 03-active
+│   ├── 04-done
+│   │   ├── cloud-apps-inventory-speedup-spec-v1.md
+│   │   ├── cloudredirect-ux-parity-spec-v2.md
+│   │   ├── navi-config-copy-spec-v1.md
+│   │   ├── navi-config-redesign-spec-v2.md
+│   │   └── verify-cloud-apps-fetch-timing.md
+│   └── CONTEXT.md
+├── project-structure.txt
+├── .pytest_cache
+│   ├── CACHEDIR.TAG
+│   ├── .gitignore
+│   ├── README.md
+│   └── v
+│       └── cache
+│           ├── lastfailed
+│           └── nodeids
+├── pytest.ini
+├── README.md
+├── res
+│   ├── banner.png
+│   ├── cache.diff.yaml
+│   ├── cloud_redirect_cli
+│   ├── cloud_redirect.so
+│   ├── config.diff.yaml
+│   ├── config.yaml
+│   ├── CONTEXT.md
+│   ├── inject-scripts
+│   │   ├── app-details-script.js -> library/app-details-script.js
+│   │   ├── auto-collection.js -> library/auto-collection.js
+│   │   ├── cloud
+│   │   │   └── cloud_manager.js
+│   │   ├── cloud_manager.js -> cloud/cloud_manager.js
+│   │   ├── core
+│   │   │   └── navi_inject.js
+│   │   ├── depot-selection-script.js -> store/depot-selection-script.js
+│   │   ├── import-lua-script.js -> shell/import-lua-script.js
+│   │   ├── jszip.min.js -> vendor/jszip.min.js
+│   │   ├── library
+│   │   │   ├── app-details
+│   │   │   │   ├── appid.js
+│   │   │   │   ├── buttons.js
+│   │   │   │   ├── cloud-api.js
+│   │   │   │   ├── game-manager-modal.html
+│   │   │   │   ├── game-manager-modal.js
+│   │   │   │   ├── gamepad.js
+│   │   │   │   ├── main.js
+│   │   │   │   ├── navi-modal.html
+│   │   │   │   ├── navi-modal.js
+│   │   │   │   ├── provider-modal.html
+│   │   │   │   ├── provider-modal.js
+│   │   │   │   ├── remove-modal.html
+│   │   │   │   ├── remove-modal.js
+│   │   │   │   ├── reset-modal.html
+│   │   │   │   ├── reset-modal.js
+│   │   │   │   ├── restore-modal.html
+│   │   │   │   ├── restore-modal.js
+│   │   │   │   └── styles.css
+│   │   │   ├── app-details-script.js
+│   │   │   └── auto-collection.js
+│   │   ├── navi_inject.js -> core/navi_inject.js
+│   │   ├── README.md
+│   │   ├── shell
+│   │   │   ├── import-lua-script.js
+│   │   │   └── version-top-bar.js
+│   │   ├── store
+│   │   │   ├── depot-selection-script.js
+│   │   │   └── store-page-script.js
+│   │   ├── store-page-script.js -> store/store-page-script.js
+│   │   ├── vendor
+│   │   │   └── jszip.min.js
+│   │   └── version-top-bar.js -> shell/version-top-bar.js
+│   ├── logo.png
+│   ├── logo.svg
+│   ├── navi.blend
+│   ├── navi.desktop
+│   ├── navi-native.desktop
+│   ├── update-all.sh
+│   ├── updates.yaml
+│   └── version
+├── scratch
+│   ├── capture_live_config_screenshot.py
+│   ├── capture_live_stats_migration.py
+│   ├── scroll_and_capture.py
+│   └── scroll_dialog_body.py
+├── scripts
+│   ├── dev
+│   │   ├── deck-ctl.sh
+│   │   └── phone-notify.sh
+│   └── lib
+│       ├── build.sh
+│       ├── common.sh
+│       ├── install.sh
+│       ├── migration.sh
+│       ├── release.sh
+│       ├── test.sh
+│       ├── uninstall.sh
+│       └── update.sh
+├── src
+│   ├── CONTEXT.md
+│   ├── core
+│   │   ├── api.cpp
+│   │   ├── api.hpp
+│   │   ├── atomic_file.hpp
+│   │   ├── cloud_oauth.cpp
+│   │   ├── cloud_oauth.hpp
+│   │   ├── curl.cpp
+│   │   ├── curl.hpp
+│   │   ├── decompiler.cpp
+│   │   ├── decompiler.hpp
+│   │   ├── filewatcher.cpp
+│   │   ├── filewatcher.hpp
+│   │   ├── globals.cpp
+│   │   ├── globals.hpp
+│   │   ├── log.cpp
+│   │   ├── log.hpp
+│   │   ├── memhlp.cpp
+│   │   ├── memhlp.hpp
+│   │   ├── mtvar.hpp
+│   │   ├── patterns.cpp
+│   │   ├── patterns.hpp
+│   │   ├── utils.cpp
+│   │   ├── utils.hpp
+│   │   ├── version.hpp
+│   │   ├── vftableinfo.cpp
+│   │   ├── vftableinfo.hpp
+│   │   ├── zip.cpp
+│   │   └── zip.hpp
+│   ├── model
+│   │   ├── achievement_merger.cpp
+│   │   ├── achievement_merger.hpp
+│   │   ├── appsizes.hpp
+│   │   ├── config.cpp
+│   │   ├── config_default.hpp
+│   │   ├── config.hpp
+│   │   ├── depotkeys.cpp
+│   │   ├── depotkeys.hpp
+│   │   ├── lua_parser.cpp
+│   │   ├── lua_parser.hpp
+│   │   ├── manifestcode.cpp
+│   │   ├── manifestcode.hpp
+│   │   ├── migrations
+│   │   │   ├── cache_migration.cpp
+│   │   │   ├── cache_migration.hpp
+│   │   │   ├── config_migration.cpp
+│   │   │   ├── config_migration.hpp
+│   │   │   ├── legacy_migration.cpp
+│   │   │   └── legacy_migration.hpp
+│   │   ├── paths.cpp
+│   │   ├── paths.hpp
+│   │   ├── sdk
+│   │   │   ├── binarykv.cpp
+│   │   │   ├── binarykv.hpp
+│   │   │   ├── CAPIJob.cpp
+│   │   │   ├── CAPIJob.hpp
+│   │   │   ├── CClientUnifiedServiceTransport.cpp
+│   │   │   ├── CClientUnifiedServiceTransport.hpp
+│   │   │   ├── CCMInterface.cpp
+│   │   │   ├── CCMInterface.hpp
+│   │   │   ├── CNetPacket.cpp
+│   │   │   ├── CNetPacket.hpp
+│   │   │   ├── CProtoBufMsgBase.hpp
+│   │   │   ├── CSteamClient.hpp
+│   │   │   ├── CSteamEngine.cpp
+│   │   │   ├── CSteamEngine.hpp
+│   │   │   ├── CSteamMatchmakingServers.hpp
+│   │   │   ├── CUser.cpp
+│   │   │   ├── CUser.hpp
+│   │   │   ├── CUtl.cpp
+│   │   │   ├── CUtl.hpp
+│   │   │   ├── CValidator.hpp
+│   │   │   ├── CWebSocketConnection.cpp
+│   │   │   ├── CWebSocketConnection.hpp
+│   │   │   ├── IClientAppManager.cpp
+│   │   │   ├── IClientAppManager.hpp
+│   │   │   ├── IClientApps.cpp
+│   │   │   ├── IClientApps.hpp
+│   │   │   ├── IClientCompat.cpp
+│   │   │   ├── IClientCompat.hpp
+│   │   │   ├── IClientFriends.hpp
+│   │   │   ├── IClientUser.cpp
+│   │   │   ├── IClientUser.hpp
+│   │   │   ├── IClientUtils.cpp
+│   │   │   ├── IClientUtils.hpp
+│   │   │   ├── protobufs
+│   │   │   │   ├── encrypted_app_ticket.pb.cpp
+│   │   │   │   ├── encrypted_app_ticket.pb.h
+│   │   │   │   ├── enums_clientserver.pb.cpp
+│   │   │   │   ├── enums_clientserver.pb.h
+│   │   │   │   ├── enums.pb.cpp
+│   │   │   │   ├── enums.pb.h
+│   │   │   │   ├── steammessages_base.pb.cpp
+│   │   │   │   ├── steammessages_base.pb.h
+│   │   │   │   ├── steammessages_clientserver_2.pb.cpp
+│   │   │   │   ├── steammessages_clientserver_2.pb.h
+│   │   │   │   ├── steammessages_clientserver_appinfo.pb.cpp
+│   │   │   │   ├── steammessages_clientserver_appinfo.pb.h
+│   │   │   │   ├── steammessages_clientserver_friends.pb.cpp
+│   │   │   │   ├── steammessages_clientserver_friends.pb.h
+│   │   │   │   ├── steammessages_clientserver_login.pb.cpp
+│   │   │   │   ├── steammessages_clientserver_login.pb.h
+│   │   │   │   ├── steammessages_clientserver.pb.cpp
+│   │   │   │   ├── steammessages_clientserver.pb.h
+│   │   │   │   ├── steammessages_clientserver_userstats.pb.cpp
+│   │   │   │   ├── steammessages_clientserver_userstats.pb.h
+│   │   │   │   ├── steammessages_player.steamclient.pb.cpp
+│   │   │   │   ├── steammessages_player.steamclient.pb.h
+│   │   │   │   ├── steammessages_unified_base.steamclient.pb.cpp
+│   │   │   │   └── steammessages_unified_base.steamclient.pb.h
+│   │   │   ├── sdk.hpp
+│   │   │   ├── steam.cpp
+│   │   │   ├── steam.hpp
+│   │   │   └── types.hpp
+│   │   ├── vdf.cpp
+│   │   └── vdf.hpp
+│   ├── presenter
+│   │   ├── achievements.cpp
+│   │   ├── achievements.hpp
+│   │   ├── apps.cpp
+│   │   ├── apps.hpp
+│   │   ├── autocrack_manager.cpp
+│   │   ├── autocrack_manager.hpp
+│   │   ├── autoupdate.cpp
+│   │   ├── autoupdate.hpp
+│   │   ├── cloud_manager.cpp
+│   │   ├── cloud_manager.hpp
+│   │   ├── cloud_pending_ops.cpp
+│   │   ├── cloud_pending_ops.hpp
+│   │   ├── cloudredirect.cpp
+│   │   ├── cloudredirect.hpp
+│   │   ├── dlc.cpp
+│   │   ├── dlc.hpp
+│   │   ├── fakeappid.cpp
+│   │   ├── fakeappid.hpp
+│   │   ├── hooks.cpp
+│   │   ├── hooks.hpp
+│   │   ├── licenses.cpp
+│   │   ├── licenses.hpp
+│   │   ├── luadownload.cpp
+│   │   ├── luadownload.hpp
+│   │   ├── luagenerator.cpp
+│   │   ├── luagenerator.hpp
+│   │   ├── main.cpp
+│   │   ├── misc.cpp
+│   │   ├── misc.hpp
+│   │   ├── nativeinstall.cpp
+│   │   ├── nativeinstall.hpp
+│   │   ├── prefix_bucket_sync.cpp
+│   │   ├── prefix_bucket_sync.hpp
+│   │   ├── process_lock.cpp
+│   │   ├── process_lock.hpp
+│   │   ├── removelua.cpp
+│   │   ├── removelua.hpp
+│   │   ├── storeinject.cpp
+│   │   ├── storeinject.hpp
+│   │   ├── ticket.cpp
+│   │   ├── ticket.hpp
+│   │   ├── tier0hook.cpp
+│   │   ├── tier0hook.hpp
+│   │   ├── update.cpp
+│   │   └── update.hpp
+│   └── view
+│       ├── assets -> ../../res/inject-scripts
+│       ├── cdpinject.cpp
+│       ├── cdpinject.hpp
+│       ├── cefsizefix.cpp
+│       ├── cefsizefix.hpp
+│       ├── cloud_view.cpp
+│       ├── cloud_view.hpp
+│       ├── storeinject_view.cpp
+│       └── storeinject_view.hpp
+├── test-results
+│   ├── timing-cloud-apps-inventory
+│   │   ├── census.log
+│   │   ├── cloudapps_census.json
+│   │   ├── cloudapps_cold1.json
+│   │   ├── cloudapps_cpu.json
+│   │   ├── cloudapps_io.json
+│   │   ├── cloudapps_strace.json
+│   │   └── cpuwatch.log
+│   ├── timing-cloud-apps-inventory-d1
+│   │   ├── census_cold.log
+│   │   ├── census_warm1.log
+│   │   ├── census_warm2.log
+│   │   ├── deltas_cold.txt
+│   │   ├── deltas_warm1.txt
+│   │   ├── deltas_warm2.txt
+│   │   ├── resp_cold.json
+│   │   ├── resp_warm1.json
+│   │   ├── resp_warm2.json
+│   │   ├── timing_cold.txt
+│   │   ├── timing_warm1.txt
+│   │   └── timing_warm2.txt
+│   ├── timing-cloud-apps-inventory-d2
+│   │   ├── list-remote-apps-run.log
+│   │   └── list-remote-apps-shape.json
+│   ├── timing-cloud-apps-inventory-d3
+│   │   ├── census_cold.log
+│   │   ├── census_warm1.log
+│   │   ├── census_warm2.log
+│   │   ├── deltas_cold.txt
+│   │   ├── deltas_warm1.txt
+│   │   ├── deltas_warm2.txt
+│   │   ├── resp_cold.json
+│   │   ├── resp_warm1.json
+│   │   ├── resp_warm2.json
+│   │   ├── timing_cold.txt
+│   │   ├── timing_warm1.txt
+│   │   └── timing_warm2.txt
+│   └── ui
+│       ├── screenshots
+│       ├── test_cloud_drilldown_grouped_file_viewer_collapsed_by_default
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_cloud_drilldown_three_file_viewer_variations
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj04_gamepad_navigation_osk_dismissal_and_disabled_skip
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj05_backup_retention_clamping_and_tab_switching
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj05_cloudredirect_ux_parity_controls
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj05_config_editing_barrier_saving_state_and_lock
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj05_config_loading_and_field_population
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj05_invalid_input_dlc_yaml_error_without_wiping_form
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       ├── test_uj06_online_fix_and_autocrack_transitions_with_barriers
+│       │   ├── console-and-network.json
+│       │   ├── dom-snapshot.html
+│       │   └── failure-screenshot.png
+│       └── test_uj07_config_editor_live_search_filter
+│           ├── console-and-network.json
+│           ├── dom-snapshot.html
+│           └── failure-screenshot.png
+├── tests
+│   ├── conftest.py
+│   ├── CONTEXT.md
+│   ├── fixtures
+│   │   ├── __init__.py
+│   │   ├── legacy_migration_fixtures.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   └── legacy_migration_fixtures.cpython-312.pyc
+│   │   └── ui_shells
+│   │       ├── steam_library_sp.html
+│   │       └── steam_store_app.html
+│   ├── inspect_store_ui.py
+│   ├── integration
+│   │   ├── gate07_harness.cpp
+│   │   ├── mock_cloud_relay_server.py
+│   │   ├── __pycache__
+│   │   │   ├── mock_cloud_relay_server.cpython-312.pyc
+│   │   │   ├── test_bundle_sync.cpython-312-pytest-9.1.1.pyc
+│   │   │   ├── test_cloudredirect_integration.cpython-312-pytest-9.1.1.pyc
+│   │   │   ├── test_cross_device_sync_e2e.cpython-312.pyc
+│   │   │   ├── test_cross_device_sync_e2e.cpython-312-pytest-9.1.1.pyc
+│   │   │   ├── test_installer.cpython-312-pytest-9.1.1.pyc
+│   │   │   ├── test_migration.cpython-312-pytest-9.1.1.pyc
+│   │   │   ├── test_steam_ui_flow.cpython-312.pyc
+│   │   │   ├── test_steam_ui_flow.cpython-312-pytest-9.1.1.pyc
+│   │   │   └── test_store_script.cpython-312-pytest-9.1.1.pyc
+│   │   ├── run_gate07_bwrap.sh
+│   │   ├── test_bundle_sync.py
+│   │   ├── test_cloudredirect_integration.py
+│   │   ├── test_installer.py
+│   │   ├── test_migration.py
+│   │   ├── test_steam_ui_flow.py
+│   │   ├── test_store_script.py
+│   │   └── ui
+│   │       ├── conftest.py
+│   │       ├── harness
+│   │       │   ├── browser_driver.py
+│   │       │   ├── callback_server_stub.py
+│   │       │   ├── __init__.py
+│   │       │   ├── navi_queue_bridge.py
+│   │       │   └── __pycache__
+│   │       │       ├── browser_driver.cpython-312.pyc
+│   │       │       ├── callback_server_stub.cpython-312.pyc
+│   │       │       ├── __init__.cpython-312.pyc
+│   │       │       └── navi_queue_bridge.cpython-312.pyc
+│   │       ├── pages
+│   │       │   ├── base_modal_page.py
+│   │       │   ├── cloud_settings_page.py
+│   │       │   ├── import_config_page.py
+│   │       │   ├── __init__.py
+│   │       │   ├── library_details_page.py
+│   │       │   ├── __pycache__
+│   │       │   │   ├── base_modal_page.cpython-312.pyc
+│   │       │   │   ├── cloud_settings_page.cpython-312.pyc
+│   │       │   │   ├── import_config_page.cpython-312.pyc
+│   │       │   │   ├── __init__.cpython-312.pyc
+│   │       │   │   ├── library_details_page.cpython-312.pyc
+│   │       │   │   └── store_app_page.cpython-312.pyc
+│   │       │   └── store_app_page.py
+│   │       ├── __pycache__
+│   │       │   ├── conftest.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_phase1_harness_smoke.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_phase4_diagnostics_and_sla.cpython-312.pyc
+│   │       │   ├── test_phase4_diagnostics_and_sla.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj01_cloud_reset_input.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj02_cloud_provider_oauth.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj03_manual_upload_dragdrop.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj04_store_bridge_depots.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj05_config_editor_validation.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj06_library_app_actions.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj07_live_search_debounce.cpython-312.pyc
+│   │       │   ├── test_uj07_live_search_debounce.cpython-312-pytest-9.1.1.pyc
+│   │       │   ├── test_uj08_a11y_gamepad_responsive.cpython-312-pytest-9.1.1.pyc
+│   │       │   └── test_uj09_companion_mockup_switcher.cpython-312-pytest-9.1.1.pyc
+│   │       ├── test_phase1_harness_smoke.py
+│   │       ├── test_phase4_diagnostics_and_sla.py
+│   │       ├── test_uj01_cloud_reset_input.py
+│   │       ├── test_uj02_cloud_provider_oauth.py
+│   │       ├── test_uj03_manual_upload_dragdrop.py
+│   │       ├── test_uj04_store_bridge_depots.py
+│   │       ├── test_uj05_config_editor_validation.py
+│   │       ├── test_uj06_library_app_actions.py
+│   │       ├── test_uj07_live_search_debounce.py
+│   │       ├── test_uj08_a11y_gamepad_responsive.py
+│   │       └── test_uj09_companion_mockup_switcher.py
+│   ├── __pycache__
+│   │   ├── conftest.cpython-312-pytest-9.1.1.pyc
+│   │   ├── inspect_store_ui.cpython-312.pyc
+│   │   ├── test_project_map.cpython-312-pytest-9.1.1.pyc
+│   │   └── test_steam_ui_flow.cpython-312.pyc
+│   ├── reports
+│   │   ├── 2026-11-03-timing-cloud-apps-inventory-d1.md
+│   │   ├── 2026-11-03-timing-cloud-apps-inventory-d2.md
+│   │   ├── 2026-11-03-timing-cloud-apps-inventory-d3.md
+│   │   ├── 2026-11-03-timing-cloud-apps-inventory.md
+│   │   ├── 2026-11-05-ui-config-copy-spec.md
+│   │   ├── 2026-11-07-gate05-cloudredirect-live-cdp.md
+│   │   └── README.md
+│   ├── test_project_map.py
+│   └── unit
+│       ├── test_cloud_manager.cpp
+│       ├── test_cloud_oauth.cpp
+│       ├── test_cloud_pending_ops.cpp
+│       ├── test_cloudredirect_bridge.cpp
+│       ├── test_config.cpp
+│       ├── test_depotkeys.cpp
+│       ├── test_manifest_and_native.cpp
+│       ├── test_migration.cpp
+│       ├── test_patterns_and_utils.cpp
+│       ├── test_prefix_bucket_sync.cpp
+│       ├── test_stubs_appinfo.cpp
+│       ├── test_stubs.cpp
+│       ├── test_stubs.hpp
+│       ├── test_stubs_player.cpp
+│       ├── test_stubs_unified.cpp
+│       ├── test_vdf_and_lua.cpp
+│       └── test_zip_and_atomic.cpp
+├── third_party
+│   ├── googletest
+│   │   ├── BUILD.bazel
+│   │   ├── .clang-format
+│   │   ├── CMakeLists.txt
+│   │   ├── CONTRIBUTING.md
+│   │   ├── CONTRIBUTORS
+│   │   ├── .gitignore
+│   │   ├── googletest
+│   │   │   ├── cmake
+│   │   │   │   ├── Config.cmake.in
+│   │   │   │   ├── gtest_main.pc.in
+│   │   │   │   ├── gtest.pc.in
+│   │   │   │   ├── internal_utils.cmake
+│   │   │   │   └── libgtest.la.in
+│   │   │   ├── CMakeLists.txt
+│   │   │   ├── include
+│   │   │   │   └── gtest
+│   │   │   │       ├── gtest-assertion-result.h
+│   │   │   │       ├── gtest-death-test.h
+│   │   │   │       ├── gtest.h
+│   │   │   │       ├── gtest-matchers.h
+│   │   │   │       ├── gtest-message.h
+│   │   │   │       ├── gtest-param-test.h
+│   │   │   │       ├── gtest_pred_impl.h
+│   │   │   │       ├── gtest-printers.h
+│   │   │   │       ├── gtest_prod.h
+│   │   │   │       ├── gtest-spi.h
+│   │   │   │       ├── gtest-test-part.h
+│   │   │   │       ├── gtest-typed-test.h
+│   │   │   │       └── internal
+│   │   │   │           ├── custom
+│   │   │   │           │   ├── gtest.h
+│   │   │   │           │   ├── gtest-port.h
+│   │   │   │           │   ├── gtest-printers.h
+│   │   │   │           │   └── README.md
+│   │   │   │           ├── gtest-death-test-internal.h
+│   │   │   │           ├── gtest-filepath.h
+│   │   │   │           ├── gtest-internal.h
+│   │   │   │           ├── gtest-param-util.h
+│   │   │   │           ├── gtest-port-arch.h
+│   │   │   │           ├── gtest-port.h
+│   │   │   │           ├── gtest-string.h
+│   │   │   │           └── gtest-type-util.h
+│   │   │   ├── README.md
+│   │   │   └── src
+│   │   │       ├── gtest-all.cc
+│   │   │       ├── gtest-assertion-result.cc
+│   │   │       ├── gtest.cc
+│   │   │       ├── gtest-death-test.cc
+│   │   │       ├── gtest-filepath.cc
+│   │   │       ├── gtest-internal-inl.h
+│   │   │       ├── gtest_main.cc
+│   │   │       ├── gtest-matchers.cc
+│   │   │       ├── gtest-port.cc
+│   │   │       ├── gtest-printers.cc
+│   │   │       ├── gtest-test-part.cc
+│   │   │       └── gtest-typed-test.cc
+│   │   ├── googletest_deps.bzl
+│   │   ├── LICENSE
+│   │   ├── README.md
+│   │   └── WORKSPACE
+│   └── SteamAutoCrack
+│       ├── .gitignore
+│       ├── LICENSE.md
+│       ├── Readme.md
+│       ├── Readme.zh-CN.md
+│       ├── SteamAutoCrack
+│       │   ├── App.xaml
+│       │   ├── App.xaml.cs
+│       │   ├── AssemblyInfo.cs
+│       │   ├── Github.png
+│       │   ├── Gitlab.png
+│       │   ├── Properties
+│       │   │   ├── Resources.Designer.cs
+│       │   │   ├── Resources.resx
+│       │   │   └── Resources.zh-CN.resx
+│       │   ├── SteamAutoCrack.csproj
+│       │   ├── SteamAutoCrack.ico
+│       │   ├── SteamAutoCrack.png
+│       │   ├── Utils
+│       │   │   ├── EnumBinding.cs
+│       │   │   └── ListViewSink.cs
+│       │   ├── ViewModels
+│       │   │   ├── AboutViewModel.cs
+│       │   │   ├── AppIDFinderViewModel.cs
+│       │   │   ├── MainWindowViewModel.cs
+│       │   │   └── SettingsViewModel.cs
+│       │   └── Views
+│       │       ├── About.xaml
+│       │       ├── About.xaml.cs
+│       │       ├── AppIDFinder.xaml
+│       │       ├── AppIDFinder.xaml.cs
+│       │       ├── Github.png
+│       │       ├── Gitlab.png
+│       │       ├── MainWindow.xaml
+│       │       ├── MainWindow.xaml.cs
+│       │       ├── Settings.xaml
+│       │       ├── Settings.xaml.cs
+│       │       └── SteamAutoCrack.png
+│       ├── SteamAutoCrack.CLI
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── AuthenticodeExaminer.dll
+│       │   │   │       ├── FuzzySharp.dll
+│       │   │   │       ├── Iced.dll
+│       │   │   │       ├── IniFile.dll
+│       │   │   │       ├── NinjaNye.SearchExtensions.dll
+│       │   │   │       ├── protobuf-net.Core.dll
+│       │   │   │       ├── protobuf-net.dll
+│       │   │   │       ├── runtimes
+│       │   │   │       │   ├── android-arm
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── android-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── android-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── android-x86
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── browser-wasm
+│       │   │   │       │   │   └── nativeassets
+│       │   │   │       │   │       └── net9.0
+│       │   │   │       │   │           └── e_sqlite3.a
+│       │   │   │       │   ├── ios-arm
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── e_sqlite3.a
+│       │   │   │       │   ├── ios-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── e_sqlite3.a
+│       │   │   │       │   ├── iossimulator-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── e_sqlite3.a
+│       │   │   │       │   ├── iossimulator-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── e_sqlite3.a
+│       │   │   │       │   ├── linux-arm
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-armel
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-mips64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-musl-arm
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-musl-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-musl-riscv64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-musl-s390x
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-musl-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-ppc64le
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-riscv64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-s390x
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── linux-x86
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       ├── libe_sqlite3.a
+│       │   │   │       │   │       └── libe_sqlite3.so
+│       │   │   │       │   ├── maccatalyst-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.dylib
+│       │   │   │       │   ├── maccatalyst-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.dylib
+│       │   │   │       │   ├── osx-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.dylib
+│       │   │   │       │   ├── osx-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── libe_sqlite3.dylib
+│       │   │   │       │   ├── win
+│       │   │   │       │   │   └── lib
+│       │   │   │       │   │       └── net10.0
+│       │   │   │       │   │           └── System.Security.Cryptography.Pkcs.dll
+│       │   │   │       │   ├── win-arm64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── e_sqlite3.dll
+│       │   │   │       │   ├── win-x64
+│       │   │   │       │   │   └── native
+│       │   │   │       │   │       └── e_sqlite3.dll
+│       │   │   │       │   └── win-x86
+│       │   │   │       │       └── native
+│       │   │   │       │           └── e_sqlite3.dll
+│       │   │   │       ├── Serilog.dll
+│       │   │   │       ├── Serilog.Expressions.dll
+│       │   │   │       ├── Serilog.Sinks.Console.dll
+│       │   │   │       ├── Serilog.Sinks.File.dll
+│       │   │   │       ├── SharpCompress.dll
+│       │   │   │       ├── SQLite-net.dll
+│       │   │   │       ├── SQLitePCLRaw.core.dll
+│       │   │   │       ├── SQLitePCLRaw.provider.e_sqlite3.dll
+│       │   │   │       ├── SteamAPICheckBypass
+│       │   │   │       │   ├── SteamAPICheckBypass.dll
+│       │   │   │       │   └── SteamAPICheckBypass_x32.dll
+│       │   │   │       ├── SteamAutoCrack.CLI
+│       │   │   │       ├── SteamAutoCrack.CLI.deps.json
+│       │   │   │       ├── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── SteamAutoCrack.CLI.pdb
+│       │   │   │       ├── SteamAutoCrack.CLI.runtimeconfig.json
+│       │   │   │       ├── SteamAutoCrack.Core.dll
+│       │   │   │       ├── SteamAutoCrack.Core.pdb
+│       │   │   │       ├── SteamKit2.dll
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x86.pdb
+│       │   │   │       ├── System.CommandLine.dll
+│       │   │   │       ├── System.IO.Hashing.dll
+│       │   │   │       ├── System.IO.Packaging.dll
+│       │   │   │       ├── System.Security.Cryptography.Pkcs.dll
+│       │   │   │       ├── System.Security.Cryptography.Xml.dll
+│       │   │   │       ├── ValveKeyValue.dll
+│       │   │   │       └── ZstdSharp.dll
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── AuthenticodeExaminer.dll
+│       │   │           ├── FuzzySharp.dll
+│       │   │           ├── Iced.dll
+│       │   │           ├── IniFile.dll
+│       │   │           ├── linux-x64
+│       │   │           │   ├── AuthenticodeExaminer.dll
+│       │   │           │   ├── createdump
+│       │   │           │   ├── FuzzySharp.dll
+│       │   │           │   ├── Iced.dll
+│       │   │           │   ├── IniFile.dll
+│       │   │           │   ├── libclrgcexp.so
+│       │   │           │   ├── libclrgc.so
+│       │   │           │   ├── libclrjit.so
+│       │   │           │   ├── libcoreclr.so
+│       │   │           │   ├── libcoreclrtraceptprovider.so
+│       │   │           │   ├── libe_sqlite3.a
+│       │   │           │   ├── libe_sqlite3.so
+│       │   │           │   ├── libhostfxr.so
+│       │   │           │   ├── libhostpolicy.so
+│       │   │           │   ├── libmscordaccore.so
+│       │   │           │   ├── libmscordbi.so
+│       │   │           │   ├── libSystem.Globalization.Native.so
+│       │   │           │   ├── libSystem.IO.Compression.Native.so
+│       │   │           │   ├── libSystem.Native.so
+│       │   │           │   ├── libSystem.Net.Security.Native.so
+│       │   │           │   ├── libSystem.Security.Cryptography.Native.OpenSsl.so
+│       │   │           │   ├── Microsoft.CSharp.dll
+│       │   │           │   ├── Microsoft.VisualBasic.Core.dll
+│       │   │           │   ├── Microsoft.VisualBasic.dll
+│       │   │           │   ├── Microsoft.Win32.Primitives.dll
+│       │   │           │   ├── Microsoft.Win32.Registry.dll
+│       │   │           │   ├── mscorlib.dll
+│       │   │           │   ├── netstandard.dll
+│       │   │           │   ├── NinjaNye.SearchExtensions.dll
+│       │   │           │   ├── protobuf-net.Core.dll
+│       │   │           │   ├── protobuf-net.dll
+│       │   │           │   ├── Serilog.dll
+│       │   │           │   ├── Serilog.Expressions.dll
+│       │   │           │   ├── Serilog.Sinks.Console.dll
+│       │   │           │   ├── Serilog.Sinks.File.dll
+│       │   │           │   ├── SharpCompress.dll
+│       │   │           │   ├── SQLite-net.dll
+│       │   │           │   ├── SQLitePCLRaw.core.dll
+│       │   │           │   ├── SQLitePCLRaw.provider.e_sqlite3.dll
+│       │   │           │   ├── SteamAPICheckBypass
+│       │   │           │   │   ├── SteamAPICheckBypass.dll
+│       │   │           │   │   └── SteamAPICheckBypass_x32.dll
+│       │   │           │   ├── SteamAutoCrack.CLI
+│       │   │           │   ├── SteamAutoCrack.CLI.deps.json
+│       │   │           │   ├── SteamAutoCrack.CLI.dll
+│       │   │           │   ├── SteamAutoCrack.CLI.pdb
+│       │   │           │   ├── SteamAutoCrack.CLI.runtimeconfig.json
+│       │   │           │   ├── SteamAutoCrack.Core.dll
+│       │   │           │   ├── SteamAutoCrack.Core.pdb
+│       │   │           │   ├── SteamKit2.dll
+│       │   │           │   ├── Steamless.API.dll
+│       │   │           │   ├── Steamless.API.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │           │   ├── Steamless.Unpacker.Variant31.x86.dll
+│       │   │           │   ├── Steamless.Unpacker.Variant31.x86.pdb
+│       │   │           │   ├── System.AppContext.dll
+│       │   │           │   ├── System.Buffers.dll
+│       │   │           │   ├── System.Collections.Concurrent.dll
+│       │   │           │   ├── System.Collections.dll
+│       │   │           │   ├── System.Collections.Immutable.dll
+│       │   │           │   ├── System.Collections.NonGeneric.dll
+│       │   │           │   ├── System.Collections.Specialized.dll
+│       │   │           │   ├── System.CommandLine.dll
+│       │   │           │   ├── System.ComponentModel.Annotations.dll
+│       │   │           │   ├── System.ComponentModel.DataAnnotations.dll
+│       │   │           │   ├── System.ComponentModel.dll
+│       │   │           │   ├── System.ComponentModel.EventBasedAsync.dll
+│       │   │           │   ├── System.ComponentModel.Primitives.dll
+│       │   │           │   ├── System.ComponentModel.TypeConverter.dll
+│       │   │           │   ├── System.Configuration.dll
+│       │   │           │   ├── System.Console.dll
+│       │   │           │   ├── System.Core.dll
+│       │   │           │   ├── System.Data.Common.dll
+│       │   │           │   ├── System.Data.DataSetExtensions.dll
+│       │   │           │   ├── System.Data.dll
+│       │   │           │   ├── System.Diagnostics.Contracts.dll
+│       │   │           │   ├── System.Diagnostics.Debug.dll
+│       │   │           │   ├── System.Diagnostics.DiagnosticSource.dll
+│       │   │           │   ├── System.Diagnostics.FileVersionInfo.dll
+│       │   │           │   ├── System.Diagnostics.Process.dll
+│       │   │           │   ├── System.Diagnostics.StackTrace.dll
+│       │   │           │   ├── System.Diagnostics.TextWriterTraceListener.dll
+│       │   │           │   ├── System.Diagnostics.Tools.dll
+│       │   │           │   ├── System.Diagnostics.TraceSource.dll
+│       │   │           │   ├── System.Diagnostics.Tracing.dll
+│       │   │           │   ├── System.dll
+│       │   │           │   ├── System.Drawing.dll
+│       │   │           │   ├── System.Drawing.Primitives.dll
+│       │   │           │   ├── System.Dynamic.Runtime.dll
+│       │   │           │   ├── System.Formats.Asn1.dll
+│       │   │           │   ├── System.Formats.Tar.dll
+│       │   │           │   ├── System.Globalization.Calendars.dll
+│       │   │           │   ├── System.Globalization.dll
+│       │   │           │   ├── System.Globalization.Extensions.dll
+│       │   │           │   ├── System.IO.Compression.Brotli.dll
+│       │   │           │   ├── System.IO.Compression.dll
+│       │   │           │   ├── System.IO.Compression.FileSystem.dll
+│       │   │           │   ├── System.IO.Compression.ZipFile.dll
+│       │   │           │   ├── System.IO.dll
+│       │   │           │   ├── System.IO.FileSystem.AccessControl.dll
+│       │   │           │   ├── System.IO.FileSystem.dll
+│       │   │           │   ├── System.IO.FileSystem.DriveInfo.dll
+│       │   │           │   ├── System.IO.FileSystem.Primitives.dll
+│       │   │           │   ├── System.IO.FileSystem.Watcher.dll
+│       │   │           │   ├── System.IO.Hashing.dll
+│       │   │           │   ├── System.IO.IsolatedStorage.dll
+│       │   │           │   ├── System.IO.MemoryMappedFiles.dll
+│       │   │           │   ├── System.IO.Packaging.dll
+│       │   │           │   ├── System.IO.Pipelines.dll
+│       │   │           │   ├── System.IO.Pipes.AccessControl.dll
+│       │   │           │   ├── System.IO.Pipes.dll
+│       │   │           │   ├── System.IO.UnmanagedMemoryStream.dll
+│       │   │           │   ├── System.Linq.AsyncEnumerable.dll
+│       │   │           │   ├── System.Linq.dll
+│       │   │           │   ├── System.Linq.Expressions.dll
+│       │   │           │   ├── System.Linq.Parallel.dll
+│       │   │           │   ├── System.Linq.Queryable.dll
+│       │   │           │   ├── System.Memory.dll
+│       │   │           │   ├── System.Net.dll
+│       │   │           │   ├── System.Net.Http.dll
+│       │   │           │   ├── System.Net.Http.Json.dll
+│       │   │           │   ├── System.Net.HttpListener.dll
+│       │   │           │   ├── System.Net.Mail.dll
+│       │   │           │   ├── System.Net.NameResolution.dll
+│       │   │           │   ├── System.Net.NetworkInformation.dll
+│       │   │           │   ├── System.Net.Ping.dll
+│       │   │           │   ├── System.Net.Primitives.dll
+│       │   │           │   ├── System.Net.Quic.dll
+│       │   │           │   ├── System.Net.Requests.dll
+│       │   │           │   ├── System.Net.Security.dll
+│       │   │           │   ├── System.Net.ServerSentEvents.dll
+│       │   │           │   ├── System.Net.ServicePoint.dll
+│       │   │           │   ├── System.Net.Sockets.dll
+│       │   │           │   ├── System.Net.WebClient.dll
+│       │   │           │   ├── System.Net.WebHeaderCollection.dll
+│       │   │           │   ├── System.Net.WebProxy.dll
+│       │   │           │   ├── System.Net.WebSockets.Client.dll
+│       │   │           │   ├── System.Net.WebSockets.dll
+│       │   │           │   ├── System.Numerics.dll
+│       │   │           │   ├── System.Numerics.Vectors.dll
+│       │   │           │   ├── System.ObjectModel.dll
+│       │   │           │   ├── System.Private.CoreLib.dll
+│       │   │           │   ├── System.Private.DataContractSerialization.dll
+│       │   │           │   ├── System.Private.Uri.dll
+│       │   │           │   ├── System.Private.Xml.dll
+│       │   │           │   ├── System.Private.Xml.Linq.dll
+│       │   │           │   ├── System.Reflection.DispatchProxy.dll
+│       │   │           │   ├── System.Reflection.dll
+│       │   │           │   ├── System.Reflection.Emit.dll
+│       │   │           │   ├── System.Reflection.Emit.ILGeneration.dll
+│       │   │           │   ├── System.Reflection.Emit.Lightweight.dll
+│       │   │           │   ├── System.Reflection.Extensions.dll
+│       │   │           │   ├── System.Reflection.Metadata.dll
+│       │   │           │   ├── System.Reflection.Primitives.dll
+│       │   │           │   ├── System.Reflection.TypeExtensions.dll
+│       │   │           │   ├── System.Resources.Reader.dll
+│       │   │           │   ├── System.Resources.ResourceManager.dll
+│       │   │           │   ├── System.Resources.Writer.dll
+│       │   │           │   ├── System.Runtime.CompilerServices.Unsafe.dll
+│       │   │           │   ├── System.Runtime.CompilerServices.VisualC.dll
+│       │   │           │   ├── System.Runtime.dll
+│       │   │           │   ├── System.Runtime.Extensions.dll
+│       │   │           │   ├── System.Runtime.Handles.dll
+│       │   │           │   ├── System.Runtime.InteropServices.dll
+│       │   │           │   ├── System.Runtime.InteropServices.JavaScript.dll
+│       │   │           │   ├── System.Runtime.InteropServices.RuntimeInformation.dll
+│       │   │           │   ├── System.Runtime.Intrinsics.dll
+│       │   │           │   ├── System.Runtime.Loader.dll
+│       │   │           │   ├── System.Runtime.Numerics.dll
+│       │   │           │   ├── System.Runtime.Serialization.dll
+│       │   │           │   ├── System.Runtime.Serialization.Formatters.dll
+│       │   │           │   ├── System.Runtime.Serialization.Json.dll
+│       │   │           │   ├── System.Runtime.Serialization.Primitives.dll
+│       │   │           │   ├── System.Runtime.Serialization.Xml.dll
+│       │   │           │   ├── System.Security.AccessControl.dll
+│       │   │           │   ├── System.Security.Claims.dll
+│       │   │           │   ├── System.Security.Cryptography.Algorithms.dll
+│       │   │           │   ├── System.Security.Cryptography.Cng.dll
+│       │   │           │   ├── System.Security.Cryptography.Csp.dll
+│       │   │           │   ├── System.Security.Cryptography.dll
+│       │   │           │   ├── System.Security.Cryptography.Encoding.dll
+│       │   │           │   ├── System.Security.Cryptography.OpenSsl.dll
+│       │   │           │   ├── System.Security.Cryptography.Pkcs.dll
+│       │   │           │   ├── System.Security.Cryptography.Primitives.dll
+│       │   │           │   ├── System.Security.Cryptography.X509Certificates.dll
+│       │   │           │   ├── System.Security.Cryptography.Xml.dll
+│       │   │           │   ├── System.Security.dll
+│       │   │           │   ├── System.Security.Principal.dll
+│       │   │           │   ├── System.Security.Principal.Windows.dll
+│       │   │           │   ├── System.Security.SecureString.dll
+│       │   │           │   ├── System.ServiceModel.Web.dll
+│       │   │           │   ├── System.ServiceProcess.dll
+│       │   │           │   ├── System.Text.Encoding.CodePages.dll
+│       │   │           │   ├── System.Text.Encoding.dll
+│       │   │           │   ├── System.Text.Encoding.Extensions.dll
+│       │   │           │   ├── System.Text.Encodings.Web.dll
+│       │   │           │   ├── System.Text.Json.dll
+│       │   │           │   ├── System.Text.RegularExpressions.dll
+│       │   │           │   ├── System.Threading.AccessControl.dll
+│       │   │           │   ├── System.Threading.Channels.dll
+│       │   │           │   ├── System.Threading.dll
+│       │   │           │   ├── System.Threading.Overlapped.dll
+│       │   │           │   ├── System.Threading.Tasks.Dataflow.dll
+│       │   │           │   ├── System.Threading.Tasks.dll
+│       │   │           │   ├── System.Threading.Tasks.Extensions.dll
+│       │   │           │   ├── System.Threading.Tasks.Parallel.dll
+│       │   │           │   ├── System.Threading.Thread.dll
+│       │   │           │   ├── System.Threading.ThreadPool.dll
+│       │   │           │   ├── System.Threading.Timer.dll
+│       │   │           │   ├── System.Transactions.dll
+│       │   │           │   ├── System.Transactions.Local.dll
+│       │   │           │   ├── System.ValueTuple.dll
+│       │   │           │   ├── System.Web.dll
+│       │   │           │   ├── System.Web.HttpUtility.dll
+│       │   │           │   ├── System.Windows.dll
+│       │   │           │   ├── System.Xml.dll
+│       │   │           │   ├── System.Xml.Linq.dll
+│       │   │           │   ├── System.Xml.ReaderWriter.dll
+│       │   │           │   ├── System.Xml.Serialization.dll
+│       │   │           │   ├── System.Xml.XDocument.dll
+│       │   │           │   ├── System.Xml.XmlDocument.dll
+│       │   │           │   ├── System.Xml.XmlSerializer.dll
+│       │   │           │   ├── System.Xml.XPath.dll
+│       │   │           │   ├── System.Xml.XPath.XDocument.dll
+│       │   │           │   ├── ValveKeyValue.dll
+│       │   │           │   ├── WindowsBase.dll
+│       │   │           │   └── ZstdSharp.dll
+│       │   │           ├── NinjaNye.SearchExtensions.dll
+│       │   │           ├── protobuf-net.Core.dll
+│       │   │           ├── protobuf-net.dll
+│       │   │           ├── runtimes
+│       │   │           │   ├── android-arm
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── android-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── android-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── android-x86
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── browser-wasm
+│       │   │           │   │   └── nativeassets
+│       │   │           │   │       └── net9.0
+│       │   │           │   │           └── e_sqlite3.a
+│       │   │           │   ├── ios-arm
+│       │   │           │   │   └── native
+│       │   │           │   │       └── e_sqlite3.a
+│       │   │           │   ├── ios-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── e_sqlite3.a
+│       │   │           │   ├── iossimulator-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── e_sqlite3.a
+│       │   │           │   ├── iossimulator-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── e_sqlite3.a
+│       │   │           │   ├── linux-arm
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-armel
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-mips64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-musl-arm
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-musl-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-musl-riscv64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-musl-s390x
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-musl-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-ppc64le
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-riscv64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-s390x
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── linux-x86
+│       │   │           │   │   └── native
+│       │   │           │   │       ├── libe_sqlite3.a
+│       │   │           │   │       └── libe_sqlite3.so
+│       │   │           │   ├── maccatalyst-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.dylib
+│       │   │           │   ├── maccatalyst-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.dylib
+│       │   │           │   ├── osx-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.dylib
+│       │   │           │   ├── osx-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── libe_sqlite3.dylib
+│       │   │           │   ├── win
+│       │   │           │   │   └── lib
+│       │   │           │   │       └── net10.0
+│       │   │           │   │           └── System.Security.Cryptography.Pkcs.dll
+│       │   │           │   ├── win-arm64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── e_sqlite3.dll
+│       │   │           │   ├── win-x64
+│       │   │           │   │   └── native
+│       │   │           │   │       └── e_sqlite3.dll
+│       │   │           │   └── win-x86
+│       │   │           │       └── native
+│       │   │           │           └── e_sqlite3.dll
+│       │   │           ├── Serilog.dll
+│       │   │           ├── Serilog.Expressions.dll
+│       │   │           ├── Serilog.Sinks.Console.dll
+│       │   │           ├── Serilog.Sinks.File.dll
+│       │   │           ├── SharpCompress.dll
+│       │   │           ├── SQLite-net.dll
+│       │   │           ├── SQLitePCLRaw.core.dll
+│       │   │           ├── SQLitePCLRaw.provider.e_sqlite3.dll
+│       │   │           ├── SteamAPICheckBypass
+│       │   │           │   ├── SteamAPICheckBypass.dll
+│       │   │           │   └── SteamAPICheckBypass_x32.dll
+│       │   │           ├── SteamAutoCrack.CLI
+│       │   │           ├── SteamAutoCrack.CLI.deps.json
+│       │   │           ├── SteamAutoCrack.CLI.dll
+│       │   │           ├── SteamAutoCrack.CLI.pdb
+│       │   │           ├── SteamAutoCrack.CLI.runtimeconfig.json
+│       │   │           ├── SteamAutoCrack.Core.dll
+│       │   │           ├── SteamAutoCrack.Core.pdb
+│       │   │           ├── SteamKit2.dll
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │           ├── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │           ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │           ├── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │           ├── Steamless.Unpacker.Variant31.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant31.x86.pdb
+│       │   │           ├── System.CommandLine.dll
+│       │   │           ├── System.IO.Hashing.dll
+│       │   │           ├── System.IO.Packaging.dll
+│       │   │           ├── System.Security.Cryptography.Pkcs.dll
+│       │   │           ├── System.Security.Cryptography.Xml.dll
+│       │   │           ├── ValveKeyValue.dll
+│       │   │           └── ZstdSharp.dll
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── apphost
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── SteamAut.96E0BDCF.Up2Date
+│       │   │   │       ├── SteamAutoCrack.CLI.AssemblyInfo.cs
+│       │   │   │       ├── SteamAutoCrack.CLI.AssemblyInfoInputs.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.assets.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.csproj.AssemblyReference.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.csproj.FileListAbsolute.txt
+│       │   │   │       ├── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── SteamAutoCrack.CLI.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       ├── SteamAutoCrack.CLI.genruntimeconfig.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.GlobalUsings.g.cs
+│       │   │   │       └── SteamAutoCrack.CLI.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── apphost
+│       │   │   │       ├── linux-x64
+│       │   │   │       │   ├── apphost
+│       │   │   │       │   ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       │   ├── PublishOutputs.3647c46f71.txt
+│       │   │   │       │   ├── ref
+│       │   │   │       │   │   └── SteamAutoCrack.CLI.dll
+│       │   │   │       │   ├── refint
+│       │   │   │       │   │   └── SteamAutoCrack.CLI.dll
+│       │   │   │       │   ├── SteamAut.96E0BDCF.Up2Date
+│       │   │   │       │   ├── SteamAutoCrack.CLI.AssemblyInfo.cs
+│       │   │   │       │   ├── SteamAutoCrack.CLI.AssemblyInfoInputs.cache
+│       │   │   │       │   ├── SteamAutoCrack.CLI.assets.cache
+│       │   │   │       │   ├── SteamAutoCrack.CLI.csproj.AssemblyReference.cache
+│       │   │   │       │   ├── SteamAutoCrack.CLI.csproj.CoreCompileInputs.cache
+│       │   │   │       │   ├── SteamAutoCrack.CLI.csproj.FileListAbsolute.txt
+│       │   │   │       │   ├── SteamAutoCrack.CLI.dll
+│       │   │   │       │   ├── SteamAutoCrack.CLI.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       │   ├── SteamAutoCrack.CLI.genruntimeconfig.cache
+│       │   │   │       │   ├── SteamAutoCrack.CLI.GlobalUsings.g.cs
+│       │   │   │       │   └── SteamAutoCrack.CLI.pdb
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── SteamAut.96E0BDCF.Up2Date
+│       │   │   │       ├── SteamAutoCrack.CLI.AssemblyInfo.cs
+│       │   │   │       ├── SteamAutoCrack.CLI.AssemblyInfoInputs.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.assets.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.csproj.AssemblyReference.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.csproj.FileListAbsolute.txt
+│       │   │   │       ├── SteamAutoCrack.CLI.dll
+│       │   │   │       ├── SteamAutoCrack.CLI.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       ├── SteamAutoCrack.CLI.genruntimeconfig.cache
+│       │   │   │       ├── SteamAutoCrack.CLI.GlobalUsings.g.cs
+│       │   │   │       └── SteamAutoCrack.CLI.pdb
+│       │   │   ├── SteamAutoCrack.CLI.csproj.nuget.dgspec.json
+│       │   │   ├── SteamAutoCrack.CLI.csproj.nuget.g.props
+│       │   │   └── SteamAutoCrack.CLI.csproj.nuget.g.targets
+│       │   ├── Program.cs
+│       │   ├── SteamAutoCrack.CLI.csproj
+│       │   └── SteamAutoCrack.ico
+│       ├── SteamAutoCrack.Core
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── SteamAPICheckBypass
+│       │   │   │       │   ├── SteamAPICheckBypass.dll
+│       │   │   │       │   └── SteamAPICheckBypass_x32.dll
+│       │   │   │       ├── SteamAutoCrack.Core.deps.json
+│       │   │   │       ├── SteamAutoCrack.Core.dll
+│       │   │   │       ├── SteamAutoCrack.Core.pdb
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x86.dll
+│       │   │   │       └── Steamless.Unpacker.Variant31.x86.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── SteamAPICheckBypass
+│       │   │           │   ├── SteamAPICheckBypass.dll
+│       │   │           │   └── SteamAPICheckBypass_x32.dll
+│       │   │           ├── SteamAutoCrack.Core.deps.json
+│       │   │           ├── SteamAutoCrack.Core.dll
+│       │   │           ├── SteamAutoCrack.Core.pdb
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │           ├── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │           ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │           ├── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │           ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │           ├── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │           ├── Steamless.Unpacker.Variant31.x86.dll
+│       │   │           └── Steamless.Unpacker.Variant31.x86.pdb
+│       │   ├── Config
+│       │   │   └── Config.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── SteamAutoCrack.Core.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── SteamAutoCrack.Core.dll
+│       │   │   │       ├── SteamAut.7F04EE30.Up2Date
+│       │   │   │       ├── SteamAutoCrack.Core.AssemblyInfo.cs
+│       │   │   │       ├── SteamAutoCrack.Core.AssemblyInfoInputs.cache
+│       │   │   │       ├── SteamAutoCrack.Core.assets.cache
+│       │   │   │       ├── SteamAutoCrack.Core.csproj.AssemblyReference.cache
+│       │   │   │       ├── SteamAutoCrack.Core.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── SteamAutoCrack.Core.csproj.FileListAbsolute.txt
+│       │   │   │       ├── SteamAutoCrack.Core.dll
+│       │   │   │       ├── SteamAutoCrack.Core.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       ├── SteamAutoCrack.Core.GlobalUsings.g.cs
+│       │   │   │       └── SteamAutoCrack.Core.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── SteamAutoCrack.Core.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── SteamAutoCrack.Core.dll
+│       │   │   │       ├── SteamAut.7F04EE30.Up2Date
+│       │   │   │       ├── SteamAutoCrack.Core.AssemblyInfo.cs
+│       │   │   │       ├── SteamAutoCrack.Core.AssemblyInfoInputs.cache
+│       │   │   │       ├── SteamAutoCrack.Core.assets.cache
+│       │   │   │       ├── SteamAutoCrack.Core.csproj.AssemblyReference.cache
+│       │   │   │       ├── SteamAutoCrack.Core.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── SteamAutoCrack.Core.csproj.FileListAbsolute.txt
+│       │   │   │       ├── SteamAutoCrack.Core.dll
+│       │   │   │       ├── SteamAutoCrack.Core.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       ├── SteamAutoCrack.Core.GlobalUsings.g.cs
+│       │   │   │       └── SteamAutoCrack.Core.pdb
+│       │   │   ├── SteamAutoCrack.Core.csproj.nuget.dgspec.json
+│       │   │   ├── SteamAutoCrack.Core.csproj.nuget.g.props
+│       │   │   └── SteamAutoCrack.Core.csproj.nuget.g.targets
+│       │   ├── SteamAPICheckBypass
+│       │   │   ├── SteamAPICheckBypass.dll
+│       │   │   └── SteamAPICheckBypass_x32.dll
+│       │   ├── SteamAutoCrack.Core.csproj
+│       │   └── Utils
+│       │       ├── EMUApply.cs
+│       │       ├── EMUConfig.cs
+│       │       ├── EMUGameInfo.cs
+│       │       ├── EMUUpdater.cs
+│       │       ├── GenCrackOnly.cs
+│       │       ├── Process.cs
+│       │       ├── Restore.cs
+│       │       ├── Steam3Session.cs
+│       │       ├── SteamAppList.cs
+│       │       └── SteamStubUnpacker.cs
+│       ├── SteamAutoCrack.sln
+│       ├── Steamless
+│       ├── Steamless.API
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.deps.json
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       └── Steamless.API.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.deps.json
+│       │   │           ├── Steamless.API.dll
+│       │   │           └── Steamless.API.pdb
+│       │   ├── Crypto
+│       │   │   └── AesHelper.cs
+│       │   ├── Events
+│       │   │   ├── LogMessageEventArgs.cs
+│       │   │   └── LogMessageType.cs
+│       │   ├── Extensions
+│       │   │   └── FileStreamExtensions.cs
+│       │   ├── Model
+│       │   │   ├── NavigatedEventArgs.cs
+│       │   │   ├── NotifiableModel.cs
+│       │   │   ├── SteamlessOptions.cs
+│       │   │   ├── SteamlessPlugin.cs
+│       │   │   └── ViewModelBase.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.API.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.API.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.API.assets.cache
+│       │   │   │       ├── Steamless.API.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.API.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.API.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.API.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.API.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.API.assets.cache
+│       │   │   │       ├── Steamless.API.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.API.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.API.pdb
+│       │   │   ├── Steamless.API.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.API.csproj.nuget.g.props
+│       │   │   └── Steamless.API.csproj.nuget.g.targets
+│       │   ├── PE32
+│       │   │   ├── NativeApi32.cs
+│       │   │   ├── Pe32File.cs
+│       │   │   └── Pe32Helpers.cs
+│       │   ├── PE64
+│       │   │   ├── NativeApi64.cs
+│       │   │   ├── Pe64File.cs
+│       │   │   └── Pe64Helpers.cs
+│       │   ├── Services
+│       │   │   └── LoggingService.cs
+│       │   ├── Steamless.API.csproj
+│       │   ├── SteamlessApiVersionAttribute.cs
+│       │   └── SteamlessEvents.cs
+│       ├── Steamless.Unpacker.Variant10.x86
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.deps.json
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       └── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant10.x86.deps.json
+│       │   │           ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │           └── Steamless.Unpacker.Variant10.x86.pdb
+│       │   ├── Classes
+│       │   │   └── SteamStubHeader.cs
+│       │   ├── Main.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── Steamles.BA3821EE.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── Steamles.BA3821EE.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant10.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant10.x86.pdb
+│       │   │   ├── Steamless.Unpacker.Variant10.x86.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.Unpacker.Variant10.x86.csproj.nuget.g.props
+│       │   │   └── Steamless.Unpacker.Variant10.x86.csproj.nuget.g.targets
+│       │   └── Steamless.Unpacker.Variant10.x86.csproj
+│       ├── Steamless.Unpacker.Variant20.x86
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.deps.json
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       └── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant20.x86.deps.json
+│       │   │           ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │           └── Steamless.Unpacker.Variant20.x86.pdb
+│       │   ├── Classes
+│       │   │   ├── ISteamStub32Var20Header.cs
+│       │   │   ├── SteamStubDrmFlags.cs
+│       │   │   ├── SteamStubHeader.cs
+│       │   │   └── SteamStubHelpers.cs
+│       │   ├── Main.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── Steamles.ED9FC1DD.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── Steamles.ED9FC1DD.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant20.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant20.x86.pdb
+│       │   │   ├── Steamless.Unpacker.Variant20.x86.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.Unpacker.Variant20.x86.csproj.nuget.g.props
+│       │   │   └── Steamless.Unpacker.Variant20.x86.csproj.nuget.g.targets
+│       │   └── Steamless.Unpacker.Variant20.x86.csproj
+│       ├── Steamless.Unpacker.Variant21.x86
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.deps.json
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       └── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant21.x86.deps.json
+│       │   │           ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │           └── Steamless.Unpacker.Variant21.x86.pdb
+│       │   ├── Classes
+│       │   │   ├── ISteamStub32Var21Header.cs
+│       │   │   ├── SteamStubDrmFlags.cs
+│       │   │   ├── SteamStubHeader.cs
+│       │   │   └── SteamStubHelpers.cs
+│       │   ├── Main.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── Steamles.099AC1DD.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── Steamles.099AC1DD.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant21.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant21.x86.pdb
+│       │   │   ├── Steamless.Unpacker.Variant21.x86.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.Unpacker.Variant21.x86.csproj.nuget.g.props
+│       │   │   └── Steamless.Unpacker.Variant21.x86.csproj.nuget.g.targets
+│       │   └── Steamless.Unpacker.Variant21.x86.csproj
+│       ├── Steamless.Unpacker.Variant30.x64
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.deps.json
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       └── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant30.x64.deps.json
+│       │   │           ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │           └── Steamless.Unpacker.Variant30.x64.pdb
+│       │   ├── Classes
+│       │   │   ├── SteamStubDrmFlags.cs
+│       │   │   ├── SteamStubHeader.cs
+│       │   │   └── SteamStubHelpers.cs
+│       │   ├── Main.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── Steamles.B47D591E.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── Steamles.B47D591E.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x64.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant30.x64.pdb
+│       │   │   ├── Steamless.Unpacker.Variant30.x64.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.Unpacker.Variant30.x64.csproj.nuget.g.props
+│       │   │   └── Steamless.Unpacker.Variant30.x64.csproj.nuget.g.targets
+│       │   └── Steamless.Unpacker.Variant30.x64.csproj
+│       ├── Steamless.Unpacker.Variant30.x86
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.deps.json
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       └── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant30.x86.deps.json
+│       │   │           ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │           └── Steamless.Unpacker.Variant30.x86.pdb
+│       │   ├── Classes
+│       │   │   ├── SteamStubDrmFlags.cs
+│       │   │   ├── SteamStubHeader.cs
+│       │   │   └── SteamStubHelpers.cs
+│       │   ├── Main.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── Steamles.08DABCAC.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── Steamles.08DABCAC.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant30.x86.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant30.x86.pdb
+│       │   │   ├── Steamless.Unpacker.Variant30.x86.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.Unpacker.Variant30.x86.csproj.nuget.g.props
+│       │   │   └── Steamless.Unpacker.Variant30.x86.csproj.nuget.g.targets
+│       │   └── Steamless.Unpacker.Variant30.x86.csproj
+│       ├── Steamless.Unpacker.Variant31.x64
+│       │   ├── bin
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── Steamless.API.dll
+│       │   │   │       ├── Steamless.API.pdb
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.deps.json
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       └── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │   └── Release
+│       │   │       └── net10.0
+│       │   │           ├── Steamless.API.dll
+│       │   │           ├── Steamless.API.pdb
+│       │   │           ├── Steamless.Unpacker.Variant31.x64.deps.json
+│       │   │           ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │           └── Steamless.Unpacker.Variant31.x64.pdb
+│       │   ├── Classes
+│       │   │   ├── SteamStubDrmFlags.cs
+│       │   │   ├── SteamStubHeader.cs
+│       │   │   └── SteamStubHelpers.cs
+│       │   ├── Main.cs
+│       │   ├── obj
+│       │   │   ├── Debug
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── Steamles.D078591E.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │   ├── project.assets.json
+│       │   │   ├── project.nuget.cache
+│       │   │   ├── Release
+│       │   │   │   └── net10.0
+│       │   │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│       │   │   │       ├── ref
+│       │   │   │       │   └── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── refint
+│       │   │   │       │   └── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── Steamles.D078591E.Up2Date
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.AssemblyInfo.cs
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.AssemblyInfoInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.assets.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.csproj.AssemblyReference.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.csproj.CoreCompileInputs.cache
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.csproj.FileListAbsolute.txt
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.dll
+│       │   │   │       ├── Steamless.Unpacker.Variant31.x64.GeneratedMSBuildEditorConfig.editorconfig
+│       │   │   │       └── Steamless.Unpacker.Variant31.x64.pdb
+│       │   │   ├── Steamless.Unpacker.Variant31.x64.csproj.nuget.dgspec.json
+│       │   │   ├── Steamless.Unpacker.Variant31.x64.csproj.nuget.g.props
+│       │   │   └── Steamless.Unpacker.Variant31.x64.csproj.nuget.g.targets
+│       │   └── Steamless.Unpacker.Variant31.x64.csproj
+│       └── Steamless.Unpacker.Variant31.x86
+│           ├── bin
+│           │   ├── Debug
+│           │   │   └── net10.0
+│           │   │       ├── Steamless.API.dll
+│           │   │       ├── Steamless.API.pdb
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.deps.json
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       └── Steamless.Unpacker.Variant31.x86.pdb
+│           │   └── Release
+│           │       └── net10.0
+│           │           ├── Steamless.API.dll
+│           │           ├── Steamless.API.pdb
+│           │           ├── Steamless.Unpacker.Variant31.x86.deps.json
+│           │           ├── Steamless.Unpacker.Variant31.x86.dll
+│           │           └── Steamless.Unpacker.Variant31.x86.pdb
+│           ├── Classes
+│           │   ├── SteamStubDrmFlags.cs
+│           │   ├── SteamStubHeader.cs
+│           │   └── SteamStubHelpers.cs
+│           ├── Main.cs
+│           ├── obj
+│           │   ├── Debug
+│           │   │   └── net10.0
+│           │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│           │   │       ├── ref
+│           │   │       │   └── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       ├── refint
+│           │   │       │   └── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       ├── Steamles.24D5BCAC.Up2Date
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.AssemblyInfo.cs
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.AssemblyInfoInputs.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.assets.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.csproj.AssemblyReference.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.csproj.CoreCompileInputs.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.csproj.FileListAbsolute.txt
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.GeneratedMSBuildEditorConfig.editorconfig
+│           │   │       └── Steamless.Unpacker.Variant31.x86.pdb
+│           │   ├── project.assets.json
+│           │   ├── project.nuget.cache
+│           │   ├── Release
+│           │   │   └── net10.0
+│           │   │       ├── .NETCoreApp,Version=v10.0.AssemblyAttributes.cs
+│           │   │       ├── ref
+│           │   │       │   └── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       ├── refint
+│           │   │       │   └── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       ├── Steamles.24D5BCAC.Up2Date
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.AssemblyInfo.cs
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.AssemblyInfoInputs.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.assets.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.csproj.AssemblyReference.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.csproj.CoreCompileInputs.cache
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.csproj.FileListAbsolute.txt
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.dll
+│           │   │       ├── Steamless.Unpacker.Variant31.x86.GeneratedMSBuildEditorConfig.editorconfig
+│           │   │       └── Steamless.Unpacker.Variant31.x86.pdb
+│           │   ├── Steamless.Unpacker.Variant31.x86.csproj.nuget.dgspec.json
+│           │   ├── Steamless.Unpacker.Variant31.x86.csproj.nuget.g.props
+│           │   └── Steamless.Unpacker.Variant31.x86.csproj.nuget.g.targets
+│           └── Steamless.Unpacker.Variant31.x86.csproj
+├── tools
+│   ├── bundle-app-details.py
+│   ├── cef-annotator
+│   │   ├── annotations.json
+│   │   ├── annotator.py
+│   │   ├── overlay.js
+│   │   ├── __pycache__
+│   │   │   └── annotator.cpython-312.pyc
+│   │   ├── README.md
+│   │   ├── run.sh
+│   │   ├── SKILL.md
+│   │   └── start.sh -> run.sh
+│   ├── cloud_pending
+│   │   └── main.cpp
+│   ├── CONTEXT.md
+│   ├── library-inject
+│   │   ├── .gitignore
+│   │   ├── library-inject.so
+│   │   ├── main.cpp
+│   │   └── Makefile
+│   ├── schema-grabber
+│   │   ├── .gitignore
+│   │   ├── Makefile
+│   │   ├── Program.cs
+│   │   └── schema-grabber.csproj
+│   ├── steamstub-unpack
+│   │   ├── steamstub_elf_unpack.py
+│   │   └── xkb_fix.c
+│   ├── ticket-grabber
+│   │   ├── .gitignore
+│   │   ├── Makefile
+│   │   ├── Program.cs
+│   │   └── ticket-grabber.csproj
+│   └── ui-live-preview
+│       ├── cdp_reloader.py
+│       ├── file_watcher.py
+│       ├── mock_api.py
+│       ├── __pycache__
+│       │   ├── cdp_reloader.cpython-312.pyc
+│       │   ├── file_watcher.cpython-312.pyc
+│       │   ├── mock_api.cpython-312.pyc
+│       │   ├── server.cpython-312.pyc
+│       │   └── test_preview_server.cpython-312-pytest-9.1.1.pyc
+│       ├── README.md
+│       ├── server.py
+│       ├── start.sh
+│       ├── static
+│       │   ├── index.html
+│       │   └── live_reload_client.js
+│       └── test_preview_server.py
+└── .vscode
+    ├── launch.json
+    ├── settings.json
+    └── tasks.json
+
+580 directories, 3389 files

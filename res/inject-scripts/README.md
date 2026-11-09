@@ -14,7 +14,26 @@ res/inject-scripts/ (mirrored via src/view/assets/)
 │   ├── store-page-script.js
 │   └── depot-selection-script.js
 ├── library/               # Steam Client Library UI & game management
-│   ├── app-details-script.js
+│   ├── app-details/       # Modular sources for app-details-script.js
+│   │   ├── styles.css
+│   │   ├── gamepad.js
+│   │   ├── appid.js
+│   │   ├── cloud-api.js
+│   │   ├── game-manager-modal.html
+│   │   ├── game-manager-modal.js
+│   │   ├── provider-modal.html
+│   │   ├── provider-modal.js
+│   │   ├── remove-modal.html
+│   │   ├── remove-modal.js
+│   │   ├── restore-modal.html
+│   │   ├── restore-modal.js
+│   │   ├── reset-modal.html
+│   │   ├── reset-modal.js
+│   │   ├── navi-modal.html
+│   │   ├── navi-modal.js
+│   │   ├── buttons.js
+│   │   └── main.js
+│   ├── app-details-script.js  # Bundled self-contained artifact (via tools/bundle-app-details.py)
 │   └── auto-collection.js
 ├── cloud/                 # Cloud saves & remote storage management
 │   └── cloud_manager.js
@@ -46,10 +65,26 @@ res/inject-scripts/ (mirrored via src/view/assets/)
 
 ### 3. `library/` (Steam Library & Game Management)
 * **Target Context**: `https://steamloopback.host/library/*` (Steam client library view).
-* **`app-details-script.js`**:
+* **`app-details/` (Modular Sources)**:
+  * Modular component source files for library app actions and modals.
+  * Developers and agents must edit here rather than modifying the generated bundle:
+    * `styles.css`: CSS styles (modal cards, overlays, `.sls-btn-action`, `.sls-btn-close`, restore items, hover/active states).
+    * `gamepad.js`: Steam React Fiber focus node registration (`registerSteamFocusNode`) and virtual gamepad modal focus navigation/trapping (`trapSteamGamepadModal`).
+    * `appid.js`: Steam DOM & React Fiber AppID extraction logic (`extractAppId`).
+    * `cloud-api.js`: Cloud save operations helper functions (`fetchAppCloudStatus`, `toggleAppCloudRedirect`, `backupAppCloudSave`).
+    * `game-manager-modal.html` & `game-manager-modal.js`: SLS Game Manager modal template and Online-Fix / AutoCrack logic (`openSlsConfig`).
+    * `provider-modal.html` & `provider-modal.js`: Provider selection modal template, list rendering, download tracking, and status polling (`openChangeProviderModal`, `luaProviders`).
+    * `remove-modal.html` & `remove-modal.js`: Remove Lua confirmation modal template and removal execution (`openRemoveConfirmModal`).
+    * `restore-modal.html` & `restore-modal.js`: Restore Cloud Save modal template, backup snapshots listing, and restore queuing (`openRestoreModal`).
+    * `reset-modal.html` & `reset-modal.js`: Reset Cloud Save modal template, typing validation (`RESET`), and reset queuing (`openResetModal`).
+    * `navi-modal.html` & `navi-modal.js`: Steam Deck / Big Picture unified Navi menu template and actions (`openNaviModal`).
+    * `buttons.js`: Steam-native button builder (`makeSteamButton`), Big Picture unified button injection, and Desktop action row injection (`createRemoveButton`).
+    * `main.js`: Core bootstrapping, observer, debouncing, `__slsRefreshButtons`, `checkAndCreateButton`, and `addRemoveLuaButton`.
+* **`app-details-script.js` (Bundled Artifact)**:
   * Injected into the library game details page.
-  * Hooks the game management gear icon and renders the Game Manager modal with AutoCrack, Online-Fix, DLC management, save snapshot restore, and Lua removal actions.
-  * Implements Steam virtual gamepad focus trapping (`vgp_ondirection`, `vgp_onok`, `vgp_oncancel`) for Deck and Big Picture Mode.
+  * Assembled from `library/app-details/` via `tools/bundle-app-details.py` (or `make bundle-scripts`).
+  * Inlines HTML templates and CSS styles so the script is 100% self-contained with no runtime filesystem dependencies.
+  * CI and integration gates enforce sync via `python3 tools/bundle-app-details.py --check` in `tests/integration/test_bundle_sync.py`.
 * **`auto-collection.js`**:
   * Automatically syncs unlocked games into the "LUAs" collection in `window.collectionStore`.
 
