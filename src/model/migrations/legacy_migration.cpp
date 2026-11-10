@@ -1,3 +1,7 @@
+/**
+ * @file  legacy_migration.cpp
+ * @brief Backward-compatible parser for legacy pre-v1.0 config syntax
+ */
 #include "legacy_migration.hpp"
 #include "atomic_file.hpp"
 #include "log.hpp"

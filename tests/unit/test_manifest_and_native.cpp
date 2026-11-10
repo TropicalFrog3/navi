@@ -1,3 +1,7 @@
+/**
+ * @file  test_manifest_and_native.cpp
+ * @brief Unit tests for manifest code storage and native game install
+ */
 #include <gtest/gtest.h>
 #include "manifestcode.hpp"
 #include "nativeinstall.hpp"

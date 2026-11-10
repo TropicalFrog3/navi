@@ -1,3 +1,7 @@
+/**
+ * @file  test_depotkeys.cpp
+ * @brief Unit tests for depot key decryption and storage lookup
+ */
 #include <gtest/gtest.h>
 #include "binarykv.hpp"
 #include "depotkeys.hpp"

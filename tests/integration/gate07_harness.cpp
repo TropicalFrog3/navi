@@ -1,3 +1,7 @@
+/**
+ * @file  gate07_harness.cpp
+ * @brief Gate 0.7 Bubblewrap integration test harness launcher
+ */
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif

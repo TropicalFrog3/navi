@@ -1,3 +1,7 @@
+/**
+ * @file  CSteamClient.hpp
+ * @brief Steam client interface wrapper and interface factory definitions
+ */
 #pragma once
 
 #include "types.hpp"

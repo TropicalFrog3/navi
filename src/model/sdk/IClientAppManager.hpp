@@ -1,3 +1,7 @@
+/**
+ * @file  IClientAppManager.hpp
+ * @brief VFT interface for Steam IClientAppManager
+ */
 #pragma once
 
 #include "types.hpp"

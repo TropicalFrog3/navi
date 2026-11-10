@@ -1,3 +1,7 @@
+/**
+ * @file  test_cloudredirect_bridge.cpp
+ * @brief Unit tests for CloudRedirect native API endpoints and security
+ */
 #include <gtest/gtest.h>
 #include "cloudredirect.hpp"
 #include "config.hpp"

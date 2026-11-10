@@ -1,3 +1,7 @@
+/**
+ * @file  CUtl.hpp
+ * @brief Valve CUtlMemory, CUtlVector, and CUtlString template definitions
+ */
 #pragma once
 
 #include "types.hpp"

@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """
+@file  server.py
+@brief Live preview HTTP server serving mock Steam UI and scripts
+
+
 Navi UI Live Preview & Hot Reload Server.
 
 Features:

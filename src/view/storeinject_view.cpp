@@ -1,3 +1,7 @@
+/**
+ * @file  storeinject_view.cpp
+ * @brief View component handling DOM script injection into Steam store pages
+ */
 #include "storeinject_view.hpp"
 #include "atomic_file.hpp"
 #include "log.hpp"

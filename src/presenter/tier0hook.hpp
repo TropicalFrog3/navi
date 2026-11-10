@@ -1,3 +1,7 @@
+/**
+ * @file  tier0hook.hpp
+ * @brief Declarations for tier0 log interception and console routing
+ */
 #pragma once
 
 #include <string>

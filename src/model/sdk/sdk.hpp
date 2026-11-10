@@ -1,3 +1,7 @@
+/**
+ * @file  sdk.hpp
+ * @brief Master include header aggregating all Steam SDK definitions
+ */
 #include "CAPIJob.hpp"
 #include "CClientUnifiedServiceTransport.hpp"
 #include "CCMInterface.hpp"

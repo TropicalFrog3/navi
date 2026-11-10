@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_view.cpp
+ * @brief Presenter/view adapter rendering CloudRedirect UI into Steam CEF
+ */
 #include "cloud_view.hpp"
 #include "cloud_manager.hpp"
 #include "cloud_pending_ops.hpp"

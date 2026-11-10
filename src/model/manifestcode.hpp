@@ -1,3 +1,7 @@
+/**
+ * @file  manifestcode.hpp
+ * @brief Interface for managing manifest authorization codes
+ */
 #pragma once
 
 #include <cstdint>

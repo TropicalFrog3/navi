@@ -1,3 +1,7 @@
+/**
+ * @file  gamepad.js
+ * @brief Steam Deck gamepad controller navigation handler for library modals
+ */
 function registerSteamFocusNode(element, properties) {
     if (!properties) properties = { focusable: true };
     if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1');

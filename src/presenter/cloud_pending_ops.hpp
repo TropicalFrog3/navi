@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_pending_ops.hpp
+ * @brief Declarations for pending cloud save operation queue serialization
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

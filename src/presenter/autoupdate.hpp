@@ -1,3 +1,7 @@
+/**
+ * @file  autoupdate.hpp
+ * @brief Declarations for auto-update polling and version verification
+ */
 #pragma once
 
 namespace AutoUpdate

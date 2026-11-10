@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """
+@file  test_steam_ui_flow.py
+@brief End-to-end integration test of Steam UI CEF script injection flow
+
+
 tests/test_steam_ui_flow.py
 ===========================
 Comprehensive end-to-end integration and flow test for Navi against live Steam:

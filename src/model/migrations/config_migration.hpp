@@ -1,3 +1,7 @@
+/**
+ * @file  config_migration.hpp
+ * @brief Declarative config migration rules and key transition handlers
+ */
 #pragma once
 
 #include <string>

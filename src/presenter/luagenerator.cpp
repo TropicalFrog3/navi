@@ -1,3 +1,7 @@
+/**
+ * @file  luagenerator.cpp
+ * @brief Generates dynamic Lua script definitions from depot metadata
+ */
 #include "luagenerator.hpp"
 #include "depotkeys.hpp"
 #include "config.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  CNetPacket.cpp
+ * @brief Network packet serialization and depot manifest manipulation
+ */
 #include "CNetPacket.hpp"
 
 

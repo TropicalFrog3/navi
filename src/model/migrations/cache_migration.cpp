@@ -1,3 +1,7 @@
+/**
+ * @file  cache_migration.cpp
+ * @brief Migrates legacy cache formats to current schema versions
+ */
 #include "cache_migration.hpp"
 #include "log.hpp"
 #include "atomic_file.hpp"

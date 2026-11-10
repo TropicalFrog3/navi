@@ -1,3 +1,7 @@
+/**
+ * @file  memhlp.cpp
+ * @brief Memory search, pattern matching, and signature scanning helpers
+ */
 #include "memhlp.hpp"
 
 #include "decompiler.hpp"

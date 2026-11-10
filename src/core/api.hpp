@@ -1,3 +1,7 @@
+/**
+ * @file  api.hpp
+ * @brief Interface and structures for /tmp/navi.API file IPC server
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  globals.cpp
+ * @brief Global runtime state variables and module handle definitions
+ */
 #include "globals.hpp"
 
 

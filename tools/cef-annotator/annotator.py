@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """
+@file  annotator.py
+@brief Visual annotation server and overlay for Steam CEF UI inspection
+
+
 Steam CEF Annotator Daemon & CLI
 Manages target discovery, WebSocket lifecycle, isolated/main world injection,
 hardened binding callbacks, element screenshots, and dual storage (Vibe MCP + local JSON).

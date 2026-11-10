@@ -1,4 +1,8 @@
 """
+@file  test_project_map.py
+@brief Verifies workspace floor plan and CONTEXT.md routing tables
+
+
 Comprehensive test suite for the Project Code Map Generator.
 Tests:
   - Nested functions and closures

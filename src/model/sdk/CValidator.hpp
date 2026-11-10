@@ -1,3 +1,7 @@
+/**
+ * @file  CValidator.hpp
+ * @brief Validation context for integrity checking Steam client objects
+ */
 #pragma once
 
 #include "types.hpp"

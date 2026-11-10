@@ -1,3 +1,7 @@
+/**
+ * @file  process_lock.hpp
+ * @brief Declarations for fail-closed Steam idle process guardrails
+ */
 #pragma once
 
 #include <cstdint>

@@ -1,3 +1,7 @@
+/**
+ * @file  achievement_merger.cpp
+ * @brief Merges local and remote Steam achievement schemas into unified state
+ */
 #include "achievement_merger.hpp"
 
 #include "yaml-cpp/yaml.h"

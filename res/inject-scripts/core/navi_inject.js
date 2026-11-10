@@ -1,4 +1,8 @@
 /**
+ * @file  navi_inject.js
+ * @brief Primary CEF JavaScript injection bootstrap and event coordinator
+ */
+/**
  * Navi CEF Injection Script
  * 
  * This script monkey-patches SteamClient.Apps.RegisterForAppDetails

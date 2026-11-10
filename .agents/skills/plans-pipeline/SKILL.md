@@ -27,7 +27,7 @@ description: enforces the feature lifecycle pipeline in the plans/ workspace of 
 
 - **Intake:** session reveals an idea → write `plans/01-backlog/<topic>.md` (problem, motivation, pointer to relevant `src/`/`res/` files; no solutions yet).
 - **Spec:** pull the item into `02-specs/`, extend with: owning MVC layer, invariants touched (`.agents/rules/*`), verification plan mapped to `tests/CONTEXT.md` commands, risks.
-- **Execute:** move to `03-active/`; Jev-routed implementation per `.agents/AGENTS.md`; append gate evidence links as verification progresses.
+- **Execute:** move to `03-active/`; implementation per `.agents/AGENTS.md`; append gate evidence links as verification progresses.
 - **Close:** verify, append outcome line + date, move to `04-done/`.
 - **Review:** read only `01-backlog`, `02-specs` (latest `vN` per topic), `03-active`; skip `04-done` except for archaeology.
 

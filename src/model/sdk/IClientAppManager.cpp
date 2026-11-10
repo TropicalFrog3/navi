@@ -1,3 +1,7 @@
+/**
+ * @file  IClientAppManager.cpp
+ * @brief Application install state and depot download manager wrappers
+ */
 #include "IClientAppManager.hpp"
 
 #include "memhlp.hpp"

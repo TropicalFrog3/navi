@@ -1,3 +1,7 @@
+/**
+ * @file  cefsizefix.cpp
+ * @brief CEF window resize and rendering fixup hooks
+ */
 #include "cefsizefix.hpp"
 
 #include "config.hpp"

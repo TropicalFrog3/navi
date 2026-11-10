@@ -1,3 +1,7 @@
+/**
+ * @file  licenses.cpp
+ * @brief License grant presenter for spoofing package and app ownership
+ */
 #include "licenses.hpp"
 
 #include "config.hpp"

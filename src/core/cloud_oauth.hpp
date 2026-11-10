@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_oauth.hpp
+ * @brief Class declaration and state definitions for OAuth loopback authentication
+ */
 #pragma once
 
 #include <atomic>

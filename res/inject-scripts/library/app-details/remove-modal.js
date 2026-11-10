@@ -1,3 +1,7 @@
+/**
+ * @file  remove-modal.js
+ * @brief Confirmation modal for removing Lua plugins and resetting saves
+ */
 function openRemoveConfirmModal(appid, onConfirmed) {
     log('Remove clicked for ' + appid);
     ensureStyles();

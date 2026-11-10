@@ -1,4 +1,8 @@
 """
+@file  navi_queue_bridge.py
+@brief Bridge facilitating communication with Navi operation queue
+
+
 Bridge between store-page window.__naviQueue and the callback_server_stub.
 
 Polls and drains window.__naviQueue in store page targets, dispatches requests

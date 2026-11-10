@@ -1,3 +1,7 @@
+/**
+ * @file  lua_parser.hpp
+ * @brief Data structures and parser interface for Lua game manifests
+ */
 #pragma once
 
 #include <string>

@@ -1,3 +1,7 @@
+/**
+ * @file  CAPIJob.cpp
+ * @brief Implementation of Steam asynchronous API job dispatcher
+ */
 #include "CAPIJob.hpp"
 
 #include "hooks.hpp"

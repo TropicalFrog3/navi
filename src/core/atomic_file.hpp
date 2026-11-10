@@ -1,3 +1,7 @@
+/**
+ * @file  atomic_file.hpp
+ * @brief Atomic file writer with temporary staging and crash-safe rename semantics
+ */
 #pragma once
 
 #include <chrono>

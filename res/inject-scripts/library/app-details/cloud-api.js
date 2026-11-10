@@ -1,3 +1,7 @@
+/**
+ * @file  cloud-api.js
+ * @brief Client-side REST API wrapper for engine CloudRedirect endpoints
+ */
 function fetchAppCloudStatus(appId) {
     if (window.NaviCloudManager && window.NaviCloudManager.fetchAppStatus) {
         return window.NaviCloudManager.fetchAppStatus(appId);

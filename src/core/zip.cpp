@@ -1,3 +1,7 @@
+/**
+ * @file  zip.cpp
+ * @brief ZIP archive extraction and memory buffer decompression routines
+ */
 #include "zip.hpp"
 
 #include <cstdio>

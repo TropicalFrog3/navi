@@ -1,4 +1,8 @@
 """
+@file  import_config_page.py
+@brief Page object representing the config import modal view
+
+
 Page Object Model for Manual Installation / Import Lua Page.
 
 Encapsulates:

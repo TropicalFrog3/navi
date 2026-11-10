@@ -1,3 +1,7 @@
+/**
+ * @file  CSteamMatchmakingServers.hpp
+ * @brief Matchmaking server query interface definitions
+ */
 #pragma once
 
 #include "types.hpp"

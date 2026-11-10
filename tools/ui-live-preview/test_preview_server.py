@@ -1,4 +1,8 @@
 """
+@file  test_preview_server.py
+@brief Tests for live preview server endpoints and WebSocket reload
+
+
 Test Suite for Navi UI Live Preview Server, Mock API, and File Watcher.
 
 Can be run via:

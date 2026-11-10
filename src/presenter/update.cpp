@@ -1,3 +1,7 @@
+/**
+ * @file  update.cpp
+ * @brief Engine update staging and binary self-replacement presenter
+ */
 #include "update.hpp"
 
 #include "config.hpp"

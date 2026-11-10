@@ -1,3 +1,7 @@
+/**
+ * @file  filewatcher.cpp
+ * @brief Inotify wrapper for watching configuration and IPC file changes
+ */
 #include "filewatcher.hpp"
 
 #include "log.hpp"

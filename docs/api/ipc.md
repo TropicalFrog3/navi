@@ -25,4 +25,4 @@ Optional arguments are indicated in square brackets `[]`.
 
 ---
 
-*Back to the full reference index: [API.md](../../API.md) · Sibling document: [REST API](./rest.md)*
+*Back to the full reference index: [API.md](./API.md) · Sibling document: [REST API](./rest.md)*

@@ -1,3 +1,7 @@
+/**
+ * @file  config.hpp
+ * @brief Configuration options, schema definitions, and default setting keys
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

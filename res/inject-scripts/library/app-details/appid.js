@@ -1,3 +1,7 @@
+/**
+ * @file  appid.js
+ * @brief AppId resolution and extraction from current library DOM state
+ */
 function extractAppId(manageBtn) {
     var appid = null;
     var curr = manageBtn;

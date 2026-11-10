@@ -1,3 +1,7 @@
+/**
+ * @file  cdpinject.cpp
+ * @brief Chrome DevTools Protocol injection engine for Steam CEF UI
+ */
 #include "cdpinject.hpp"
 #include "log.hpp"
 #include "config.hpp"
@@ -838,7 +842,6 @@ namespace CDPInject
 
     std::string loadResourceFile(const std::string& filename)
     {
-        std::vector<std::string> paths;
         static const std::vector<std::string> categories = {
             "", "core/", "store/", "library/", "cloud/", "shell/", "vendor/"
         };
@@ -873,31 +876,66 @@ namespace CDPInject
             searchDirs.push_back(std::filesystem::path(home) / ".local" / "share" / "navi" / "res" / "inject-scripts");
         }
 
+        auto readFile = [&](const std::filesystem::path& p) -> std::string {
+            std::ifstream file(p, std::ios::binary);
+            if (file.is_open()) {
+                LOG_INFO("CDPInject::loadResourceFile: Successfully loaded %s from %s\n", filename.c_str(), p.string().c_str());
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                return buffer.str();
+            }
+            return "";
+        };
+
         // Direct path
-        paths.push_back(filename);
+        std::error_code ec;
+        if (std::filesystem::is_regular_file(filename, ec))
+        {
+            std::string content = readFile(filename);
+            if (!content.empty()) return content;
+        }
 
         for (const auto& baseDir : searchDirs)
         {
+            if (!std::filesystem::exists(baseDir, ec))
+                continue;
+
+            // Direct or category path lookup
             if (filename.find('/') != std::string::npos)
             {
-                paths.push_back((baseDir / filename).string());
+                auto directPath = baseDir / filename;
+                if (std::filesystem::is_regular_file(directPath, ec))
+                {
+                    std::string content = readFile(directPath);
+                    if (!content.empty()) return content;
+                }
             }
             else
             {
                 for (const auto& cat : categories)
                 {
-                    paths.push_back((baseDir / (cat + filename)).string());
+                    auto catPath = baseDir / cat / filename;
+                    if (std::filesystem::is_regular_file(catPath, ec))
+                    {
+                        std::string content = readFile(catPath);
+                        if (!content.empty()) return content;
+                    }
                 }
             }
-        }
 
-        for (const auto& path : paths) {
-            std::ifstream file(path, std::ios::binary);
-            if (file.is_open()) {
-                LOG_INFO("CDPInject::loadResourceFile: Successfully loaded %s from %s\n", filename.c_str(), path.c_str());
-                std::stringstream buffer;
-                buffer << file.rdbuf();
-                return buffer.str();
+            // Recursive subdirectory search
+            if (std::filesystem::is_directory(baseDir, ec))
+            {
+                for (auto it = std::filesystem::recursive_directory_iterator(baseDir, std::filesystem::directory_options::skip_permission_denied, ec);
+                     it != std::filesystem::recursive_directory_iterator(); it.increment(ec))
+                {
+                    if (ec) { ec.clear(); continue; }
+                    if (it->is_regular_file(ec) && it->path().filename() == filename)
+                    {
+                        std::string content = readFile(it->path());
+                        if (!content.empty()) return content;
+                    }
+                }
             }
         }
 

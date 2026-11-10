@@ -1,3 +1,7 @@
+/**
+ * @file  restore-modal.js
+ * @brief Modal UI for browsing and restoring historical cloud save snapshots
+ */
 function openRestoreModal(appId, onCompleted) {
     if (window.NaviCloudManager && window.NaviCloudManager.openRestoreModal) {
         return window.NaviCloudManager.openRestoreModal(appId, onCompleted);

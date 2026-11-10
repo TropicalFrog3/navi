@@ -1,3 +1,7 @@
+/**
+ * @file  test_patterns_and_utils.cpp
+ * @brief Unit tests for pattern matching, string utilities, and hashing
+ */
 #include <gtest/gtest.h>
 #include "utils.hpp"
 #include "patterns.hpp"

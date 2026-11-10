@@ -1,3 +1,7 @@
+/**
+ * @file  main.cpp
+ * @brief Navi preload engine entry point (constructor/destructor init)
+ */
 #include "sdk/sdk.hpp"
 
 #include "api.hpp"

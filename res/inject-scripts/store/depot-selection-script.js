@@ -1,3 +1,7 @@
+/**
+ * @file  depot-selection-script.js
+ * @brief UI modal for selecting specific depots to download on store pages
+ */
 (function() {
     'use strict';
     

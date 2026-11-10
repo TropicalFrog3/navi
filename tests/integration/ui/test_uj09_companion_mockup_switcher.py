@@ -1,4 +1,8 @@
 """
+@file  test_uj09_companion_mockup_switcher.py
+@brief UI journey test verifying companion mockup switcher functionality
+
+
 Integration test for Grouped Sections file viewer in View Steam Cloud drill-down
 inside import-lua-script.js (Filter Tabs and Tree Inspector removed; categories collapsed by default).
 """

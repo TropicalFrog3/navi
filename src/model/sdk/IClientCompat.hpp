@@ -1,3 +1,7 @@
+/**
+ * @file  IClientCompat.hpp
+ * @brief VFT interface for Steam IClientCompat
+ */
 #pragma once
 
 #include "CUtl.hpp"

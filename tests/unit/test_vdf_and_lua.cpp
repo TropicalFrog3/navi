@@ -1,3 +1,7 @@
+/**
+ * @file  test_vdf_and_lua.cpp
+ * @brief Unit tests for Valve VDF format parser and Lua manifest parser
+ */
 #include <gtest/gtest.h>
 #include "vdf.hpp"
 #include "lua_parser.hpp"

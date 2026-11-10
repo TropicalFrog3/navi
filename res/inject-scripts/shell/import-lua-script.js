@@ -1,3 +1,7 @@
+/**
+ * @file  import-lua-script.js
+ * @brief UI modal enabling drag-and-drop or manual import of Lua manifests
+ */
 (function () {
     'use strict';
     if (window.__slsImportLuaInjected) return;

@@ -486,4 +486,4 @@ Deletes a single `.tar.gz` backup archive for an application after validating ag
 
 ---
 
-*Back to the full reference index: [API.md](../../API.md) · Sibling document: [File IPC API](./ipc.md) · Operational behavior: [CloudRedirect Runbook](../references/cloud-redirect-runbook.md)*
+*Back to the full reference index: [API.md](./API.md) · Sibling document: [File IPC API](./ipc.md) · Operational behavior: [CloudRedirect Runbook](../references/cloud-redirect-runbook.md)*

@@ -1,3 +1,7 @@
+/**
+ * @file  CCMInterface.cpp
+ * @brief Steam Connection Manager protocol handlers and packet dispatch
+ */
 #include "CCMInterface.hpp"
 
 #include "hooks.hpp"

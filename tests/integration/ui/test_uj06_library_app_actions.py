@@ -1,4 +1,8 @@
 """
+@file  test_uj06_library_app_actions.py
+@brief User journey test verifying library action buttons trigger events
+
+
 UJ-06: Library App Details Actions, Cloud Backups & Error Rollback Integration Tests.
 
 Scenarios:

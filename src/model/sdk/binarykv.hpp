@@ -1,3 +1,7 @@
+/**
+ * @file  binarykv.hpp
+ * @brief Interface and binary token definitions for Binary KeyValues
+ */
 #pragma once
 
 #include <cstdint>

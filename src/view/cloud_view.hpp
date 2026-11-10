@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_view.hpp
+ * @brief Declarations for cloud save UI state management and modals
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

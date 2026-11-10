@@ -1,3 +1,7 @@
+/**
+ * @file  decompiler.cpp
+ * @brief ELF disassembly and string extraction utilities for pattern matching
+ */
 #include "decompiler.hpp"
 
 #include "log.hpp"

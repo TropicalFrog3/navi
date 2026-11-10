@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_manager.cpp
+ * @brief CloudRedirect CLI subprocess orchestration and cloud save manager
+ */
 #include "cloud_manager.hpp"
 #include "cloudredirect.hpp"
 #include "paths.hpp"

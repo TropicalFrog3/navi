@@ -1,3 +1,7 @@
+/**
+ * @file  cloudredirect.cpp
+ * @brief CloudRedirect engine presenter, config syncing, and backend coordinator
+ */
 #include "cloudredirect.hpp"
 #include "atomic_file.hpp"
 #include "log.hpp"

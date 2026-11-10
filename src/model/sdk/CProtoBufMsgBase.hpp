@@ -1,3 +1,7 @@
+/**
+ * @file  CProtoBufMsgBase.hpp
+ * @brief Base class definitions for serialized protobuf network messages
+ */
 #pragma once
 
 #include "types.hpp"

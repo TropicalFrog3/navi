@@ -1,4 +1,8 @@
 /**
+ * @file  cloud_manager.js
+ * @brief Client-side CloudRedirect UI manager for Steam CEF settings
+ */
+/**
  * Navi Cloud Manager
  *
  * Implements Phase 5 CEF Manager UI & Security Guardrails:

@@ -1,3 +1,7 @@
+/**
+ * @file  test_cloud_pending_ops.cpp
+ * @brief Unit tests for CPendingOpsQueue pending operation serialization
+ */
 #include <gtest/gtest.h>
 #include "cloud_pending_ops.hpp"
 #include "cloudredirect.hpp"

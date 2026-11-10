@@ -1,3 +1,7 @@
+/**
+ * @file  config.cpp
+ * @brief Configuration loader, YAML parser, and in-memory setting manager
+ */
 #include "config.hpp"
 #include "config_default.hpp"
 

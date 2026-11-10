@@ -1,4 +1,8 @@
 """
+@file  base_modal_page.py
+@brief Page object base class for CEF modal dialog interactions
+
+
 Base Page Object Model for Steam modal dialogs.
 
 Provides shared interactions:

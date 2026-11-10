@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  install.sh
+# @brief Core installation logic deploying binaries and hooks to Steam directory
 # scripts/lib/install.sh - Navi payload and environment installer
 set -u
 

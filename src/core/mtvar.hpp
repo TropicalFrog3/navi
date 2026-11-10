@@ -1,3 +1,7 @@
+/**
+ * @file  mtvar.hpp
+ * @brief Thread-safe synchronized variable wrapper template with mutex lock
+ */
 #pragma once
 
 #include <mutex>

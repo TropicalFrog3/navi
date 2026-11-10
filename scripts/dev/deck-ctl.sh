@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  deck-ctl.sh
+# @brief Wireless Steam Deck management and remote debugging utility
 # ==============================================================================
 # deck-ctl.sh: Master Wireless Controller CLI for Physical Steam Deck (SteamOS)
 # ==============================================================================

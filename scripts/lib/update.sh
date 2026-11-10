@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  update.sh
+# @brief Updater script pulling new releases and refreshing binaries
 # scripts/lib/update.sh - Update module for Navi payload and integration
 set -u
 

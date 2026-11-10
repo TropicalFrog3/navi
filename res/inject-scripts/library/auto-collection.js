@@ -1,4 +1,8 @@
 /**
+ * @file  auto-collection.js
+ * @brief Automatically organizes unlocked games into Steam library collections
+ */
+/**
  * Auto-Collection Script for Navi
  * Injected into SteamUI to automatically add all spoofed games to a collection named "LUAs".
  */

@@ -1,3 +1,7 @@
+/**
+ * @file  apps.hpp
+ * @brief Declarations for application lifecycle presenters
+ */
 #pragma once
 
 #include "sdk.hpp"

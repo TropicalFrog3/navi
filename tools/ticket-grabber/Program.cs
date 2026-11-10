@@ -1,3 +1,7 @@
+/**
+ * @file  Program.cs
+ * @brief CLI tool generating authentication tickets for Steam client emulation
+ */
 using ProtoBuf;
 using SteamKit2;
 using SteamKit2.Internal;

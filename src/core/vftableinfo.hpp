@@ -1,3 +1,7 @@
+/**
+ * @file  vftableinfo.hpp
+ * @brief Interface and fallback tables for VFT index resolution
+ */
 #pragma once
 
 #include "libmem/libmem.h"

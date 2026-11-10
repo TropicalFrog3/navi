@@ -1,3 +1,7 @@
+/**
+ * @file  zip.hpp
+ * @brief Declarations of ZIP file operations and entry enumeration
+ */
 #pragma once
 
 #include <string>

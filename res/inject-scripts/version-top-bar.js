@@ -1,1 +1,0 @@
-shell/version-top-bar.js

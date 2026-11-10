@@ -1,3 +1,7 @@
+/**
+ * @file  autoupdate.cpp
+ * @brief Automated background update checker and safe mode hash auditor
+ */
 #include "autoupdate.hpp"
 #include "curl.hpp"
 #include "log.hpp"

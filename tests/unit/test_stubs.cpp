@@ -1,3 +1,7 @@
+/**
+ * @file  test_stubs.cpp
+ * @brief Unit test mock stubs for Steam SDK and system calls
+ */
 #include "test_stubs.hpp"
 #include "log.hpp"
 #include "IClientApps.hpp"

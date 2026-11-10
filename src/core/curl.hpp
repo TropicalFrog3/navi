@@ -1,3 +1,7 @@
+/**
+ * @file  curl.hpp
+ * @brief Declarations of libcurl wrappers and HTTP request helpers
+ */
 #pragma once
 
 #include <cstdint>

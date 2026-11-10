@@ -1,3 +1,7 @@
+/**
+ * @file  depotkeys.cpp
+ * @brief Decryption key manager for Steam depot decryption keys
+ */
 #include "depotkeys.hpp"
 #include "luagenerator.hpp"
 

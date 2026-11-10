@@ -1,4 +1,8 @@
 """
+@file  mock_cloud_relay_server.py
+@brief Mock HTTP server simulating remote cloud storage endpoints
+
+
 Mock Cloud Relay Server for E2E Cross-Device Sync Testing.
 Emulates Google Drive API v3 (appDataFolder) and WebDAV / S3-compatible endpoints
 over real TCP sockets using Python's ThreadingHTTPServer.

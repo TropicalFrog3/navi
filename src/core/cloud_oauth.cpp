@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_oauth.cpp
+ * @brief HTTP OAuth loopback server and token exchange for CloudRedirect providers
+ */
 #include "cloud_oauth.hpp"
 #include "cloudredirect.hpp"
 #include "curl.hpp"

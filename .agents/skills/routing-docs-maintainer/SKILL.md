@@ -34,7 +34,7 @@ without touching product code.
 5. **Case discipline**: files are `AGENTS.md` / `CONTEXT.md` (exact uppercase); all
    references across routing docs use that casing.
 6. **Public-link check**: `README.md` → `docs/cloud-saves.md` → reference tiers, and
-   root `API.md` → `docs/api/*` still resolve (`grep` + spot `test -e`).
+   `docs/api/API.md` → `docs/api/*` still resolve (`grep` + spot `test -e`).
 
 ## Output
 

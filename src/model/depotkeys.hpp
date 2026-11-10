@@ -1,3 +1,7 @@
+/**
+ * @file  depotkeys.hpp
+ * @brief Interface for loading and querying depot decryption keys
+ */
 #pragma once
 
 #include <cstdint>

@@ -1,3 +1,7 @@
+/**
+ * @file  nativeinstall.cpp
+ * @brief Native Linux game installer and dependency configuration presenter
+ */
 #include "nativeinstall.hpp"
 #include "manifestcode.hpp"
 #include "depotkeys.hpp"

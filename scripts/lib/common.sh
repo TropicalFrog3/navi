@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  common.sh
+# @brief Common bash logging, path detection, and environment helper functions
 # scripts/lib/common.sh - Shared utilities and definitions for Navi
 set -u
 

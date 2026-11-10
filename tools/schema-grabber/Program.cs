@@ -1,3 +1,7 @@
+/**
+ * @file  Program.cs
+ * @brief CLI tool for downloading Steam app schemas and achievement data
+ */
 ﻿using System.Net;
 using System.Text.RegularExpressions;
 

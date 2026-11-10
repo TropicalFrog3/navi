@@ -1,4 +1,8 @@
 """
+@file  test_phase1_harness_smoke.py
+@brief Smoke test verifying browser harness initialization and teardown
+
+
 Phase 1 Smoke Tests for Real-Time User-Input UI Integration Test Harness.
 
 Tests:

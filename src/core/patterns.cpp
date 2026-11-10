@@ -1,3 +1,7 @@
+/**
+ * @file  patterns.cpp
+ * @brief Signature pattern definitions for steamclient.so and steamui.so hooks
+ */
 #include "patterns.hpp"
 
 #include "globals.hpp"

@@ -1,4 +1,8 @@
 """
+@file  test_uj03_manual_upload_dragdrop.py
+@brief User journey test for drag-and-drop manual save upload
+
+
 UJ-03: Manual Installation Drag-and-Drop and File Staging Integration Tests.
 
 Scenarios:

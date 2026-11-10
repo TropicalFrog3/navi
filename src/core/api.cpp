@@ -1,3 +1,7 @@
+/**
+ * @file  api.cpp
+ * @brief Implementation of /tmp/navi.API file IPC server for client management
+ */
 #include "api.hpp"
 
 #include "config.hpp"

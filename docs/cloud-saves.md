@@ -74,4 +74,4 @@ flowchart TD
 | Storage layout, `cn.dat`/`manifest.dat`, PrefixBucketSync cross-device sync | [`references/cloud-redirect-architecture.md`](references/cloud-redirect-architecture.md) |
 | Provider catalog, OAuth loopback ports, all `CloudSaves*` / `PrefixSync` config | [`references/cloud-redirect-backends.md`](references/cloud-redirect-backends.md) |
 | Pending-ops safety model, killswitch, CLI diagnostics, manual recovery | [`references/cloud-redirect-runbook.md`](references/cloud-redirect-runbook.md) |
-| REST endpoints (`X-Navi-Auth`, origin allowlist, `/cloud/*`) | [`api/rest.md`](api/rest.md) — indexed by [`API.md`](../API.md) |
+| REST endpoints (`X-Navi-Auth`, origin allowlist, `/cloud/*`) | [`api/rest.md`](api/rest.md) — indexed by [`API.md`](api/API.md) |

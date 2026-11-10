@@ -1,3 +1,7 @@
+/**
+ * @file  apps.cpp
+ * @brief App state queries, unowned game registration, and launch presenters
+ */
 #include "apps.hpp"
 
 #include "config.hpp"

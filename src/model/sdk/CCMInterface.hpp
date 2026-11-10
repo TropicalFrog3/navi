@@ -1,3 +1,7 @@
+/**
+ * @file  CCMInterface.hpp
+ * @brief Declarations for CCMInterface connection and protocol routines
+ */
 #pragma once
 
 #include "CNetPacket.hpp"

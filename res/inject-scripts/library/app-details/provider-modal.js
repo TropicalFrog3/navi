@@ -1,3 +1,7 @@
+/**
+ * @file  provider-modal.js
+ * @brief Modal UI for configuring CloudRedirect cloud storage providers
+ */
 var luaProviders = [
     { name: 'Ryuu' },
     { name: 'DepotBox' },

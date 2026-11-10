@@ -1,4 +1,8 @@
 """
+@file  test_uj07_live_search_debounce.py
+@brief User journey test verifying live search input debounce timing
+
+
 UJ-07: Real-Time Debounced Live Search & Auto-Collection Synchronization Integration Tests.
 
 Scenarios:

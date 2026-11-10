@@ -1,3 +1,7 @@
+/**
+ * @file  IClientFriends.hpp
+ * @brief Friend list, persona state, and avatar interface definitions
+ */
 #pragma once
 
 #include "types.hpp"

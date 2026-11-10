@@ -1,3 +1,7 @@
+/**
+ * @file  CSteamEngine.cpp
+ * @brief Engine singleton lifecycle and hook dispatch manager
+ */
 #include "CSteamEngine.hpp"
 
 #include "CUtl.hpp"

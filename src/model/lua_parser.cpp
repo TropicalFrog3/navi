@@ -1,3 +1,7 @@
+/**
+ * @file  lua_parser.cpp
+ * @brief Parser for app Lua plugin manifests and depot metadata
+ */
 #include "lua_parser.hpp"
 
 // Safe for use in forked child — no globals, no mutexes

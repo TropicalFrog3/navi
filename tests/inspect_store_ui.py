@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """
+@file  inspect_store_ui.py
+@brief Headless browser script inspecting Steam store DOM elements
+
+
 tests/inspect_store_ui.py
 =========================
 Interactive CLI and diagnostic harness for inspecting Steam CEF targets,

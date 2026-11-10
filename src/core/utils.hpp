@@ -1,3 +1,7 @@
+/**
+ * @file  utils.hpp
+ * @brief Utility helper declarations including SHA-256 and string splitting
+ */
 #pragma once
 
 #include <cstdint>

@@ -1,3 +1,7 @@
+/**
+ * @file  misc.cpp
+ * @brief Miscellaneous auxiliary presenters and environment fixups
+ */
 #include "misc.hpp"
 
 #include "config.hpp"

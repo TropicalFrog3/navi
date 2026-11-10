@@ -1,3 +1,7 @@
+/**
+ * @file  tier0hook.cpp
+ * @brief Tier0 logging library hooks for capturing Steam debug output
+ */
 #include "tier0hook.hpp"
 #include "log.hpp"
 #include "memhlp.hpp"

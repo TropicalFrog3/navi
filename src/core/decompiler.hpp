@@ -1,3 +1,7 @@
+/**
+ * @file  decompiler.hpp
+ * @brief Interface for instruction disassembly and pattern search routines
+ */
 #pragma once
 
 #include <elf.h>

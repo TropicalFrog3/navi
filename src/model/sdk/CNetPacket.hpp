@@ -1,3 +1,7 @@
+/**
+ * @file  CNetPacket.hpp
+ * @brief Packet buffer wrapper and depot interception structures
+ */
 #pragma once
 
 #include "protobufs/enums_clientserver.pb.h"

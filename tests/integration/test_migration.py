@@ -1,4 +1,8 @@
 """
+@file  test_migration.py
+@brief Integration tests verifying config and cache schema migrations
+
+
 Integration tests for legacy ACCELA and SLSsteam migration and cleanup.
 """
 

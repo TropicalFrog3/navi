@@ -1,3 +1,7 @@
+/**
+ * @file  removelua.hpp
+ * @brief Declarations for clean Lua manifest removal routines
+ */
 #pragma once
 
 namespace RemoveLua

@@ -1,3 +1,7 @@
+/**
+ * @file  steam.hpp
+ * @brief High-level Steam API initialization and handle helpers
+ */
 #pragma once
 
 

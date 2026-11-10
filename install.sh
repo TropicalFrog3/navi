@@ -12,12 +12,19 @@ Usage: ./install.sh [SUBCOMMAND] [OPTIONS]
 Unified management tool for Navi.
 
 Subcommands:
-  install      Install Navi payload and configure Steam integration (default)
-  uninstall    Completely remove Navi and restore native Steam launchers
-  update       Update installed Navi payload and configuration
-  build        Build Navi binaries from source
-  release      Build and package production release bundle
-  test         Execute test suite (make test)
+  install             Install Navi payload and configure Steam integration (default)
+  uninstall           Completely remove Navi and restore native Steam launchers
+  update              Update installed Navi payload and configuration
+  build               Build Navi binaries from source
+  release             Build and package production release bundle
+  test                Execute unit test suite (make test)
+  test-gate07         Execute Gate 0.7 integration harness (make test-gate07)
+  test-ui             Execute UI journey tests (make test-ui-p0)
+  test-flow           Execute full end-to-end flow test (make test-flow)
+  check-cloudredirect Verify CloudRedirect binaries and preload status
+  docs                Regenerate workspace CONTEXT.md manifests
+  bundle-scripts      Bundle and minify CEF inject scripts (make bundle-scripts)
+  coverage            Generate test coverage report (make coverage)
 
 Options:
   --yes, -y     Automatic yes to prompts; run non-interactively
@@ -33,7 +40,7 @@ DRY_RUN=0
 # Parse command line options and subcommand
 while [ $# -gt 0 ]; do
     case "$1" in
-        install|uninstall|update|build|release|test)
+        install|uninstall|update|build|release|test|test-gate07|test-ui|test-flow|check-cloudredirect|docs|bundle-scripts|coverage)
             if [ -n "$SUBCOMMAND" ]; then
                 echo "Error: Multiple subcommands specified: $SUBCOMMAND and $1" >&2
                 usage >&2
@@ -107,6 +114,47 @@ case "$SUBCOMMAND" in
         # shellcheck source=scripts/lib/test.sh
         source "$REPO_ROOT/scripts/lib/test.sh"
         do_test
+        ;;
+    test-gate07)
+        # shellcheck source=scripts/lib/test.sh
+        source "$REPO_ROOT/scripts/lib/test.sh"
+        do_test_gate07
+        ;;
+    test-ui)
+        # shellcheck source=scripts/lib/test.sh
+        source "$REPO_ROOT/scripts/lib/test.sh"
+        do_test_ui
+        ;;
+    test-flow)
+        # shellcheck source=scripts/lib/test.sh
+        source "$REPO_ROOT/scripts/lib/test.sh"
+        do_test_flow
+        ;;
+    check-cloudredirect)
+        # shellcheck source=scripts/lib/test.sh
+        source "$REPO_ROOT/scripts/lib/test.sh"
+        do_check_cloudredirect
+        ;;
+    coverage)
+        # shellcheck source=scripts/lib/test.sh
+        source "$REPO_ROOT/scripts/lib/test.sh"
+        do_coverage
+        ;;
+    docs)
+        if [ "${DRY_RUN:-0}" -eq 1 ]; then
+            log_dry "python3 $REPO_ROOT/scripts/dev/sync-manifests.py"
+        else
+            log_info "Regenerating CONTEXT.md manifests..."
+            python3 "$REPO_ROOT/scripts/dev/sync-manifests.py"
+        fi
+        ;;
+    bundle-scripts)
+        if [ "${DRY_RUN:-0}" -eq 1 ]; then
+            log_dry "make -C $REPO_ROOT bundle-scripts"
+        else
+            log_info "Bundling CEF inject scripts via make bundle-scripts..."
+            make -C "$REPO_ROOT" bundle-scripts
+        fi
         ;;
     *)
         log_error "Unknown subcommand: $SUBCOMMAND"

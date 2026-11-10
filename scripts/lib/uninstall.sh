@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  uninstall.sh
+# @brief Uninstaller removing Navi preload hooks and restoring clean Steam state
 # scripts/lib/uninstall.sh - Complete uninstaller module for Navi
 set -u
 

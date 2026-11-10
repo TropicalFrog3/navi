@@ -1,4 +1,8 @@
 """
+@file  conftest.py
+@brief Shared pytest fixtures and test environment setup configuration
+
+
 Pytest configuration and shared fixtures for Navi integration tests.
 """
 

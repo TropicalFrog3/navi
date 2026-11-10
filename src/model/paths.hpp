@@ -1,3 +1,7 @@
+/**
+ * @file  paths.hpp
+ * @brief Steam directory locations, config folders, and save path definitions
+ */
 #pragma once
 
 #include <cstdint>

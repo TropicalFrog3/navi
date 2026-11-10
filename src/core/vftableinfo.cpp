@@ -1,3 +1,7 @@
+/**
+ * @file  vftableinfo.cpp
+ * @brief Virtual function table RTTI scanner and index resolver
+ */
 #include "vftableinfo.hpp"
 
 #include "config.hpp"

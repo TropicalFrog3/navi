@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Bundle modular files from res/inject-scripts/library/app-details/
-into the monolithic self-contained res/inject-scripts/library/app-details-script.js.
+@file  bundle-app-details.py
+@brief Bundles modular app-details JS and HTML into monolithic inject script.
 
 Usage:
     python3 tools/bundle-app-details.py          # Bundle and write output
@@ -79,6 +79,10 @@ def build_bundle(modules_dir: Path) -> str:
 
     # 4. Assemble bundle
     parts: list[str] = [
+        "/**",
+        " * @file  app-details-script.js",
+        " * @brief Bundled standalone script for Steam library game details page",
+        " */",
         "(function() {",
         "    'use strict';",
         "    if (window.__slsAppDetailsInjected) return;",

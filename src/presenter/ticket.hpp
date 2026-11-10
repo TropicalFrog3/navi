@@ -1,3 +1,7 @@
+/**
+ * @file  ticket.hpp
+ * @brief Declarations for Steam ticket retrieval and synthesis hooks
+ */
 #pragma once
 
 #include "sdk.hpp"

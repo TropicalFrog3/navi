@@ -1,3 +1,7 @@
+/**
+ * @file  reset-modal.js
+ * @brief Confirmation modal for resetting local save games from cloud backups
+ */
 function openResetModal(appId, onCompleted) {
     if (document.getElementById('sls-reset-modal')) return;
     ensureStyles();

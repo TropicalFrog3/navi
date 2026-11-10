@@ -1,4 +1,8 @@
 """
+@file  file_watcher.py
+@brief Inotify file watcher monitoring inject-scripts for live reload
+
+
 File Watcher with Debounce for Navi Injected Scripts and UI Fixtures.
 
 Zero external dependencies: uses threading and os.stat with debounce logic.

@@ -1,3 +1,7 @@
+/**
+ * @file  fakeappid.hpp
+ * @brief Declarations for FakeAppId mapping and identifier conversion
+ */
 #pragma once
 
 #include "sdk.hpp"

@@ -1,4 +1,8 @@
 """
+@file  test_uj01_cloud_reset_input.py
+@brief User journey test verifying cloud save reset modal confirmation
+
+
 UJ-01: Cloud Reset Input Validation and Lifecycle Integration Tests.
 
 Scenarios:

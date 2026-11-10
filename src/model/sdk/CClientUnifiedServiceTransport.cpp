@@ -1,3 +1,7 @@
+/**
+ * @file  CClientUnifiedServiceTransport.cpp
+ * @brief Protobuf unified service RPC message transport implementation
+ */
 #include "CClientUnifiedServiceTransport.hpp"
 
 #include "hooks.hpp"

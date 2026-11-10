@@ -1,3 +1,7 @@
+/**
+ * @file  CClientUnifiedServiceTransport.hpp
+ * @brief Declarations for unified message RPC dispatch and service callbacks
+ */
 #pragma once
 
 #include "types.hpp"

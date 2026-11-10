@@ -1,4 +1,8 @@
 """
+@file  test_uj08_a11y_gamepad_responsive.py
+@brief Accessibility and gamepad navigation responsiveness test
+
+
 UJ-08: Accessibility, Gamepad Wrap-Around & 4-Viewport Responsive Matrix Tests.
 
 Scenarios:

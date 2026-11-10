@@ -1,4 +1,6 @@
 #!/bin/bash
+# @file  update-all.sh
+# @brief Full updater downloading latest release zip and running install.sh
 set -euo pipefail
 
 REPO="TropicalFrog3/navi"

@@ -1,4 +1,8 @@
 """
+@file  library_details_page.py
+@brief Page object representing the Steam library game details view
+
+
 Page Object Model for Steam Library App Details and Injected Modals.
 
 Encapsulates:

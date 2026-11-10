@@ -1,3 +1,7 @@
+/**
+ * @file  hooks.cpp
+ * @brief Primary entrypoint for establishing native detours and VFT hooks
+ */
 #include "hooks.hpp"
 
 #include "achievements.hpp"

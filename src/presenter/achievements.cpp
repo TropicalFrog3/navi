@@ -1,3 +1,7 @@
+/**
+ * @file  achievements.cpp
+ * @brief Achievement unlock hook presenter and unlock notification dispatcher
+ */
 #include "achievements.hpp"
 
 #include "curl.hpp"

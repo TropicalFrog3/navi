@@ -1,3 +1,7 @@
+/**
+ * @file  CWebSocketConnection.hpp
+ * @brief WebSocket connection class and handshake interface
+ */
 #pragma once
 
 #include "types.hpp"

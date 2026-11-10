@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  release.sh
+# @brief Release packaging pipeline creating distributable ZIP archives
 # scripts/lib/release.sh - Packaging and production release module for Navi
 set -u
 
@@ -55,7 +57,7 @@ do_release() {
     [ -f "$REPO_ROOT/res/config.diff.yaml" ] && cp -f "$REPO_ROOT/res/config.diff.yaml" "$prod_navi/res/"
     [ -f "$REPO_ROOT/res/cache.diff.yaml" ] && cp -f "$REPO_ROOT/res/cache.diff.yaml" "$prod_navi/res/"
     cp -f "$REPO_ROOT/res/version" "$prod_navi/res/"
-    cp -f "$REPO_ROOT/res/update-all.sh" "$prod_navi/res/"
+    cp -f "$REPO_ROOT/scripts/update-all.sh" "$prod_navi/res/"
     if [ -f "$REPO_ROOT/res/cloud_redirect.so" ] && [ -f "$REPO_ROOT/res/cloud_redirect_cli" ]; then
         cp -f "$REPO_ROOT/res/cloud_redirect.so" "$prod_navi/res/"
         cp -f "$REPO_ROOT/res/cloud_redirect_cli" "$prod_navi/res/"

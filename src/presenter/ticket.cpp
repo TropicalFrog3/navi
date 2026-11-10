@@ -1,3 +1,7 @@
+/**
+ * @file  ticket.cpp
+ * @brief Presenter for app ticket interception and ownership validation
+ */
 #include "ticket.hpp"
 
 #include "config.hpp"

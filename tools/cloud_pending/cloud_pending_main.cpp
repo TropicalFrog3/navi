@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_pending_main.cpp
+ * @brief Out-of-process idle helper executable applying queued save ops
+ */
 #include "cloud_pending_ops.hpp"
 #include "cloudredirect.hpp"
 #include "log.hpp"

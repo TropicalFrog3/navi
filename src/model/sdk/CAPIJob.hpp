@@ -1,3 +1,7 @@
+/**
+ * @file  CAPIJob.hpp
+ * @brief Declarations for CAPIJob asynchronous completion handlers
+ */
 #pragma once
 
 #include "protobufs/enums_clientserver.pb.h"

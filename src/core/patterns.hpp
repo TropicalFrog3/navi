@@ -1,3 +1,7 @@
+/**
+ * @file  patterns.hpp
+ * @brief Declarations of engine memory signatures and scan offsets
+ */
 #pragma once
 
 #include "memhlp.hpp"

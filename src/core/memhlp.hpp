@@ -1,3 +1,7 @@
+/**
+ * @file  memhlp.hpp
+ * @brief Memory manipulation utilities and Pattern_t struct definition
+ */
 #pragma once
 
 #include "log.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  test_migration.cpp
+ * @brief Unit tests for declarative config and cache migration bridges
+ */
 #include <gtest/gtest.h>
 #include "config_migration.hpp"
 #include "cache_migration.hpp"

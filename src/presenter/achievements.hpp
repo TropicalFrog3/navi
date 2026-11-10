@@ -1,3 +1,7 @@
+/**
+ * @file  achievements.hpp
+ * @brief Declarations for achievement unlock presenter handlers
+ */
 #pragma once
 
 #include "sdk.hpp"

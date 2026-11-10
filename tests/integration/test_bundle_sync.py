@@ -1,4 +1,8 @@
 """
+@file  test_bundle_sync.py
+@brief Tests verifying bundle-app-details.py stays in sync with sources
+
+
 Integration test for res/inject-scripts/library/app-details-script.js bundler.
 Ensures that the bundled script remains 100% in sync with modular sources in
 res/inject-scripts/library/app-details/ and passes JavaScript syntax checks.

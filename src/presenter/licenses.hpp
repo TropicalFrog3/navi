@@ -1,3 +1,7 @@
+/**
+ * @file  licenses.hpp
+ * @brief Declarations for license validation and package grant hooks
+ */
 #pragma once
 
 #include "sdk.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  app-details-script.js
+ * @brief Bundled standalone script for Steam library game details page
+ */
 (function() {
     'use strict';
     if (window.__slsAppDetailsInjected) return;
@@ -27,6 +31,10 @@
     }
 
     // --- gamepad.js ---
+    /**
+     * @file  gamepad.js
+     * @brief Steam Deck gamepad controller navigation handler for library modals
+     */
     function registerSteamFocusNode(element, properties) {
         if (!properties) properties = { focusable: true };
         if (!element.hasAttribute('tabindex')) element.setAttribute('tabindex', '-1');
@@ -123,6 +131,10 @@
 
 
     // --- appid.js ---
+    /**
+     * @file  appid.js
+     * @brief AppId resolution and extraction from current library DOM state
+     */
     function extractAppId(manageBtn) {
         var appid = null;
         var curr = manageBtn;
@@ -189,6 +201,10 @@
 
 
     // --- cloud-api.js ---
+    /**
+     * @file  cloud-api.js
+     * @brief Client-side REST API wrapper for engine CloudRedirect endpoints
+     */
     function fetchAppCloudStatus(appId) {
         if (window.NaviCloudManager && window.NaviCloudManager.fetchAppStatus) {
             return window.NaviCloudManager.fetchAppStatus(appId);
@@ -224,6 +240,10 @@
 
 
     // --- game-manager-modal.js ---
+    /**
+     * @file  game-manager-modal.js
+     * @brief Modal UI for configuring game-specific depot and save settings
+     */
     function openSlsConfig(appid) {
         if (document.getElementById('sls-overlay-modal')) return;
         ensureStyles();
@@ -423,6 +443,10 @@
 
 
     // --- provider-modal.js ---
+    /**
+     * @file  provider-modal.js
+     * @brief Modal UI for configuring CloudRedirect cloud storage providers
+     */
     var luaProviders = [
         { name: 'Ryuu' },
         { name: 'DepotBox' },
@@ -549,6 +573,10 @@
 
 
     // --- remove-modal.js ---
+    /**
+     * @file  remove-modal.js
+     * @brief Confirmation modal for removing Lua plugins and resetting saves
+     */
     function openRemoveConfirmModal(appid, onConfirmed) {
         log('Remove clicked for ' + appid);
         ensureStyles();
@@ -592,6 +620,10 @@
 
 
     // --- restore-modal.js ---
+    /**
+     * @file  restore-modal.js
+     * @brief Modal UI for browsing and restoring historical cloud save snapshots
+     */
     function openRestoreModal(appId, onCompleted) {
         if (window.NaviCloudManager && window.NaviCloudManager.openRestoreModal) {
             return window.NaviCloudManager.openRestoreModal(appId, onCompleted);
@@ -682,6 +714,10 @@
 
 
     // --- reset-modal.js ---
+    /**
+     * @file  reset-modal.js
+     * @brief Confirmation modal for resetting local save games from cloud backups
+     */
     function openResetModal(appId, onCompleted) {
         if (document.getElementById('sls-reset-modal')) return;
         ensureStyles();
@@ -741,6 +777,10 @@
 
 
     // --- navi-modal.js ---
+    /**
+     * @file  navi-modal.js
+     * @brief Base modal dialog container and backdrop management for CEF
+     */
     function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart) {
         if (document.getElementById('sls-navi-modal')) return;
         ensureStyles();
@@ -899,6 +939,10 @@
 
 
     // --- buttons.js ---
+    /**
+     * @file  buttons.js
+     * @brief DOM button injectors for Navi and CloudRedirect library actions
+     */
     function makeSteamButton(appid, className, text, extraAttrs) {
         var isDesktop = !!((document.body && document.body.classList.contains('DesktopUI')) || document.querySelector('.DesktopUI'));
         var isDeckOrBigPicture = !isDesktop;
@@ -1186,6 +1230,10 @@
 
 
     // --- main.js ---
+    /**
+     * @file  main.js
+     * @brief Modular entry point for library app details page enhancements
+     */
     var noLuaAppIds = {};
     var pendingChecks = {}; // keyed by appid + '_' + container-random-key
 

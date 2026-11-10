@@ -1,4 +1,8 @@
 """
+@file  test_uj05_config_editor_validation.py
+@brief User journey test validating config editor input fields and save
+
+
 UJ-05: Config Editor & Real-Time Validation Integration Tests.
 
 Scenarios:

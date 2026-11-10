@@ -1,3 +1,7 @@
+/**
+ * @file  legacy_migration.hpp
+ * @brief Interface for converting obsolete config formats
+ */
 #pragma once
 
 #include <string>

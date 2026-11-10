@@ -1,3 +1,7 @@
+/**
+ * @file  test_cloud_oauth.cpp
+ * @brief Unit tests for CloudRedirect OAuth loopback server and token exchange
+ */
 #include <gtest/gtest.h>
 #include "cloud_oauth.hpp"
 #include "cloudredirect.hpp"

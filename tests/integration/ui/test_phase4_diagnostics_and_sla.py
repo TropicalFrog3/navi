@@ -1,4 +1,8 @@
 """
+@file  test_phase4_diagnostics_and_sla.py
+@brief UI tests verifying diagnostic modal rendering and latency SLAs
+
+
 Phase 4: Diagnostic Artifact Bundle Generation and Real-Time SLA Integration Tests.
 
 Verifies:

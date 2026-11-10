@@ -1,3 +1,7 @@
+/**
+ * @file  nativeinstall.hpp
+ * @brief Declarations for native binary installation and setup
+ */
 #pragma once
 
 #include <cstdint>

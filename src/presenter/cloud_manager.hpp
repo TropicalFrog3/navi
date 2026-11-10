@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_manager.hpp
+ * @brief Interface for cloud save redirection, sync, and status checks
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

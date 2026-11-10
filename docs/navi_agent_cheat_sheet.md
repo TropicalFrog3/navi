@@ -23,7 +23,7 @@ Move work items cleanly through `01-backlog/` → `02-specs/` → `03-active/` �
 |---|---|---|
 | **Steam Client Update** | `"Go to src (New Steam client version): audit and update hashes/vftables for the new Steam build."` | Loads skill `steam-version-update`, `res/version`, `src/core/patterns.*`, `src/vftableinfo.*`, and runs audit scripts. |
 | **New Hook / C++ Feature** | `"Go to src (New native hook/feature): implement [feature] in [core/model/presenter/view]."` | Loads `cpp_hooking_patterns.md` + `steam_cef_ui_patterns.md` and skill `steam-native-hooking`; skips `res/inject-scripts/`, `tools/`, `tests/`. |
-| **Cloud Saves / CloudRedirect** | `"Go to src (Cloud-saves change): update [component] and run make check-cloudredirect."` | Loads `docs/references/cloud-redirect-architecture.md`, `cloud_oauth*`, presenter cloud files, and `docs/api/rest.md`. |
+| **Cloud Saves / CloudRedirect** | `"Go to src (Cloud-saves change): update [component] and run ./install.sh check-cloudredirect."` | Loads `docs/references/cloud-redirect-architecture.md`, `cloud_oauth*`, presenter cloud files, and `docs/api/rest.md`. |
 | **Test-First Bug Fix** | `"Go to src (Bug fix): reproduce [bug] with a failing test first, then fix it."` | Enforces `.agents/rules/test-regression.md` (RED → GREEN) + `tests/unit/test_stubs*` before editing engine code. |
 
 ---
@@ -32,9 +32,9 @@ Move work items cleanly through `01-backlog/` → `02-specs/` → `03-active/` �
 
 | Task | Copy-Paste Prompt | What It Triggers |
 |---|---|---|
-| **CEF UI / JS Injection** | `"Go to res (CEF inject-script change): update the [library/store/cloud/shell] script for [feature]."` | Reads `res/inject-scripts/README.md` first + `src/view/cdpinject.cpp:850-875`; triggers `vibe-implement-annotations` / `cef-cdp-injection` and `make test-ui-p0`. |
+| **CEF UI / JS Injection** | `"Go to res (CEF inject-script change): update the [library/store/cloud/shell] script for [feature]."` | Reads `res/inject-scripts/README.md` first + `src/view/cdpinject.cpp:850-875`; triggers `vibe-implement-annotations` / `cef-cdp-injection` and `./install.sh test-ui`. |
 | **Config Schema / Migration** | `"Go to res (Config template change): add/migrate key [KeyName] in config.yaml."` | Loads `res/config.yaml`, `config.diff.yaml`, `cache.diff.yaml`, `src/model/migrations/`, and `tests/unit/test_config.cpp`. |
-| **Swap `cloud_redirect.so`** | `"Go to res (cloud_redirect.so replacement): update the binary and verify lockstep versions."` | Checks `.gitignore` `!res/cloud_redirect.so`, `cloud-redirect-architecture.md`, and runs `make check-cloudredirect`. |
+| **Swap `cloud_redirect.so`** | `"Go to res (cloud_redirect.so replacement): update the binary and verify lockstep versions."` | Checks `.gitignore` `!res/cloud_redirect.so`, `cloud-redirect-architecture.md`, and runs `./install.sh check-cloudredirect`. |
 | **Version / Release Bump** | `"Go to res (Version / release bump): bump version to [vX.Y.Z] and update SafeModeHashes."` | Updates `res/version` + `res/updates.yaml` and triggers skill `release-workflow`. |
 
 ---
@@ -62,9 +62,9 @@ Move work items cleanly through `01-backlog/` → `02-specs/` → `03-active/` �
   ```text
   Run skill routing-docs-maintainer to audit recent file changes and sync AGENTS.md and all CONTEXT.md routing tables.
   ```
-* **Spawn Subagents via Jev Router (`.agents/`):**
+* **Subagent Delegation (`.agents/`):**
   ```text
-  Follow .agents/AGENTS.md and use route_subagent.py to delegate [task] to a worker subagent.
+  Follow .agents/AGENTS.md to decide whether to handle directly or delegate [task] to a worker subagent.
   ```
 
 ---

@@ -1,3 +1,7 @@
+/**
+ * @file  manifestcode.cpp
+ * @brief Steam manifest decryption code storage and retrieval
+ */
 #include "manifestcode.hpp"
 #include "log.hpp"
 #include "CNetPacket.hpp"

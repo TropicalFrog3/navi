@@ -1,4 +1,8 @@
 """
+@file  test_store_script.py
+@brief Integration test for store page script DOM manipulation
+
+
 Unit and syntax tests for res/inject-scripts/store-page-script.js
 Verifies that store hiding logic has been replaced with native ownership decoration ("IN LIBRARY" label).
 """

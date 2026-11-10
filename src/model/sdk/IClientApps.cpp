@@ -1,3 +1,7 @@
+/**
+ * @file  IClientApps.cpp
+ * @brief App ownership, depot info, and license query wrappers
+ */
 #include "IClientApps.hpp"
 
 #include "memhlp.hpp"

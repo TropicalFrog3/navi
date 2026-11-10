@@ -1,3 +1,7 @@
+/**
+ * @file  update.hpp
+ * @brief Declarations for staging and applying runtime engine updates
+ */
 #pragma once
 
 #include <cstdint>

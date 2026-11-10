@@ -1,3 +1,7 @@
+/**
+ * @file  game-manager-modal.js
+ * @brief Modal UI for configuring game-specific depot and save settings
+ */
 function openSlsConfig(appid) {
     if (document.getElementById('sls-overlay-modal')) return;
     ensureStyles();

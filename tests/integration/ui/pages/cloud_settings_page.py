@@ -1,4 +1,8 @@
 """
+@file  cloud_settings_page.py
+@brief Page object representing the CloudRedirect settings view
+
+
 Page Object Model for Cloud Manager modals.
 
 Encapsulates:

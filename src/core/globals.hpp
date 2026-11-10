@@ -1,3 +1,7 @@
+/**
+ * @file  globals.hpp
+ * @brief Extern declarations of global engine state and module references
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

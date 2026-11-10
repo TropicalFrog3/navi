@@ -1,4 +1,8 @@
 """
+@file  browser_driver.py
+@brief Playwright browser automation driver for Steam CEF UI tests
+
+
 Headless Chrome browser driver using Chrome DevTools Protocol (CDP) WebSocket.
 
 Features:
@@ -415,7 +419,14 @@ class BrowserDriver:
         return res.get("result", {}).get("value")
 
     def inject_script(self, script_path: str | Path) -> Any:
-        code = Path(script_path).read_text(encoding="utf-8")
+        path = Path(script_path)
+        if not path.is_file():
+            for sub in ("core", "store", "library", "cloud", "shell", "vendor"):
+                cand = path.parent / sub / path.name
+                if cand.is_file():
+                    path = cand
+                    break
+        code = path.read_text(encoding="utf-8")
         return self.evaluate(code, await_promise=False)
 
     # --- Input Dispatching (Real Keystrokes, Clicks, Gamepad) ---

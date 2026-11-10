@@ -1,3 +1,7 @@
+/**
+ * @file  CSteamEngine.hpp
+ * @brief CSteamEngine class declaration and core initialization methods
+ */
 #pragma once
 
 #include "CUtl.hpp"

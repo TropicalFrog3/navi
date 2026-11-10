@@ -1,3 +1,7 @@
+/**
+ * @file  navi-modal.js
+ * @brief Base modal dialog container and backdrop management for CEF
+ */
 function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled, provider, onRestart) {
     if (document.getElementById('sls-navi-modal')) return;
     ensureStyles();

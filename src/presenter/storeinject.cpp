@@ -1,3 +1,7 @@
+/**
+ * @file  storeinject.cpp
+ * @brief Presenter bridging CEF store requests with native engine REST API
+ */
 #include "storeinject.hpp"
 #include "storeinject_view.hpp"
 #include "cdpinject.hpp"

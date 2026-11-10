@@ -1,3 +1,7 @@
+/**
+ * @file  cloud_pending_ops.cpp
+ * @brief Out-of-process pending save operation queue manager
+ */
 #include "cloud_pending_ops.hpp"
 #include "cloud_manager.hpp"
 #include "cloudredirect.hpp"

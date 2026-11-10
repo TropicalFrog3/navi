@@ -49,9 +49,8 @@ package() {
 	#TODO: Create make install target
 	install -D "$srcdir/navi/bin/libnavi.so" "$pkgdir/usr/lib32/libnavi.so"
 	install -D "$srcdir/navi/bin/library-inject.so" "$pkgdir/usr/lib32/libnavi-library-inject.so"
-	install -D "$srcdir/navi/res/navi.desktop" "$pkgdir/usr/share/applications/navi.desktop"
-	install -D "$srcdir/navi/res/navi-native.desktop" "$pkgdir/usr/share/applications/navi-native.desktop"
-	install -D "$srcdir/navi/res/logo.png" "$pkgdir/usr/share/pixmaps/navi.png"
+	install -D "$srcdir/navi/pkg/navi/navi.desktop" "$pkgdir/usr/share/applications/navi.desktop"
+	install -D "$srcdir/navi/pkg/navi/navi-native.desktop" "$pkgdir/usr/share/applications/navi-native.desktop"
 
 	install -D "$srcdir/navi/tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" "$pkgdir/usr/bin/navi-ticket-grabber"
 	install -D "$srcdir/navi/tools/schema-grabber/bin/Release/net9.0/linux-x64/publish/schema-grabber" "$pkgdir/usr/bin/navi-schema-grabber"

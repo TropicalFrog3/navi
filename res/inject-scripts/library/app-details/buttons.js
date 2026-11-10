@@ -1,3 +1,7 @@
+/**
+ * @file  buttons.js
+ * @brief DOM button injectors for Navi and CloudRedirect library actions
+ */
 function makeSteamButton(appid, className, text, extraAttrs) {
     var isDesktop = !!((document.body && document.body.classList.contains('DesktopUI')) || document.querySelector('.DesktopUI'));
     var isDeckOrBigPicture = !isDesktop;

@@ -1,4 +1,8 @@
 """
+@file  store_app_page.py
+@brief Page object representing Steam store application pages
+
+
 Page Object Model for Steam Store App Page and Modals.
 
 Encapsulates:

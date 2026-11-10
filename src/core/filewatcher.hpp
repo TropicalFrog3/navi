@@ -1,3 +1,7 @@
+/**
+ * @file  filewatcher.hpp
+ * @brief Declarations for file and directory filesystem change monitoring
+ */
 #pragma once
 
 #include <filesystem>

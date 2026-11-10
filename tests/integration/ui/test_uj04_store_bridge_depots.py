@@ -1,4 +1,8 @@
 """
+@file  test_uj04_store_bridge_depots.py
+@brief User journey test verifying depot selection bridge in store page
+
+
 UJ-04: Steam Store Page Bridge and Depot Selection Integration Tests.
 
 Scenarios:

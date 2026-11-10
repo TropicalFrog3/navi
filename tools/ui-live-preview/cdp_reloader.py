@@ -1,4 +1,8 @@
 """
+@file  cdp_reloader.py
+@brief WebSocket CDP client reloading CEF scripts on source changes
+
+
 Steam CEF Chrome DevTools Protocol (CDP) Hot Reloader.
 
 Connects to Steam running with -cef-enable-debugging (default port 8080)

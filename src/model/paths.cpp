@@ -1,3 +1,7 @@
+/**
+ * @file  paths.cpp
+ * @brief Steam filesystem directory layout detection and path resolution
+ */
 #include "paths.hpp"
 #include "vdf.hpp"
 

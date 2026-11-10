@@ -1,3 +1,7 @@
+/**
+ * @file  luagenerator.hpp
+ * @brief Declarations for procedural Lua game manifest generation
+ */
 #pragma once
 
 #include <cstdint>

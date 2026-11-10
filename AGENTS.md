@@ -22,7 +22,7 @@ live-hardware verification on real Steam Decks (`scripts/dev/deck-ctl.sh`).
 | `tests/CONTEXT.md` | Running or adding gates: unit, integration (Gate 0.7), UI journeys, device live tests |
 | `docs/CONTEXT.md` | Architecture/API write-ups, diagrams, third-party attribution |
 | `plans/CONTEXT.md` | New ideas, specs, active feature states, completed-item archives |
-| `.agents/AGENTS.md` | Agent conduct: Jev decision routing (`route_subagent.py`) |
+| `.agents/AGENTS.md` | Workspace agent rules: task routing, token efficiency, verification standards |
 
 ## Global Routing Rules (mandatory)
 
@@ -40,8 +40,8 @@ live-hardware verification on real Steam Decks (`scripts/dev/deck-ctl.sh`).
    `test-results/` (hardcoded in `tests/integration/ui/harness/browser_driver.py`),
    submodules `res/SLSlogos` and `third_party/SteamAutoCrack`.
    Context files (`AGENTS.md`, `*/CONTEXT.md`) are the freely maintainable layer.
-5. Verification set before claiming done: `./install.sh build` → `make test` →
-   `make test-gate07`; add `pytest -q tests/integration` / `make test-ui-p0` for UI work.
+5. Verification set before claiming done: `./install.sh build` → `./install.sh test`;
+   add `pytest -q tests/integration` / `./install.sh test-ui` for UI work.
    Bug fixes follow `.agents/rules/test-regression.md` (RED test before GREEN fix).
 6. Domain invariants live in `.agents/rules/*` (`cpp_hooking_patterns.md`,
    `steam_cef_ui_patterns.md`, `steam_controller_mapping.md`, `devtools_interaction.md`,
@@ -50,6 +50,11 @@ live-hardware verification on real Steam Decks (`scripts/dev/deck-ctl.sh`).
    `release-workflow`, `cef-cdp-injection`, `linux-elf-reversing`,
    `vibe-implement-annotations`, `plans-pipeline`, `routing-docs-maintainer`, …).
    Routing tables reference them by name — never duplicate their content here.
+7. Each workspace CONTEXT.md contains a machine-generated file manifest between
+   `<!-- MANIFEST:BEGIN -->` and `<!-- MANIFEST:END -->` markers. Read the manifest
+   FIRST to identify the correct file by its @brief before opening any source file.
+   This saves tokens — you should rarely need to open a file just to understand
+   what it does.
 
 ## File Naming & Versioning Conventions
 

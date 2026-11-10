@@ -1,3 +1,7 @@
+/**
+ * @file  log.hpp
+ * @brief Logging macros and severity levels (DEBUG, INFO, WARN, ERROR)
+ */
 #pragma once
 
 #include <cstdarg>

@@ -1,3 +1,7 @@
+/**
+ * @file  steam.cpp
+ * @brief Steam client symbol resolution and function pointer bindings
+ */
 #include "steam.hpp"
 
 #include "log.hpp"

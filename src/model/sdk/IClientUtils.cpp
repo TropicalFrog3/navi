@@ -1,3 +1,7 @@
+/**
+ * @file  IClientUtils.cpp
+ * @brief Utility functions for Steam runtime environment queries
+ */
 #include "IClientUtils.hpp"
 
 #include "types.hpp"

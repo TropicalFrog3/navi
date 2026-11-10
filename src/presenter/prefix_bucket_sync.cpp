@@ -1,3 +1,7 @@
+/**
+ * @file  prefix_bucket_sync.cpp
+ * @brief Proton prefix cloud save discovery and cross-device sync engine
+ */
 #include "prefix_bucket_sync.hpp"
 
 #include "apps.hpp"

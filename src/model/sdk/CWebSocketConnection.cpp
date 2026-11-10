@@ -1,3 +1,7 @@
+/**
+ * @file  CWebSocketConnection.cpp
+ * @brief WebSocket client implementation for CEF DevTools Protocol transport
+ */
 #include "CWebSocketConnection.hpp"
 
 #include "hooks.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  dlc.hpp
+ * @brief Declarations for DLC interception and dynamic unlocking
+ */
 #pragma once
 
 #include "sdk.hpp"

@@ -52,16 +52,15 @@ Never publish a release without running the test suite:
 ```bash
 ./install.sh test
 ```
-*(or equivalently: `make test`)*
 
 Ensure all test stages pass with zero errors:
 - GoogleTest Unit Tests (`bin/unit_tests`): Core, Model, Presenter, and View tests
 - Python Integration Tests (`tests/integration`): Migrations, update staging, tamper detection, and installer safety
-- Code Coverage (`make coverage`): `gcovr` coverage report generation
+- Code Coverage (`./install.sh coverage`): `gcovr` coverage report generation
 
 For live UI verification, run:
 ```bash
-make test-flow
+./install.sh test-flow
 ```
 *(or `pytest -q --live tests/integration/test_steam_ui_flow.py`)*
 

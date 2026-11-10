@@ -1,3 +1,7 @@
+/**
+ * @file  store-page-script.js
+ * @brief Injects unlock and depot download buttons into Steam store pages
+ */
 (function() {
     if (window.__slsLuaBtnAdded) return;
     window.__slsLuaBtnAdded = true;

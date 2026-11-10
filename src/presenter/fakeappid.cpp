@@ -1,3 +1,7 @@
+/**
+ * @file  fakeappid.cpp
+ * @brief Presenter for FakeAppId translation and unowned game masking
+ */
 #include "fakeappid.hpp"
 
 #include "config.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  version-top-bar.js
+ * @brief Renders the Navi version banner in Steam client navigation header
+ */
 (function () {
 	'use strict';
 

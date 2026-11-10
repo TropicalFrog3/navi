@@ -182,7 +182,6 @@ When using `LD_AUDIT`, `la_objopen` fires immediately after a library is mapped,
   ```bash
   ./install.sh test
   ```
-  *(or `make test`)*
 - **Live Verification Protocol:**
   - Launch Steam with CDP debugging:
     ```bash

@@ -1,3 +1,7 @@
+/**
+ * @file  binarykv.cpp
+ * @brief Binary KeyValues format parser and serializer
+ */
 #include "binarykv.hpp"
 
 #include <cstdlib>

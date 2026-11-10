@@ -1,3 +1,7 @@
+/**
+ * @file  log.cpp
+ * @brief Logging implementation with leveled output and timestamping
+ */
 #include "log.hpp"
 
 #include "config.hpp"

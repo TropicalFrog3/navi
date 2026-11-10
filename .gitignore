@@ -57,7 +57,7 @@ cmake_install.cmake
 node_modules/
 /vendor/
 !res/inject-scripts/vendor/
-lib/
+/lib/
 
 # System files
 .git/
@@ -87,7 +87,6 @@ navi.zip
 .ag*/*
 .cla*/*
 steam-os/*
-.antigravityignore
 
 # Re-include the agents workspace (.ag*/* predates .agents/)
 !.agents/

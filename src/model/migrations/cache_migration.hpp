@@ -1,3 +1,7 @@
+/**
+ * @file  cache_migration.hpp
+ * @brief Cache migration interface and version transition definitions
+ */
 #pragma once
 
 #include <string>

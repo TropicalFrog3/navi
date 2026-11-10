@@ -1,3 +1,7 @@
+/**
+ * @file  luadownload.hpp
+ * @brief Declarations for fetching Lua manifests from external repositories
+ */
 #pragma once
 
 #include <string>

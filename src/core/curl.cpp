@@ -1,3 +1,7 @@
+/**
+ * @file  curl.cpp
+ * @brief Low-level libcurl wrapper functions for HTTP operations
+ */
 #include "curl.hpp"
 #include "atomic_file.hpp"
 

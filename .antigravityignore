@@ -1,0 +1,36 @@
+# Build artifacts (generated, not in git)
+bin/
+obj/
+test-results/
+artifacts/test-runs/
+.pytest_cache/
+
+# Vendored / generated code (immutable, agents must not read)
+include/
+lib/
+third_party/
+pkg/autocrack/
+src/model/sdk/protobufs/
+res/inject-scripts/vendor/
+nix-modules/
+
+# Noise directories
+scratch/
+.archify/
+docker/
+
+# Binary / non-code files
+*.pb.cpp
+*.pb.h
+*.min.js
+*.so
+*.blend
+*.png
+*.svg
+*.dll
+*.pdb
+
+# IDE / cache
+.vscode/
+.pytest_cache/
+__pycache__/

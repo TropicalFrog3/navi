@@ -1,3 +1,7 @@
+/**
+ * @file  IClientApps.hpp
+ * @brief VFT interface for Steam IClientApps
+ */
 #pragma once
 
 #include "protobufs/enums.pb.h"

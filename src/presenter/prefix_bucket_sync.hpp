@@ -1,3 +1,7 @@
+/**
+ * @file  prefix_bucket_sync.hpp
+ * @brief Declarations for prefix save bucket scanning and remote push/pull
+ */
 #pragma once
 
 #include <cstdint>

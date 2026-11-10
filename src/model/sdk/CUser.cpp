@@ -1,3 +1,7 @@
+/**
+ * @file  CUser.cpp
+ * @brief User authentication and SteamID accessor implementations
+ */
 #include "CUser.hpp"
 
 #include "IClientAppManager.hpp"

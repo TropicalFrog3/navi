@@ -1,3 +1,7 @@
+/**
+ * @file  CUtl.cpp
+ * @brief Valve CUtl container helper implementations
+ */
 #include "CUtl.hpp"
 
 

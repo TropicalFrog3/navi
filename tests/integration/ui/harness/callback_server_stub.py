@@ -1,4 +1,8 @@
 """
+@file  callback_server_stub.py
+@brief Stub server capturing CEF JavaScript callback events
+
+
 Ephemeral-port HTTP server stub emulating Navi port 9001 callback routes.
 
 Provides:

@@ -1,3 +1,7 @@
+/**
+ * @file  cdpinject.hpp
+ * @brief Declarations for WebSocket CDP connection and script injection
+ */
 #pragma once
 
 #include <string>

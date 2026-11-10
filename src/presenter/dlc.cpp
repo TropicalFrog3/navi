@@ -1,3 +1,7 @@
+/**
+ * @file  dlc.cpp
+ * @brief DLC ownership emulation presenter and DLC list synthesis
+ */
 #include "dlc.hpp"
 
 #include "config.hpp"

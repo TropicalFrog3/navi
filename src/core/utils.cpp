@@ -1,3 +1,7 @@
+/**
+ * @file  utils.cpp
+ * @brief General string, filesystem, and hashing utility functions
+ */
 #include "utils.hpp"
 
 #include <cctype>

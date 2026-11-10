@@ -39,9 +39,8 @@ package() {
 
 	install -D "$srcdir/navi-$pkgver/bin/libnavi.so" "$pkgdir/usr/lib32/libnavi.so"
 	install -D "$srcdir/navi-$pkgver/bin/library-inject.so" "$pkgdir/usr/lib32/libnavi-library-inject.so"
-	install -D "$srcdir/navi-$pkgver/res/navi.desktop" "$pkgdir/usr/share/applications/navi.desktop"
-	install -D "$srcdir/navi-$pkgver/res/navi-native.desktop" "$pkgdir/usr/share/applications/navi-native.desktop"
-	install -D "$srcdir/navi-$pkgver/res/logo.png" "$pkgdir/usr/share/pixmaps/navi.png"
+	install -D "$srcdir/navi-$pkgver/pkg/navi/navi.desktop" "$pkgdir/usr/share/applications/navi.desktop"
+	install -D "$srcdir/navi-$pkgver/pkg/navi/navi-native.desktop" "$pkgdir/usr/share/applications/navi-native.desktop"
 
 	#Disabled until dev reaches main
 	install -D "$srcdir/navi-$pkgver/tools/ticket-grabber/bin/Release/net9.0/linux-x64/publish/ticket-grabber" "$pkgdir/usr/bin/navi-ticket-grabber"

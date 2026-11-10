@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  phone-notify.sh
+# @brief Sends build and test completion notifications via webhook
 # ==============================================================================
 # phone-notify.sh: ADB Wireless/USB Phone Notification & Status CLI
 # ==============================================================================

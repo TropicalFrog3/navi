@@ -1,1 +1,0 @@
-store/depot-selection-script.js

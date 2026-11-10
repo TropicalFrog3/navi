@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
 """
+@file  steamstub_elf_unpack.py
+@brief Offline unpacker and decryptor for SteamStub DRM ELF binaries
+
+
 SteamStub DRM Variant 3.0 x64 ELF Unpacker.
 Decrypts AES-256-CBC encrypted .text segment, handles stolen code block,
 strips PKCS#7 padding, and patches e_entry to real entrypoint.

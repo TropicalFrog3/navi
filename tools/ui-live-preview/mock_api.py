@@ -1,4 +1,8 @@
 """
+@file  mock_api.py
+@brief Mock REST API server simulating engine responses for live preview
+
+
 Navi Port 9001 Callback Mock API Handler.
 
 Provides zero-dependency emulation of Navi's 32-bit daemon REST endpoints:

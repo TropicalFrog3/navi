@@ -121,7 +121,7 @@ obj/$(FLAGSSHA)/tests/unit/%.o: tests/unit/%.cpp
 	$(CXX) $(CXXFLAGS) -isystem $(GTEST_DIR)/include -isysteminclude -c $< -o $@
 
 obj/cov/model/config.o: src/model/config.cpp res/config.yaml
-	$(shell ./embed-config.sh)
+	$(shell ./scripts/lib/build.sh embed-config)
 	@mkdir -p $(dir $@)
 	$(CXX) $(COV_CXXFLAGS) -isysteminclude -c $< -o $@
 
@@ -143,7 +143,7 @@ obj/$(FLAGSSHA)/tools/cloud_pending/%.o: tools/cloud_pending/%.cpp
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 
-bin/navi-cloud-apply-pending: obj/$(FLAGSSHA)/tools/cloud_pending/main.o obj/$(FLAGSSHA)/presenter/cloud_pending_ops.o obj/$(FLAGSSHA)/presenter/cloud_manager.o obj/$(FLAGSSHA)/presenter/cloudredirect.o obj/$(FLAGSSHA)/model/paths.o obj/$(FLAGSSHA)/model/vdf.o obj/$(FLAGSSHA)/core/utils.o obj/$(FLAGSSHA)/core/log.o
+bin/navi-cloud-apply-pending: obj/$(FLAGSSHA)/tools/cloud_pending/cloud_pending_main.o obj/$(FLAGSSHA)/presenter/cloud_pending_ops.o obj/$(FLAGSSHA)/presenter/cloud_manager.o obj/$(FLAGSSHA)/presenter/cloudredirect.o obj/$(FLAGSSHA)/model/paths.o obj/$(FLAGSSHA)/model/vdf.o obj/$(FLAGSSHA)/core/utils.o obj/$(FLAGSSHA)/core/log.o
 	@mkdir -p bin
 	$(CXX) $(CXXFLAGS) -fuse-ld=gold $^ lib/libyaml-cpp.a -lssl -lcrypto -lpthread -ldl -o $@
 	chmod 755 $@
@@ -219,12 +219,12 @@ autocrack:
 
 -include $(deps)
 obj/$(FLAGSSHA)/presenter/update.o: src/presenter/update.cpp res/version
-	$(shell ./embed-version.sh)
+	$(shell ./scripts/lib/build.sh embed-version)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 
 obj/$(FLAGSSHA)/model/config.o: src/model/config.cpp res/config.yaml
-	$(shell ./embed-config.sh)
+	$(shell ./scripts/lib/build.sh embed-config)
 	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -isysteminclude -c $< -o $@
 

@@ -1,4 +1,8 @@
 """
+@file  test_uj02_cloud_provider_oauth.py
+@brief User journey test for cloud provider OAuth login and feedback
+
+
 UJ-02: Cloud Provider Configuration and OAuth Lifecycle Integration Tests.
 
 Scenarios:

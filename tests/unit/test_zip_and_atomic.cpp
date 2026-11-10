@@ -1,3 +1,7 @@
+/**
+ * @file  test_zip_and_atomic.cpp
+ * @brief Unit tests for atomic file writer and ZIP extraction routines
+ */
 #include <gtest/gtest.h>
 #include "zip.hpp"
 #include "atomic_file.hpp"

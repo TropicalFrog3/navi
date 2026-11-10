@@ -1,4 +1,8 @@
 """
+@file  legacy_migration_fixtures.py
+@brief Test fixtures providing legacy v0.9 config and cache files
+
+
 Fixtures and helpers for legacy ACCELA and SLSsteam migration integration tests.
 """
 

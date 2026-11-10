@@ -1,3 +1,7 @@
+/**
+ * @file  main.js
+ * @brief Modular entry point for library app details page enhancements
+ */
 var noLuaAppIds = {};
 var pendingChecks = {}; // keyed by appid + '_' + container-random-key
 

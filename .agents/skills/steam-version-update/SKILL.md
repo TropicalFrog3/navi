@@ -51,7 +51,7 @@ This script computes the SHA-256 of `steamclient.so`, extracts the version times
 ### CloudRedirect Prebuilt Binary Integrity Checks
 In addition to `steamclient.so` whitelisting, verify the prebuilt CloudRedirect binaries:
 ```bash
-make check-cloudredirect
+./install.sh check-cloudredirect
 ```
 This validation checks:
 - Existence of `res/cloud_redirect.so` and `res/cloud_redirect_cli`.
@@ -183,7 +183,6 @@ In `res/inject-scripts/navi_inject.js` and `res/inject-scripts/store-page-script
 ```bash
 ./install.sh test
 ```
-*(or `make test`)*
 Ensure all unit tests (`bin/unit_tests`), integration tests (`tests/integration`), and coverage checks pass.
 
 ### Step 3: Live Local Hardware CEF Flow Test
@@ -193,7 +192,7 @@ DISPLAY=:1 ~/.local/bin/steam -cef-enable-debugging
 ```
 Run the automated flow test suite:
 ```bash
-make test-flow
+./install.sh test-flow
 ```
 *(or `pytest -q --live tests/integration/test_steam_ui_flow.py`)*
 

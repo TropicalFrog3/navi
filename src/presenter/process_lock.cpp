@@ -1,3 +1,7 @@
+/**
+ * @file  process_lock.cpp
+ * @brief Filesystem process lock ensuring idle Steam during cloud ops
+ */
 #include "process_lock.hpp"
 #include "paths.hpp"
 

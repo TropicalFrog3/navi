@@ -1,4 +1,8 @@
 """
+@file  conftest.py
+@brief Pytest configuration and browser driver fixtures for UI tests
+
+
 Pytest configuration and shared fixtures for UI integration tests.
 """
 
@@ -16,7 +20,20 @@ from tests.integration.ui.harness.navi_queue_bridge import NaviQueueBridge
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures" / "ui_shells"
-SCRIPTS_DIR = REPO_ROOT / "res" / "inject-scripts"
+
+
+class ScriptPath(type(Path())):
+    def __truediv__(self, other):
+        p = super().__truediv__(other)
+        if not p.exists():
+            for sub in ("core", "store", "library", "cloud", "shell", "vendor"):
+                cand = Path(super().__truediv__(sub)) / other
+                if cand.exists():
+                    return cand
+        return p
+
+
+SCRIPTS_DIR = ScriptPath(REPO_ROOT / "res" / "inject-scripts")
 
 
 @pytest.hookimpl(hookwrapper=True)

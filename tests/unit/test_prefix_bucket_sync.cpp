@@ -1,3 +1,7 @@
+/**
+ * @file  test_prefix_bucket_sync.cpp
+ * @brief Unit tests for Proton prefix discovery and bucket sync routines
+ */
 #include <gtest/gtest.h>
 
 #include "cloud_manager.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  types.hpp
+ * @brief Primitive typedefs, AppId_t, DepotId_t, and Steam ID structs
+ */
 #pragma once
 
 #include <cstdint>

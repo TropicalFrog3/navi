@@ -1,3 +1,7 @@
+/**
+ * @file  vdf.hpp
+ * @brief Interface and node tree representation for Valve Data Format files
+ */
 #pragma once
 
 #include <string>

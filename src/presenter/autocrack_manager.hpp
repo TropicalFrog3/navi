@@ -1,3 +1,7 @@
+/**
+ * @file  autocrack_manager.hpp
+ * @brief Declarations for AutoCrack execution and unpacker triggers
+ */
 #pragma once
 
 #include <cstdint>

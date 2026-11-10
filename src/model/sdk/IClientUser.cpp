@@ -1,3 +1,7 @@
+/**
+ * @file  IClientUser.cpp
+ * @brief Client user credentials and ticket retrieval implementations
+ */
 #include "IClientUser.hpp"
 
 #include "hooks.hpp"

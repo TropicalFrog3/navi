@@ -1,3 +1,7 @@
+/**
+ * @file  luadownload.cpp
+ * @brief Automated Lua manifest and depot decryption downloader presenter
+ */
 #include "luadownload.hpp"
 #include "cdpinject.hpp"
 #include "config.hpp"

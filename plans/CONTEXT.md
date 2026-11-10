@@ -26,7 +26,7 @@ comes from `tests/reports/`.
 | Task / Stage | Read These Files | Skip These Files | Skills / MCPs / Commands Needed |
 |---|---|---|---|
 | Idea intake | `01-backlog/dev-plan.md` (seed wishlist) | `02-specs/`, `03-active/`, `04-done/`, `src/**` | Skill `plans-pipeline` |
-| Spec an item | its backlog entry + `docs/CONTEXT.md` for reference-tier placement | `src/**` code beyond architecture entry files | Skill `plans-pipeline`; Skill `deep-reasoning` for architecturally risky items |
-| Start implementation | `02-specs/<topic>-spec-vN.md` → then switch to the target workspace's `CONTEXT.md` (`src/`, `res/`, or `tools/`) task rows | `01-backlog/`, `04-done/` | Jev routing per `.agents/AGENTS.md` (`python3 .agents/scripts/route_subagent.py route …`) |
+| Spec an item | its backlog entry + `docs/CONTEXT.md` for reference-tier placement | `src/**` code beyond architecture entry files | Skill `plans-pipeline` |
+| Start implementation | `02-specs/<topic>-spec-vN.md` → then switch to the target workspace's `CONTEXT.md` (`src/`, `res/`, or `tools/`) task rows | `01-backlog/`, `04-done/` | Task routing per `.agents/AGENTS.md` |
 | Close-out / archive | this item's spec + latest `tests/reports/YYYY-MM-DD-*.md` evidence | all source trees | Skill `plans-pipeline`; session handoffs named `YYYY-MM-DD-handoff-<topic>.md` |
 | Roadmap review | `01-backlog/`, `02-specs/`, `03-active/` | `04-done/` history, `src/**`, `res/**` | Skill `plans-pipeline` |

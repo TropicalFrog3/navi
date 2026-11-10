@@ -1,3 +1,7 @@
+/**
+ * @file  achievement_merger.hpp
+ * @brief Declarations for achievement schema caching and stat merging
+ */
 #pragma once
 
 #include <cstdint>

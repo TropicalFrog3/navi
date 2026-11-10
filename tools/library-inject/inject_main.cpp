@@ -1,3 +1,7 @@
+/**
+ * @file  inject_main.cpp
+ * @brief Lightweight LD_PRELOAD injection helper for library hook testing
+ */
 #include <link.h>
 #include <unistd.h>
 #include <cstring>

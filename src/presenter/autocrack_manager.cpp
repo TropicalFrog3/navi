@@ -1,3 +1,7 @@
+/**
+ * @file  autocrack_manager.cpp
+ * @brief Automated SteamStub DRM unpacker and payload manager
+ */
 #include "autocrack_manager.hpp"
 #include "apps.hpp"
 #include "config.hpp"

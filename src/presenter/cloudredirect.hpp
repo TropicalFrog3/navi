@@ -1,3 +1,7 @@
+/**
+ * @file  cloudredirect.hpp
+ * @brief Declarations for CloudRedirect lifecycle and provider routing
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

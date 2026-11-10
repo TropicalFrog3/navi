@@ -22,7 +22,7 @@ Every bug fix in Navi MUST follow a strict test-first regression prevention prot
 [5. Verify Test Passes]  ──>  Confirm GREEN state for the new reproduction test
          │
          ▼
-[6. Full Suite Run]      ──>  Execute ./install.sh test (or make test) with ZERO regressions
+[6. Full Suite Run]      ──>  Execute ./install.sh test with ZERO regressions
 ```
 
 ---
@@ -53,11 +53,10 @@ Before touching production code in `src/`, author a minimal automated test that 
   ```bash
   ./install.sh test
   ```
-  *(or equivalently: `make test`)*
 - Ensure:
   1. All GoogleTest unit tests pass (`bin/unit_tests`).
   2. All pytest integration tests pass (`tests/integration`).
-  3. Code coverage reports generate cleanly via `gcovr` (`make coverage`).
+  3. Code coverage reports generate cleanly via `gcovr` (`./install.sh coverage`).
   4. Zero existing tests fail (zero regressions across all components).
 
 ---

@@ -1,3 +1,7 @@
+/**
+ * @file  storeinject.hpp
+ * @brief Declarations for store and library REST bridge dispatchers
+ */
 #pragma once
 
 #include <string>

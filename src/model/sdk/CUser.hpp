@@ -1,3 +1,7 @@
+/**
+ * @file  CUser.hpp
+ * @brief CUser class declarations for active Steam account state
+ */
 #pragma once
 
 #include "types.hpp"

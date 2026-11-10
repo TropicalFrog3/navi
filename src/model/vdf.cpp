@@ -1,3 +1,7 @@
+/**
+ * @file  vdf.cpp
+ * @brief Valve KeyValues (VDF) text parser and serializer
+ */
 #include "vdf.hpp"
 
 #include <cctype>

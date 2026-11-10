@@ -1,3 +1,7 @@
+/**
+ * @file  config_migration.cpp
+ * @brief Declarative YAML config migration engine with transformation bridges
+ */
 #include "config_migration.hpp"
 #include "log.hpp"
 #include "atomic_file.hpp"

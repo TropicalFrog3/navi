@@ -1,5 +1,4 @@
 # **Navi - Steamclient Modification for Linux**
-![](res/banner.png "Navi")
 
 ## Index
 

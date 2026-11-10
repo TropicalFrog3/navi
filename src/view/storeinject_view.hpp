@@ -1,3 +1,7 @@
+/**
+ * @file  storeinject_view.hpp
+ * @brief Declarations for store DOM event listeners and action buttons
+ */
 #pragma once
 
 #include <string>

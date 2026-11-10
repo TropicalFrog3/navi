@@ -1,3 +1,7 @@
+/**
+ * @file  hooks.hpp
+ * @brief Declarations and forward signatures for all engine hook initializers
+ */
 #pragma once
 
 #include "sdk/sdk.hpp"

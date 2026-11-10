@@ -1,4 +1,8 @@
 """
+@file  test_installer.py
+@brief Integration tests for install.sh script logic and directory layout
+
+
 Integration tests for the Navi installer dispatcher (install.sh).
 """
 
@@ -32,6 +36,22 @@ def test_dry_run_modes(fake_home, run_installer):
     assert res_uninstall.returncode == 0, f"uninstall --dry-run failed: {res_uninstall.stderr}"
     assert "[DRY-RUN]" in res_uninstall.stdout
     assert _get_files_set(fake_home) == initial_files
+
+    # 4. New test runner & maintenance subcommands --dry-run
+    for subcmd in [
+        "test",
+        "test-gate07",
+        "test-ui",
+        "test-flow",
+        "check-cloudredirect",
+        "docs",
+        "bundle-scripts",
+        "coverage",
+    ]:
+        res = run_installer(subcmd, "--dry-run")
+        assert res.returncode == 0, f"{subcmd} --dry-run failed: {res.stderr}"
+        assert "[DRY-RUN]" in res.stdout
+        assert _get_files_set(fake_home) == initial_files
 
 
 def test_install_update_uninstall_lifecycle(fake_home, run_installer):

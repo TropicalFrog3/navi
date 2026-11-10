@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @file  migration.sh
+# @brief Shell helper executing config and runtime migration scripts
 # scripts/lib/migration.sh - Legacy ACCELA & SLSsteam migration and cleanup
 set -u
 

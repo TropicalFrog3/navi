@@ -11,9 +11,9 @@ Navi provides two distinct API interfaces, documented in modular reference files
 
 | Document | Scope |
 | :--- | :--- |
-| [`docs/api/ipc.md`](docs/api/ipc.md) | File IPC API `/tmp/navi.API` — pipe-delimited commands (`dumplibraries`, `install`, `setcompat`, …) |
-| [`docs/api/rest.md`](docs/api/rest.md) | HTTP REST API `127.0.0.1:9001` — security model (`X-Navi-Auth`, origin allowlist) and all `/cloud/*` endpoints |
+| [`ipc.md`](ipc.md) | File IPC API `/tmp/navi.API` — pipe-delimited commands (`dumplibraries`, `install`, `setcompat`, …) |
+| [`rest.md`](rest.md) | HTTP REST API `127.0.0.1:9001` — security model (`X-Navi-Auth`, origin allowlist) and all `/cloud/*` endpoints |
 
 Operational behavior (pending-ops queue, rollback safety, troubleshooting) is covered by the
-[CloudRedirect Runbook](docs/references/cloud-redirect-runbook.md), included in the
-[CloudRedirect integration guide](docs/cloud-saves.md).
+[CloudRedirect Runbook](../references/cloud-redirect-runbook.md), included in the
+[CloudRedirect integration guide](../cloud-saves.md).

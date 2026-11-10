@@ -1,3 +1,7 @@
+/**
+ * @file  IClientCompat.cpp
+ * @brief Proton compatibility tool configuration wrappers
+ */
 #include "IClientCompat.hpp"
 
 #include "CUtl.hpp"

@@ -1,3 +1,7 @@
+/**
+ * @file  test_cloud_manager.cpp
+ * @brief Unit tests for CCloudManager CLI execution and state parsing
+ */
 #include <gtest/gtest.h>
 #include "cloud_manager.hpp"
 #include "cloud_view.hpp"

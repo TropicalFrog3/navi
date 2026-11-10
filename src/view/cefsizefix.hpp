@@ -1,3 +1,7 @@
+/**
+ * @file  cefsizefix.hpp
+ * @brief Declarations for CEF layout adjustment routines
+ */
 #pragma once
 
 #include <cstdint>

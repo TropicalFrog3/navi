@@ -1,3 +1,7 @@
+/**
+ * @file  test_config.cpp
+ * @brief Unit tests for YAML configuration parsing and value validation
+ */
 #include <gtest/gtest.h>
 #include "config.hpp"
 #include "atomic_file.hpp"
