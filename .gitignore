@@ -96,6 +96,7 @@ steam-os/*
 !.agents/rules/
 !.agents/scripts/
 !.agents/skills/
+!.agents/tools/
 
 # CEF Annotator
 tools/cef-annotator/annotations.json

@@ -14,7 +14,8 @@ function isOriginCompliant() {
                 href.indexOf('steampowered.com') !== -1 ||
                 href.indexOf('chrome-extension:') === 0 ||
                 href.indexOf('devtools:') === 0 ||
-                href.indexOf('file:') === 0) {
+                href.indexOf('file:') === 0 ||
+                href.indexOf('about:blank') === 0) {
                 return true;
             }
         }

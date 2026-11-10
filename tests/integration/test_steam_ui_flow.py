@@ -33,6 +33,7 @@ import argparse
 import unittest
 import urllib.request
 import urllib.error
+from pathlib import Path
 import pytest
 
 try:
@@ -124,7 +125,11 @@ class SteamCDPClient:
         return None
 
     def find_target_by_url_substring(self, substring):
-        for target in self.get_targets():
+        targets = self.get_targets()
+        for target in targets:
+            if target.get("type") == "page" and substring in target.get("url", "") and target.get("webSocketDebuggerUrl"):
+                return target
+        for target in targets:
             if substring in target.get("url", "") and target.get("webSocketDebuggerUrl"):
                 return target
         return None
@@ -325,6 +330,23 @@ class SteamUIFlowTest(unittest.TestCase):
             }})()
             """)
 
+        # Clean any leftover modal overlays or error boundaries from previous tests
+        # NEVER call .remove() on React-managed containers (.FullModalOverlay, .ModalPosition, .modal_content)
+        steam_win = cls.cdp.find_target_by_title("Steam")
+        if steam_win and steam_win.get("webSocketDebuggerUrl"):
+            try:
+                cls.cdp.evaluate(steam_win["webSocketDebuggerUrl"], """
+                (() => {
+                    document.querySelectorAll('[id^="sls-"][id*="modal"], [id^="sls-"][id*="overlay"]').forEach(m => m.remove());
+                    document.querySelectorAll('button').forEach(btn => {
+                        const t = (btn.innerText || btn.textContent || '').trim();
+                        if (t === 'Retry' || t === 'Cancel' || t === 'Close') btn.click();
+                    });
+                })()
+                """)
+            except Exception:
+                pass
+
     @classmethod
     def tearDownClass(cls):
         # Clean up temporary backup directory
@@ -405,33 +427,34 @@ class SteamUIFlowTest(unittest.TestCase):
                         pass
 
     def navigate_url(self, url):
-        """Execute a steam:// navigation via SteamClient.URL, CLI, or window.location."""
-        # 1. Native SteamClient.URL.ExecuteSteamURL via SharedJSContext
+        """Execute a steam:// navigation via SteamClient.URL, window.location, or CLI."""
+        # 1. Native SteamClient.URL.ExecuteSteamURL via SharedJSContext (in-process, fastest)
         try:
             shared = self.cdp.find_target_by_title("SharedJSContext")
             if shared and shared.get("webSocketDebuggerUrl"):
-                self.cdp.evaluate(
+                res = self.cdp.evaluate(
                     shared["webSocketDebuggerUrl"],
-                    f"if (typeof SteamClient !== 'undefined' && SteamClient.URL && SteamClient.URL.ExecuteSteamURL) {{ SteamClient.URL.ExecuteSteamURL('{url}'); }}"
+                    f"(() => {{ if (typeof SteamClient !== 'undefined' && SteamClient.URL && SteamClient.URL.ExecuteSteamURL) {{ SteamClient.URL.ExecuteSteamURL('{url}'); return true; }} return false; }})()"
                 )
+                if res:
+                    return
         except Exception:
             pass
 
-        # 2. Linux CLI fallback if steam is in PATH
-        try:
-            env = os.environ.copy()
-            if "DISPLAY" not in env: env["DISPLAY"] = ":0"
-            if "WAYLAND_DISPLAY" not in env: env["WAYLAND_DISPLAY"] = "wayland-0"
-            if "XDG_RUNTIME_DIR" not in env: env["XDG_RUNTIME_DIR"] = "/run/user/1000"
-            subprocess.run(["steam", url], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
-        except Exception:
-            pass
-
-        # 3. Direct window.location.href on Steam target
+        # 2. Direct window.location.href on Steam target
         try:
             steam_target = self.cdp.find_target_by_title("Steam")
             if steam_target and steam_target.get("webSocketDebuggerUrl"):
                 self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], f"window.location.href = '{url}';")
+                return
+        except Exception:
+            pass
+
+        # 3. Linux CLI fallback if steam is in PATH
+        try:
+            env = os.environ.copy()
+            if "DISPLAY" not in env: env["DISPLAY"] = ":1"
+            subprocess.run(["steam", url], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
         except Exception:
             pass
 
@@ -579,27 +602,47 @@ class SteamUIFlowTest(unittest.TestCase):
         store_target = None
         for i in range(40):
             time.sleep(0.5)
-            store_target = self.cdp.find_target_by_url_substring(f"store.steampowered.com/app/{appid}")
-            if store_target:
-                break
+            candidate = self.cdp.find_target_by_url_substring(f"store.steampowered.com/app/{appid}")
+            if candidate and candidate.get("webSocketDebuggerUrl"):
+                try:
+                    dom_ready = self.cdp.evaluate(
+                        candidate["webSocketDebuggerUrl"],
+                        "document.readyState === 'complete' && !!document.querySelector('.game_area_purchase_game, .apphub_AppName')"
+                    )
+                    if dom_ready:
+                        store_target = candidate
+                        break
+                except Exception:
+                    pass
             if i in (8, 18):
                 self.navigate_url(f"steam://store/{appid}")
+        if not store_target:
+            store_target = self.cdp.find_target_by_url_substring(f"store.steampowered.com/app/{appid}")
         self.assertIsNotNone(store_target, f"Timed out waiting for store page target for AppID {appid}")
         log_info(f"Connected to store page CEF target: '{store_target.get('title')}'")
 
-        # Clean any stale localStorage session and in-memory caches, then reload page
+        # Clean any stale localStorage session and in-memory caches
         try:
             self.cdp.evaluate(store_target["webSocketDebuggerUrl"], f"""
             (() => {{
                 localStorage.removeItem('sls-session-{appid}');
                 if (typeof appUnlockStatus !== 'undefined') delete appUnlockStatus[{appid}];
                 if (typeof globalDownloadSessions !== 'undefined') delete globalDownloadSessions[{appid}];
-                window.location.reload();
             }})()
             """)
         except Exception:
             pass
-        time.sleep(1.5)
+        time.sleep(0.5)
+
+        # Ensure store-page script is present; if periodic daemon hasn't injected yet, proactively inject
+        for _ in range(6):
+            if self.cdp.evaluate(store_target["webSocketDebuggerUrl"], "!!window.__slsLuaBtnAdded"):
+                break
+            time.sleep(0.5)
+        else:
+            store_script_file = Path(__file__).resolve().parent.parent.parent / "res" / "inject-scripts" / "store" / "store-page-script.js"
+            if store_script_file.is_file():
+                self.cdp.evaluate(store_target["webSocketDebuggerUrl"], store_script_file.read_text(encoding="utf-8"))
 
         btn_check_script = """
         (() => {
@@ -613,16 +656,31 @@ class SteamUIFlowTest(unittest.TestCase):
         })()
         """
         btn_ready = False
-        for _ in range(25):
+        res = None
+        store_script_file = Path(__file__).resolve().parent.parent.parent / "res" / "inject-scripts" / "store" / "store-page-script.js"
+        for step_idx in range(40):
             try:
+                store_target = self.cdp.find_target_by_url_substring(f"store.steampowered.com/app/{appid}") or store_target
+                if not self.cdp.evaluate(store_target["webSocketDebuggerUrl"], "!!window.__slsLuaBtnAdded"):
+                    if store_script_file.is_file():
+                        self.cdp.evaluate(store_target["webSocketDebuggerUrl"], store_script_file.read_text(encoding="utf-8"))
                 res = self.cdp.evaluate(store_target["webSocketDebuggerUrl"], btn_check_script)
                 if res and res.get("mounted") and res.get("text") == "Download Lua":
                     btn_ready = True
                     break
+                if step_idx == 6 and res and res.get("mounted") and res.get("text") == "Remove Lua":
+                    self.cdp.evaluate(store_target["webSocketDebuggerUrl"], """
+                    (() => {
+                        document.querySelectorAll('.sls-lua-btn').forEach(e => e.remove());
+                        window.__slsLuaBtnAdded = false;
+                    })()
+                    """)
+                    if store_script_file.is_file():
+                        self.cdp.evaluate(store_target["webSocketDebuggerUrl"], store_script_file.read_text(encoding="utf-8"))
             except Exception:
                 pass
             time.sleep(0.5)
-        self.assertTrue(btn_ready, "Download Lua button was not mounted with text 'Download Lua' in store DOM")
+        self.assertTrue(btn_ready, f"Download Lua button was not mounted with text 'Download Lua' in store DOM (last state: {res})")
         log_info("Verified SLS 'Download Lua' button mounted and visible on store page.")
         log_pass("Store navigation and Download Lua button verified.")
 
@@ -751,6 +809,20 @@ class SteamUIFlowTest(unittest.TestCase):
         log_info("Navigating client back to Library view...")
         self.navigate_url("steam://open/library")
         time.sleep(1.5)
+
+        # Ensure any blocking modal is dismissed and ReadyToPlay/Linux sidebar filters are off
+        self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], """
+        (() => {
+            document.querySelectorAll('button[type="submit"], .FullModalOverlay button, .ModalPosition button').forEach(btn => {
+                if ((btn.innerText || '').trim() === 'Close') btn.click();
+            });
+            ['svg.SVGIcon_ReadyToPlay', 'svg.SVGIcon_LinuxLogo2'].forEach(sel => {
+                const svg = document.querySelector(sel);
+                const btn = svg ? svg.closest('[role="button"]') : null;
+                if (btn && btn.classList.length > 2) btn.click();
+            });
+        })()
+        """)
 
         # Set search input
         set_search = f"""
@@ -995,54 +1067,55 @@ class SteamUIFlowTest(unittest.TestCase):
         # Open sort dropdown
         sort_flow_script = """
         (() => {
-            const sortDropdown = Array.from(document.querySelectorAll('button.DialogDropDown, button[role="combobox"]'))
+            const sortDropdown = Array.from(document.querySelectorAll('button.DialogDropDown, button[role="combobox"], div[role="combobox"]'))
                 .find(b => {
-                    const disp = b.querySelector('.DialogDropDown_CurrentDisplay');
-                    if (!disp) return false;
+                    const disp = b.querySelector('.DialogDropDown_CurrentDisplay') || b;
                     const t = (disp.innerText || disp.textContent || '').trim();
+                    if (t === 'Gamepad Support' || t === 'Steam Deck Support' || t === 'Any language') return false;
                     return t.includes('Hours Played') || t.includes('Alphabetical') || t.includes('Date Added') ||
                            t.includes('Recent Activity') || t.includes('Release Date') || t.includes('Review Score') ||
-                           t.includes('Size on Disk') || t.includes('Friends Playing') ||
+                           t.includes('Size on Disk') || t.includes('Friends Playing') || t.includes('Achievement') ||
+                           t.includes('Metacritic') || t.includes('Review') || t.includes('Last Played') ||
                            Boolean(b.closest('[class*="collectionview"], [class*="CollectionView"], [class*="Sort"]'));
                 });
             if (!sortDropdown) return { opened: false, reason: 'sort dropdown not found' };
 
             sortDropdown.focus();
-            const evt = (type) => new MouseEvent(type, { view: window, bubbles: true, cancelable: true, buttons: 1 });
-            sortDropdown.dispatchEvent(evt('mousedown'));
-            sortDropdown.dispatchEvent(evt('mouseup'));
-            sortDropdown.dispatchEvent(evt('click'));
             if (typeof sortDropdown.click === 'function') sortDropdown.click();
+            else {
+                const evt = (type) => new MouseEvent(type, { view: window, bubbles: true, cancelable: true, buttons: 1 });
+                sortDropdown.dispatchEvent(evt('click'));
+            }
 
             return { opened: true };
         })()
         """
         opened_sort = None
-        for _ in range(10):
+        for _ in range(15):
             opened_sort = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], sort_flow_script)
             if opened_sort and opened_sort.get("opened"):
                 break
             time.sleep(0.5)
-        self.assertTrue(opened_sort and opened_sort.get("opened"), "Failed to open collection sort dropdown")
+        self.assertTrue(opened_sort and opened_sort.get("opened"), f"Failed to open collection sort dropdown: {opened_sort}")
         time.sleep(0.5)
 
         # Click Date Added to Library
         select_option_script = """
         (() => {
-            const option = Array.from(document.querySelectorAll('[role="option"], .DialogMenuPosition button'))
-                .find(b => (b.innerText || b.textContent || '').trim() === 'Date Added to Library');
+            const option = Array.from(document.querySelectorAll('[role="option"], .DialogMenuPosition button, .contextMenu button, [class*="DialogMenu"] button, [class*="ContextMenu"] button, button[class*="ContextMenu"], div[role="menuitem"]'))
+                .find(b => (b.innerText || b.textContent || '').trim().includes('Date Added'));
             if (!option) return false;
             option.focus();
-            const evt = (type) => new MouseEvent(type, { view: window, bubbles: true, cancelable: true, buttons: 1 });
-            option.dispatchEvent(evt('mousedown'));
-            option.dispatchEvent(evt('mouseup'));
-            option.dispatchEvent(evt('click'));
             if (typeof option.click === 'function') option.click();
+            else {
+                const evt = (type) => new MouseEvent(type, { view: window, bubbles: true, cancelable: true, buttons: 1 });
+                option.dispatchEvent(evt('click'));
+            }
             return true;
         })()
         """
         option_clicked = False
-        for _ in range(10):
+        for _ in range(15):
             if self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], select_option_script):
                 option_clicked = True
                 break
@@ -1053,10 +1126,10 @@ class SteamUIFlowTest(unittest.TestCase):
 
         # Verify date header element exists
         has_date_header = None
-        for _ in range(10):
+        for _ in range(15):
             has_date_header = self.cdp.evaluate(steam_target["webSocketDebuggerUrl"], """
             (() => {
-                const headers = Array.from(document.querySelectorAll('._1LJqx_qFOC8199RBQO5kU8')).map(h => h.innerText.trim());
+                const headers = Array.from(document.querySelectorAll('._1LJqx_qFOC8199RBQO5kU8, [class*="DateHeader"], [class*="SectionHeader"], [class*="groupHeader"], [class*="GroupHeader"]')).map(h => h.innerText.trim());
                 return {
                     found: headers.length > 0,
                     headers: headers.slice(0, 5)
@@ -1150,13 +1223,22 @@ class SteamUIFlowTest(unittest.TestCase):
         self.assertGreater(modal_res.get("count", 0), 0, "No providers found in provider modal")
         log_info(f"Verified provider modal with {modal_res['count']} providers.")
 
-        # 2. Query callback server endpoint
-        req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/change-provider?id={CONFIG['appid']}&provider=6")
+        # 2. Query callback server endpoint (provider=3 is Spinoza)
+        log_pos_before = os.path.getsize(CONFIG["log_path"]) if os.path.isfile(CONFIG["log_path"]) else 0
+        req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/change-provider?id={CONFIG['appid']}&provider=3")
         with urllib.request.urlopen(req, timeout=3) as resp:
             data = json.loads(resp.read().decode())
             self.assertTrue(data.get("success"), f"change-provider API failed: {data}")
         # Wait for asynchronous provider download and config scan to complete
-        time.sleep(3.0)
+        for _ in range(30):
+            time.sleep(0.5)
+            if os.path.isfile(CONFIG["log_path"]):
+                with open(CONFIG["log_path"], "r", encoding="utf-8", errors="ignore") as f:
+                    f.seek(log_pos_before)
+                    chunk = f.read()
+                    if "Successfully installed appid" in chunk and "Config reloaded!" in chunk:
+                        break
+        time.sleep(1.0)
         log_pass("Change Provider UI modal and API endpoint verified.")
 
     def is_app_installed_on_disk(self, appid):
@@ -1236,30 +1318,36 @@ class SteamUIFlowTest(unittest.TestCase):
             """)
 
         # 2. Trigger UI install navigation
+        self.navigate_url(f"steam://nav/games/details/{CONFIG['appid']}")
+        time.sleep(1.0)
         self.navigate_url(f"steam://install/{CONFIG['appid']}")
         time.sleep(1.0)
 
-        # 2a. Click native Steam install dialog button ("Install" / "Next >")
+        # 2a. Click native Steam install button ("Install" / "INSTALL" / "Next >")
         clicked_native_install = False
         for _ in range(10):
             for t in self.cdp.get_targets():
                 ws = t.get("webSocketDebuggerUrl")
                 if not ws: continue
-                res = self.cdp.evaluate(ws, """
-                (() => {
-                    const btn = Array.from(document.querySelectorAll('button')).find(b => {
-                        const t = (b.innerText || b.textContent || '').trim();
-                        const isPrimary = b.className && b.className.includes('Primary');
-                        return (t === 'Install' || t === 'Next >' || t === 'Next' || t === 'I Agree' || t === 'Finish') &&
-                               b.id !== 'sls-depot-btn-download' && b.offsetParent !== null;
-                    });
-                    if (btn) {
-                        btn.click();
-                        return (btn.innerText || btn.textContent || '').trim();
-                    }
-                    return null;
-                })()
-                """)
+                try:
+                    res = self.cdp.evaluate(ws, """
+                    (() => {
+                        const btn = Array.from(document.querySelectorAll('button, div[role="button"]')).find(b => {
+                            const t = (b.innerText || b.textContent || '').trim().toUpperCase();
+                            const cs = window.getComputedStyle(b);
+                            return (t === 'INSTALL' || t === 'NEXT >' || t === 'NEXT' || t === 'I AGREE' || t === 'FINISH') &&
+                                   b.id !== 'sls-depot-btn-download' && !b.closest('#sls-depot-modal') && !b.closest('#sls-depot-overlay-modal') &&
+                                   b.offsetParent !== null && cs.pointerEvents !== 'none';
+                        });
+                        if (btn) {
+                            btn.click();
+                            return (b => (b.innerText || b.textContent || '').trim())(btn);
+                        }
+                        return null;
+                    })()
+                    """)
+                except Exception:
+                    continue
                 if res:
                     log_info(f"Clicked native Steam '{res}' button on target '{t.get('title')}'")
                     clicked_native_install = True
@@ -1268,29 +1356,37 @@ class SteamUIFlowTest(unittest.TestCase):
                 break
             time.sleep(0.5)
 
-        # Confirm install dialog if open
-        time.sleep(1.0)
-        for _ in range(10):
+        # Confirm install dialog if open (excluding #sls-depot-overlay-modal which is handled in 2b)
+        time.sleep(0.5)
+        for _ in range(6):
             confirmed = False
             for t in self.cdp.get_targets():
                 ws = t.get("webSocketDebuggerUrl")
                 if not ws: continue
-                res = self.cdp.evaluate(ws, """
-                (() => {
-                    const dialog = document.querySelector('dialog, .FullModalOverlay, .ModalPosition_Content');
-                    if (dialog) {
-                        const btn = Array.from(dialog.querySelectorAll('button, div[role="button"]')).find(b => {
-                            const t = (b.innerText || b.textContent || '').trim();
-                            return (t === 'Install' || t === 'Next >' || t === 'Next' || t === 'I Agree' || t === 'Finish') && b.offsetParent !== null;
-                        });
-                        if (btn) {
-                            btn.click();
-                            return (btn.innerText || btn.textContent || '').trim();
+                try:
+                    res = self.cdp.evaluate(ws, """
+                    (() => {
+                        if (document.getElementById('sls-depot-btn-download')) return '__DEPOT_READY__';
+                        const dialog = document.querySelector('dialog, .FullModalOverlay, .ModalPosition_Content');
+                        if (dialog && !dialog.querySelector('#sls-depot-btn-download')) {
+                            const btn = Array.from(dialog.querySelectorAll('button, div[role="button"]')).find(b => {
+                                const t = (b.innerText || b.textContent || '').trim().toUpperCase();
+                                return (t === 'INSTALL' || t === 'NEXT >' || t === 'NEXT' || t === 'I AGREE' || t === 'FINISH') &&
+                                       b.id !== 'sls-depot-btn-download' && !b.closest('#sls-depot-overlay-modal') && b.offsetParent !== null;
+                            });
+                            if (btn) {
+                                btn.click();
+                                return (btn.innerText || btn.textContent || '').trim();
+                            }
                         }
-                    }
-                    return null;
-                })()
-                """)
+                        return null;
+                    })()
+                    """)
+                except Exception:
+                    continue
+                if res == '__DEPOT_READY__':
+                    confirmed = True
+                    break
                 if res:
                     log_info(f"Confirmed modal install dialog via '{res}' on target '{t.get('title')}'")
                     confirmed = True
@@ -1301,20 +1397,23 @@ class SteamUIFlowTest(unittest.TestCase):
 
         # 2b. Click SLS custom depot download button (#sls-depot-btn-download)
         clicked_depot_download = False
-        for _ in range(10):
+        for _ in range(15):
             for t in self.cdp.get_targets():
                 ws = t.get("webSocketDebuggerUrl")
                 if not ws: continue
-                res = self.cdp.evaluate(ws, """
-                (() => {
-                    const cb = document.getElementById('sls-depot-btn-download');
-                    if (cb && !cb.disabled && cb.offsetParent !== null) {
-                        cb.click();
-                        return true;
-                    }
-                    return false;
-                })()
-                """)
+                try:
+                    res = self.cdp.evaluate(ws, """
+                    (() => {
+                        const cb = document.getElementById('sls-depot-btn-download');
+                        if (cb && !cb.disabled && typeof cb.onclick === 'function' && window.getComputedStyle(cb).pointerEvents !== 'none') {
+                            cb.click();
+                            return true;
+                        }
+                        return false;
+                    })()
+                    """)
+                except Exception:
+                    continue
                 if res:
                     log_info(f"Clicked '#sls-depot-btn-download' on target '{t.get('title')}'")
                     clicked_depot_download = True

@@ -36,7 +36,17 @@ def pytest_configure(config):
 def pytest_collection_modifyitems(config, items):
     if config.getoption("--live"):
         return
-    skip_live = pytest.mark.skip(reason="Pass --live to run live Steam UI flow tests")
+    # Run live tests against the real Steam client when port 8080 is reachable or Steam is installed
+    import shutil
+    import urllib.request
+    try:
+        urllib.request.urlopen("http://127.0.0.1:8080/json/version", timeout=1)
+        return
+    except Exception:
+        pass
+    if os.path.isfile(os.path.expanduser("~/.local/bin/steam")) or shutil.which("steam"):
+        return
+    skip_live = pytest.mark.skip(reason="Real Steam client is not available on this host")
     for item in items:
         if "live" in item.keywords:
             item.add_marker(skip_live)

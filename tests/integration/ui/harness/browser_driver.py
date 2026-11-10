@@ -38,30 +38,26 @@ if TYPE_CHECKING:
 
 
 class BrowserDriver:
-    """Controls a headless Chrome instance via raw CDP WebSocket."""
+    """Controls a real Steam CEF instance via Chrome DevTools Protocol (CDP) WebSocket."""
 
     def __init__(
         self,
         callback_server: Optional["CallbackServerStub"] = None,
         chrome_binary: Optional[str] = None,
         headless: bool = True,
+        steam_port: Optional[int] = None,
     ):
         self.callback_server = callback_server
-        self.chrome_binary = (
-            chrome_binary
-            or os.environ.get("CHROME_BIN")
-            or shutil.which("google-chrome")
-            or shutil.which("chromium")
-            or "/usr/bin/google-chrome"
-        )
+        self.steam_port = steam_port or int(os.environ.get("STEAM_CDP_PORT", "8080"))
         self.headless = headless
 
-        self.proc: Optional[subprocess.Popen[str]] = None
-        self.temp_user_data_dir: Optional[str] = None
+        self.steam_proc: Optional[subprocess.Popen[str]] = None
+        self.root_ws: Optional[websocket.WebSocket] = None
+        self.target_id: Optional[str] = None
         self.ws: Optional[websocket.WebSocket] = None
         self.ws_url: Optional[str] = None
         self.page_ws_url: Optional[str] = None
-        self.cdp_port: Optional[int] = None
+        self.cdp_port: int = self.steam_port
 
         self._req_id = 0
         self._lock = threading.Lock()
@@ -77,64 +73,92 @@ class BrowserDriver:
         self._reader_running = False
         self._reader_thread: Optional[threading.Thread] = None
 
-    def start(self) -> "BrowserDriver":
-        self.temp_user_data_dir = tempfile.mkdtemp(prefix="navi_ui_chrome_")
+    def _is_steam_cdp_reachable(self) -> bool:
+        try:
+            req = urllib.request.Request(f"http://127.0.0.1:{self.steam_port}/json")
+            with urllib.request.urlopen(req, timeout=1.5) as resp:
+                return resp.status == 200
+        except Exception:
+            return False
 
-        cmd = [
-            self.chrome_binary,
-            "--no-sandbox",
-            "--disable-gpu",
-            "--remote-debugging-port=0",
-            "--remote-allow-origins=*",
-            f"--user-data-dir={self.temp_user_data_dir}",
-            "--disable-background-networking",
-            "--disable-default-apps",
-            "--disable-extensions",
-            "--disable-sync",
-            "--disable-translate",
-            "--metrics-recording-only",
-            "--no-first-run",
-            "--safebrowsing-disable-auto-update",
-            "about:blank",
+    def _ensure_steam_running(self) -> None:
+        if self._is_steam_cdp_reachable():
+            return
+
+        candidates = [
+            os.path.expanduser("~/.local/bin/steam"),
+            os.path.expanduser("~/.local/share/Steam/steam.sh"),
+            shutil.which("steam"),
+            "/usr/bin/steam",
+            "/usr/games/steam",
         ]
-        if self.headless:
-            cmd.insert(1, "--headless=new")
+        steam_bin = None
+        for c in candidates:
+            if c and os.path.isfile(c) and os.access(c, os.X_OK):
+                steam_bin = c
+                break
+        if not steam_bin:
+            steam_bin = "steam"
 
-        self.proc = subprocess.Popen(
-            cmd,
+        env = os.environ.copy()
+        if "DISPLAY" not in env:
+            env["DISPLAY"] = ":1"
+
+        self.steam_proc = subprocess.Popen(
+            [steam_bin, "-cef-enable-debugging"],
+            env=env,
+            cwd=os.path.expanduser("~"),
             stdout=subprocess.DEVNULL,
-            stderr=subprocess.PIPE,
-            text=True,
+            stderr=subprocess.DEVNULL,
+            start_new_session=True,
         )
 
-        # Read listening port and browser websocket from stderr
         start_time = time.time()
-        while time.time() - start_time < 8.0:
-            if not self.proc.stderr:
-                break
-            line = self.proc.stderr.readline()
-            if "DevTools listening on " in line:
-                self.ws_url = line.split("DevTools listening on ")[1].strip()
-                break
+        while time.time() - start_time < 45.0:
+            if self._is_steam_cdp_reachable():
+                time.sleep(1.0)
+                return
+            time.sleep(0.5)
 
-        if not self.ws_url:
-            self.stop()
-            raise RuntimeError("Failed to detect Chrome DevTools listening URL from stderr")
+        raise RuntimeError(f"Real Steam client failed to expose CEF debugging port {self.steam_port} within 45s")
 
-        # Parse port
-        parsed = urllib.parse.urlparse(self.ws_url)
-        self.cdp_port = parsed.port
+    def start(self) -> "BrowserDriver":
+        self._ensure_steam_running()
 
-        # Discover page target
-        targets_url = f"http://127.0.0.1:{self.cdp_port}/json"
+        targets_url = f"http://127.0.0.1:{self.steam_port}/json"
         req = urllib.request.Request(targets_url)
         with urllib.request.urlopen(req, timeout=3.0) as resp:
             targets = json.loads(resp.read().decode("utf-8"))
 
-        page_target = next((t for t in targets if t.get("type") == "page"), None)
+        # Find the primary Steam window target to create dedicated test targets
+        steam_target = next(
+            (t for t in targets if t.get("title") == "Steam" and t.get("webSocketDebuggerUrl")),
+            None,
+        )
+        if not steam_target:
+            steam_target = next((t for t in targets if t.get("webSocketDebuggerUrl")), None)
+
+        if not steam_target or not steam_target.get("webSocketDebuggerUrl"):
+            raise RuntimeError(f"No usable WebSocket target in real Steam client: {targets}")
+
+        self.root_ws = websocket.create_connection(steam_target["webSocketDebuggerUrl"], timeout=10.0)
+
+        # Create a dedicated target in the real Steam client
+        self.root_ws.send(json.dumps({
+            "id": 1,
+            "method": "Target.createTarget",
+            "params": {"url": "about:blank"}
+        }))
+        res = json.loads(self.root_ws.recv())
+        self.target_id = res.get("result", {}).get("targetId")
+
+        # Discover newly created target
+        with urllib.request.urlopen(req, timeout=3.0) as resp:
+            targets = json.loads(resp.read().decode("utf-8"))
+
+        page_target = next((t for t in targets if t.get("id") == self.target_id), None)
         if not page_target or not page_target.get("webSocketDebuggerUrl"):
-            self.stop()
-            raise RuntimeError(f"No page target found in Chrome DevTools: {targets}")
+            page_target = steam_target
 
         self.page_ws_url = page_target["webSocketDebuggerUrl"]
         self.ws = websocket.create_connection(self.page_ws_url, timeout=10.0)
@@ -151,6 +175,25 @@ class BrowserDriver:
         self.send_cdp("Log.enable")
 
         # Automatically intercept window.alert / window.confirm into window.__capturedAlerts
+        storage_shim = (
+            "function __makeMockStorage() {\n"
+            "    var store = {};\n"
+            "    return {\n"
+            "        getItem: function(k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },\n"
+            "        setItem: function(k, v) { store[k] = String(v); },\n"
+            "        removeItem: function(k) { delete store[k]; },\n"
+            "        clear: function() { store = {}; },\n"
+            "        get length() { return Object.keys(store).length; },\n"
+            "        key: function(i) { return Object.keys(store)[i] || null; }\n"
+            "    };\n"
+            "}\n"
+            "try { window.localStorage.getItem('__probe'); } catch (_) {\n"
+            "    try { Object.defineProperty(window, 'localStorage', { value: __makeMockStorage(), configurable: true, writable: true }); } catch (_) {}\n"
+            "}\n"
+            "try { window.sessionStorage.getItem('__probe'); } catch (_) {\n"
+            "    try { Object.defineProperty(window, 'sessionStorage', { value: __makeMockStorage(), configurable: true, writable: true }); } catch (_) {}\n"
+            "}\n"
+        )
         self.send_cdp(
             "Page.addScriptToEvaluateOnNewDocument",
             {
@@ -171,10 +214,15 @@ class BrowserDriver:
                     "window.open = function(url) {"
                     "    window.__openedUrls.push(String(url));"
                     "    return {};"
-                    "};"
+                    "};\n"
+                    + storage_shim
                 )
             },
         )
+        try:
+            self.evaluate(storage_shim + "void 0;", await_promise=False)
+        except Exception:
+            pass
 
         # Enable transparent Fetch interception for port 9001 if callback_server is configured
         if self.callback_server:
@@ -198,23 +246,21 @@ class BrowserDriver:
             self._reader_thread.join(timeout=2.0)
             self._reader_thread = None
 
-        if self.proc:
+        if self.root_ws and self.target_id:
             try:
-                self.proc.terminate()
-                self.proc.wait(timeout=3.0)
-            except Exception:
-                try:
-                    self.proc.kill()
-                except Exception:
-                    pass
-            self.proc = None
-
-        if self.temp_user_data_dir and os.path.exists(self.temp_user_data_dir):
-            try:
-                shutil.rmtree(self.temp_user_data_dir)
+                self.root_ws.send(json.dumps({
+                    "id": 999,
+                    "method": "Target.closeTarget",
+                    "params": {"targetId": self.target_id}
+                }))
+                self.root_ws.recv()
             except Exception:
                 pass
-            self.temp_user_data_dir = None
+            try:
+                self.root_ws.close()
+            except Exception:
+                pass
+            self.root_ws = None
 
     def __enter__(self) -> "BrowserDriver":
         return self.start()
@@ -399,10 +445,60 @@ class BrowserDriver:
 
     def navigate_to_file(self, file_path: str | Path, query: str = "") -> None:
         abs_path = Path(file_path).resolve()
-        url = f"file://{abs_path}"
+        if not abs_path.is_file():
+            raise FileNotFoundError(f"Fixture file not found: {abs_path}")
+        html_content = abs_path.read_text(encoding="utf-8")
+        escaped_html = json.dumps(html_content)
+        target_url = "about:blank"
         if query:
-            url += query if query.startswith(("?", "#")) else f"?{query}"
-        self.navigate(url)
+            if not query.startswith("?") and not query.startswith("#"):
+                query = "?" + query
+            target_url += query
+        self.send_cdp("Page.navigate", {"url": target_url})
+        setup_script = (
+            f"document.open(); document.write({escaped_html}); document.close();\n"
+            "window.__capturedAlerts = window.__capturedAlerts || [];\n"
+            "window.alert = function(msg) {\n"
+            "    window.__capturedAlerts.push({ type: 'alert', message: String(msg), time: Date.now() });\n"
+            "};\n"
+            "window.confirm = function(msg) {\n"
+            "    window.__capturedAlerts.push({ type: 'confirm', message: String(msg), time: Date.now() });\n"
+            "    return true;\n"
+            "};\n"
+            "window.prompt = function(msg, def) {\n"
+            "    window.__capturedAlerts.push({ type: 'prompt', message: String(msg), default: def, time: Date.now() });\n"
+            "    return def || '';\n"
+            "};\n"
+            "window.__openedUrls = window.__openedUrls || [];\n"
+            "window.open = function(url) {\n"
+            "    window.__openedUrls.push(String(url));\n"
+            "    return {};\n"
+            "};\n"
+            "function __makeMockStorage() {\n"
+            "    var store = {};\n"
+            "    return {\n"
+            "        getItem: function(k) { return Object.prototype.hasOwnProperty.call(store, k) ? store[k] : null; },\n"
+            "        setItem: function(k, v) { store[k] = String(v); },\n"
+            "        removeItem: function(k) { delete store[k]; },\n"
+            "        clear: function() { store = {}; },\n"
+            "        get length() { return Object.keys(store).length; },\n"
+            "        key: function(i) { return Object.keys(store)[i] || null; }\n"
+            "    };\n"
+            "}\n"
+            "try { window.localStorage.getItem('__probe'); } catch (_) {\n"
+            "    try { Object.defineProperty(window, 'localStorage', { value: __makeMockStorage(), configurable: true, writable: true }); } catch (_) {}\n"
+            "}\n"
+            "try { window.sessionStorage.getItem('__probe'); } catch (_) {\n"
+            "    try { Object.defineProperty(window, 'sessionStorage', { value: __makeMockStorage(), configurable: true, writable: true }); } catch (_) {}\n"
+            "}\n"
+            "void 0;\n"
+        )
+        self.evaluate(setup_script, await_promise=False)
+        self.wait_for_condition(
+            lambda: self.evaluate("document.readyState", await_promise=False) in ["interactive", "complete"],
+            timeout=8.0,
+            error_message=f"Timed out loading content from {abs_path.name}",
+        )
 
     def evaluate(self, expression: str, await_promise: bool = True, return_by_value: bool = True) -> Any:
         res = self.send_cdp(

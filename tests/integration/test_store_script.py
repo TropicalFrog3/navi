@@ -9,6 +9,7 @@ Verifies that store hiding logic has been replaced with native ownership decorat
 
 import subprocess
 from pathlib import Path
+from tests.integration.ui.harness.browser_driver import BrowserDriver
 
 
 REPO_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -81,265 +82,149 @@ def test_ownership_decoration_functions_present():
         assert snippet in content, f"Required snippet '{snippet}' missing from store-page-script.js"
 
 
-def test_node_execution_simulation():
+def test_steam_cef_execution():
     """
-    Run a simulated Node.js execution environment of the ownership logic
+    Run the ownership logic directly inside the real Steam client CEF runtime
     to ensure it populates GDynamicStore, clears legacy session keys,
     and preserves element visibility without throwing exceptions.
     """
-    node_eval_code = """
-    const fs = require('fs');
-    const content = fs.readFileSync(process.argv[1], 'utf8');
+    driver = BrowserDriver().start()
+    try:
+        content = STORE_SCRIPT_PATH.read_text(encoding="utf-8")
+        code = f"""
+        (() => {{
+            sessionStorage.setItem('sls_steam_hide_owned', '1');
+            window.GDynamicStore = {{
+                s_rgOwnedApps: {{}},
+                DecorateDynamicItems: () => {{ window.decorateCalled = true; }}
+            }};
+            let cachedApps = new Map();
+            cachedApps.set(480, {{ m_userFilterFailure: {{}}, m_bVisible: true }});
+            window.StoreItemCache = {{ m_mapApps: cachedApps }};
 
-    // Minimal browser mock
-    global.window = global;
-    let sessionStorageData = { 'sls_steam_hide_owned': '1' };
-    global.sessionStorage = {
-        getItem: (k) => sessionStorageData[k] || null,
-        setItem: (k, v) => { sessionStorageData[k] = String(v); },
-        removeItem: (k) => { delete sessionStorageData[k]; }
-    };
+            let legacy = document.createElement('div');
+            legacy.id = 'sls-hide-lua-library';
+            document.body.appendChild(legacy);
 
-    let decorateCalled = false;
-    global.GDynamicStore = {
-        s_rgOwnedApps: {},
-        DecorateDynamicItems: () => { decorateCalled = true; }
-    };
+            var slsLuaAppIds = new Set([480, 730]);
+            var slsLuaAppIdsLoaded = true;
 
-    let cachedApps = new Map();
-    cachedApps.set(480, { m_userFilterFailure: {}, m_bVisible: true });
-    global.StoreItemCache = {
-        m_mapApps: cachedApps
-    };
+            {content[content.find('var isTesting'):content.find('function initLuaLibraryOwnership()')]}
 
-    let legacyElementRemoved = false;
-    let appendedFlags = [];
-    global.document = {
-        getElementById: (id) => {
-            if (id === 'sls-hide-lua-library') {
-                return {
-                    parentNode: {
-                        removeChild: () => { legacyElementRemoved = true; }
-                    }
-                };
-            }
-            return null;
-        },
-        querySelectorAll: (sel) => [],
-        createElement: (tag) => {
-            let el = {
-                className: '',
-                innerHTML: '',
-                style: {},
-                classList: { add: () => {} },
-                appendChild: (ch) => appendedFlags.push(ch)
-            };
-            return el;
-        },
-        head: { appendChild: () => {} },
-        documentElement: { style: {} },
-        addEventListener: () => {}
-    };
+            applyLuaLibraryOwnership();
 
-    // Extract ownership definitions and verify they run cleanly
-    eval(`
-        var slsLuaAppIds = new Set([480, 730]);
-        var slsLuaAppIdsLoaded = true;
-
-        ${content.substring(content.indexOf('var isTesting'), content.indexOf('function initLuaLibraryOwnership()'))}
-
-        applyLuaLibraryOwnership();
-    `);
-
-    // Assertions
-    if (sessionStorage.getItem('sls_steam_hide_owned') !== null) {
-        throw new Error('sls_steam_hide_owned was not cleared from sessionStorage');
-    }
-    if (!legacyElementRemoved) {
-        throw new Error('Legacy style element was not removed from DOM');
-    }
-    if (global.GDynamicStore.s_rgOwnedApps[480] !== true || global.GDynamicStore.s_rgOwnedApps[730] !== true) {
-        throw new Error('AppIDs were not marked owned in GDynamicStore.s_rgOwnedApps');
-    }
-    if (!decorateCalled) {
-        throw new Error('GDynamicStore.DecorateDynamicItems was not called');
-    }
-    const app480 = global.StoreItemCache.m_mapApps.get(480);
-    if (!app480.m_userFilterFailure.already_owned) {
-        throw new Error('StoreItemCache app missing already_owned flag');
-    }
-    if (app480.m_bVisible !== true) {
-        throw new Error('StoreItemCache app visibility was mutated to false!');
-    }
-
-    console.log('SIMULATION_PASSED');
-    """
-
-    res = subprocess.run(
-        ["node", "-e", node_eval_code, str(STORE_SCRIPT_PATH)],
-        capture_output=True,
-        text=True,
-    )
-    assert res.returncode == 0, f"Node simulation failed:\n{res.stderr}\n{res.stdout}"
-    assert "SIMULATION_PASSED" in res.stdout
+            return {{
+                sessionStorageCleared: sessionStorage.getItem('sls_steam_hide_owned') === null,
+                legacyRemoved: document.getElementById('sls-hide-lua-library') === null,
+                rgOwned480: window.GDynamicStore.s_rgOwnedApps[480] === true,
+                rgOwned730: window.GDynamicStore.s_rgOwnedApps[730] === true,
+                decorateCalled: !!window.decorateCalled,
+                app480Owned: window.StoreItemCache.m_mapApps.get(480).m_userFilterFailure.already_owned === true,
+                app480Visible: window.StoreItemCache.m_mapApps.get(480).m_bVisible === true
+            }};
+        }})()
+        """
+        res = driver.evaluate(code)
+        assert res.get("sessionStorageCleared") is True, "sls_steam_hide_owned was not cleared from sessionStorage"
+        assert res.get("legacyRemoved") is True, "Legacy style element was not removed from DOM"
+        assert res.get("rgOwned480") is True, "AppID 480 was not marked owned in GDynamicStore"
+        assert res.get("rgOwned730") is True, "AppID 730 was not marked owned in GDynamicStore"
+        assert res.get("decorateCalled") is True, "GDynamicStore.DecorateDynamicItems was not called"
+        assert res.get("app480Owned") is True, "StoreItemCache app missing already_owned flag"
+        assert res.get("app480Visible") is True, "StoreItemCache app visibility was mutated to false"
+    finally:
+        driver.stop()
 
 
 def test_testing_mode_decorates_all_items():
     """
-    Verify that when isTesting is true, even unowned items found on the page
+    Verify in real Steam CEF that when isTesting is true, even unowned items found on the page
     are decorated with the 'IN LIBRARY' label and synchronized to GDynamicStore.
     """
-    node_eval_code = """
-    const fs = require('fs');
-    const content = fs.readFileSync(process.argv[1], 'utf8');
+    driver = BrowserDriver().start()
+    try:
+        content = STORE_SCRIPT_PATH.read_text(encoding="utf-8")
+        code = f"""
+        (() => {{
+            window.__slsIsTesting = true;
+            window.GDynamicStore = {{
+                s_rgOwnedApps: {{}},
+                DecorateDynamicItems: () => {{ window.decorateCount = (window.decorateCount || 0) + 1; }}
+            }};
 
-    global.window = global;
-    global.window.__slsIsTesting = true;
-    global.sessionStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+            document.body.innerHTML = `
+                <div id="item10" data-ds-appid="10"></div>
+                <div id="item20" data-ds-appid="20"></div>
+                <a id="item30" href="/app/30"></a>
+            `;
 
-    let decorateCount = 0;
-    global.GDynamicStore = {
-        s_rgOwnedApps: {},
-        DecorateDynamicItems: () => { decorateCount++; }
-    };
+            var slsLuaAppIds = new Set();
+            var slsLuaAppIdsLoaded = true;
 
-    // Simulate 3 store capsules on page: 10, 20, 30
-    let elements = [
-        {
-            attrs: { 'data-ds-appid': '10' },
-            getAttribute: function(a) { return this.attrs[a]; },
-            querySelector: () => null,
-            classList: { add: (c) => {} },
-            style: { removeProperty: () => {} },
-            children: [],
-            appendChild: function(c) { this.children.push(c); }
-        },
-        {
-            attrs: { 'data-ds-appid': '20' },
-            getAttribute: function(a) { return this.attrs[a]; },
-            querySelector: () => null,
-            classList: { add: (c) => {} },
-            style: { removeProperty: () => {} },
-            children: [],
-            appendChild: function(c) { this.children.push(c); }
-        },
-        {
-            attrs: { 'href': '/app/30' },
-            getAttribute: function(a) { return this.attrs[a]; },
-            querySelector: () => null,
-            classList: { add: (c) => {} },
-            style: { removeProperty: () => {} },
-            children: [],
-            appendChild: function(c) { this.children.push(c); }
-        }
-    ];
+            {content[content.find('var isTesting'):content.find('function initLuaLibraryOwnership()')]}
 
-    global.document = {
-        getElementById: () => null,
-        querySelectorAll: (sel) => (sel.includes('.sls-lua-library-hidden') ? [] : elements),
-        createElement: (tag) => ({ className: '', innerHTML: '', style: {} }),
-        head: { appendChild: () => {} },
-        documentElement: { style: {} },
-        addEventListener: () => {}
-    };
+            applyLuaLibraryOwnership();
 
-    eval(`
-        var slsLuaAppIds = new Set(); // No Lua apps loaded
-        var slsLuaAppIdsLoaded = true;
+            const el10 = document.getElementById('item10');
+            const el20 = document.getElementById('item20');
+            const el30 = document.getElementById('item30');
 
-        ${content.substring(content.indexOf('var isTesting'), content.indexOf('function initLuaLibraryOwnership()'))}
-
-        applyLuaLibraryOwnership();
-    `);
-
-    // Verify all 3 items (10, 20, 30) were marked as owned and decorated
-    if (global.GDynamicStore.s_rgOwnedApps[10] !== true ||
-        global.GDynamicStore.s_rgOwnedApps[20] !== true ||
-        global.GDynamicStore.s_rgOwnedApps[30] !== true) {
-        throw new Error('Testing mode failed to mark all items owned in GDynamicStore');
-    }
-
-    for (let el of elements) {
-        if (el.children.length === 0 || !el.children[0].innerHTML.includes('IN LIBRARY')) {
-            throw new Error('Testing mode failed to append IN LIBRARY flag to element');
-        }
-    }
-
-    console.log('TESTING_MODE_PASSED');
-    """
-
-    res = subprocess.run(
-        ["node", "-e", node_eval_code, str(STORE_SCRIPT_PATH)],
-        capture_output=True,
-        text=True,
-    )
-    assert res.returncode == 0, f"Testing mode node simulation failed:\n{res.stderr}\n{res.stdout}"
-    assert "TESTING_MODE_PASSED" in res.stdout
+            return {{
+                owned10: window.GDynamicStore.s_rgOwnedApps[10] === true,
+                owned20: window.GDynamicStore.s_rgOwnedApps[20] === true,
+                owned30: window.GDynamicStore.s_rgOwnedApps[30] === true,
+                flag10: el10 && el10.innerHTML.includes('IN LIBRARY'),
+                flag20: el20 && el20.innerHTML.includes('IN LIBRARY'),
+                flag30: el30 && el30.innerHTML.includes('IN LIBRARY')
+            }};
+        }})()
+        """
+        res = driver.evaluate(code)
+        assert res.get("owned10") is True, "Item 10 not marked owned in GDynamicStore"
+        assert res.get("owned20") is True, "Item 20 not marked owned in GDynamicStore"
+        assert res.get("owned30") is True, "Item 30 not marked owned in GDynamicStore"
+        assert res.get("flag10") is True, "Item 10 missing IN LIBRARY flag"
+        assert res.get("flag20") is True, "Item 20 missing IN LIBRARY flag"
+        assert res.get("flag30") is True, "Item 30 missing IN LIBRARY flag"
+    finally:
+        driver.stop()
 
 
 def test_testing_mode_toggle_off():
     """
-    Verify that when window.__slsIsTesting is false, items not in slsLuaAppIds
+    Verify in real Steam CEF that when window.__slsIsTesting is false, items not in slsLuaAppIds
     are NOT marked as owned.
     """
-    node_eval_code = """
-    const fs = require('fs');
-    const content = fs.readFileSync(process.argv[1], 'utf8');
+    driver = BrowserDriver().start()
+    try:
+        content = STORE_SCRIPT_PATH.read_text(encoding="utf-8")
+        code = f"""
+        (() => {{
+            window.__slsIsTesting = false;
+            window.GDynamicStore = {{
+                s_rgOwnedApps: {{}},
+                DecorateDynamicItems: () => {{}}
+            }};
 
-    global.window = global;
-    global.window.__slsIsTesting = false;
-    global.sessionStorage = { getItem: () => null, setItem: () => {}, removeItem: () => {} };
+            document.body.innerHTML = `<div id="item99999" data-ds-appid="99999"></div>`;
 
-    global.GDynamicStore = {
-        s_rgOwnedApps: {},
-        DecorateDynamicItems: () => {}
-    };
+            var slsLuaAppIds = new Set([480]);
+            var slsLuaAppIdsLoaded = true;
 
-    let elements = [
-        {
-            attrs: { 'data-ds-appid': '99999' },
-            getAttribute: function(a) { return this.attrs[a]; },
-            querySelector: () => null,
-            classList: { add: (c) => {} },
-            style: { removeProperty: () => {} },
-            children: [],
-            appendChild: function(c) { this.children.push(c); }
-        }
-    ];
+            {content[content.find('var isTesting'):content.find('function initLuaLibraryOwnership()')]}
 
-    global.document = {
-        getElementById: () => null,
-        querySelectorAll: (sel) => (sel.includes('.sls-lua-library-hidden') ? [] : elements),
-        createElement: (tag) => ({ className: '', innerHTML: '', style: {} }),
-        head: { appendChild: () => {} },
-        documentElement: { style: {} },
-        addEventListener: () => {}
-    };
+            applyLuaLibraryOwnership();
 
-    eval(`
-        var slsLuaAppIds = new Set([480]); // 99999 is NOT in the Lua library
-        var slsLuaAppIdsLoaded = true;
+            const el99999 = document.getElementById('item99999');
 
-        ${content.substring(content.indexOf('var isTesting'), content.indexOf('function initLuaLibraryOwnership()'))}
-
-        applyLuaLibraryOwnership();
-    `);
-
-    // Verify 99999 was NOT marked as owned
-    if (global.GDynamicStore.s_rgOwnedApps['99999'] === true) {
-        throw new Error('Item 99999 was marked owned when testing mode was disabled!');
-    }
-    if (elements[0].children.length > 0) {
-        throw new Error('Element received flag when testing mode was disabled!');
-    }
-
-    console.log('TOGGLE_OFF_PASSED');
-    """
-
-    res = subprocess.run(
-        ["node", "-e", node_eval_code, str(STORE_SCRIPT_PATH)],
-        capture_output=True,
-        text=True,
-    )
-    assert res.returncode == 0, f"Toggle off node simulation failed:\n{res.stderr}\n{res.stdout}"
-    assert "TOGGLE_OFF_PASSED" in res.stdout
+            return {{
+                owned99999: window.GDynamicStore.s_rgOwnedApps['99999'] === true,
+                hasFlag: el99999 && el99999.children.length > 0
+            }};
+        }})()
+        """
+        res = driver.evaluate(code)
+        assert res.get("owned99999") is False, "Item 99999 was marked owned when testing mode was disabled!"
+        assert res.get("hasFlag") is False, "Element received flag when testing mode was disabled!"
+    finally:
+        driver.stop()

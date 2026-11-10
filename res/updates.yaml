@@ -53,6 +53,7 @@ SafeModeHashes:
     - d0c0ff6e2c4d2abd8cee41e334e214ccd66ef22cae785f6bfb0fe81843df8900 #ubuntu32_32 & steamdeck_stable - 20260804
 
   beta-v1.2.0:
+    - c770a8b13872fed128dd357eabc1d715260fadd9b16c627ae3395406e6ea37d4 # steamclient - 1792620920
     - 0d01ab4fe889f87314c8416d18a2152b130a93231bb19cd6f0ed2ebd7a7ab90a # steamdeck_stable - 1791918634
     - bc54101b290f9a5b4a0713c9084494a5f05097826f66a661dbe322c469b764a2 # steamdeck_stable (SteamOS Neptune)
     - d0c0ff6e2c4d2abd8cee41e334e214ccd66ef22cae785f6bfb0fe81843df8900 # ubuntu12_32 & steamdeck_stable - 20260804
