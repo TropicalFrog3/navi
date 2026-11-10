@@ -1193,7 +1193,14 @@ class SteamUIFlowTest(unittest.TestCase):
             open_modal_script = f"""
             (() => {{
                 if (window.__slsRefreshButtons) window.__slsRefreshButtons({CONFIG['appid']});
-                const btn = document.querySelector('.sls-change-provider-btn');
+                let btn = document.querySelector('.sls-change-provider-btn');
+                if (!btn) {{
+                    const naviBtn = document.querySelector('.sls-navi-btn');
+                    if (naviBtn) {{
+                        naviBtn.click();
+                        btn = document.querySelector('.sls-change-provider-btn, #sls-navi-btn-provider');
+                    }}
+                }}
                 if (!btn) return {{ success: false, reason: 'sls-change-provider-btn not found' }};
                 btn.click();
                 const modal = document.getElementById('sls-provider-modal');
@@ -1539,7 +1546,14 @@ class SteamUIFlowTest(unittest.TestCase):
             modal_cancel_script = f"""
             (() => {{
                 if (window.__slsRefreshButtons) window.__slsRefreshButtons({CONFIG['appid']});
-                const btn = document.querySelector('.sls-remove-lua-btn');
+                let btn = document.querySelector('.sls-remove-lua-btn');
+                if (!btn) {{
+                    const naviBtn = document.querySelector('.sls-navi-btn');
+                    if (naviBtn) {{
+                        naviBtn.click();
+                        btn = document.querySelector('.sls-remove-lua-btn, #sls-navi-btn-remove');
+                    }}
+                }}
                 if (!btn) return {{ success: false, reason: 'sls-remove-lua-btn not found' }};
                 btn.click();
                 const confirmBtn = document.getElementById('sls-remove-confirm');

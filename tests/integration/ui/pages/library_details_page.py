@@ -302,32 +302,42 @@ class LibraryDetailsPage:
 
     # --- Desktop Mode Controls ---
 
+    def ensure_menu_open(self) -> None:
+        """Open the Navi menu modal if not already open."""
+        is_navi_open = bool(self.driver.evaluate("!!document.getElementById('sls-navi-modal')"))
+        if not is_navi_open:
+            self.click_navi_button()
+
     def click_config_button(self) -> GameManagerModal:
-        self.driver.click(".sls-config-btn")
+        self.ensure_menu_open()
+        self.driver.click(".sls-config-btn, #sls-navi-btn-config")
         self.game_manager_modal.wait_until_open()
         return self.game_manager_modal
 
     def click_remove_lua_button(self) -> RemoveLuaModal:
-        self.driver.click(".sls-remove-lua-btn")
+        self.ensure_menu_open()
+        self.driver.click(".sls-remove-lua-btn, #sls-navi-btn-remove")
         self.remove_modal.wait_until_open()
         return self.remove_modal
 
     def get_remove_lua_button_text(self) -> str:
         expr = (
             "(function() {"
-            "    var btn = document.querySelector('.sls-remove-lua-btn');"
+            "    var btn = document.querySelector('.sls-remove-lua-btn, #sls-navi-btn-remove, .sls-navi-btn');"
             "    return btn ? btn.innerText.trim() : '';"
             "})()"
         )
         return str(self.driver.evaluate(expr, await_promise=False) or "")
 
     def click_cloud_toggle_button(self) -> None:
-        self.driver.click(".sls-cloud-toggle-btn")
+        self.ensure_menu_open()
+        self.driver.click(".sls-cloud-toggle-btn, #sls-navi-btn-cloud-toggle")
 
     def get_cloud_toggle_text(self) -> str:
+        self.ensure_menu_open()
         expr = (
             "(function() {"
-            "    var btn = document.querySelector('.sls-cloud-toggle-btn');"
+            "    var btn = document.querySelector('.sls-cloud-toggle-btn, #sls-navi-btn-cloud-toggle');"
             "    return btn ? btn.innerText.trim() : '';"
             "})()"
         )
@@ -341,12 +351,14 @@ class LibraryDetailsPage:
         )
 
     def click_cloud_backup_button(self) -> None:
-        self.driver.click(".sls-cloud-backup-btn")
+        self.ensure_menu_open()
+        self.driver.click(".sls-cloud-backup-btn, #sls-navi-btn-cloud-backup")
 
     def get_cloud_backup_text(self) -> str:
+        self.ensure_menu_open()
         expr = (
             "(function() {"
-            "    var btn = document.querySelector('.sls-cloud-backup-btn');"
+            "    var btn = document.querySelector('.sls-cloud-backup-btn, #sls-navi-btn-cloud-backup');"
             "    return btn ? btn.innerText.trim() : '';"
             "})()"
         )
@@ -360,11 +372,13 @@ class LibraryDetailsPage:
         )
 
     def click_cloud_restore_button(self) -> AppRestoreModal:
-        self.driver.click(".sls-cloud-restore-btn")
+        self.ensure_menu_open()
+        self.driver.click(".sls-cloud-restore-btn, #sls-navi-btn-cloud-restore")
         self.restore_modal.wait_until_open()
         return self.restore_modal
 
     def click_cloud_reset_button(self) -> ResetSaveModal:
-        self.driver.click(".sls-cloud-reset-btn")
+        self.ensure_menu_open()
+        self.driver.click(".sls-cloud-reset-btn, #sls-navi-btn-cloud-reset")
         self.reset_modal.wait_until_open()
         return self.reset_modal

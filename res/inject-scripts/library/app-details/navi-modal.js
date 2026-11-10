@@ -27,6 +27,20 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
     overlay.innerHTML = cardHtml;
     document.body.appendChild(overlay);
 
+    function onKeyDown(e) {
+        if (e.key === 'Escape' || e.keyCode === 27) {
+            e.preventDefault();
+            closeModal();
+        }
+    }
+    window.addEventListener('keydown', onKeyDown);
+
+    overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) {
+            closeModal();
+        }
+    });
+
     requestAnimationFrame(function() {
         overlay.style.opacity = '1';
         var card = document.getElementById('sls-navi-card');
@@ -34,6 +48,7 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
     });
 
     function closeModal(cb) {
+        window.removeEventListener('keydown', onKeyDown);
         overlay.style.opacity = '0';
         var card = document.getElementById('sls-navi-card');
         if (card) { card.style.transform = 'scale(0.95)'; card.style.opacity = '0'; }
@@ -119,7 +134,7 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
         var span = cloudBackupBtn.querySelector('span');
         if (span) span.innerText = 'Backing up...';
         backupAppCloudSave(appid).then(function() {
-            if (span) span.innerText = 'Backup Created!';
+            if (span) span.innerText = 'Saved!';
             setTimeout(function() { if (span) span.innerText = 'Backup Cloud Save'; }, 2000);
         }).catch(function() {
             if (span) span.innerText = 'Backup Cloud Save';
@@ -157,4 +172,3 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
 
     trapSteamGamepadModal(overlay, [provBtn, confBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, remBtn, cancelBtn, closeX]);
 }
-
