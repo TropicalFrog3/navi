@@ -289,7 +289,11 @@ class LibraryDetailsPage:
     def get_navi_button_text(self) -> str:
         expr = (
             "(function() {"
-            "    var btn = document.querySelector('.sls-navi-btn');"
+            "    var els = Array.from(document.querySelectorAll('.sls-navi-btn'));"
+            "    var btn = els.find(function(e) {"
+            "        var r = e.getBoundingClientRect();"
+            "        return r.width > 0 && r.height > 0 && window.getComputedStyle(e).pointerEvents !== 'none';"
+            "    }) || els[0];"
             "    return btn ? btn.innerText.trim() : '';"
             "})()"
         )
@@ -323,7 +327,11 @@ class LibraryDetailsPage:
     def get_remove_lua_button_text(self) -> str:
         expr = (
             "(function() {"
-            "    var btn = document.querySelector('.sls-remove-lua-btn, #sls-navi-btn-remove, .sls-navi-btn');"
+            "    var els = Array.from(document.querySelectorAll('.sls-remove-lua-btn, #sls-navi-btn-remove, .sls-navi-btn'));"
+            "    var btn = els.find(function(e) {"
+            "        var r = e.getBoundingClientRect();"
+            "        return r.width > 0 && r.height > 0 && window.getComputedStyle(e).pointerEvents !== 'none';"
+            "    }) || els[0];"
             "    return btn ? btn.innerText.trim() : '';"
             "})()"
         )

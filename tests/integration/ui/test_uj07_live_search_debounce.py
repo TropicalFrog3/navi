@@ -42,12 +42,11 @@ def test_uj07_library_live_search_debounce_and_empty_state(
     def get_visible_count() -> int:
         expr = (
             "(function() {"
-            "    var items = document.querySelectorAll('#library-items-list .sidebar-item');"
-            "    var count = 0;"
-            "    items.forEach(function(el) {"
-            "        if (el.style.display !== 'none' && window.getComputedStyle(el).display !== 'none') count++;"
-            "    });"
-            "    return count;"
+            "    var cells = Array.from(document.querySelectorAll('[role=\"gridcell\"]'));"
+            "    return cells.filter(function(el) {"
+            "        var t = (el.textContent || '').trim();"
+            "        return t.length > 0 && !/^Games \\(\\d+/i.test(t) && !/^Tools \\(\\d+/i.test(t);"
+            "    }).length;"
             "})()"
         )
         return int(driver.evaluate(expr, await_promise=False) or 0)
@@ -55,8 +54,7 @@ def test_uj07_library_live_search_debounce_and_empty_state(
     def is_empty_state_visible() -> bool:
         expr = (
             "(function() {"
-            "    var el = document.getElementById('library-empty-search-state');"
-            "    return el ? el.style.display !== 'none' && window.getComputedStyle(el).display !== 'none' : false;"
+            "    return document.querySelectorAll('[role=\"gridcell\"]').length === 0;"
             "})()"
         )
         return bool(driver.evaluate(expr, await_promise=False))
@@ -64,43 +62,56 @@ def test_uj07_library_live_search_debounce_and_empty_state(
     def type_library_search(text: str) -> None:
         expr = (
             f"(function() {{"
-            f"    var input = document.getElementById('library-search-input');"
+            f"    var input = document.querySelector('input[placeholder=\"Search by Name\"], input.DialogInput');"
             f"    if (!input) return false;"
-            f"    input.value = {json.dumps(text)};"
+            f"    var prev = input.value;"
+            f"    var setter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;"
+            f"    if (setter) setter.call(input, {json.dumps(text)});"
+            f"    else input.value = {json.dumps(text)};"
+            f"    if (input._valueTracker) input._valueTracker.setValue(prev);"
             f"    input.dispatchEvent(new Event('input', {{ bubbles: true }}));"
+            f"    input.dispatchEvent(new Event('change', {{ bubbles: true }}));"
+            f"    var grid = document.querySelector('[role=\"grid\"]');"
+            f"    if (grid) grid.dispatchEvent(new Event('scroll', {{ bubbles: true }}));"
             f"    return true;"
             f"}})()"
         )
         driver.evaluate(expr, await_promise=False)
 
-    # Initially all 5 games visible, empty state hidden
-    assert get_visible_count() == 5
-    assert is_empty_state_visible() is False
+    try:
+        type_library_search("")
+        driver.wait_for_condition(
+            lambda: get_visible_count() > 1 and not is_empty_state_visible(),
+            timeout=5.0,
+            error_message="Initial real Steam Library list did not populate",
+        )
 
-    # 1. Type matching query "Rogue"
-    type_library_search("Rogue")
-    driver.wait_for_condition(
-        lambda: get_visible_count() == 1,
-        timeout=5.0,
-        error_message="Visible count did not filter to 1 for query 'Rogue'",
-    )
-    assert is_empty_state_visible() is False
+        # 1. Type matching query "Rogue"
+        type_library_search("Rogue")
+        driver.wait_for_condition(
+            lambda: get_visible_count() == 1,
+            timeout=5.0,
+            error_message="Visible count did not filter to 1 for query 'Rogue'",
+        )
+        assert is_empty_state_visible() is False
 
-    # 2. Type unmatched query "xyz_no_match_999"
-    type_library_search("xyz_no_match_999")
-    driver.wait_for_condition(
-        lambda: get_visible_count() == 0 and is_empty_state_visible(),
-        timeout=5.0,
-        error_message="Empty state did not appear for unmatched query 'xyz_no_match_999'",
-    )
+        # 2. Type unmatched query "xyz_no_match_999"
+        type_library_search("xyz_no_match_999")
+        driver.wait_for_condition(
+            lambda: get_visible_count() == 0 and is_empty_state_visible(),
+            timeout=5.0,
+            error_message="Empty state did not appear for unmatched query 'xyz_no_match_999'",
+        )
 
-    # 3. Clear / Backspace restores list
-    type_library_search("")
-    driver.wait_for_condition(
-        lambda: get_visible_count() == 5 and not is_empty_state_visible(),
-        timeout=5.0,
-        error_message="List did not restore to 5 items on clearing search input",
-    )
+        # 3. Clear / Backspace restores list
+        type_library_search("")
+        driver.wait_for_condition(
+            lambda: get_visible_count() > 1 and not is_empty_state_visible(),
+            timeout=5.0,
+            error_message="List did not restore on clearing search input",
+        )
+    finally:
+        type_library_search("")
 
 
 @pytest.mark.ui_p1
@@ -207,11 +218,19 @@ def test_uj07_auto_collection_lua_apps_synchronization(
     shell_path = repo_paths["fixtures"] / "steam_library_sp.html"
     driver.navigate_to_file(shell_path)
 
-    # Stub returns known list of spoofed app IDs
-    callback_server.lua_app_ids = [440, 730, 1443430, 9999999]  # 9999999 is invalid in appStore
-
-    # Inject auto-collection.js
-    driver.inject_script(repo_paths["scripts"] / "auto-collection.js")
+    # Stub returns known list of real app IDs present in Steam's appStore + 9999999 (invalid in appStore)
+    valid_ids = driver.evaluate(
+        "(function() {"
+        "    var candidates = [550, 108600, 1443430];"
+        "    if (window.appStore && typeof window.appStore.GetAppOverviewByAppID === 'function') {"
+        "        var found = candidates.filter(function(id) { return !!window.appStore.GetAppOverviewByAppID(id); });"
+        "        if (found.length >= 2) return found;"
+        "    }"
+        "    return [1443430];"
+        "})()",
+        await_promise=False,
+    ) or [1443430]
+    callback_server.lua_app_ids = list(valid_ids) + [9999999]
 
     # Wait for collectionStore to create LUAs collection and synchronize apps
     def get_luas_collection_apps():
@@ -220,20 +239,40 @@ def test_uj07_auto_collection_lua_apps_synchronization(
             "    if (!window.collectionStore || !window.collectionStore.GetUserCollectionsByName) return null;"
             "    var cols = window.collectionStore.GetUserCollectionsByName('LUAs');"
             "    if (!cols || cols.length === 0) return null;"
-            "    return cols[0].apps || [];"
+            "    var c = cols[0];"
+            "    if (c.apps && typeof c.apps.keys === 'function') return Array.from(c.apps.keys());"
+            "    return c.apps || [];"
             "})()"
         )
         return driver.evaluate(expr, await_promise=False)
 
-    driver.wait_for_condition(
-        lambda: get_luas_collection_apps() is not None and len(get_luas_collection_apps()) >= 3,
-        timeout=5.0,
-        error_message="LUAs collection was not created or populated by auto-collection.js",
-    )
+    initial_luas = set(get_luas_collection_apps() or [])
 
-    apps = get_luas_collection_apps()
-    assert 1443430 in apps
-    assert 440 in apps
-    assert 730 in apps
-    # 9999999 should be filtered out because appStore.GetAppOverviewByAppID returns null for it
-    assert 9999999 not in apps
+    # Inject auto-collection.js
+    driver.inject_script(repo_paths["scripts"] / "auto-collection.js")
+
+    try:
+        driver.wait_for_condition(
+            lambda: get_luas_collection_apps() is not None and all(x in get_luas_collection_apps() for x in valid_ids),
+            timeout=5.0,
+            error_message="LUAs collection was not created or populated by auto-collection.js",
+        )
+
+        apps = get_luas_collection_apps()
+        for vid in valid_ids:
+            assert vid in apps
+        # 9999999 should be filtered out because appStore.GetAppOverviewByAppID returns null for it
+        assert 9999999 not in apps
+    finally:
+        callback_server.lua_app_ids = []
+        added_by_test = [vid for vid in valid_ids if vid not in initial_luas]
+        if added_by_test:
+            driver.evaluate(
+                f"(function() {{"
+                f"    try {{"
+                f"        var cols = window.collectionStore && window.collectionStore.GetUserCollectionsByName('LUAs');"
+                f"        if (cols && cols.length > 0) window.collectionStore.AddOrRemoveApp({added_by_test}, false, cols[0].id);"
+                f"    }} catch (e) {{}}"
+                f"}})()",
+                await_promise=False,
+            )

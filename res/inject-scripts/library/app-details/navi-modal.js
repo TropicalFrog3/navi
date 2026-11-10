@@ -170,5 +170,5 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
         }
     };
 
-    trapSteamGamepadModal(overlay, [provBtn, confBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, remBtn, cancelBtn, closeX]);
+    trapSteamGamepadModal(overlay, [provBtn, confBtn, remBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, cancelBtn, closeX]);
 }

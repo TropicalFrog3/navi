@@ -67,6 +67,7 @@ class CallbackServerStub:
         self.faults: Dict[str, Dict[str, Any]] = {}
         self.barriers: Dict[str, RequestBarrier] = {}
         self.custom_responses: Dict[str, Tuple[int, bytes, str]] = {}
+        self.on_request: Optional[Callable[[Dict[str, Any]], None]] = None
 
         # Default state
         self.cloud_enabled = True
@@ -83,7 +84,7 @@ class CallbackServerStub:
         self.app_crack_installed: Dict[int, bool] = {}
         self.app_cloud_redirected: Dict[int, bool] = {}
         self.app_backups: Dict[int, List[str]] = {}
-        self.lua_app_ids: List[int] = [440, 730, 1443430]
+        self.lua_app_ids: List[int] = []
         self.config_data: Dict[str, Any] = {
             "DisableFamilyShareLock": False,
             "UseWhitelist": False,
@@ -194,6 +195,7 @@ class CallbackServerStub:
                 self.wfile.write(resp_bytes)
 
         self.server = ThreadingHTTPServer((self.host, self.port), Handler)
+        self.port = self.server.server_port
         self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.server_thread.start()
         return self
@@ -295,6 +297,15 @@ class CallbackServerStub:
 
         with self._lock:
             self.requests.append(req_info)
+            on_req = self.on_request
+
+        if on_req:
+            try:
+                on_req(req_info)
+            except Exception:
+                pass
+
+        with self._lock:
 
             # Check barriers (for non-OPTIONS requests)
             active_barrier: Optional[RequestBarrier] = None

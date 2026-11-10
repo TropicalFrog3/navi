@@ -1148,15 +1148,11 @@ void scanLuaPluginsAndUpdateConfig()
 			size_t underscorePos = stem.find('_');
 			std::string appIdStr = (underscorePos != std::string::npos) ? stem.substr(0, underscorePos) : stem;
 			
-			try
+			char* endPtr = nullptr;
+			unsigned long parsedId = std::strtoul(appIdStr.c_str(), &endPtr, 10);
+			if (endPtr && endPtr != appIdStr.c_str() && *endPtr == '\0' && parsedId > 0)
 			{
-				const uint32_t appId = static_cast<uint32_t>(std::stoul(appIdStr));
-				collectedAppIds.emplace(appId);
-				// LOG_DEBUG("scanLuaPluginsAndUpdateConfig: Found AppID %u from manifest %s\n", appId, path.c_str());
-			}
-			catch (...)
-			{
-				// Not a valid AppID filename, ignore
+				collectedAppIds.emplace(static_cast<uint32_t>(parsedId));
 			}
 		}
 	}

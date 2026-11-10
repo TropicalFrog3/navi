@@ -649,6 +649,9 @@ std::string COAuthEngine::StartAuthFlow(OAuthProvider provider, std::string& out
 
     int opt = 1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+#ifdef SO_REUSEPORT
+    setsockopt(sock, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
+#endif
 
     struct sockaddr_in addr{};
     addr.sin_family = AF_INET;

@@ -743,12 +743,15 @@ void init() {
                 std::string s((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
                 f.close();
                 if (s.find("\"inflight\"") != std::string::npos) {
-                    try {
-                        uint32_t appId = std::stoul(entry.path().stem().string());
+                    std::string stem = entry.path().stem().string();
+                    char* endPtr = nullptr;
+                    unsigned long parsedId = std::strtoul(stem.c_str(), &endPtr, 10);
+                    if (endPtr && endPtr != stem.c_str() && *endPtr == '\0' && parsedId > 0) {
+                        uint32_t appId = static_cast<uint32_t>(parsedId);
                         std::string err;
                         LOG_WARN("[AutoCrack:%u] Found leftover inflight manifest on init. Rolling back...\n", appId);
                         performRestore(appId, err);
-                    } catch (...) {}
+                    }
                 }
             }
         }

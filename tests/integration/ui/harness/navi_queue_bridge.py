@@ -15,7 +15,7 @@ import json
 import threading
 import time
 from typing import TYPE_CHECKING, Any, Optional
-from urllib.parse import unquote, urlparse
+from urllib.parse import unquote
 import urllib.request
 import urllib.error
 
@@ -26,13 +26,38 @@ if TYPE_CHECKING:
 
 class NaviQueueBridge:
     """
-    Bridge that emulates Navi's CDP polling loop (storeinject.cpp lines 701-744).
+    Bridge that emulates Navi's CDP polling loop (storeinject.cpp lines 701-744)
+    while isolating test queue items from any background C++ StoreInject polling.
     """
+
+    INSTALL_HOOK_EXPR = (
+        "(function(){"
+        "if (window.__naviQueueHooked) return true;"
+        "var existing = Array.isArray(window.__naviQueue) ? window.__naviQueue.splice(0) : [];"
+        "window.__naviTestQueue = (window.__naviTestQueue || []).concat(existing);"
+        "window.__naviQueue = {"
+        "    push: function(item) { return window.__naviTestQueue.push(item); },"
+        "    get length() { return 0; },"
+        "    splice: function() { return []; }"
+        "};"
+        "window.__naviQueueHooked = true;"
+        "return true;"
+        "})()"
+    )
+
+    RESTORE_HOOK_EXPR = (
+        "(function(){"
+        "window.__naviQueueHooked = false;"
+        "window.__naviTestQueue = [];"
+        "window.__naviQueue = [];"
+        "return true;"
+        "})()"
+    )
 
     DRAIN_EXPR = (
         "(function(){"
-        "var q=window.__naviQueue;"
-        "if(!q||!q.length) return '';"
+        "var q = window.__naviQueueHooked ? window.__naviTestQueue : window.__naviQueue;"
+        "if (!q || !q.length) return '';"
         "return encodeURIComponent(q.splice(0).join('\\n'));"
         "})()"
     )
@@ -45,12 +70,20 @@ class NaviQueueBridge:
         self._lock = threading.Lock()
         self.handled_count = 0
 
+    def install_hook(self) -> None:
+        """Install __naviQueue interception hook on the current Store target."""
+        try:
+            self.driver.evaluate(self.INSTALL_HOOK_EXPR, await_promise=False)
+        except Exception:
+            pass
+
     def poll_once(self) -> int:
         """
         Drain window.__naviQueue once and resolve pending requests.
         Returns count of resolved requests.
         """
         try:
+            self.install_hook()
             encoded = self.driver.evaluate(self.DRAIN_EXPR, await_promise=False)
         except Exception:
             return 0
@@ -89,10 +122,11 @@ class NaviQueueBridge:
             self.handled_count += count
         return count
 
-    def start(self, interval: float = 0.05) -> "NaviQueueBridge":
+    def start(self, interval: float = 0.03) -> "NaviQueueBridge":
         """Start background polling thread."""
         if self._running:
             return self
+        self.install_hook()
         self._running = True
 
         def _loop() -> None:
@@ -113,10 +147,13 @@ class NaviQueueBridge:
         if self._thread:
             self._thread.join(timeout=2.0)
             self._thread = None
+        try:
+            self.driver.evaluate(self.RESTORE_HOOK_EXPR, await_promise=False)
+        except Exception:
+            pass
 
     def __enter__(self) -> "NaviQueueBridge":
         return self.start()
 
     def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         self.stop()
-

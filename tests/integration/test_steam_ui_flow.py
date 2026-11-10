@@ -207,10 +207,21 @@ class SteamUIFlowTest(unittest.TestCase):
     def setUpClass(cls):
         cls.cdp = SteamCDPClient(CONFIG["port"])
 
-        # Auto-start Steam if not open
+        # Auto-start Steam if not open or if running without CEF debugging
         steam_was_started = False
-        if not cls.cdp.is_reachable() and not cls.is_steam_running():
-            if CONFIG["skip_if_no_steam"]:
+        if not cls.cdp.is_reachable():
+            if cls.is_steam_running():
+                log_info("Steam is running but CDP unreachable. Restarting with -cef-enable-debugging...")
+                try:
+                    subprocess.run(["pkill", "-u", str(os.getuid()), "-x", "steamwebhelper"], stdout=subprocess.DEVNULL)
+                    subprocess.run(["pkill", "-u", str(os.getuid()), "-x", "steam"], stdout=subprocess.DEVNULL)
+                    time.sleep(2.0)
+                    subprocess.run(["pkill", "-9", "-u", str(os.getuid()), "-x", "steam"], stdout=subprocess.DEVNULL)
+                    subprocess.run(["pkill", "-9", "-u", str(os.getuid()), "-x", "steamwebhelper"], stdout=subprocess.DEVNULL)
+                    time.sleep(1.0)
+                except Exception:
+                    pass
+            elif CONFIG["skip_if_no_steam"]:
                 raise unittest.SkipTest("Steam is not running and --skip-if-no-steam was specified.")
             cls.start_steam()
             steam_was_started = True
@@ -983,6 +994,8 @@ class SteamUIFlowTest(unittest.TestCase):
         """Sync LUAs collection, navigate to collection view, sort by Date Added to Library, and verify date headers."""
         log_step(f"Test 8: LUAs Collection Navigation, Date Added Sorting & Verification for AppID {CONFIG['appid']}")
         appid = CONFIG["appid"]
+        self.navigate_url(f"steam://nav/games/details/{appid}")
+        time.sleep(1.0)
         steam_target = self.cdp.find_target_by_title("Steam")
         self.assertIsNotNone(steam_target, "Steam target not found")
 
@@ -1192,19 +1205,27 @@ class SteamUIFlowTest(unittest.TestCase):
         for _ in range(20):
             open_modal_script = f"""
             (() => {{
-                if (window.__slsRefreshButtons) window.__slsRefreshButtons({CONFIG['appid']});
-                let btn = document.querySelector('.sls-change-provider-btn');
-                if (!btn) {{
-                    const naviBtn = document.querySelector('.sls-navi-btn');
-                    if (naviBtn) {{
-                        naviBtn.click();
-                        btn = document.querySelector('.sls-change-provider-btn, #sls-navi-btn-provider');
+                let modal = document.getElementById('sls-provider-modal');
+                if (!modal) {{
+                    if (window.__slsRefreshButtons && !document.getElementById('sls-navi-modal')) {{
+                        window.__slsRefreshButtons({CONFIG['appid']});
                     }}
+                    let btn = document.querySelector('.sls-change-provider-btn, #sls-navi-btn-provider');
+                    if (!btn) {{
+                        const naviBtn = document.querySelector('.sls-navi-btn');
+                        if (naviBtn && !document.getElementById('sls-navi-modal')) {{
+                            naviBtn.click();
+                            btn = document.querySelector('.sls-change-provider-btn, #sls-navi-btn-provider');
+                        }}
+                    }}
+                    if (!btn) return {{ success: false, reason: 'sls-change-provider-btn not found' }};
+                    if (!btn.dataset.slsClicked) {{
+                        btn.dataset.slsClicked = 'true';
+                        btn.click();
+                    }}
+                    modal = document.getElementById('sls-provider-modal');
+                    if (!modal) return {{ success: false, reason: 'sls-provider-modal did not appear yet' }};
                 }}
-                if (!btn) return {{ success: false, reason: 'sls-change-provider-btn not found' }};
-                btn.click();
-                const modal = document.getElementById('sls-provider-modal');
-                if (!modal) return {{ success: false, reason: 'sls-provider-modal did not appear' }};
 
                 const providers = Array.from(modal.querySelectorAll('[data-sls-provider-idx]')).map(b => ({{
                     idx: b.getAttribute('data-sls-provider-idx'),
@@ -1305,6 +1326,54 @@ class SteamUIFlowTest(unittest.TestCase):
         """)
         return bool(res)
 
+    @classmethod
+    def restart_steam_and_wait(cls, timeout=120):
+        """Gracefully restart the real Steam client so Navi re-registers licenses for newly added luas."""
+        log_info("Restarting real Steam client to apply pending lua license changes...")
+        steam_bin = shutil.which("steam") or "steam"
+        subprocess.run([steam_bin, "-shutdown"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=30)
+        deadline = time.time() + 60
+        while time.time() < deadline and cls.is_steam_running():
+            time.sleep(1)
+        cls.start_steam()
+        deadline = time.time() + timeout
+        while time.time() < deadline:
+            time.sleep(2)
+            if not cls.cdp.is_reachable():
+                continue
+            try:
+                shared = cls.cdp.find_target_by_title("SharedJSContext")
+                steam_win = cls.cdp.find_target_by_title("Steam")
+                if shared and steam_win:
+                    ok = cls.cdp.evaluate(shared["webSocketDebuggerUrl"],
+                        "!!(window.appStore && window.appStore.allApps && window.appStore.allApps.length && window.collectionStore)")
+                    if ok:
+                        time.sleep(3)
+                        log_info("Steam restarted and stores are ready.")
+                        return True
+            except Exception:
+                pass
+        return False
+
+    def install_failure_reason(self):
+        """Return the text of a native Steam install 'Failure' modal, if present."""
+        t = self.cdp.find_target_by_title("Steam")
+        if not t:
+            return None
+        try:
+            return self.cdp.evaluate(t["webSocketDebuggerUrl"], """
+            (() => {
+                const m = Array.from(document.querySelectorAll('.FullModalOverlay')).find(x => /error occurred while installing/i.test(x.innerText || ''));
+                if (!m) return null;
+                const txt = (m.innerText || '').trim();
+                const close = Array.from(m.querySelectorAll('button')).find(b => (b.innerText || '').trim() === 'Close');
+                if (close) close.click();
+                return txt;
+            })()
+            """)
+        except Exception:
+            return None
+
     def test_11_install_rogue_flow(self):
         """Test triggering install flow (steam://install/<appid>), handling dialogs, and strictly verifying installation."""
         log_step(f"Test 11: Test Steam Install Flow for AppID {CONFIG['appid']}")
@@ -1324,110 +1393,127 @@ class SteamUIFlowTest(unittest.TestCase):
             }})()
             """)
 
-        # 2. Trigger UI install navigation
-        self.navigate_url(f"steam://nav/games/details/{CONFIG['appid']}")
-        time.sleep(1.0)
-        self.navigate_url(f"steam://install/{CONFIG['appid']}")
-        time.sleep(1.0)
+        for attempt in range(2):
+            # 2. Trigger UI install navigation. Navi only grants licenses for luas present at Steam
+            # startup, so a freshly downloaded lua yields "No licenses" until the real client restarts.
+            self.navigate_url(f"steam://nav/games/details/{CONFIG['appid']}")
+            time.sleep(1.0)
+            self.navigate_url(f"steam://install/{CONFIG['appid']}")
+            time.sleep(1.0)
 
-        # 2a. Click native Steam install button ("Install" / "INSTALL" / "Next >")
-        clicked_native_install = False
-        for _ in range(10):
-            for t in self.cdp.get_targets():
-                ws = t.get("webSocketDebuggerUrl")
-                if not ws: continue
-                try:
-                    res = self.cdp.evaluate(ws, """
-                    (() => {
-                        const btn = Array.from(document.querySelectorAll('button, div[role="button"]')).find(b => {
-                            const t = (b.innerText || b.textContent || '').trim().toUpperCase();
-                            const cs = window.getComputedStyle(b);
-                            return (t === 'INSTALL' || t === 'NEXT >' || t === 'NEXT' || t === 'I AGREE' || t === 'FINISH') &&
-                                   b.id !== 'sls-depot-btn-download' && !b.closest('#sls-depot-modal') && !b.closest('#sls-depot-overlay-modal') &&
-                                   b.offsetParent !== null && cs.pointerEvents !== 'none';
-                        });
-                        if (btn) {
-                            btn.click();
-                            return (b => (b.innerText || b.textContent || '').trim())(btn);
-                        }
-                        return null;
-                    })()
-                    """)
-                except Exception:
-                    continue
-                if res:
-                    log_info(f"Clicked native Steam '{res}' button on target '{t.get('title')}'")
-                    clicked_native_install = True
-                    break
-            if clicked_native_install:
-                break
-            time.sleep(0.5)
-
-        # Confirm install dialog if open (excluding #sls-depot-overlay-modal which is handled in 2b)
-        time.sleep(0.5)
-        for _ in range(6):
-            confirmed = False
-            for t in self.cdp.get_targets():
-                ws = t.get("webSocketDebuggerUrl")
-                if not ws: continue
-                try:
-                    res = self.cdp.evaluate(ws, """
-                    (() => {
-                        if (document.getElementById('sls-depot-btn-download')) return '__DEPOT_READY__';
-                        const dialog = document.querySelector('dialog, .FullModalOverlay, .ModalPosition_Content');
-                        if (dialog && !dialog.querySelector('#sls-depot-btn-download')) {
-                            const btn = Array.from(dialog.querySelectorAll('button, div[role="button"]')).find(b => {
+            # 2a. Click native Steam install button ("Install" / "INSTALL" / "Next >")
+            clicked_native_install = False
+            for _ in range(10):
+                for t in self.cdp.get_targets():
+                    ws = t.get("webSocketDebuggerUrl")
+                    if not ws: continue
+                    try:
+                        res = self.cdp.evaluate(ws, """
+                        (() => {
+                            const btn = Array.from(document.querySelectorAll('button, div[role="button"]')).find(b => {
                                 const t = (b.innerText || b.textContent || '').trim().toUpperCase();
+                                const cs = window.getComputedStyle(b);
                                 return (t === 'INSTALL' || t === 'NEXT >' || t === 'NEXT' || t === 'I AGREE' || t === 'FINISH') &&
-                                       b.id !== 'sls-depot-btn-download' && !b.closest('#sls-depot-overlay-modal') && b.offsetParent !== null;
+                                       b.id !== 'sls-depot-btn-download' && !b.closest('#sls-depot-modal') && !b.closest('#sls-depot-overlay-modal') &&
+                                       b.offsetParent !== null && cs.pointerEvents !== 'none';
                             });
                             if (btn) {
                                 btn.click();
-                                return (btn.innerText || btn.textContent || '').trim();
+                                return (b => (b.innerText || b.textContent || '').trim())(btn);
                             }
-                        }
-                        return null;
-                    })()
-                    """)
-                except Exception:
-                    continue
-                if res == '__DEPOT_READY__':
-                    confirmed = True
+                            return null;
+                        })()
+                        """)
+                    except Exception:
+                        continue
+                    if res:
+                        log_info(f"Clicked native Steam '{res}' button on target '{t.get('title')}'")
+                        clicked_native_install = True
+                        break
+                if clicked_native_install:
                     break
-                if res:
-                    log_info(f"Confirmed modal install dialog via '{res}' on target '{t.get('title')}'")
-                    confirmed = True
-                    break
-            if confirmed:
-                break
-            time.sleep(0.5)
+                time.sleep(0.5)
 
-        # 2b. Click SLS custom depot download button (#sls-depot-btn-download)
-        clicked_depot_download = False
-        for _ in range(15):
-            for t in self.cdp.get_targets():
-                ws = t.get("webSocketDebuggerUrl")
-                if not ws: continue
-                try:
-                    res = self.cdp.evaluate(ws, """
-                    (() => {
-                        const cb = document.getElementById('sls-depot-btn-download');
-                        if (cb && !cb.disabled && typeof cb.onclick === 'function' && window.getComputedStyle(cb).pointerEvents !== 'none') {
-                            cb.click();
-                            return true;
-                        }
-                        return false;
-                    })()
-                    """)
-                except Exception:
-                    continue
-                if res:
-                    log_info(f"Clicked '#sls-depot-btn-download' on target '{t.get('title')}'")
-                    clicked_depot_download = True
-                    break
-            if clicked_depot_download:
-                break
+            # Confirm install dialog if open (excluding #sls-depot-overlay-modal which is handled in 2b)
             time.sleep(0.5)
+            for _ in range(20):
+                confirmed = False
+                _targets = self.cdp.get_targets()
+                _targets = sorted(_targets, key=lambda x: 0 if x.get("title") == "Steam" else 1)
+                for t in _targets:
+                    ws = t.get("webSocketDebuggerUrl")
+                    if not ws: continue
+                    try:
+                        res = self.cdp.evaluate(ws, """
+                        (() => {
+                            if (document.getElementById('sls-depot-btn-download')) return '__DEPOT_READY__';
+                            const dialog = document.querySelector('dialog, .FullModalOverlay, .ModalPosition_Content');
+                            if (dialog && !dialog.querySelector('#sls-depot-btn-download')) {
+                                const btn = Array.from(dialog.querySelectorAll('button, div[role="button"]')).find(b => {
+                                    const t = (b.innerText || b.textContent || '').trim().toUpperCase();
+                                    return (t === 'INSTALL' || t === 'NEXT >' || t === 'NEXT' || t === 'I AGREE' || t === 'FINISH') &&
+                                           b.id !== 'sls-depot-btn-download' && !b.closest('#sls-depot-overlay-modal') && b.offsetParent !== null;
+                                });
+                                if (btn) {
+                                    try { btn.focus(); } catch (e) {}
+                                    const o = {bubbles: true, cancelable: true, view: window, buttons: 1};
+                                    btn.dispatchEvent(new MouseEvent('mousedown', o));
+                                    btn.dispatchEvent(new MouseEvent('mouseup', o));
+                                    btn.dispatchEvent(new MouseEvent('click', o));
+                                    btn.click();
+                                    return (btn.innerText || btn.textContent || '').trim();
+                                }
+                            }
+                            return null;
+                        })()
+                        """)
+                    except Exception:
+                        continue
+                    if res == '__DEPOT_READY__':
+                        confirmed = True
+                        break
+                    if res:
+                        log_info(f"Confirmed modal install dialog via '{res}' on target '{t.get('title')}'")
+                        confirmed = True
+                        break
+                if confirmed:
+                    break
+                time.sleep(0.5)
+
+            # 2b. Click SLS custom depot download button (#sls-depot-btn-download)
+            clicked_depot_download = False
+            for _ in range(15):
+                for t in self.cdp.get_targets():
+                    ws = t.get("webSocketDebuggerUrl")
+                    if not ws: continue
+                    try:
+                        res = self.cdp.evaluate(ws, """
+                        (() => {
+                            const cb = document.getElementById('sls-depot-btn-download');
+                            if (cb && !cb.disabled && typeof cb.onclick === 'function' && window.getComputedStyle(cb).pointerEvents !== 'none') {
+                                cb.click();
+                                return true;
+                            }
+                            return false;
+                        })()
+                        """)
+                    except Exception:
+                        continue
+                    if res:
+                        log_info(f"Clicked '#sls-depot-btn-download' on target '{t.get('title')}'")
+                        clicked_depot_download = True
+                        break
+                if clicked_depot_download:
+                    break
+                time.sleep(0.5)
+
+            time.sleep(3.0)
+            failure = self.install_failure_reason()
+            if failure and "license" in failure.lower() and attempt == 0:
+                log_info(f"Native install failed: {failure!r} -> restarting Steam and retrying")
+                self.assertTrue(self.restart_steam_and_wait(), "Steam did not come back after restart")
+                continue
+            break
 
         # 3. Verify get-depots API endpoint returns valid depots for AppID
         depots_req = urllib.request.Request(f"http://127.0.0.1:{CONFIG['callback_port']}/get-depots?id={CONFIG['appid']}")
@@ -1481,6 +1567,7 @@ class SteamUIFlowTest(unittest.TestCase):
 
         self.assertIsNotNone(uninstall_target, "Native Steam 'Uninstall' confirmation dialog did not appear!")
         log_info("Detected native Steam 'Uninstall' dialog target.")
+        time.sleep(0.3)
 
         # Click 'Uninstall' button in modal with retry loop and full event dispatching
         click_script = """
@@ -1519,13 +1606,20 @@ class SteamUIFlowTest(unittest.TestCase):
 
         # 4. Wait for uninstall state change with polling (up to 20s)
         uninstalled = False
-        for _ in range(40):
+        for i in range(40):
             time.sleep(0.5)
             on_disk = self.is_app_installed_on_disk(CONFIG['appid'])
             in_steam = self.is_app_installed_in_steam(CONFIG['appid'])
             if not on_disk and not in_steam:
                 uninstalled = True
                 break
+            if i % 3 == 2:
+                utarget = self.cdp.find_target_by_title("Uninstall")
+                if utarget and utarget.get("webSocketDebuggerUrl"):
+                    try:
+                        self.cdp.evaluate(utarget["webSocketDebuggerUrl"], click_script)
+                    except Exception:
+                        pass
 
         self.assertTrue(uninstalled, f"Uninstall failed: appmanifest still on disk ({self.is_app_installed_on_disk(CONFIG['appid'])}) or appStore.installed is True ({self.is_app_installed_in_steam(CONFIG['appid'])})")
         log_pass("Steam uninstall flow completed and app was successfully uninstalled.")
@@ -1545,20 +1639,29 @@ class SteamUIFlowTest(unittest.TestCase):
         for _ in range(20):
             modal_cancel_script = f"""
             (() => {{
-                if (window.__slsRefreshButtons) window.__slsRefreshButtons({CONFIG['appid']});
-                let btn = document.querySelector('.sls-remove-lua-btn');
-                if (!btn) {{
-                    const naviBtn = document.querySelector('.sls-navi-btn');
-                    if (naviBtn) {{
-                        naviBtn.click();
-                        btn = document.querySelector('.sls-remove-lua-btn, #sls-navi-btn-remove');
+                let confirmBtn = document.getElementById('sls-remove-confirm');
+                let cancelBtn = document.getElementById('sls-remove-cancel');
+                if (!confirmBtn || !cancelBtn) {{
+                    if (window.__slsRefreshButtons && !document.getElementById('sls-navi-modal')) {{
+                        window.__slsRefreshButtons({CONFIG['appid']});
                     }}
+                    let btn = document.querySelector('.sls-remove-lua-btn, #sls-navi-btn-remove');
+                    if (!btn) {{
+                        const naviBtn = document.querySelector('.sls-navi-btn');
+                        if (naviBtn && !document.getElementById('sls-navi-modal')) {{
+                            naviBtn.click();
+                            btn = document.querySelector('.sls-remove-lua-btn, #sls-navi-btn-remove');
+                        }}
+                    }}
+                    if (!btn) return {{ success: false, reason: 'sls-remove-lua-btn not found' }};
+                    if (!btn.dataset.slsClicked) {{
+                        btn.dataset.slsClicked = 'true';
+                        btn.click();
+                    }}
+                    confirmBtn = document.getElementById('sls-remove-confirm');
+                    cancelBtn = document.getElementById('sls-remove-cancel');
+                    if (!confirmBtn || !cancelBtn) return {{ success: false, reason: 'Modal buttons missing' }};
                 }}
-                if (!btn) return {{ success: false, reason: 'sls-remove-lua-btn not found' }};
-                btn.click();
-                const confirmBtn = document.getElementById('sls-remove-confirm');
-                const cancelBtn = document.getElementById('sls-remove-cancel');
-                if (!confirmBtn || !cancelBtn) return {{ success: false, reason: 'Modal buttons missing' }};
 
                 cancelBtn.click();
                 const stillPresent = !!document.getElementById('sls-remove-confirm');

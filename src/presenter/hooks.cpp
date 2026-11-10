@@ -1101,11 +1101,12 @@ static uint32_t hkClientAppManager_UninstallApp(IClientAppManager* pClientAppMan
         return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
     }
 
+    const uint32_t ret = Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
+
     if (NativeInstall::isNative(appId))
     {
-        LOG_INFO("hkClientAppManager_UninstallApp: App %u is native, disarming and letting Steam uninstall natively\n", appId);
+        LOG_INFO("hkClientAppManager_UninstallApp: App %u is native, disarming and cleaning game files\n", appId);
         NativeInstall::disarm(appId);
-        return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
     }
 
     // Remove from our installed tracking so GetAppInstallState stops forcing FULLY_INSTALLED
@@ -1114,10 +1115,22 @@ static uint32_t hkClientAppManager_UninstallApp(IClientAppManager* pClientAppMan
     // Actually delete the files from disk, as Steam doesn't have proper depot info for custom installed games
     Apps::deleteGameFiles(appId);
 
-    return Hooks::IClientAppManager_UninstallApp.originalFn.fn(pClientAppManager, appId, bComplete);
+    // Steam's async uninstall worker may flush the in-memory ACF back to disk shortly after UninstallApp returns
+    try {
+        std::thread([appId]() {
+            std::this_thread::sleep_for(std::chrono::milliseconds(500));
+            Apps::deleteGameFiles(appId);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            Apps::deleteGameFiles(appId);
+        }).detach();
+    } catch (const std::exception& e) {
+        LOG_WARN("hkClientAppManager_UninstallApp: Failed to launch async cleanup thread: %s\n", e.what());
+    }
+
+    return ret;
 }
 
-static EAppState hkClientAppManager_GetAppInstallState(IClientAppManager* pClientAppManager, uint32_t appId)
+[[maybe_unused]] static EAppState hkClientAppManager_GetAppInstallState(IClientAppManager* pClientAppManager, uint32_t appId)
 {
     EAppState state = Hooks::IClientAppManager_GetAppInstallState.originalFn.fn(pClientAppManager, appId);
 
@@ -1196,7 +1209,7 @@ static bool hkClientApps_GetDLCDataByIndex(IClientApps* pClientApps, AppId_t app
 }
 
 __attribute__((hot))
-static void hkClientApps_RunIPCFrame(void* pClientApps, void* a1, void* a2, void* a3)
+[[maybe_unused]] static void hkClientApps_RunIPCFrame(void* pClientApps, void* a1, void* a2, void* a3)
 {
 	static bool hooked = false;
 	if (!hooked)
@@ -1292,7 +1305,7 @@ static bool hkClientRemoteStorage_IsCloudSyncOnSuspendEnabledForApp(void* pClien
 
 
 
-static void hkClientRemoteStorage_RunIPCFrame(void* pClientRemoteStorage, void* a1, void* a2, void* a3)
+[[maybe_unused]] static void hkClientRemoteStorage_RunIPCFrame(void* pClientRemoteStorage, void* a1, void* a2, void* a3)
 {
 
 	static bool hooked = false;
@@ -1312,7 +1325,7 @@ static void hkClientRemoteStorage_RunIPCFrame(void* pClientRemoteStorage, void* 
 	FakeAppIds::runIPCFrame(true, EIPCInterface::RemoteStorage);
 }
 
-static void hkClientUGC_RunIPCFrame(void* pClientUGC, void* a1, void* a2, void* a3)
+[[maybe_unused]] static void hkClientUGC_RunIPCFrame(void* pClientUGC, void* a1, void* a2, void* a3)
 {
 	//Workshop items
 	FakeAppIds::runIPCFrame(false, EIPCInterface::UGC);
@@ -1323,7 +1336,7 @@ static void hkClientUGC_RunIPCFrame(void* pClientUGC, void* a1, void* a2, void* 
 static uint32_t hkClientUtils_GetAppId(IClientUtils* pClientUtils);
 static bool hkClientUtils_GetOfflineMode(IClientUtils* pClientUtils);
 
-static void hkClientUtils_RunIPCFrame(void* pClientUtils, void* a1, void* a2, void* a3)
+[[maybe_unused]] static void hkClientUtils_RunIPCFrame(void* pClientUtils, void* a1, void* a2, void* a3)
 {
 	// Constant background monitoring moved to hkSteamEngine_ProcessIPCFrame
 

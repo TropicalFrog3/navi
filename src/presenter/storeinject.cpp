@@ -1720,11 +1720,10 @@ namespace StoreInject
                                         if (entry.is_regular_file() && entry.path().extension() == ".lua")
                                         {
                                             std::string stem = entry.path().stem().string();
-                                            try {
-                                                uint32_t aid = std::stoul(stem);
-                                                if (aid > 0)
-                                                    appIds.insert(aid);
-                                            } catch (...) {}
+                                            char* endPtr = nullptr;
+                                            unsigned long aid = std::strtoul(stem.c_str(), &endPtr, 10);
+                                            if (endPtr && endPtr != stem.c_str() && *endPtr == '\0' && aid > 0)
+                                                appIds.insert(static_cast<uint32_t>(aid));
                                         }
                                     }
                                 }
