@@ -1,0 +1,23 @@
+<div style="background:#1b2838;border:1px solid #2a475e;border-top:2px solid #66c0f4;border-radius:3px;width:880px;max-width:94vw;max-height:86vh;padding:22px 26px;color:#c6d4df;box-shadow:0 20px 50px rgba(0,0,0,0.85);display:flex;flex-direction:column;gap:14px;overflow:hidden;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+        <div>
+            <div style="font-size:11px;color:#8f98a0;margin-bottom:4px;letter-spacing:0.02em;">Home &gt; Account &gt; View Steam Cloud</div>
+            <h2 style="margin:0;font-size:24px;font-weight:400;color:#ffffff;letter-spacing:0.01em;">View Steam Cloud</h2>
+        </div>
+        <button id="navi-close-x" class="Focusable" tabindex="-1" style="background:transparent;border:none;color:#8f98a0;font-size:18px;cursor:pointer;padding:4px 8px;">✕</button>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:6px;border-bottom:1px solid #2a475e;">
+        <div>
+            <div id="navi-cloud-game-title" style="font-size:15px;font-weight:600;color:#ffffff;margin-bottom:4px;"></div>
+            <div style="font-size:12px;color:#8f98a0;">This game files are saved in your Steam Cloud :</div>
+        </div>
+        <div id="navi-cloud-actions" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"></div>
+    </div>
+    <div id="navi-cloud-status-toast" style="display:none;padding:8px 12px;border-radius:2px;font-size:12px;background:#16202d;border:1px solid #66c0f4;color:#66c0f4;"></div>
+    <div id="navi-cloud-table-region" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="Steam Cloud Files" style="flex:1;overflow-y:auto;min-height:220px;"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:6px;">
+        <span id="navi-cloud-summary-text" style="font-size:12px;color:#8f98a0;">Scanning cloud storage...</span>
+        <button id="navi-modal-cancel" class="Focusable" tabindex="-1" style="background:#32373d;color:#c6d4df;border:1px solid rgba(255,255,255,0.12);border-radius:2px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;">Close</button>
+    </div>
+</div>
+

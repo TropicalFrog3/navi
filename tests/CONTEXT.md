@@ -29,7 +29,7 @@ a RED test (`.agents/rules/test-regression.md`) before any `src/` change.
 | `inspect_store_ui.py` | Headless browser script inspecting Steam store DOM elements |
 | `integration/gate07_harness.cpp` | Gate 0.7 Bubblewrap integration test harness launcher |
 | `integration/mock_cloud_relay_server.py` | Mock HTTP server simulating remote cloud storage endpoints |
-| `integration/test_bundle_sync.py` | Tests verifying bundle-app-details.py stays in sync with sources |
+| `integration/test_bundle_sync.py` | Tests verifying bundle-app-details.py, bundle-cloud-manager.py, bundle-navi-inject.py, bundle-import-lua.py, bundle-depot-selection.py, and bundle-store-page.py stay in sync with sources |
 | `integration/test_cloudredirect_integration.py` | Integration tests for CloudRedirect save diversion and runbook |
 | `integration/test_installer.py` | Integration tests for install.sh script logic and directory layout |
 | `integration/test_migration.py` | Integration tests verifying config and cache schema migrations |

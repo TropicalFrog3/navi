@@ -25,6 +25,11 @@ wire tool outputs into `src/` releases without a spec from the `plans/` workspac
 | File | Purpose |
 |---|---|
 | `bundle-app-details.py` | Bundles modular app-details JS and HTML into monolithic inject script. |
+| `bundle-cloud-manager.py` | Bundles modular cloud-manager JS, HTML, and CSS into monolithic inject script. |
+| `bundle-depot-selection.py` | Bundles modular depot-selection JS, HTML, and CSS into monolithic inject script. |
+| `bundle-import-lua.py` | Bundles modular import-lua JS, HTML, and CSS into monolithic inject script. |
+| `bundle-navi-inject.py` | Bundles modular navi-inject JS and HTML into monolithic inject script. |
+| `bundle-store-page.py` | Bundles modular store-page JS, HTML, and CSS into monolithic inject script. |
 | `cef-annotator/annotator.py` | Visual annotation server and overlay for Steam CEF UI inspection |
 | `cloud_pending/cloud_pending_main.cpp` | Out-of-process idle helper executable applying queued save ops |
 | `library-inject/inject_main.cpp` | Lightweight LD_PRELOAD injection helper for library hook testing |

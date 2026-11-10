@@ -1,0 +1,40 @@
+<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">
+    <!-- Title bar -->
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+        <div>
+            <h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">API Credentials</h2>
+            <p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: {{APPID}}</p>
+        </div>
+        <button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>
+    </div>
+    <!-- API Settings Section -->
+    <div>
+        <div style="margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">
+                <span>HubcapDB API Key</span>
+                <a href="https://hubcapmanifest.com/" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>
+            </div>
+            <input id="sls-hubcap" type="text" value="{{HUBCAP_KEY}}" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:'Motiva Sans', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>
+        </div>
+        <div style="margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">
+                <span>Ryuu API Key</span>
+                <a href="https://generator.ryuu.lol/" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>
+            </div>
+            <input id="sls-ryuu" type="text" value="{{RYUU_KEY}}" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:'Motiva Sans', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>
+        </div>
+        <div style="margin-bottom:24px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">
+                <span>DepotBox API Key</span>
+                <a href="https://depotbox.org/pricing" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>
+            </div>
+            <input id="sls-dpbx" type="text" value="{{DPBX_KEY}}" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:'Motiva Sans', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>
+        </div>
+    </div>
+    <!-- Footer Actions -->
+    <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <button id="sls-btn-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>
+        <button id="sls-btn-save" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: #06bfff; color: #fff;">Save Keys</button>
+    </div>
+</div>
+

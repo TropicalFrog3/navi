@@ -3,6 +3,33 @@
  * @brief Injects unlock and depot download buttons into Steam store pages
  */
 (function() {
+    // Inlined Styles & Templates
+    var SLS_STORE_STYLES = "@keyframes slsShimmer {\n  0% { background-position: -200% 0; }\n  100% { background-position: 200% 0; }\n}\n\n.sls-bar-host {\n  position: relative;\n  overflow: hidden;\n}\n\n.sls-bar-fill {\n  position: absolute;\n  top: 0;\n  left: 0;\n  height: 100%;\n  width: 0%;\n  border-radius: inherit;\n  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.35) 50%, rgba(16, 185, 129, 0.15) 100%),\n              linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);\n  background-size: 100% 100%, 200% 100%;\n  animation: slsShimmer 2.5s infinite linear;\n  box-shadow: inset 0 0 12px rgba(52, 211, 153, 0.3), 0 0 8px rgba(16, 185, 129, 0.4);\n  border-right: 2px solid rgba(52, 211, 153, 0.8);\n  transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;\n  pointer-events: none;\n  z-index: 0;\n}\n\n.sls-bar-fill.sls-bar-fail {\n  background: linear-gradient(90deg, rgba(225, 29, 72, 0.2) 0%, rgba(244, 63, 94, 0.4) 50%, rgba(225, 29, 72, 0.2) 100%),\n              linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);\n  background-size: 100% 100%, 200% 100%;\n  box-shadow: inset 0 0 12px rgba(244, 63, 94, 0.35), 0 0 10px rgba(225, 29, 72, 0.5);\n  border-right: 2px solid rgba(244, 63, 94, 0.9);\n}\n\n.sls-bar-fill.sls-bar-done {\n  background: linear-gradient(90deg, rgba(16, 185, 129, 0.35) 0%, rgba(52, 211, 153, 0.55) 100%);\n  box-shadow: inset 0 0 16px rgba(52, 211, 153, 0.5), 0 0 12px rgba(16, 185, 129, 0.6);\n  border-right: 2px solid rgba(52, 211, 153, 1);\n}\n\n.sls-bar-host > a {\n  position: relative;\n  z-index: 1;\n}\n\n#sls-provider-rows::-webkit-scrollbar {\n  width: 6px;\n}\n\n#sls-provider-rows::-webkit-scrollbar-track {\n  background: rgba(0, 0, 0, 0.2);\n  border-radius: 3px;\n}\n\n#sls-provider-rows::-webkit-scrollbar-thumb {\n  background: rgba(172, 178, 201, 0.3);\n  border-radius: 3px;\n}\n\n#sls-provider-rows::-webkit-scrollbar-thumb:hover {\n  background: rgba(172, 178, 201, 0.5);\n}\n\n.sls-btn-action {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  background: rgba(172, 178, 201, 0.14);\n  color: rgb(220, 222, 223);\n  border: none;\n  border-radius: 2px;\n  padding: 6px 14px;\n  font-size: 15px;\n  font-weight: 400;\n  font-family: \"Motiva Sans\", sans-serif;\n  height: 42px;\n  box-sizing: border-box;\n  cursor: pointer;\n  text-decoration: none;\n  transition: background 0.1s ease;\n}\n\n.sls-btn-action:not(:disabled):hover {\n  background: rgba(172, 178, 201, 0.25);\n}\n\n.sls-btn-action:not(:disabled):active {\n  background: rgba(172, 178, 201, 0.30);\n}\n\nbutton[data-sls-provider-download]:hover {\n  background: #2d73ff !important;\n}\n\n.sls-btn-close {\n  background: transparent;\n  border: none;\n  color: #969696;\n  font-size: 24px;\n  cursor: pointer;\n  width: 32px;\n  height: 32px;\n  border-radius: 2px;\n  display: flex;\n  align-items: center;\n  justify-content: center;\n  transition: background 0.1s ease;\n  flex-shrink: 0;\n}\n\n.sls-btn-close:hover {\n  background: rgba(172, 178, 201, 0.14);\n  color: #fff;\n}\n\nbutton:disabled {\n  opacity: 0.5;\n  cursor: default;\n}\n\n#sls-rm-confirm:hover {\n  background: rgba(220, 38, 38, 1) !important;\n}\n\n#sls-btn-save:hover {\n  background: #2d73ff !important;\n}\n\n#sls-hubcap:focus,\n#sls-ryuu:focus,\n#sls-dpbx:focus {\n  border-color: #6366f1 !important;\n}\n\n";
+    var PROVIDER_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 6px; padding: 18px 22px; width: 680px; max-width:calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; box-sizing: border-box;\" id=\"sls-modal-card\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-shrink:0;\">\n        <div>\n            <h2 style=\"margin:0; font-size:20px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">Lua download provider</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-provider-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <div id=\"sls-provider-rows\" style=\"flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 6px; padding-left: 2px; padding-top: 2px; padding-bottom: 2px; display: flex; flex-direction: column; gap: 6px; overscroll-behavior: contain;\">\n        {{PROVIDER_ROWS}}\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-shrink:0;\">\n        <button id=\"sls-clear-app-cache\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"flex:1;height:40px;font-size:14px;\">Clear App Cache</button>\n        <button id=\"sls-clear-all-cache\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"flex:1;height:40px;font-size:14px;\">Clear All Cache</button>\n        <button id=\"sls-auto-search\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"flex:1;height:40px;font-size:14px;background:#06bfff;color:#fff;\">Auto Download</button>\n    </div>\n</div>\n\n";
+    var REMOVE_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <h2 style=\"margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Remove Lua</h2>\n    <p style=\"margin:0 0 24px;font-size:16px;color:#969696;\">Remove Lua and Game files for AppID <b>{{APPID}}</b>?</p>\n    <div style=\"display:flex;flex-direction:column;gap:10px;\">\n        <div style=\"display:flex;gap:10px;\">\n            <button id=\"sls-rm-clear-app-cache\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"flex:1;padding:0 12px;height:36px;font-size:13px;\">Clear App Cache</button>\n            <button id=\"sls-rm-clear-all-cache\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"flex:1;padding:0 12px;height:36px;font-size:13px;\">Clear All Cache</button>\n        </div>\n        <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n            <button id=\"sls-rm-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Cancel</button>\n            <button id=\"sls-rm-confirm\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;\">Remove</button>\n        </div>\n    </div>\n</div>\n\n";
+    var CONFIG_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-modal-card\">\n    <!-- Title bar -->\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">API Credentials</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-close-x\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <!-- API Settings Section -->\n    <div>\n        <div style=\"margin-bottom:16px;\">\n            <div style=\"display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;\">\n                <span>HubcapDB API Key</span>\n                <a href=\"https://hubcapmanifest.com/\" class=\"Focusable\" tabindex=\"-1\" role=\"button\" target=\"_blank\" style=\"color:#06bfff; text-decoration:none; transition: color 0.2s;\">Get Key</a>\n            </div>\n            <input id=\"sls-hubcap\" type=\"text\" value=\"{{HUBCAP_KEY}}\" style=\"width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:'Motiva Sans', sans-serif; font-size:14px; outline:none; transition: all 0.2s;\" placeholder=\"Optional...\"/>\n        </div>\n        <div style=\"margin-bottom:16px;\">\n            <div style=\"display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;\">\n                <span>Ryuu API Key</span>\n                <a href=\"https://generator.ryuu.lol/\" class=\"Focusable\" tabindex=\"-1\" role=\"button\" target=\"_blank\" style=\"color:#06bfff; text-decoration:none; transition: color 0.2s;\">Get Key</a>\n            </div>\n            <input id=\"sls-ryuu\" type=\"text\" value=\"{{RYUU_KEY}}\" style=\"width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:'Motiva Sans', sans-serif; font-size:14px; outline:none; transition: all 0.2s;\" placeholder=\"Optional...\"/>\n        </div>\n        <div style=\"margin-bottom:24px;\">\n            <div style=\"display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;\">\n                <span>DepotBox API Key</span>\n                <a href=\"https://depotbox.org/pricing\" class=\"Focusable\" tabindex=\"-1\" role=\"button\" target=\"_blank\" style=\"color:#06bfff; text-decoration:none; transition: color 0.2s;\">Get Key</a>\n            </div>\n            <input id=\"sls-dpbx\" type=\"text\" value=\"{{DPBX_KEY}}\" style=\"width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:'Motiva Sans', sans-serif; font-size:14px; outline:none; transition: all 0.2s;\" placeholder=\"Optional...\"/>\n        </div>\n    </div>\n    <!-- Footer Actions -->\n    <div style=\"display:flex; justify-content:flex-end; gap:10px;\">\n        <button id=\"sls-btn-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Cancel</button>\n        <button id=\"sls-btn-save\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px; background: #06bfff; color: #fff;\">Save Keys</button>\n    </div>\n</div>\n\n";
+
+    // --- styles.js ---
+    /**
+     * @file  styles.js
+     * @brief Dynamic stylesheet injection for store page elements and modals
+     */
+    function ensureStoreStyles() {
+        if (document.getElementById('sls-bar-style')) return;
+        var s = document.createElement('style');
+        s.id = 'sls-bar-style';
+        s.textContent = SLS_STORE_STYLES;
+        document.head.appendChild(s);
+    }
+
+    // Alias for backward-compatibility with internal call sites
+    var injectLoadingBarStyles = ensureStoreStyles;
+
+    // --- cdp-bridge.js ---
+    /**
+     * @file  cdp-bridge.js
+     * @brief CDP communication bridge and network request helpers for store pages
+     */
     if (window.__slsLuaBtnAdded) return;
     window.__slsLuaBtnAdded = true;
     console.log('[SLS] Store Page Script Triggered');
@@ -10,8 +37,6 @@
     function ping(msg) { console.log('[SLS] StorePage: ' + msg); }
 
     ping('Script active on: ' + window.location.href);
-
-    var observer = null;
 
     // ── Backend bridge ────────────────────────────────────────────────────
     // store.steampowered.com's CSP (default-src https:) blocks fetch() to
@@ -63,8 +88,20 @@
             window.__naviQueue.push(id + ' ' + path);
         });
     }
-    var debounceTimer = null;
 
+    function naviRequest(path, params) {
+        var qs = Object.keys(params || {}).map(function (k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+        return naviFetch('http://127.0.0.1:9001' + path + (qs ? '?' + qs : ''))
+            .then(function (r) { return r.ok ? r.json().catch(function () { return {}; }) : Promise.reject(r.status); });
+    }
+
+    // --- gamepad.js ---
+    /**
+     * @file  gamepad.js
+     * @brief Steam Deck and controller navigation focus trapping for store page modals and buttons
+     */
     function trapSteamGamepadModal(overlay, buttons) {
         var isGrid = Array.isArray(buttons[0]);
         var grid = isGrid ? buttons : buttons.map(function(b) { return [b]; });
@@ -157,7 +194,7 @@
         };
 
         overlay.__slsCleanup = cleanup;
-        
+
         function gamepadCatcher(e) {
             if (!document.body.contains(overlay)) {
                 cleanup();
@@ -166,22 +203,22 @@
             e.stopPropagation(); if(e.cancelable) e.preventDefault();
             var dir = e.detail ? e.detail.button : null;
             var startR = activeR, startC = activeC;
-            
+
             function move(dr, dc) {
                 var newR = activeR, newC = activeC;
                 var attempts = 0;
                 var maxAttempts = grid.length * 10;
-                
+
                 // Calculate alignment from the RIGHT side to handle ragged rows
                 var targetOffsetRight = grid[activeR].length - 1 - activeC;
-                
+
                 while (attempts < maxAttempts) {
                     attempts++;
                     if (dr !== 0) {
                         newR += dr;
                         if (newR < 0) newR = grid.length - 1;
                         if (newR >= grid.length) newR = 0;
-                        
+
                         // Apply right-alignment to the new row
                         newC = grid[newR].length - 1 - targetOffsetRight;
                         if (newC < 0) newC = 0; // Clamp to left if new row is too short
@@ -205,7 +242,7 @@
             else if (dir === 10 || dir === 15) move(1, 0); // Down
             else if (dir === 11 || dir === 16) move(0, -1); // Left
             else if (dir === 12 || dir === 17) move(0, 1); // Right
-            
+
             updateFocus();
         }
         function okCatcher(e) {
@@ -265,6 +302,11 @@
         }
     }
 
+    // --- provider-config.js ---
+    /**
+     * @file  provider-config.js
+     * @brief Lua provider settings, API key synchronization, and download request dispatcher
+     */
     // Cache of app unlock status: { appid: { exists, pending, onlineFixInstalled, autoCrackInstalled } }
     var appUnlockStatus = {};
 
@@ -359,14 +401,6 @@
             });
     }
 
-    function naviRequest(path, params) {
-        var qs = Object.keys(params || {}).map(function (k) {
-            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
-        }).join('&');
-        return naviFetch('http://127.0.0.1:9001' + path + (qs ? '?' + qs : ''))
-            .then(function (r) { return r.ok ? r.json().catch(function () { return {}; }) : Promise.reject(r.status); });
-    }
-
     function sendApiKeys() {
         var ryuu = configApiKeys['sls-ryuu-key'] || '';
         var dpbx = configApiKeys['sls-dpbx-key'] || '';
@@ -382,6 +416,11 @@
         return naviRequest('/download', params);
     }
 
+    // --- download-tracker.js ---
+    /**
+     * @file  download-tracker.js
+     * @brief Progress tracking, row loading bar animations, and download session state management
+     */
     // ── Row loading bar ───────────────────────────────────────────────────
     // Phases reported via pushStatus (button span text) → progress milestones.
     // Between milestones the bar crawls automatically; it snaps forward when the
@@ -397,45 +436,6 @@
         { match: /installed/i,   pct: 100 },
     ];
     var SLS_FAIL_TEXTS = /not available|failed|not found|steam not|no api|no decryption key|missing decryption key/i;
-
-    function injectLoadingBarStyles() {
-        if (document.getElementById('sls-bar-style')) return;
-        var s = document.createElement('style');
-        s.id = 'sls-bar-style';
-        s.textContent = [
-            '@keyframes slsShimmer {',
-            '  0% { background-position: -200% 0; }',
-            '  100% { background-position: 200% 0; }',
-            '}',
-            '.sls-bar-host { position:relative; overflow:hidden; }',
-            '.sls-bar-fill {',
-            '  position:absolute; top:0; left:0; height:100%;',
-            '  width:0%; border-radius:inherit;',
-            '  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.35) 50%, rgba(16, 185, 129, 0.15) 100%),',
-            '              linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);',
-            '  background-size: 100% 100%, 200% 100%;',
-            '  animation: slsShimmer 2.5s infinite linear;',
-            '  box-shadow: inset 0 0 12px rgba(52, 211, 153, 0.3), 0 0 8px rgba(16, 185, 129, 0.4);',
-            '  border-right: 2px solid rgba(52, 211, 153, 0.8);',
-            '  transition: width 0.55s cubic-bezier(0.4,0,0.2,1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;',
-            '  pointer-events:none; z-index:0;',
-            '}',
-            '.sls-bar-fill.sls-bar-fail {',
-            '  background: linear-gradient(90deg, rgba(225, 29, 72, 0.2) 0%, rgba(244, 63, 94, 0.4) 50%, rgba(225, 29, 72, 0.2) 100%),',
-            '              linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%);',
-            '  background-size: 100% 100%, 200% 100%;',
-            '  box-shadow: inset 0 0 12px rgba(244, 63, 94, 0.35), 0 0 10px rgba(225, 29, 72, 0.5);',
-            '  border-right: 2px solid rgba(244, 63, 94, 0.9);',
-            '}',
-            '.sls-bar-fill.sls-bar-done {',
-            '  background: linear-gradient(90deg, rgba(16, 185, 129, 0.35) 0%, rgba(52, 211, 153, 0.55) 100%);',
-            '  box-shadow: inset 0 0 16px rgba(52, 211, 153, 0.5), 0 0 12px rgba(16, 185, 129, 0.6);',
-            '  border-right: 2px solid rgba(52, 211, 153, 1);',
-            '}',
-            '.sls-bar-host > a { position:relative; z-index:1; }',
-        ].join('\n');
-        document.head.appendChild(s);
-    }
 
     /**
      * Attach a loading bar to `luaLink`'s parent wrapper and poll the span
@@ -850,8 +850,28 @@
         }
     }
 
+    /**
+     * Called by the C++ side via CDP injection when a download completes or
+     * fails while the store page is open (i.e. pushStatus calls come through
+     * as innerText changes on the button span).  The loading bar already polls
+     * those text changes via startRowLoadingBar — no extra wiring needed here.
+     * This hook exists so any future direct-JS callers can still trigger bars.
+     */
+    function slsTriggerLoadingBar(productID) {
+        var btn  = document.querySelector('.sls-lua-btn[data-sls-appid="' + productID + '"]');
+        var link = btn ? btn.querySelector('a') : null;
+        if (btn && link) startRowLoadingBar(btn, link);
+    }
+    window.slsTriggerLoadingBar = slsTriggerLoadingBar;
+
+    // --- modals.js ---
+    /**
+     * @file  modals.js
+     * @brief Modal controllers for Lua provider configuration, removal confirmation, and API credentials
+     */
     function openLuaProviderConfig(appid) {
         if (document.getElementById('sls-overlay-modal')) return;
+        ensureStoreStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
         overlay.setAttribute('role', 'dialog');
@@ -869,7 +889,7 @@
             var apiKey = configApiKeys[provider.key] || '';
             var getKeyBtn = (provider.url && provider.url !== '#') ?
                 '<button data-sls-getkey="' + providerIndex + '" class="Focusable" tabindex="-1" role="button" title="Get API Key" style="color:#dcdedf;font-size:12px;margin-left:4px;padding:2px 8px;border:1px solid #3d4450;border-radius:2px;background:rgba(172,178,201,0.14);cursor:pointer;white-space:nowrap;flex-shrink:0;">Get Key</button>' : '';
-                
+
             rows += '<div data-sls-provider="' + providerIndex + '" style="position:relative;overflow:hidden;display:flex;align-items:center;gap:8px;padding:10px 12px;background:rgba(0,0,0,0.2);border:1px solid rgba(172,178,201,0.1);border-radius:4px;flex-shrink:0;box-sizing:border-box;">' +
                 '<strong style="padding-left:4px;position:relative;z-index:1;flex:1;min-width:70px;color:#dcdedf;font-size:15px;font-family:\'Motiva Sans\', sans-serif;font-weight:400;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + provider.name + '</strong>' +
                 '<div style="position:relative;z-index:1;display:flex;align-items:center;gap:6px;min-width:180px;max-width:240px;flex:1.2;border:1px solid #3d4450;border-radius:2px;padding:3px 8px;background:rgba(0,0,0,0.4);box-sizing:border-box;">' +
@@ -884,29 +904,9 @@
                 '<button data-sls-provider-download="' + providerIndex + '" class="sls-btn-action Focusable" tabindex="-1" role="button" style="position:relative;z-index:1;height:32px;padding:0 14px;font-size:13px;background:#06bfff;color:#fff;flex-shrink:0;">Download</button>' +
                 '</div>';
         });
-        overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 6px; padding: 18px 22px; width: 680px; max-width:calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.6); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; box-sizing: border-box;" id="sls-modal-card">' +
-            '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;flex-shrink:0;">' +
-            '<div><h2 style="margin:0; font-size:20px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Lua download provider</h2><p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appid + '</p></div>' +
-            '<button id="sls-provider-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button></div>' +
-            '<div id="sls-provider-rows" style="flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; padding-right: 6px; padding-left: 2px; padding-top: 2px; padding-bottom: 2px; display: flex; flex-direction: column; gap: 6px; overscroll-behavior: contain;">' + rows + '</div>' +
-            '<div style="display:flex;justify-content:flex-end;gap:10px;margin-top:14px;flex-shrink:0;">' +
-            '<button id="sls-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;">Clear App Cache</button>' +
-            '<button id="sls-clear-all-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;">Clear All Cache</button>' +
-            '<button id="sls-auto-search" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;height:40px;font-size:14px;background:#06bfff;color:#fff;">Auto Download</button></div>' +
-            '<style>' +
-            ' #sls-provider-rows::-webkit-scrollbar { width: 6px; }' +
-            ' #sls-provider-rows::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 3px; }' +
-            ' #sls-provider-rows::-webkit-scrollbar-thumb { background: rgba(172, 178, 201, 0.3); border-radius: 3px; }' +
-            ' #sls-provider-rows::-webkit-scrollbar-thumb:hover { background: rgba(172, 178, 201, 0.5); }' +
-            ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 6px 14px; font-size: 15px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 42px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-            ' .sls-btn-action:not(:disabled):hover { background: rgba(172, 178, 201, 0.25); }' +
-            ' .sls-btn-action:not(:disabled):active { background: rgba(172, 178, 201, 0.30); }' +
-            ' button[data-sls-provider-download]:hover { background: #2d73ff !important; }' +
-            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; flex-shrink: 0; }' +
-            ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }' +
-            ' button:disabled { opacity: 0.5; cursor: default; }' +
-            '</style>' +
-            '</div>';
+        overlay.innerHTML = PROVIDER_MODAL_HTML
+            .replace('{{APPID}}', appid)
+            .replace('{{PROVIDER_ROWS}}', rows);
         document.body.appendChild(overlay);
         syncModalUI(appid);
 
@@ -1068,35 +1068,6 @@
         });
     }
 
-    function setupDownloadButton(luaLink, luaBtn, productID, cartBtn) {
-        var span = luaLink.querySelector('span');
-        if (span) span.innerText = 'Download Lua';
-        luaLink.style.filter = 'hue-rotate(110deg) brightness(1.2)';
-        luaLink.style.pointerEvents = '';
-        luaLink.style.opacity = '';
-        luaLink.onclick = function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            luaBtn.dataset.slsAppid = productID;
-            ping('Lua Click: ' + productID);
-            openLuaProviderConfig(productID);
-        };
-    }
-
-    /**
-     * Called by the C++ side via CDP injection when a download completes or
-     * fails while the store page is open (i.e. pushStatus calls come through
-     * as innerText changes on the button span).  The loading bar already polls
-     * those text changes via startRowLoadingBar — no extra wiring needed here.
-     * This hook exists so any future direct-JS callers can still trigger bars.
-     */
-    function slsTriggerLoadingBar(productID) {
-        var btn  = document.querySelector('.sls-lua-btn[data-sls-appid="' + productID + '"]');
-        var link = btn ? btn.querySelector('a') : null;
-        if (btn && link) startRowLoadingBar(btn, link);
-    }
-    window.slsTriggerLoadingBar = slsTriggerLoadingBar;
-
     function setupRemoveButton(luaLink, luaBtn, productID, cartBtn) {
         var span = luaLink.querySelector('span');
         if (span) span.innerText = 'Already installed';
@@ -1109,32 +1080,14 @@
 
             // Show confirmation modal
             if (document.getElementById('sls-remove-overlay')) return;
+            ensureStoreStyles();
             var overlay = document.createElement('div');
             overlay.id = 'sls-remove-overlay';
             overlay.setAttribute('role', 'dialog');
             overlay.setAttribute('aria-modal', 'true');
             overlay.setAttribute('data-testid', 'sls-remove-overlay');
             overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
-            overlay.innerHTML = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf;">' +
-                '<h2 style="margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Remove Lua</h2>' +
-                '<p style="margin:0 0 24px;font-size:16px;color:#969696;">Remove Lua and Game files for AppID <b>' + productID + '</b>?</p>' +
-                '<div style="display:flex;flex-direction:column;gap:10px;">' +
-                    '<div style="display:flex;gap:10px;">' +
-                        '<button id="sls-rm-clear-app-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;padding:0 12px;height:36px;font-size:13px;">Clear App Cache</button>' +
-                        '<button id="sls-rm-clear-all-cache" class="sls-btn-action Focusable" tabindex="-1" role="button" style="flex:1;padding:0 12px;height:36px;font-size:13px;">Clear All Cache</button>' +
-                    '</div>' +
-                    '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-                        '<button id="sls-rm-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
-                        '<button id="sls-rm-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;">Remove</button>' +
-                    '</div>' +
-                '</div>' +
-                '<style>' +
-                ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-                ' .sls-btn-action:hover { background: rgba(172, 178, 201, 0.25); }' +
-                ' .sls-btn-action:active { background: rgba(172, 178, 201, 0.30); }' +
-                ' #sls-rm-confirm:hover { background: rgba(220, 38, 38, 1) !important; }' +
-                '</style>' +
-            '</div>';
+            overlay.innerHTML = REMOVE_MODAL_HTML.replace(/\{\{APPID\}\}/g, productID);
             document.body.appendChild(overlay);
 
             var rmClearAppBtn = document.getElementById('sls-rm-clear-app-cache');
@@ -1180,6 +1133,7 @@
 
     function openSlsConfig(appid) {
         if (document.getElementById('sls-overlay-modal')) return;
+        ensureStoreStyles();
         var overlay = document.createElement('div');
         overlay.id = 'sls-overlay-modal';
         overlay.setAttribute('role', 'dialog');
@@ -1190,57 +1144,12 @@
         var currentDpbx = configApiKeys['sls-dpbx-key'] || '';
         var currentHubcap = configApiKeys['sls-hubcap-key'] || '';
 
-        var cardHtml = '<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-width: calc(100% - 32px); max-height: 85vh; max-height: calc(100vh - 40px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: \'Motiva Sans\', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-modal-card">' +
-            '<!-- Title bar -->' +
-            '<div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">' +
-                '<div>' +
-                    '<h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">API Credentials</h2>' +
-                    '<p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: ' + appid + '</p>' +
-                '</div>' +
-                '<button id="sls-close-x" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>' +
-            '</div>' +
-            '<!-- API Settings Section -->' +
-            '<div>' +
-                '<div style="margin-bottom:16px;">' +
-                    '<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">' +
-                        '<span>HubcapDB API Key</span>' +
-                        '<a href="https://hubcapmanifest.com/" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>' +
-                    '</div>' +
-                    '<input id="sls-hubcap" type="text" value="' + currentHubcap + '" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:\'Motiva Sans\', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>' +
-                '</div>' +
-                '<div style="margin-bottom:16px;">' +
-                    '<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">' +
-                        '<span>Ryuu API Key</span>' +
-                        '<a href="https://generator.ryuu.lol/" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>' +
-                    '</div>' +
-                    '<input id="sls-ryuu" type="text" value="' + currentRyuu + '" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:\'Motiva Sans\', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>' +
-                '</div>' +
-                '<div style="margin-bottom:24px;">' +
-                    '<div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:12px; font-weight:600; color:#969696;">' +
-                        '<span>DepotBox API Key</span>' +
-                        '<a href="https://depotbox.org/pricing" class="Focusable" tabindex="-1" role="button" target="_blank" style="color:#06bfff; text-decoration:none; transition: color 0.2s;">Get Key</a>' +
-                    '</div>' +
-                    '<input id="sls-dpbx" type="text" value="' + currentDpbx + '" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,0.4); border:1px solid #3d4450; color:#dcdedf; padding:10px 14px; border-radius:2px; font-family:\'Motiva Sans\', sans-serif; font-size:14px; outline:none; transition: all 0.2s;" placeholder="Optional..."/>' +
-                '</div>' +
-            '</div>' +
-            '<!-- Footer Actions -->' +
-            '<div style="display:flex; justify-content:flex-end; gap:10px;">' +
-                '<button id="sls-btn-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px;">Cancel</button>' +
-                '<button id="sls-btn-save" class="sls-btn-action Focusable" tabindex="-1" role="button" style="padding: 0 24px; height: 36px; background: #06bfff; color: #fff;">Save Keys</button>' +
-            '</div>' +
-        '</div>';
+        overlay.innerHTML = CONFIG_MODAL_HTML
+            .replace('{{APPID}}', appid)
+            .replace('{{HUBCAP_KEY}}', currentHubcap)
+            .replace('{{RYUU_KEY}}', currentRyuu)
+            .replace('{{DPBX_KEY}}', currentDpbx);
 
-        overlay.innerHTML = cardHtml;
-        var style = document.createElement('style');
-        style.textContent = ' .sls-btn-action { display: flex; justify-content: center; align-items: center; background: rgba(172, 178, 201, 0.14); color: rgb(220, 222, 223); border: none; border-radius: 2px; padding: 8px 16px; font-size: 16px; font-weight: 400; font-family: "Motiva Sans", sans-serif; height: 48px; box-sizing: border-box; cursor: pointer; text-decoration: none; transition: background 0.1s ease; }' +
-            ' .sls-btn-action:not(:disabled):hover { background: rgba(172, 178, 201, 0.25); }' +
-            ' .sls-btn-action:not(:disabled):active { background: rgba(172, 178, 201, 0.30); }' +
-            ' #sls-btn-save:hover { background: #2d73ff !important; }' +
-            ' .sls-btn-close { background: transparent; border: none; color: #969696; font-size: 24px; cursor: pointer; width: 32px; height: 32px; border-radius: 2px; display: flex; align-items: center; justify-content: center; transition: background 0.1s ease; }' +
-            ' .sls-btn-close:hover { background: rgba(172, 178, 201, 0.14); color: #fff; }' +
-            ' #sls-hubcap:focus, #sls-ryuu:focus, #sls-dpbx:focus { border-color: #6366f1 !important; }';
-
-        overlay.appendChild(style);
         document.body.appendChild(overlay);
 
         fetchConfigApiKeys(function(keys) {
@@ -1298,13 +1207,33 @@
         };
     }
 
+    // --- buttons.js ---
+    /**
+     * @file  buttons.js
+     * @brief Store page action button injection and controller setup for desktop and Big Picture modes
+     */
+    function setupDownloadButton(luaLink, luaBtn, productID, cartBtn) {
+        var span = luaLink.querySelector('span');
+        if (span) span.innerText = 'Download Lua';
+        luaLink.style.filter = 'hue-rotate(110deg) brightness(1.2)';
+        luaLink.style.pointerEvents = '';
+        luaLink.style.opacity = '';
+        luaLink.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            luaBtn.dataset.slsAppid = productID;
+            ping('Lua Click: ' + productID);
+            openLuaProviderConfig(productID);
+        };
+    }
+
     function addButtons() {
         if (observer) observer.disconnect();
 
         // Big Picture Mode detection
         var bpSummary = document.getElementById('summaryBarTop');
         var match = window.location.href.match(/\/(app|sub)\/([0-9]+)/);
-        
+
         if (bpSummary && match) {
             var productID = match[2];
             if (!document.getElementById('sls-bp-lua-btn-container-' + productID)) {
@@ -1318,7 +1247,7 @@
                 bpBtn.dataset.slsProcessed = '1';
                 bpBtn.dataset.slsAppid = productID;
                 bpBtn.style.cssText = 'background: linear-gradient(135deg, #1a9fff 0%, #0073d4 100%); border: none; color: white; padding: 12px 30px; font-size: 18px; font-weight: bold; border-radius: 6px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.4); text-transform: uppercase; transition: all 0.2s; width: 100%; display: flex; justify-content: center; box-sizing: border-box;';
-                
+
                 var bpLink = document.createElement('a');
                 bpLink.style.display = 'block';
                 bpLink.style.color = 'white';
@@ -1326,13 +1255,13 @@
 
                 var bpSpan = document.createElement('span');
                 bpSpan.innerText = 'Checking Lua...';
-                
+
                 bpLink.appendChild(bpSpan);
                 bpBtn.appendChild(bpLink);
                 bpContainer.appendChild(bpBtn);
-                
+
                 bpSummary.parentNode.insertBefore(bpContainer, bpSummary);
-                
+
                 bpLink.onclick = function(e) {
                     e.preventDefault();
                     e.stopPropagation();
@@ -1427,7 +1356,7 @@
             luaBtn.style.display = 'inline-block';
             luaBtn.style.marginRight = '4px';
             luaBtn.style.float = 'right';
-            
+
             var luaLink = luaBtn.querySelector('a');
             if (luaLink) {
                 luaLink.href = 'javascript:void(0)';
@@ -1437,7 +1366,7 @@
                 var initialSpan = luaLink.querySelector('span');
                 if (initialSpan) initialSpan.innerText = 'Checking Lua...';
                 luaLink.style.filter = 'hue-rotate(200deg) brightness(1.0)';
-                
+
                 // Allow clicking even while checking
                 luaLink.onclick = function(e) {
                     e.preventDefault();
@@ -1533,10 +1462,11 @@
         if (observer && document.documentElement) observer.observe(document.documentElement, { childList: true, subtree: true });
     }
 
-    // =========================================================================
-    // SYNCHRONIZE LUA-ADDED ITEMS AS OWNED ("IN LIBRARY" LABEL) IN STORE
-    // =========================================================================
-
+    // --- ownership-decoration.js ---
+    /**
+     * @file  ownership-decoration.js
+     * @brief Lua library ownership synchronization and GDynamicStore 'IN LIBRARY' decoration in store pages
+     */
     // Test mode flag: when true, every item/capsule on the page receives the "IN LIBRARY" label.
     // Can also be toggled at runtime via window.__slsIsTesting.
     var isTesting = false;
@@ -1781,6 +1711,14 @@
             }
         }
     }
+
+    // --- main.js ---
+    /**
+     * @file  main.js
+     * @brief Initialization lifecycle, mutation observer setup, and debounced store page runner
+     */
+    var observer = null;
+    var debounceTimer = null;
 
     function debouncedAddButtons() {
         if (debounceTimer) return;

@@ -1,0 +1,136 @@
+@keyframes slsShimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.sls-bar-host {
+  position: relative;
+  overflow: hidden;
+}
+
+.sls-bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 0%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(52, 211, 153, 0.35) 50%, rgba(16, 185, 129, 0.15) 100%),
+              linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(255, 255, 255, 0) 100%);
+  background-size: 100% 100%, 200% 100%;
+  animation: slsShimmer 2.5s infinite linear;
+  box-shadow: inset 0 0 12px rgba(52, 211, 153, 0.3), 0 0 8px rgba(16, 185, 129, 0.4);
+  border-right: 2px solid rgba(52, 211, 153, 0.8);
+  transition: width 0.55s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.sls-bar-fill.sls-bar-fail {
+  background: linear-gradient(90deg, rgba(225, 29, 72, 0.2) 0%, rgba(244, 63, 94, 0.4) 50%, rgba(225, 29, 72, 0.2) 100%),
+              linear-gradient(90deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0) 100%);
+  background-size: 100% 100%, 200% 100%;
+  box-shadow: inset 0 0 12px rgba(244, 63, 94, 0.35), 0 0 10px rgba(225, 29, 72, 0.5);
+  border-right: 2px solid rgba(244, 63, 94, 0.9);
+}
+
+.sls-bar-fill.sls-bar-done {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.35) 0%, rgba(52, 211, 153, 0.55) 100%);
+  box-shadow: inset 0 0 16px rgba(52, 211, 153, 0.5), 0 0 12px rgba(16, 185, 129, 0.6);
+  border-right: 2px solid rgba(52, 211, 153, 1);
+}
+
+.sls-bar-host > a {
+  position: relative;
+  z-index: 1;
+}
+
+#sls-provider-rows::-webkit-scrollbar {
+  width: 6px;
+}
+
+#sls-provider-rows::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+
+#sls-provider-rows::-webkit-scrollbar-thumb {
+  background: rgba(172, 178, 201, 0.3);
+  border-radius: 3px;
+}
+
+#sls-provider-rows::-webkit-scrollbar-thumb:hover {
+  background: rgba(172, 178, 201, 0.5);
+}
+
+.sls-btn-action {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(172, 178, 201, 0.14);
+  color: rgb(220, 222, 223);
+  border: none;
+  border-radius: 2px;
+  padding: 6px 14px;
+  font-size: 15px;
+  font-weight: 400;
+  font-family: "Motiva Sans", sans-serif;
+  height: 42px;
+  box-sizing: border-box;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.1s ease;
+}
+
+.sls-btn-action:not(:disabled):hover {
+  background: rgba(172, 178, 201, 0.25);
+}
+
+.sls-btn-action:not(:disabled):active {
+  background: rgba(172, 178, 201, 0.30);
+}
+
+button[data-sls-provider-download]:hover {
+  background: #2d73ff !important;
+}
+
+.sls-btn-close {
+  background: transparent;
+  border: none;
+  color: #969696;
+  font-size: 24px;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.1s ease;
+  flex-shrink: 0;
+}
+
+.sls-btn-close:hover {
+  background: rgba(172, 178, 201, 0.14);
+  color: #fff;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+#sls-rm-confirm:hover {
+  background: rgba(220, 38, 38, 1) !important;
+}
+
+#sls-btn-save:hover {
+  background: #2d73ff !important;
+}
+
+#sls-hubcap:focus,
+#sls-ryuu:focus,
+#sls-dpbx:focus {
+  border-color: #6366f1 !important;
+}
+

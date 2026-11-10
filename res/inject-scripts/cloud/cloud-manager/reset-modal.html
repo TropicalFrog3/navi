@@ -1,0 +1,26 @@
+<div style="background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">
+        <div>
+            <h2 style="margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;">Reset Cloud Save</h2>
+            <p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: {{APPID}}</p>
+        </div>
+        <button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>
+    </div>
+    <div style="background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;">
+        <p style="margin:0;font-size:13px;line-height:1.5;color:#fca5a5;">
+            ⚠️ <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.
+        </p>
+    </div>
+    <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;">
+            To confirm, type <b style="color:#fff;letter-spacing:1px;">RESET</b> into the box below:
+        </label>
+        <input type="text" id="sls-reset-input" autocomplete="off" spellcheck="false" placeholder="Type RESET to confirm"
+            style="width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;" />
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Cancel</button>
+        <button id="sls-modal-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" disabled style="height:36px;padding:0 20px;background:#dc2626;border:none;border-radius:2px;color:#fff;cursor:default;opacity:0.4;font-weight:600;">Confirm Reset</button>
+    </div>
+</div>
+

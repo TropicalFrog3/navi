@@ -179,6 +179,11 @@ test-all: test
 
 bundle-scripts:
 	python3 tools/bundle-app-details.py
+	python3 tools/bundle-cloud-manager.py
+	python3 tools/bundle-navi-inject.py
+	python3 tools/bundle-import-lua.py
+	python3 tools/bundle-depot-selection.py
+	python3 tools/bundle-store-page.py
 
 audit-libs: bundle-scripts
 	$(MAKE) -j $(JOBS) $(NAVISO) bin/library-inject.so

@@ -15,7 +15,7 @@ verbatim (`scripts/lib/release.sh`) — never rename without updating that flow.
 
 | Task / Stage | Read These Files | Skip These Files | Skills / MCPs / Commands Needed |
 |---|---|---|---|
-| CEF inject-script change | `res/inject-scripts/README.md`, target script inside its category dir (for library app details: edit modular `res/inject-scripts/library/app-details/` and run `./install.sh bundle-scripts`), `src/view/cdpinject.cpp` (search dirs) | `src/core/`, `src/model/`, `pkg/`, `bin/` | `./install.sh bundle-scripts`; `./install.sh test-ui` / `./install.sh test-flow`; MCP `vibe-annotations` + Skill `vibe-implement-annotations` for annotation work; CDP live check via Skill `cef-cdp-injection` |
+| CEF inject-script change | `res/inject-scripts/README.md`, target script inside its category dir (for library app details: edit modular `res/inject-scripts/library/app-details/`; for cloud manager: edit modular `res/inject-scripts/cloud/cloud-manager/`; for core runtime: edit modular `res/inject-scripts/core/navi-inject/`; for shell/import lua: edit modular `res/inject-scripts/shell/import-lua/`; for store depot selection: edit modular `res/inject-scripts/store/depot-selection/`; for store page: edit modular `res/inject-scripts/store/store-page/` and run `./install.sh bundle-scripts`), `src/view/cdpinject.cpp` (search dirs) | `src/core/`, `src/model/`, `pkg/`, `bin/` | `./install.sh bundle-scripts`; `./install.sh test-ui` / `./install.sh test-flow`; MCP `vibe-annotations` + Skill `vibe-implement-annotations` for annotation work; CDP live check via Skill `cef-cdp-injection` |
 | Config template change | `res/config.yaml`, `res/config.diff.yaml`, `res/cache.diff.yaml`, `src/model/migrations/`, `tests/unit/test_config.cpp` | `res/inject-scripts/` | `./install.sh test`; follow the `$(OldKey)$(NewKey):` bridge syntax (actions: rename, rename_and_convert, remove, convert) |
 | `cloud_redirect.so` replacement | `.gitignore` exception line `!res/cloud_redirect.so`, `docs/references/cloud-redirect-architecture.md` (§1 Components), `src/core/cloud_oauth.*` | `bin/`, `pkg/` | `./install.sh check-cloudredirect` — engine version (v2.6.5) and docs must stay in lockstep |
 | Version / release bump | `res/version` (`Version: beta-v1.2.0` + Changelog — feeds Makefile `DATE`), `res/updates.yaml` (SafeModeHashes per client build) | `bin/`, `obj/` | Skill `release-workflow` owns `./install.sh release` — orchestrator-only |
@@ -26,7 +26,23 @@ verbatim (`scripts/lib/release.sh`) — never rename without updating that flow.
 <!-- MANIFEST:BEGIN -->
 | File | Purpose |
 |---|---|
+| `inject-scripts/cloud/cloud-manager/api.js` | Client-side REST API wrapper for engine CloudRedirect endpoints |
+| `inject-scripts/cloud/cloud-manager/cloud-files-modal.js` | Steam-styled per-game cloud files explorer modal controller |
+| `inject-scripts/cloud/cloud-manager/gamepad.js` | Steam Gamepad controller modal navigation and focus trapping handler |
+| `inject-scripts/cloud/cloud-manager/main.js` | Lifecycle initialization, polling coordinator, and public NaviCloudManager API export |
+| `inject-scripts/cloud/cloud-manager/pending-banner.js` | Persistent restart warning banner for pending cloud save operations |
+| `inject-scripts/cloud/cloud-manager/reset-modal.js` | Confirmation modal controller for resetting cloud save directories |
+| `inject-scripts/cloud/cloud-manager/restore-modal.js` | Modal controller for browsing and restoring cloud save backups |
+| `inject-scripts/cloud/cloud-manager/security.js` | CEF origin verification, loopback URL validation, and secureFetch transport wrapper |
+| `inject-scripts/cloud/cloud-manager/settings-modal.js` | Global cloud save settings and provider authentication modal controller |
+| `inject-scripts/cloud/cloud-manager/state.js` | Core runtime state and polling intervals for Cloud Saves manager |
+| `inject-scripts/cloud/cloud-manager/utils.js` | Data formatting helpers and Steam game title resolution cache |
 | `inject-scripts/cloud/cloud_manager.js` | Client-side CloudRedirect UI manager for Steam CEF settings |
+| `inject-scripts/core/navi-inject/cloud-fallback.js` | Standalone fallback implementation of NaviCloudManager when cloud_manager.js is not loaded |
+| `inject-scripts/core/navi-inject/disk-space-api.js` | App install size resolver, depot manifest cache, and unlocked app detection |
+| `inject-scripts/core/navi-inject/main.js` | Orchestrates cloud bootstrap and SteamClient disk size patching |
+| `inject-scripts/core/navi-inject/pending-banner.js` | Viewport warning banner controller for pending cloud save restart operations |
+| `inject-scripts/core/navi-inject/steam-apps-patch.js` | Intercepts SteamClient.Apps.RegisterForAppDetails to provide accurate disk requirements |
 | `inject-scripts/core/navi_inject.js` | Primary CEF JavaScript injection bootstrap and event coordinator |
 | `inject-scripts/library/app-details/appid.js` | AppId resolution and extraction from current library DOM state |
 | `inject-scripts/library/app-details/buttons.js` | DOM button injectors for Navi and CloudRedirect library actions |
@@ -41,8 +57,32 @@ verbatim (`scripts/lib/release.sh`) — never rename without updating that flow.
 | `inject-scripts/library/app-details/restore-modal.js` | Modal UI for browsing and restoring historical cloud save snapshots |
 | `inject-scripts/library/app-details-script.js` | Bundled standalone script for Steam library game details page |
 | `inject-scripts/library/auto-collection.js` | Automatically organizes unlocked games into Steam library collections |
+| `inject-scripts/shell/import-lua/cloud-file-viewer.js` | Collapsible folder accordion and preview module for game cloud saves |
+| `inject-scripts/shell/import-lua/config-controller.js` | Navi configuration page controller, settings editor, saves table, and save pipeline |
+| `inject-scripts/shell/import-lua/config-dialogs.js` | Modal confirmation dialogs and status alert banners for configuration UI |
+| `inject-scripts/shell/import-lua/config-helpers.js` | HTML generation helper components for Navi configuration sections and cards |
+| `inject-scripts/shell/import-lua/config-sections.js` | HTML section templates and layout assembler for Navi configuration UI |
+| `inject-scripts/shell/import-lua/main.js` | Main entry point, double-injection guard, window exports, and initialization |
+| `inject-scripts/shell/import-lua/manual-install.js` | Manual Lua/manifest installation page controller, dropzone, and file processor |
+| `inject-scripts/shell/import-lua/styles.js` | Injects custom CSS rules for Navi top-bar tabs, config shell, and manual install modal |
+| `inject-scripts/shell/import-lua/supernav.js` | SuperNav top-bar tab injector, history sync, and DOM mutation observer |
+| `inject-scripts/shell/import-lua/utils.js` | Core utilities, Steam class definitions, JSZip loader, and SuperNav helpers |
 | `inject-scripts/shell/import-lua-script.js` | UI modal enabling drag-and-drop or manual import of Lua manifests |
 | `inject-scripts/shell/version-top-bar.js` | Renders the Navi version banner in Steam client navigation header |
+| `inject-scripts/store/depot-selection/depot-resolver.js` | Async SteamCMD info resolver for DLC names, sizes, and OS configurations |
+| `inject-scripts/store/depot-selection/gamepad.js` | Steam Gamepad controller modal navigation, focus trapping, and button handling |
+| `inject-scripts/store/depot-selection/main.js` | Modal lifecycle, depot list fetcher, checkbox state coordinator, and download trigger |
+| `inject-scripts/store/depot-selection/styles.js` | Injects stylesheet for depot selection dialog into overlay container |
+| `inject-scripts/store/depot-selection/utils.js` | Formatting utilities for byte sizes and OS badge generation |
 | `inject-scripts/store/depot-selection-script.js` | UI modal for selecting specific depots to download on store pages |
+| `inject-scripts/store/store-page/buttons.js` | Store page action button injection and controller setup for desktop and Big Picture modes |
+| `inject-scripts/store/store-page/cdp-bridge.js` | CDP communication bridge and network request helpers for store pages |
+| `inject-scripts/store/store-page/download-tracker.js` | Progress tracking, row loading bar animations, and download session state management |
+| `inject-scripts/store/store-page/gamepad.js` | Steam Deck and controller navigation focus trapping for store page modals and buttons |
+| `inject-scripts/store/store-page/main.js` | Initialization lifecycle, mutation observer setup, and debounced store page runner |
+| `inject-scripts/store/store-page/modals.js` | Modal controllers for Lua provider configuration, removal confirmation, and API credentials |
+| `inject-scripts/store/store-page/ownership-decoration.js` | Lua library ownership synchronization and GDynamicStore 'IN LIBRARY' decoration in store pages |
+| `inject-scripts/store/store-page/provider-config.js` | Lua provider settings, API key synchronization, and download request dispatcher |
+| `inject-scripts/store/store-page/styles.js` | Dynamic stylesheet injection for store page elements and modals |
 | `inject-scripts/store/store-page-script.js` | Injects unlock and depot download buttons into Steam store pages |
 <!-- MANIFEST:END -->

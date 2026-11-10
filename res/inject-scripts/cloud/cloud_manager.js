@@ -21,6 +21,18 @@
     }
     window.__naviCloudManagerLoaded = true;
 
+    // Inlined Styles & Templates
+    var NAVI_CLOUD_STYLES = ".navi-cloud-table-region {\n  overflow-x: auto;\n  max-width: 100%;\n  border: 1px solid #2a475e;\n  border-radius: 2px;\n  background: #101822;\n}\n.navi-cloud-table-region:focus-visible {\n  outline: 2px solid #66c0f4;\n  outline-offset: 2px;\n}\n.navi-steam-cloud-table {\n  width: 100%;\n  border-collapse: collapse;\n  font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif;\n  font-size: 13px;\n  color: #c6d4df;\n}\n.navi-steam-cloud-table thead th {\n  position: sticky;\n  top: 0;\n  z-index: 2;\n  background: #2a475e;\n  color: #8f98a0;\n  font-size: 11px;\n  font-weight: 500;\n  text-transform: uppercase;\n  letter-spacing: 0.04em;\n  padding: 7px 12px;\n  text-align: left;\n  border-bottom: 1px solid #000;\n  white-space: nowrap;\n}\n.navi-steam-cloud-table tbody tr {\n  background: #16202d;\n  border-bottom: 2px solid #0e141b;\n  transition: background 0.12s ease;\n}\n.navi-steam-cloud-table tbody tr:nth-child(even) {\n  background: #192533;\n}\n.navi-steam-cloud-table tbody tr:hover {\n  background: #213245;\n}\n.navi-steam-cloud-table td {\n  padding: 7px 12px;\n  vertical-align: middle;\n  color: #c6d4df;\n}\n.navi-steam-cloud-table td.navi-col-num {\n  font-variant-numeric: tabular-nums;\n  white-space: nowrap;\n}\n.navi-steam-cloud-link {\n  background: transparent;\n  border: none;\n  color: #ebebeb;\n  font-family: inherit;\n  font-size: 13px;\n  cursor: pointer;\n  padding: 2px 6px;\n  text-align: left;\n  text-decoration: none;\n}\n.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible {\n  color: #66c0f4;\n  text-decoration: underline;\n}\n@media (max-width: 560px) {\n  .navi-steam-cloud-table thead {\n    position: absolute;\n    width: 1px;\n    height: 1px;\n    overflow: hidden;\n    clip: rect(0 0 0 0);\n  }\n  .navi-steam-cloud-table tbody tr {\n    display: block;\n    padding: 8px 10px;\n    margin-bottom: 6px;\n  }\n  .navi-steam-cloud-table td {\n    display: flex;\n    justify-content: space-between;\n    align-items: center;\n    gap: 10px;\n    padding: 4px 4px;\n    text-align: right;\n  }\n  .navi-steam-cloud-table td::before {\n    content: attr(data-label);\n    font-weight: 600;\n    font-size: 11px;\n    color: #8f98a0;\n    text-transform: uppercase;\n    text-align: left;\n  }\n}\n\n";
+    var RESET_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;\">Reset Cloud Save</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-reset-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <div style=\"background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;\">\n        <p style=\"margin:0;font-size:13px;line-height:1.5;color:#fca5a5;\">\n            \u26a0\ufe0f <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.\n        </p>\n    </div>\n    <div style=\"margin-bottom:20px;\">\n        <label style=\"display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;\">\n            To confirm, type <b style=\"color:#fff;letter-spacing:1px;\">RESET</b> into the box below:\n        </label>\n        <input type=\"text\" id=\"sls-reset-input\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"Type RESET to confirm\"\n            style=\"width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;\" />\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Cancel</button>\n        <button id=\"sls-modal-confirm\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" disabled style=\"height:36px;padding:0 20px;background:#dc2626;border:none;border-radius:2px;color:#fff;cursor:default;opacity:0.4;font-weight:600;\">Confirm Reset</button>\n    </div>\n</div>\n\n";
+    var RESTORE_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Restore Cloud Save</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-restore-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <div id=\"sls-restore-body\" style=\"max-height:300px;overflow-y:auto;margin-bottom:20px;\">\n        <div style=\"text-align:center;padding:24px;color:#969696;\">Loading backups...</div>\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Close</button>\n    </div>\n</div>\n\n";
+    var SETTINGS_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 500px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Cloud Saves Manager</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">Configure cloud save redirection &amp; storage providers</p>\n        </div>\n        <button id=\"sls-settings-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <!-- Master Toggle -->\n    <div style=\"display:flex;align-items:center;justify-content:space-between;padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:16px;\">\n        <div>\n            <div style=\"font-size:15px;font-weight:500;color:#fff;\">Master Cloud Saves</div>\n            <div style=\"font-size:12px;color:#9ca3af;\">Enable or disable save redirection globally</div>\n        </div>\n        <button id=\"sls-master-toggle-btn\" class=\"Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:34px;padding:0 18px;border-radius:2px;border:none;font-weight:600;font-size:13px;cursor:pointer;\">Checking...</button>\n    </div>\n    <!-- Provider Selector -->\n    <div style=\"margin-bottom:16px;\">\n        <label style=\"display:block;font-size:13px;color:#9ca3af;margin-bottom:6px;\">Cloud Provider</label>\n        <select id=\"sls-provider-select\" style=\"width:100%;height:38px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;padding:0 10px;outline:none;\">\n            {{PROVIDER_OPTIONS}}\n        </select>\n    </div>\n    <!-- Provider Auth Block -->\n    <div id=\"sls-provider-auth-block\" style=\"padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:20px;\">\n        <div style=\"display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;\">\n            <span style=\"font-size:14px;color:#dcdedf;\">Authentication Status:</span>\n            <span id=\"sls-auth-badge\" role=\"status\" aria-live=\"polite\" style=\"padding:3px 8px;border-radius:2px;font-size:12px;font-weight:600;\">Checking...</span>\n        </div>\n        <div id=\"sls-auth-email\" style=\"font-size:12px;color:#9ca3af;margin-bottom:10px;display:none;\"></div>\n        <div id=\"sls-auth-actions\" style=\"display:flex;justify-content:flex-end;\"></div>\n    </div>\n    <!-- Footer Actions -->\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 24px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Close</button>\n    </div>\n</div>\n\n";
+    var CLOUD_FILES_MODAL_HTML = "<div style=\"background:#1b2838;border:1px solid #2a475e;border-top:2px solid #66c0f4;border-radius:3px;width:880px;max-width:94vw;max-height:86vh;padding:22px 26px;color:#c6d4df;box-shadow:0 20px 50px rgba(0,0,0,0.85);display:flex;flex-direction:column;gap:14px;overflow:hidden;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;gap:12px;\">\n        <div>\n            <div style=\"font-size:11px;color:#8f98a0;margin-bottom:4px;letter-spacing:0.02em;\">Home &gt; Account &gt; View Steam Cloud</div>\n            <h2 style=\"margin:0;font-size:24px;font-weight:400;color:#ffffff;letter-spacing:0.01em;\">View Steam Cloud</h2>\n        </div>\n        <button id=\"navi-close-x\" class=\"Focusable\" tabindex=\"-1\" style=\"background:transparent;border:none;color:#8f98a0;font-size:18px;cursor:pointer;padding:4px 8px;\">\u2715</button>\n    </div>\n    <div style=\"display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:6px;border-bottom:1px solid #2a475e;\">\n        <div>\n            <div id=\"navi-cloud-game-title\" style=\"font-size:15px;font-weight:600;color:#ffffff;margin-bottom:4px;\"></div>\n            <div style=\"font-size:12px;color:#8f98a0;\">This game files are saved in your Steam Cloud :</div>\n        </div>\n        <div id=\"navi-cloud-actions\" style=\"display:flex;align-items:center;gap:8px;flex-wrap:wrap;\"></div>\n    </div>\n    <div id=\"navi-cloud-status-toast\" style=\"display:none;padding:8px 12px;border-radius:2px;font-size:12px;background:#16202d;border:1px solid #66c0f4;color:#66c0f4;\"></div>\n    <div id=\"navi-cloud-table-region\" class=\"navi-cloud-table-region\" tabindex=\"0\" role=\"region\" aria-label=\"Steam Cloud Files\" style=\"flex:1;overflow-y:auto;min-height:220px;\"></div>\n    <div style=\"display:flex;justify-content:space-between;align-items:center;padding-top:6px;\">\n        <span id=\"navi-cloud-summary-text\" style=\"font-size:12px;color:#8f98a0;\">Scanning cloud storage...</span>\n        <button id=\"navi-modal-cancel\" class=\"Focusable\" tabindex=\"-1\" style=\"background:#32373d;color:#c6d4df;border:1px solid rgba(255,255,255,0.12);border-radius:2px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;\">Close</button>\n    </div>\n</div>\n\n";
+
+    // --- state.js ---
+    /**
+     * @file  state.js
+     * @brief Core runtime state and polling intervals for Cloud Saves manager
+     */
     var BACKEND_ORIGIN = 'http://127.0.0.1:9001';
     var POLL_INTERVAL_MS = 5000;
     var pollTimer = null;
@@ -33,6 +45,12 @@
         operations: []
     };
 
+
+    // --- security.js ---
+    /**
+     * @file  security.js
+     * @brief CEF origin verification, loopback URL validation, and secureFetch transport wrapper
+     */
     /**
      * Check that the current window execution context is a trusted Steam CEF origin.
      */
@@ -128,6 +146,12 @@
         });
     }
 
+
+    // --- gamepad.js ---
+    /**
+     * @file  gamepad.js
+     * @brief Steam Gamepad controller modal navigation and focus trapping handler
+     */
     /**
      * Steam Gamepad modal focus trapper
      */
@@ -184,6 +208,12 @@
         window.addEventListener('vgp_oncancel', cancelCatcher, true);
     }
 
+
+    // --- pending-banner.js ---
+    /**
+     * @file  pending-banner.js
+     * @brief Persistent restart warning banner for pending cloud save operations
+     */
     /**
      * Render or update the persistent warning banner at the top of the viewport
      * when pending operations exist.
@@ -256,10 +286,12 @@
         document.body.appendChild(banner);
     }
 
-    /**
-     * API Functions
-     */
 
+    // --- api.js ---
+    /**
+     * @file  api.js
+     * @brief Client-side REST API wrapper for engine CloudRedirect endpoints
+     */
     function fetchStatus() {
         return secureFetch('/cloud/status')
             .then(function(res) { return res.json(); })
@@ -393,6 +425,131 @@
             });
     }
 
+    function fetchCloudApps(provider) {
+        var url = '/cloud/apps';
+        if (provider) {
+            url += '?provider=' + encodeURIComponent(provider);
+        }
+        return secureFetch(url, { method: 'GET' })
+            .then(function(res) { return res.json(); });
+    }
+
+    function fetchAppCloudFiles(appId, provider) {
+        var url = '/cloud/apps/' + encodeURIComponent(appId) + '/files';
+        if (provider) {
+            url += '?provider=' + encodeURIComponent(provider);
+        }
+        return secureFetch(url, { method: 'GET' })
+            .then(function(res) { return res.json(); });
+    }
+
+    function syncAppNow(appId) {
+        return secureFetch('/cloud/apps/' + encodeURIComponent(appId) + '/sync', {
+            method: 'POST',
+            body: JSON.stringify({})
+        }).then(function(res) { return res.json(); });
+    }
+
+    function downloadAppCloudFile(appId, fileName, provider) {
+        return secureFetch('/cloud/apps/' + encodeURIComponent(appId) + '/files/download', {
+            method: 'POST',
+            body: JSON.stringify({
+                fileName: String(fileName || ''),
+                provider: String(provider || state.provider || '')
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function fetchProviderCredentials(provider) {
+        var p = provider || state.provider || 'r2';
+        return secureFetch('/cloud/provider/credentials?provider=' + encodeURIComponent(p), {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function saveProviderCredentials(payload) {
+        return secureFetch('/cloud/provider/credentials', {
+            method: 'POST',
+            body: JSON.stringify(payload || {})
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function scanMigrationSource(provider) {
+        var p = provider || state.provider || 'local-only';
+        return secureFetch('/cloud/migrate/scan?provider=' + encodeURIComponent(p), {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function migrateProviderData(sourceProvider, targetProvider, switchActiveProvider) {
+        return secureFetch('/cloud/migrate', {
+            method: 'POST',
+            body: JSON.stringify({
+                sourceProvider: String(sourceProvider || ''),
+                targetProvider: String(targetProvider || ''),
+                switchActiveProvider: switchActiveProvider !== false
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function fetchOrphanedSaves(provider) {
+        var p = provider || state.provider || 'local-only';
+        return secureFetch('/cloud/orphans?provider=' + encodeURIComponent(p), {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function cleanOrphanedApp(appId, provider, deleteFiles) {
+        return secureFetch('/cloud/orphans/clean', {
+            method: 'POST',
+            body: JSON.stringify({
+                appId: Number(appId) || 0,
+                provider: String(provider || state.provider || 'local-only'),
+                deleteFiles: !!deleteFiles
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function fetchAllBackups() {
+        return secureFetch('/cloud/backups', {
+            method: 'GET'
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+    function deleteBackupArchive(appId, fileName) {
+        return secureFetch('/cloud/backups/delete', {
+            method: 'POST',
+            body: JSON.stringify({
+                appId: Number(appId) || 0,
+                fileName: String(fileName || '')
+            })
+        }).then(function(res) {
+            return res.json();
+        });
+    }
+
+
+    // --- reset-modal.js ---
+    /**
+     * @file  reset-modal.js
+     * @brief Confirmation modal controller for resetting cloud save directories
+     */
     /**
      * Typed Confirmation Modal for Reset Cloud Save
      */
@@ -407,41 +564,13 @@
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);' +
             'z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
 
-        var card = document.createElement('div');
-        card.style.cssText = 'background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; ' +
-            'width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: "Motiva Sans", sans-serif; color: #dcdedf;';
-
-        card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
-            '<div>' +
-                '<h2 style="margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;">Reset Cloud Save</h2>' +
-                '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
-            '</div>' +
-            '<button id="sls-reset-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
-        '</div>' +
-        '<div style="background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;">' +
-            '<p style="margin:0;font-size:13px;line-height:1.5;color:#fca5a5;">' +
-                '⚠️ <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.' +
-            '</p>' +
-        '</div>' +
-        '<div style="margin-bottom:20px;">' +
-            '<label style="display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;">' +
-                'To confirm, type <b style="color:#fff;letter-spacing:1px;">RESET</b> into the box below:' +
-            '</label>' +
-            '<input type="text" id="sls-reset-input" autocomplete="off" spellcheck="false" placeholder="Type RESET to confirm" ' +
-                'style="width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;" />' +
-        '</div>' +
-        '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-            '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Cancel</button>' +
-            '<button id="sls-modal-confirm" class="sls-btn-action Focusable" tabindex="-1" role="button" disabled style="height:36px;padding:0 20px;background:#dc2626;border:none;border-radius:2px;color:#fff;cursor:default;opacity:0.4;font-weight:600;">Confirm Reset</button>' +
-        '</div>';
-
-        overlay.appendChild(card);
+        overlay.innerHTML = RESET_MODAL_HTML.replace(/\{\{APPID\}\}/g, appId);
         document.body.appendChild(overlay);
 
-        var closeBtn = card.querySelector('#sls-reset-close');
-        var cancelBtn = card.querySelector('#sls-modal-cancel');
-        var confirmBtn = card.querySelector('#sls-modal-confirm');
-        var input = card.querySelector('#sls-reset-input');
+        var closeBtn = overlay.querySelector('#sls-reset-close');
+        var cancelBtn = overlay.querySelector('#sls-modal-cancel');
+        var confirmBtn = overlay.querySelector('#sls-modal-confirm');
+        var input = overlay.querySelector('#sls-reset-input');
 
         trapSteamGamepadModal(overlay, [input, confirmBtn, cancelBtn, closeBtn]);
 
@@ -487,6 +616,12 @@
         setTimeout(function() { input.focus(); }, 100);
     }
 
+
+    // --- restore-modal.js ---
+    /**
+     * @file  restore-modal.js
+     * @brief Modal controller for browsing and restoring cloud save backups
+     */
     /**
      * Modal listing available backups with Restore button
      */
@@ -501,30 +636,12 @@
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);' +
             'z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
 
-        var card = document.createElement('div');
-        card.style.cssText = 'background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; ' +
-            'width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: "Motiva Sans", sans-serif; color: #dcdedf;';
-
-        card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;">' +
-            '<div>' +
-                '<h2 style="margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;">Restore Cloud Save</h2>' +
-                '<p style="margin:4px 0 0;font-size:13px;color:#969696;">AppID: ' + appId + '</p>' +
-            '</div>' +
-            '<button id="sls-restore-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
-        '</div>' +
-        '<div id="sls-restore-body" style="max-height:300px;overflow-y:auto;margin-bottom:20px;">' +
-            '<div style="text-align:center;padding:24px;color:#969696;">Loading backups...</div>' +
-        '</div>' +
-        '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-            '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Close</button>' +
-        '</div>';
-
-        overlay.appendChild(card);
+        overlay.innerHTML = RESTORE_MODAL_HTML.replace(/\{\{APPID\}\}/g, appId);
         document.body.appendChild(overlay);
 
-        var closeBtn = card.querySelector('#sls-restore-close');
-        var cancelBtn = card.querySelector('#sls-modal-cancel');
-        var bodyEl = card.querySelector('#sls-restore-body');
+        var closeBtn = overlay.querySelector('#sls-restore-close');
+        var cancelBtn = overlay.querySelector('#sls-modal-cancel');
+        var bodyEl = overlay.querySelector('#sls-restore-body');
 
         function closeModal() {
             overlay.remove();
@@ -541,7 +658,6 @@
                 return;
             }
 
-            var html = '';
             bodyEl.innerHTML = '';
             var itemBtns = [];
             for (var i = 0; i < backups.length; i++) {
@@ -600,6 +716,12 @@
         });
     }
 
+
+    // --- settings-modal.js ---
+    /**
+     * @file  settings-modal.js
+     * @brief Global cloud save settings and provider authentication modal controller
+     */
     /**
      * Global Settings & Provider Authentication Modal
      */
@@ -614,10 +736,6 @@
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);' +
             'z-index:999999;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(8px);';
 
-        var card = document.createElement('div');
-        card.style.cssText = 'background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; ' +
-            'width: 500px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: "Motiva Sans", sans-serif; color: #dcdedf;';
-
         var providers = [
             { id: 'local-only', name: 'Local Diverted Storage (Offline)' },
             { id: 'gdrive', name: 'Google Drive' },
@@ -631,52 +749,16 @@
             optHtml += '<option value="' + providers[i].id + '">' + providers[i].name + '</option>';
         }
 
-        card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">' +
-            '<div>' +
-                '<h2 style="margin:0;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Cloud Saves Manager</h2>' +
-                '<p style="margin:4px 0 0;font-size:13px;color:#969696;">Configure cloud save redirection & storage providers</p>' +
-            '</div>' +
-            '<button id="sls-settings-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>' +
-        '</div>' +
-        '<!-- Master Toggle -->' +
-        '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:16px;">' +
-            '<div>' +
-                '<div style="font-size:15px;font-weight:500;color:#fff;">Master Cloud Saves</div>' +
-                '<div style="font-size:12px;color:#9ca3af;">Enable or disable save redirection globally</div>' +
-            '</div>' +
-            '<button id="sls-master-toggle-btn" class="Focusable" tabindex="-1" role="button" style="height:34px;padding:0 18px;border-radius:2px;border:none;font-weight:600;font-size:13px;cursor:pointer;">Checking...</button>' +
-        '</div>' +
-        '<!-- Provider Selector -->' +
-        '<div style="margin-bottom:16px;">' +
-            '<label style="display:block;font-size:13px;color:#9ca3af;margin-bottom:6px;">Cloud Provider</label>' +
-            '<select id="sls-provider-select" style="width:100%;height:38px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;padding:0 10px;outline:none;">' +
-                optHtml +
-            '</select>' +
-        '</div>' +
-        '<!-- Provider Auth Block -->' +
-        '<div id="sls-provider-auth-block" style="padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:20px;">' +
-            '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">' +
-                '<span style="font-size:14px;color:#dcdedf;">Authentication Status:</span>' +
-                '<span id="sls-auth-badge" role="status" aria-live="polite" style="padding:3px 8px;border-radius:2px;font-size:12px;font-weight:600;">Checking...</span>' +
-            '</div>' +
-            '<div id="sls-auth-email" style="font-size:12px;color:#9ca3af;margin-bottom:10px;display:none;"></div>' +
-            '<div id="sls-auth-actions" style="display:flex;justify-content:flex-end;"></div>' +
-        '</div>' +
-        '<!-- Footer Actions -->' +
-        '<div style="display:flex;justify-content:flex-end;gap:10px;">' +
-            '<button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 24px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Close</button>' +
-        '</div>';
-
-        overlay.appendChild(card);
+        overlay.innerHTML = SETTINGS_MODAL_HTML.replace('{{PROVIDER_OPTIONS}}', optHtml);
         document.body.appendChild(overlay);
 
-        var closeBtn = card.querySelector('#sls-settings-close');
-        var cancelBtn = card.querySelector('#sls-modal-cancel');
-        var masterBtn = card.querySelector('#sls-master-toggle-btn');
-        var selectEl = card.querySelector('#sls-provider-select');
-        var badgeEl = card.querySelector('#sls-auth-badge');
-        var emailEl = card.querySelector('#sls-auth-email');
-        var actionsEl = card.querySelector('#sls-auth-actions');
+        var closeBtn = overlay.querySelector('#sls-settings-close');
+        var cancelBtn = overlay.querySelector('#sls-modal-cancel');
+        var masterBtn = overlay.querySelector('#sls-master-toggle-btn');
+        var selectEl = overlay.querySelector('#sls-provider-select');
+        var badgeEl = overlay.querySelector('#sls-auth-badge');
+        var emailEl = overlay.querySelector('#sls-auth-email');
+        var actionsEl = overlay.querySelector('#sls-auth-actions');
 
         function closeModal() {
             overlay.remove();
@@ -792,6 +874,12 @@
         trapSteamGamepadModal(overlay, [masterBtn, selectEl, cancelBtn, closeBtn]);
     }
 
+
+    // --- utils.js ---
+    /**
+     * @file  utils.js
+     * @brief Data formatting helpers and Steam game title resolution cache
+     */
     /**
      * Format byte count matching Valve's Steam Cloud page ("4.46 KB", "1.42 MB", "581 B")
      */
@@ -868,161 +956,12 @@
         return backendTitle || ('App ' + appId);
     }
 
-    /**
-     * Fetch full Steam Cloud apps inventory (local + remote cloud scan)
-     */
-    function fetchCloudApps(provider) {
-        var url = '/cloud/apps';
-        if (provider) {
-            url += '?provider=' + encodeURIComponent(provider);
-        }
-        return secureFetch(url, { method: 'GET' })
-            .then(function(res) { return res.json(); });
-    }
 
+    // --- cloud-files-modal.js ---
     /**
-     * Fetch per-game Steam Cloud file list (FOLDER, FILE NAME, FILE SIZE, DATE WRITTEN)
+     * @file  cloud-files-modal.js
+     * @brief Steam-styled per-game cloud files explorer modal controller
      */
-    function fetchAppCloudFiles(appId, provider) {
-        var url = '/cloud/apps/' + encodeURIComponent(appId) + '/files';
-        if (provider) {
-            url += '?provider=' + encodeURIComponent(provider);
-        }
-        return secureFetch(url, { method: 'GET' })
-            .then(function(res) { return res.json(); });
-    }
-
-    /**
-     * Trigger immediate Cloud Save sync for a specific game
-     */
-    function syncAppNow(appId) {
-        return secureFetch('/cloud/apps/' + encodeURIComponent(appId) + '/sync', {
-            method: 'POST',
-            body: JSON.stringify({})
-        }).then(function(res) { return res.json(); });
-    }
-
-    /**
-     * Download a specific cloud save file to ~/Downloads/<appId>_<filename> and trigger browser download
-     */
-    function downloadAppCloudFile(appId, fileName, provider) {
-        return secureFetch('/cloud/apps/' + encodeURIComponent(appId) + '/files/download', {
-            method: 'POST',
-            body: JSON.stringify({
-                fileName: String(fileName || ''),
-                provider: String(provider || state.provider || '')
-            })
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Fetch R2/S3 provider credentials (masked secret)
-     */
-    function fetchProviderCredentials(provider) {
-        var p = provider || state.provider || 'r2';
-        return secureFetch('/cloud/provider/credentials?provider=' + encodeURIComponent(p), {
-            method: 'GET'
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Save R2/S3 provider credentials and verify connection
-     */
-    function saveProviderCredentials(payload) {
-        return secureFetch('/cloud/provider/credentials', {
-            method: 'POST',
-            body: JSON.stringify(payload || {})
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Pre-flight scan of a cloud save provider for migration
-     */
-    function scanMigrationSource(provider) {
-        var p = provider || state.provider || 'local-only';
-        return secureFetch('/cloud/migrate/scan?provider=' + encodeURIComponent(p), {
-            method: 'GET'
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Migrate cloud save blobs from sourceProvider to targetProvider
-     */
-    function migrateProviderData(sourceProvider, targetProvider, switchActiveProvider) {
-        return secureFetch('/cloud/migrate', {
-            method: 'POST',
-            body: JSON.stringify({
-                sourceProvider: String(sourceProvider || ''),
-                targetProvider: String(targetProvider || ''),
-                switchActiveProvider: switchActiveProvider !== false
-            })
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Scan for orphaned save directories and unreferenced cloud blobs
-     */
-    function fetchOrphanedSaves(provider) {
-        var p = provider || state.provider || 'local-only';
-        return secureFetch('/cloud/orphans?provider=' + encodeURIComponent(p), {
-            method: 'GET'
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Garbage-collect unreferenced blobs or clean orphaned save directory for an appId
-     */
-    function cleanOrphanedApp(appId, provider, deleteFiles) {
-        return secureFetch('/cloud/orphans/clean', {
-            method: 'POST',
-            body: JSON.stringify({
-                appId: Number(appId) || 0,
-                provider: String(provider || state.provider || 'local-only'),
-                deleteFiles: !!deleteFiles
-            })
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Fetch global list of all .tar.gz save backups across all games
-     */
-    function fetchAllBackups() {
-        return secureFetch('/cloud/backups', {
-            method: 'GET'
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
-    /**
-     * Delete a specific .tar.gz backup archive for an appId
-     */
-    function deleteBackupArchive(appId, fileName) {
-        return secureFetch('/cloud/backups/delete', {
-            method: 'POST',
-            body: JSON.stringify({
-                appId: Number(appId) || 0,
-                fileName: String(fileName || '')
-            })
-        }).then(function(res) {
-            return res.json();
-        });
-    }
-
     /**
      * Inject shared Steam Cloud table styles following modern-web-guidance responsive-table pattern
      */
@@ -1035,106 +974,7 @@
         }
         var style = doc.createElement('style');
         style.id = 'navi-steam-cloud-table-styles';
-        style.textContent = [
-            '.navi-cloud-table-region {',
-            '  overflow-x: auto;',
-            '  max-width: 100%;',
-            '  border: 1px solid #2a475e;',
-            '  border-radius: 2px;',
-            '  background: #101822;',
-            '}',
-            '.navi-cloud-table-region:focus-visible {',
-            '  outline: 2px solid #66c0f4;',
-            '  outline-offset: 2px;',
-            '}',
-            '.navi-steam-cloud-table {',
-            '  width: 100%;',
-            '  border-collapse: collapse;',
-            '  font-family: "Motiva Sans", Arial, Helvetica, sans-serif;',
-            '  font-size: 13px;',
-            '  color: #c6d4df;',
-            '}',
-            '.navi-steam-cloud-table thead th {',
-            '  position: sticky;',
-            '  top: 0;',
-            '  z-index: 2;',
-            '  background: #2a475e;',
-            '  color: #8f98a0;',
-            '  font-size: 11px;',
-            '  font-weight: 500;',
-            '  text-transform: uppercase;',
-            '  letter-spacing: 0.04em;',
-            '  padding: 7px 12px;',
-            '  text-align: left;',
-            '  border-bottom: 1px solid #000;',
-            '  white-space: nowrap;',
-            '}',
-            '.navi-steam-cloud-table tbody tr {',
-            '  background: #16202d;',
-            '  border-bottom: 2px solid #0e141b;',
-            '  transition: background 0.12s ease;',
-            '}',
-            '.navi-steam-cloud-table tbody tr:nth-child(even) {',
-            '  background: #192533;',
-            '}',
-            '.navi-steam-cloud-table tbody tr:hover {',
-            '  background: #213245;',
-            '}',
-            '.navi-steam-cloud-table td {',
-            '  padding: 7px 12px;',
-            '  vertical-align: middle;',
-            '  color: #c6d4df;',
-            '}',
-            '.navi-steam-cloud-table td.navi-col-num {',
-            '  font-variant-numeric: tabular-nums;',
-            '  white-space: nowrap;',
-            '}',
-            '.navi-steam-cloud-link {',
-            '  background: transparent;',
-            '  border: none;',
-            '  color: #ebebeb;',
-            '  font-family: inherit;',
-            '  font-size: 13px;',
-            '  cursor: pointer;',
-            '  padding: 2px 6px;',
-            '  text-align: left;',
-            '  text-decoration: none;',
-            '}',
-            '.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible {',
-            '  color: #66c0f4;',
-            '  text-decoration: underline;',
-            '}',
-            '@media (max-width: 560px) {',
-            '  .navi-steam-cloud-table thead {',
-            '    position: absolute;',
-            '    width: 1px;',
-            '    height: 1px;',
-            '    overflow: hidden;',
-            '    clip: rect(0 0 0 0);',
-            '  }',
-            '  .navi-steam-cloud-table tbody tr {',
-            '    display: block;',
-            '    padding: 8px 10px;',
-            '    margin-bottom: 6px;',
-            '  }',
-            '  .navi-steam-cloud-table td {',
-            '    display: flex;',
-            '    justify-content: space-between;',
-            '    align-items: center;',
-            '    gap: 10px;',
-            '    padding: 4px 4px;',
-            '    text-align: right;',
-            '  }',
-            '  .navi-steam-cloud-table td::before {',
-            '    content: attr(data-label);',
-            '    font-weight: 600;',
-            '    font-size: 11px;',
-            '    color: #8f98a0;',
-            '    text-transform: uppercase;',
-            '    text-align: left;',
-            '  }',
-            '}'
-        ].join('\n');
+        style.textContent = NAVI_CLOUD_STYLES;
         doc.head.appendChild(style);
     }
 
@@ -1150,41 +990,13 @@
         overlay.id = 'navi-cloud-files-modal-overlay';
         overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.82);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:"Motiva Sans",Arial,sans-serif;backdrop-filter:blur(4px);';
 
-        var modal = document.createElement('div');
-        modal.style.cssText = 'background:#1b2838;border:1px solid #2a475e;border-top:2px solid #66c0f4;border-radius:3px;width:880px;max-width:94vw;max-height:86vh;padding:22px 26px;color:#c6d4df;box-shadow:0 20px 50px rgba(0,0,0,0.85);display:flex;flex-direction:column;gap:14px;overflow:hidden;';
+        overlay.innerHTML = CLOUD_FILES_MODAL_HTML;
+        document.body.appendChild(overlay);
 
-        var topBar = document.createElement('div');
-        topBar.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;gap:12px;';
-
-        var titleWrap = document.createElement('div');
-        var breadcrumb = document.createElement('div');
-        breadcrumb.style.cssText = 'font-size:11px;color:#8f98a0;margin-bottom:4px;letter-spacing:0.02em;';
-        breadcrumb.innerText = 'Home > Account > View Steam Cloud';
-
-        var heading = document.createElement('h2');
-        heading.style.cssText = 'margin:0;font-size:24px;font-weight:400;color:#ffffff;letter-spacing:0.01em;';
-        heading.innerText = 'View Steam Cloud';
-
-        titleWrap.appendChild(breadcrumb);
-        titleWrap.appendChild(heading);
-
-        var closeX = document.createElement('button');
-        closeX.id = 'navi-close-x';
-        closeX.className = 'Focusable';
-        closeX.setAttribute('tabindex', '-1');
-        closeX.style.cssText = 'background:transparent;border:none;color:#8f98a0;font-size:18px;cursor:pointer;padding:4px 8px;';
-        closeX.innerText = '✕';
+        var closeX = overlay.querySelector('#navi-close-x');
         closeX.onclick = function() { overlay.remove(); };
 
-        topBar.appendChild(titleWrap);
-        topBar.appendChild(closeX);
-
-        var subHeader = document.createElement('div');
-        subHeader.style.cssText = 'display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding-bottom:6px;border-bottom:1px solid #2a475e;';
-
-        var gameInfoWrap = document.createElement('div');
-        var gameNameEl = document.createElement('div');
-        gameNameEl.style.cssText = 'font-size:15px;font-weight:600;color:#ffffff;margin-bottom:4px;';
+        var gameNameEl = overlay.querySelector('#navi-cloud-game-title');
         var currentTitle = resolveGameTitle(appId, gameTitleHint);
         gameNameEl.innerText = currentTitle;
         if (isPlaceholderTitle(currentTitle, appId)) {
@@ -1203,15 +1015,7 @@
                 }).catch(function() {});
         }
 
-        var subtitleEl = document.createElement('div');
-        subtitleEl.style.cssText = 'font-size:12px;color:#8f98a0;';
-        subtitleEl.innerText = 'This game files are saved in your Steam Cloud :';
-
-        gameInfoWrap.appendChild(gameNameEl);
-        gameInfoWrap.appendChild(subtitleEl);
-
-        var actionToolbar = document.createElement('div');
-        actionToolbar.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
+        var actionToolbar = overlay.querySelector('#navi-cloud-actions');
 
         function makeActionBtn(label, bg, color) {
             var b = document.createElement('button');
@@ -1232,11 +1036,7 @@
         actionToolbar.appendChild(restoreBtn);
         actionToolbar.appendChild(resetBtn);
 
-        subHeader.appendChild(gameInfoWrap);
-        subHeader.appendChild(actionToolbar);
-
-        var statusToast = document.createElement('div');
-        statusToast.style.cssText = 'display:none;padding:8px 12px;border-radius:2px;font-size:12px;background:#16202d;border:1px solid #66c0f4;color:#66c0f4;';
+        var statusToast = overlay.querySelector('#navi-cloud-status-toast');
 
         function showStatusMessage(msg, isError) {
             statusToast.style.display = 'block';
@@ -1245,34 +1045,10 @@
             statusToast.innerText = msg;
         }
 
-        var tableRegion = document.createElement('div');
-        tableRegion.className = 'navi-cloud-table-region';
-        tableRegion.setAttribute('tabindex', '0');
-        tableRegion.setAttribute('role', 'region');
-        tableRegion.setAttribute('aria-label', 'Steam Cloud Files');
-        tableRegion.style.cssText = 'flex:1;overflow-y:auto;min-height:220px;';
-
-        var footerBar = document.createElement('div');
-        footerBar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding-top:6px;';
-
-        var summaryText = document.createElement('span');
-        summaryText.style.cssText = 'font-size:12px;color:#8f98a0;';
-        summaryText.innerText = 'Scanning cloud storage...';
-
-        var closeBtn = makeActionBtn('Close', '#32373d', '#c6d4df');
-        closeBtn.id = 'navi-modal-cancel';
+        var tableRegion = overlay.querySelector('#navi-cloud-table-region');
+        var summaryText = overlay.querySelector('#navi-cloud-summary-text');
+        var closeBtn = overlay.querySelector('#navi-modal-cancel');
         closeBtn.onclick = function() { overlay.remove(); };
-
-        footerBar.appendChild(summaryText);
-        footerBar.appendChild(closeBtn);
-
-        modal.appendChild(topBar);
-        modal.appendChild(subHeader);
-        modal.appendChild(statusToast);
-        modal.appendChild(tableRegion);
-        modal.appendChild(footerBar);
-        overlay.appendChild(modal);
-        document.body.appendChild(overlay);
 
         var focusableButtons = [syncBtn, backupBtn, restoreBtn, resetBtn, closeBtn, closeX];
 
@@ -1410,6 +1186,12 @@
         trapSteamGamepadModal(overlay, focusableButtons);
     }
 
+
+    // --- main.js ---
+    /**
+     * @file  main.js
+     * @brief Lifecycle initialization, polling coordinator, and public NaviCloudManager API export
+     */
     /**
      * Polling tick
      */
@@ -1485,4 +1267,5 @@
     } else {
         init();
     }
+
 })();

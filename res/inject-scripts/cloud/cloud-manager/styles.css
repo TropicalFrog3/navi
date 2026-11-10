@@ -1,0 +1,99 @@
+.navi-cloud-table-region {
+  overflow-x: auto;
+  max-width: 100%;
+  border: 1px solid #2a475e;
+  border-radius: 2px;
+  background: #101822;
+}
+.navi-cloud-table-region:focus-visible {
+  outline: 2px solid #66c0f4;
+  outline-offset: 2px;
+}
+.navi-steam-cloud-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Motiva Sans", Arial, Helvetica, sans-serif;
+  font-size: 13px;
+  color: #c6d4df;
+}
+.navi-steam-cloud-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #2a475e;
+  color: #8f98a0;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 7px 12px;
+  text-align: left;
+  border-bottom: 1px solid #000;
+  white-space: nowrap;
+}
+.navi-steam-cloud-table tbody tr {
+  background: #16202d;
+  border-bottom: 2px solid #0e141b;
+  transition: background 0.12s ease;
+}
+.navi-steam-cloud-table tbody tr:nth-child(even) {
+  background: #192533;
+}
+.navi-steam-cloud-table tbody tr:hover {
+  background: #213245;
+}
+.navi-steam-cloud-table td {
+  padding: 7px 12px;
+  vertical-align: middle;
+  color: #c6d4df;
+}
+.navi-steam-cloud-table td.navi-col-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.navi-steam-cloud-link {
+  background: transparent;
+  border: none;
+  color: #ebebeb;
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  padding: 2px 6px;
+  text-align: left;
+  text-decoration: none;
+}
+.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible {
+  color: #66c0f4;
+  text-decoration: underline;
+}
+@media (max-width: 560px) {
+  .navi-steam-cloud-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .navi-steam-cloud-table tbody tr {
+    display: block;
+    padding: 8px 10px;
+    margin-bottom: 6px;
+  }
+  .navi-steam-cloud-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 4px;
+    text-align: right;
+  }
+  .navi-steam-cloud-table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    font-size: 11px;
+    color: #8f98a0;
+    text-transform: uppercase;
+    text-align: left;
+  }
+}
+

@@ -1,0 +1,38 @@
+<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 500px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;">
+        <div>
+            <h2 style="margin:0;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;">Cloud Saves Manager</h2>
+            <p style="margin:4px 0 0;font-size:13px;color:#969696;">Configure cloud save redirection &amp; storage providers</p>
+        </div>
+        <button id="sls-settings-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close" style="background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;">&times;</button>
+    </div>
+    <!-- Master Toggle -->
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:16px;">
+        <div>
+            <div style="font-size:15px;font-weight:500;color:#fff;">Master Cloud Saves</div>
+            <div style="font-size:12px;color:#9ca3af;">Enable or disable save redirection globally</div>
+        </div>
+        <button id="sls-master-toggle-btn" class="Focusable" tabindex="-1" role="button" style="height:34px;padding:0 18px;border-radius:2px;border:none;font-weight:600;font-size:13px;cursor:pointer;">Checking...</button>
+    </div>
+    <!-- Provider Selector -->
+    <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;color:#9ca3af;margin-bottom:6px;">Cloud Provider</label>
+        <select id="sls-provider-select" style="width:100%;height:38px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;padding:0 10px;outline:none;">
+            {{PROVIDER_OPTIONS}}
+        </select>
+    </div>
+    <!-- Provider Auth Block -->
+    <div id="sls-provider-auth-block" style="padding:14px;background:rgba(0,0,0,0.25);border:1px solid rgba(172,178,201,0.12);border-radius:3px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <span style="font-size:14px;color:#dcdedf;">Authentication Status:</span>
+            <span id="sls-auth-badge" role="status" aria-live="polite" style="padding:3px 8px;border-radius:2px;font-size:12px;font-weight:600;">Checking...</span>
+        </div>
+        <div id="sls-auth-email" style="font-size:12px;color:#9ca3af;margin-bottom:10px;display:none;"></div>
+        <div id="sls-auth-actions" style="display:flex;justify-content:flex-end;"></div>
+    </div>
+    <!-- Footer Actions -->
+    <div style="display:flex;justify-content:flex-end;gap:10px;">
+        <button id="sls-modal-cancel" class="sls-btn-action Focusable" tabindex="-1" role="button" style="height:36px;padding:0 24px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;">Close</button>
+    </div>
+</div>
+
