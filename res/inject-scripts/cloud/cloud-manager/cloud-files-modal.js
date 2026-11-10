@@ -107,14 +107,16 @@ function openCloudFilesModal(appId, gameTitleHint) {
 
             var table = document.createElement('table');
             table.className = 'navi-steam-cloud-table';
+            table.style.tableLayout = 'fixed';
+            table.style.width = '100%';
 
             var thead = document.createElement('thead');
             thead.innerHTML = '<tr>' +
-                '<th scope="col">FOLDER</th>' +
-                '<th scope="col">FILE NAME</th>' +
-                '<th scope="col">FILE SIZE</th>' +
-                '<th scope="col">DATE WRITTEN</th>' +
-                '<th scope="col"></th>' +
+                '<th scope="col" style="width: 20%; text-align: left;">FOLDER</th>' +
+                '<th scope="col" style="width: 34%; text-align: left;">FILE NAME</th>' +
+                '<th scope="col" style="width: 14%; text-align: right;">FILE SIZE</th>' +
+                '<th scope="col" style="width: 20%; text-align: right;">DATE WRITTEN</th>' +
+                '<th scope="col" style="width: 12%; text-align: right;"></th>' +
                 '</tr>';
             table.appendChild(thead);
 
@@ -124,21 +126,27 @@ function openCloudFilesModal(appId, gameTitleHint) {
 
                 var tdFolder = document.createElement('td');
                 tdFolder.setAttribute('data-label', 'FOLDER');
+                tdFolder.style.textAlign = 'left';
                 tdFolder.innerText = f.folder || 'SteamCloud';
 
                 var tdName = document.createElement('td');
                 tdName.setAttribute('data-label', 'FILE NAME');
-                tdName.style.wordBreak = 'break-all';
+                tdName.style.textAlign = 'left';
+                tdName.style.overflow = 'hidden';
+                tdName.style.textOverflow = 'ellipsis';
+                tdName.style.whiteSpace = 'nowrap';
                 tdName.innerText = f.fileName || '';
 
                 var tdSize = document.createElement('td');
                 tdSize.className = 'navi-col-num';
                 tdSize.setAttribute('data-label', 'FILE SIZE');
+                tdSize.style.textAlign = 'right';
                 tdSize.innerText = formatBytes(f.sizeBytes);
 
                 var tdDate = document.createElement('td');
                 tdDate.className = 'navi-col-num';
                 tdDate.setAttribute('data-label', 'DATE WRITTEN');
+                tdDate.style.textAlign = 'right';
                 tdDate.innerText = formatSteamCloudDate(f.timestamp);
 
                 var tdDl = document.createElement('td');

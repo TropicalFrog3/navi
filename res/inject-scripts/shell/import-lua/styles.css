@@ -72,6 +72,19 @@ details[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 
 .sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }
 .sls-cloud-tree-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
 .sls-cloud-tree-item.active { background: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }
+/* Steam Cloud Table & Drilldown Styles */
+.navi-cloud-table-region { overflow-x: auto; max-width: 100%; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; background: #101822; }
+.navi-cloud-table-region:focus-visible { outline: 2px solid #66c0f4; outline-offset: 2px; }
+.navi-steam-cloud-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-family: "Motiva Sans", Arial, Helvetica, sans-serif; font-size: 12.5px; color: #c6d4df; }
+.navi-steam-cloud-table thead th { position: sticky; top: 0; z-index: 2; background: #1e2837; color: #8f98a0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; border-bottom: 2px solid #0e141b; white-space: nowrap; }
+.navi-steam-cloud-table tbody tr { background: #16202d; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.12s ease; }
+.navi-steam-cloud-table tbody tr:nth-child(even) { background: #192533; }
+.navi-steam-cloud-table tbody tr:hover { background: #223348 !important; }
+.navi-steam-cloud-table td { padding: 8px 12px; vertical-align: middle; color: #c6d4df; }
+.navi-steam-cloud-table td.navi-col-num { font-variant-numeric: tabular-nums; font-family: monospace; font-size: 12px; white-space: nowrap; }
+tr.sls-cfg-item { display: table-row !important; background-color: transparent !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; min-height: unset !important; }
+.navi-steam-cloud-link { display: inline-flex; align-items: center; justify-content: center; background: rgba(102, 192, 244, 0.1); border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; color: #66c0f4; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 3px 10px; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }
+.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible { background: #1a9fff; border-color: #38bdf8; color: #ffffff; text-decoration: none; }
 .sls-cfg-danger { border-left: 3px solid #ef4444; border-radius: 6px; background-color: #171a22; padding: 14px 18px; margin-top: 8px; box-sizing: border-box; }
 .sls-cfg-inline-error { color: #ef4444; font-size: 12px; line-height: 16px; margin-top: 4px; flex-basis: 100%; width: 100%; text-align: left; display: none; }
 @keyframes sls-cfg-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }

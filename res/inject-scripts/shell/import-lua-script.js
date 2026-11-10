@@ -8,7 +8,7 @@
     window.__slsImportLuaInjected = true;
 
     // Inlined Styles & Templates
-    var SLS_SHELL_STYLES = "/*\n * @file  styles.css\n * @brief Stylesheet for custom Steam top-bar tabs, Navi config shell, and manual install modal\n */\n\n@keyframes sls-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n@keyframes sls-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__ {\n    color: rgb(150, 150, 150) !important;\n    text-shadow: none !important;\n    font-weight: normal !important;\n}\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__::after {\n    display: none !important;\n}\ndetails summary::-webkit-details-marker { display: none !important; }\ndetails summary { list-style: none !important; }\ndetails .sls-lua-chevron { transition: transform 0.2s ease; color: rgb(139, 146, 154); }\ndetails[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 255); }\n.sls-cfg-shell { background-color: #14171d !important; color: #ffffff !important; }\n.sls-cfg-sidebar { background-color: #191c24 !important; border-right: 1px solid rgba(255, 255, 255, 0.06) !important; width: 230px !important; }\n.sls-cfg-pill { background: transparent; border: none; border-left: 3px solid transparent; border-radius: 0; color: #8a929e; padding: 10px 16px 10px 20px; height: 40px; box-sizing: border-box; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: all 0.15s ease; user-select: none; outline: none; }\n.sls-cfg-pill:hover { background-color: rgba(255, 255, 255, 0.04); color: #ffffff; }\n.sls-cfg-pill.active { background-color: rgba(26, 159, 255, 0.08) !important; color: #ffffff !important; font-weight: 500 !important; border-left: 3px solid #1a9fff !important; }\n.sls-cfg-pill.active svg { color: #1a9fff !important; stroke: #1a9fff !important; }\n.sls-cfg-card, .DialogControlsSection { background-color: #1c202a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 8px !important; padding: 18px 20px !important; margin-top: 18px !important; box-sizing: border-box !important; }\n.sls-cfg-item { background-color: #171a22 !important; border: 1px solid rgba(255, 255, 255, 0.04) !important; border-radius: 6px !important; padding: 14px 18px !important; margin-top: 8px !important; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; box-sizing: border-box; flex-wrap: wrap; }\n.sls-toggle-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }\n.sls-toggle-switch input { opacity: 0; width: 0; height: 0; }\n.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2f3a; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 9999px; }\n.sls-toggle-slider:before { position: absolute; content: \"\"; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #ffffff; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }\n.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: #1a9fff; }\n.sls-toggle-switch input:checked + .sls-toggle-slider:before { transform: translateX(16px); }\n:focus-visible { outline: 2px solid #1a9fff !important; outline-offset: 2px !important; }\n.sls-card-selectable { border: 1px solid rgba(255,255,255,0.08); background: #171a22; border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }\n.sls-card-selectable:hover { border-color: rgba(26, 159, 255, 0.4); background: rgba(26, 159, 255, 0.06); }\n.sls-card-selectable.active { border-color: #1a9fff !important; background: rgba(26, 159, 255, 0.12) !important; }\n.sls-preset-chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: #8a929e; padding: 6px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }\n.sls-preset-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }\n.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: #1a9fff; color: #1a9fff; font-weight: 600; }\n.sls-step-node { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 120px; }\n.sls-step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: rgb(150, 150, 150); flex-shrink: 0; }\n.sls-step-node.active .sls-step-circle { background: #1a9fff; color: #fff; }\n.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #22c55e; color: #fff; }\n.sls-cfg-input { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 7px 12px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; }\n.sls-cfg-input:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-textarea { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box; width: 100%; }\n.sls-cfg-textarea:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-btn { background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #e2e8f0; padding: 8px 14px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; cursor: pointer; transition: all 0.15s ease; outline: none; }\n.sls-cfg-btn:hover { background-color: rgba(255, 255, 255, 0.14); color: #fff; }\n.sls-cfg-btn:active { background-color: rgba(255, 255, 255, 0.2); }\n.sls-cfg-btn:disabled, .sls-cfg-btn[disabled] { opacity: 0.45 !important; cursor: not-allowed !important; box-shadow: none !important; }\n.sls-cfg-btn:disabled:hover, .sls-cfg-btn[disabled]:hover { background-color: rgba(255, 255, 255, 0.08); }\n.sls-cfg-btn-primary { background: #1a9fff !important; border-color: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n.sls-cfg-btn-primary:hover { background: #38bdf8 !important; border-color: #38bdf8 !important; }\n.sls-cfg-btn-danger { background: rgba(239, 68, 68, 0.12) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: #f87171 !important; border-radius: 6px !important; }\n.sls-cfg-btn-danger:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }\n.sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }\n.sls-cfg-dialog-body::-webkit-scrollbar { width: 10px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 5px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }\n.sls-cloud-view-pill { padding: 5px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #8f98a0; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-view-pill:hover { background: rgba(255,255,255,0.08); color: #fff; }\n.sls-cloud-view-pill.active { background: #1a9fff !important; border-color: #38bdf8 !important; color: #fff !important; font-weight: 600 !important; }\n.sls-cloud-filter-tab { padding: 7px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-bottom: none; border-radius: 4px 4px 0 0; color: #8f98a0; font-size: 12px; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-filter-tab:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-filter-tab.active { background: #172433 !important; color: #66c0f4 !important; border-color: #2a475e !important; border-bottom: 2px solid #1a9fff !important; font-weight: 600 !important; }\n.sls-cloud-group-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: #171a22; overflow: hidden; margin-bottom: 8px; }\n.sls-cloud-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #1c202a; cursor: pointer; user-select: none; transition: background 0.15s ease; }\n.sls-cloud-group-header:hover { background: #232834; }\n.sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }\n.sls-cloud-tree-item:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-tree-item.active { background: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n.sls-cfg-danger { border-left: 3px solid #ef4444; border-radius: 6px; background-color: #171a22; padding: 14px 18px; margin-top: 8px; box-sizing: border-box; }\n.sls-cfg-inline-error { color: #ef4444; font-size: 12px; line-height: 16px; margin-top: 4px; flex-basis: 100%; width: 100%; text-align: left; display: none; }\n@keyframes sls-cfg-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }\n.sls-cfg-skeleton { background: rgba(255, 255, 255, 0.07); border-radius: 6px; animation: sls-cfg-pulse 1.4s ease-in-out infinite; }\n@media (max-width: 1279px) { .sls-cfg-sidebar { width: 200px !important; min-width: 200px !important; } }\n@media (max-width: 767px) { .sls-cfg-shell { flex-direction: column !important; } .sls-cfg-sidebar { width: 100% !important; min-width: 0 !important; max-width: none !important; height: auto !important; padding: 12px 0 !important; } .sls-cfg-tablist { flex-direction: row !important; overflow-x: auto !important; overflow-y: hidden !important; } .sls-cfg-pill { width: auto !important; white-space: nowrap; padding: 8px 12px !important; } .sls-cfg-dialog-body { padding: 16px !important; } .sls-cfg-item { flex-wrap: wrap !important; } .sls-cfg-saveblock { position: sticky !important; bottom: 0 !important; background: #191c24 !important; padding: 8px 16px 12px 16px !important; } }\n";
+    var SLS_SHELL_STYLES = "/*\n * @file  styles.css\n * @brief Stylesheet for custom Steam top-bar tabs, Navi config shell, and manual install modal\n */\n\n@keyframes sls-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n@keyframes sls-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__ {\n    color: rgb(150, 150, 150) !important;\n    text-shadow: none !important;\n    font-weight: normal !important;\n}\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__::after {\n    display: none !important;\n}\ndetails summary::-webkit-details-marker { display: none !important; }\ndetails summary { list-style: none !important; }\ndetails .sls-lua-chevron { transition: transform 0.2s ease; color: rgb(139, 146, 154); }\ndetails[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 255); }\n.sls-cfg-shell { background-color: #14171d !important; color: #ffffff !important; }\n.sls-cfg-sidebar { background-color: #191c24 !important; border-right: 1px solid rgba(255, 255, 255, 0.06) !important; width: 230px !important; }\n.sls-cfg-pill { background: transparent; border: none; border-left: 3px solid transparent; border-radius: 0; color: #8a929e; padding: 10px 16px 10px 20px; height: 40px; box-sizing: border-box; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: all 0.15s ease; user-select: none; outline: none; }\n.sls-cfg-pill:hover { background-color: rgba(255, 255, 255, 0.04); color: #ffffff; }\n.sls-cfg-pill.active { background-color: rgba(26, 159, 255, 0.08) !important; color: #ffffff !important; font-weight: 500 !important; border-left: 3px solid #1a9fff !important; }\n.sls-cfg-pill.active svg { color: #1a9fff !important; stroke: #1a9fff !important; }\n.sls-cfg-card, .DialogControlsSection { background-color: #1c202a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 8px !important; padding: 18px 20px !important; margin-top: 18px !important; box-sizing: border-box !important; }\n.sls-cfg-item { background-color: #171a22 !important; border: 1px solid rgba(255, 255, 255, 0.04) !important; border-radius: 6px !important; padding: 14px 18px !important; margin-top: 8px !important; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; box-sizing: border-box; flex-wrap: wrap; }\n.sls-toggle-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }\n.sls-toggle-switch input { opacity: 0; width: 0; height: 0; }\n.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2f3a; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 9999px; }\n.sls-toggle-slider:before { position: absolute; content: \"\"; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #ffffff; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }\n.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: #1a9fff; }\n.sls-toggle-switch input:checked + .sls-toggle-slider:before { transform: translateX(16px); }\n:focus-visible { outline: 2px solid #1a9fff !important; outline-offset: 2px !important; }\n.sls-card-selectable { border: 1px solid rgba(255,255,255,0.08); background: #171a22; border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }\n.sls-card-selectable:hover { border-color: rgba(26, 159, 255, 0.4); background: rgba(26, 159, 255, 0.06); }\n.sls-card-selectable.active { border-color: #1a9fff !important; background: rgba(26, 159, 255, 0.12) !important; }\n.sls-preset-chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: #8a929e; padding: 6px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }\n.sls-preset-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }\n.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: #1a9fff; color: #1a9fff; font-weight: 600; }\n.sls-step-node { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 120px; }\n.sls-step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: rgb(150, 150, 150); flex-shrink: 0; }\n.sls-step-node.active .sls-step-circle { background: #1a9fff; color: #fff; }\n.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #22c55e; color: #fff; }\n.sls-cfg-input { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 7px 12px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; }\n.sls-cfg-input:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-textarea { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box; width: 100%; }\n.sls-cfg-textarea:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-btn { background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #e2e8f0; padding: 8px 14px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; cursor: pointer; transition: all 0.15s ease; outline: none; }\n.sls-cfg-btn:hover { background-color: rgba(255, 255, 255, 0.14); color: #fff; }\n.sls-cfg-btn:active { background-color: rgba(255, 255, 255, 0.2); }\n.sls-cfg-btn:disabled, .sls-cfg-btn[disabled] { opacity: 0.45 !important; cursor: not-allowed !important; box-shadow: none !important; }\n.sls-cfg-btn:disabled:hover, .sls-cfg-btn[disabled]:hover { background-color: rgba(255, 255, 255, 0.08); }\n.sls-cfg-btn-primary { background: #1a9fff !important; border-color: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n.sls-cfg-btn-primary:hover { background: #38bdf8 !important; border-color: #38bdf8 !important; }\n.sls-cfg-btn-danger { background: rgba(239, 68, 68, 0.12) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: #f87171 !important; border-radius: 6px !important; }\n.sls-cfg-btn-danger:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }\n.sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }\n.sls-cfg-dialog-body::-webkit-scrollbar { width: 10px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 5px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }\n.sls-cloud-view-pill { padding: 5px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #8f98a0; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-view-pill:hover { background: rgba(255,255,255,0.08); color: #fff; }\n.sls-cloud-view-pill.active { background: #1a9fff !important; border-color: #38bdf8 !important; color: #fff !important; font-weight: 600 !important; }\n.sls-cloud-filter-tab { padding: 7px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-bottom: none; border-radius: 4px 4px 0 0; color: #8f98a0; font-size: 12px; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-filter-tab:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-filter-tab.active { background: #172433 !important; color: #66c0f4 !important; border-color: #2a475e !important; border-bottom: 2px solid #1a9fff !important; font-weight: 600 !important; }\n.sls-cloud-group-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: #171a22; overflow: hidden; margin-bottom: 8px; }\n.sls-cloud-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #1c202a; cursor: pointer; user-select: none; transition: background 0.15s ease; }\n.sls-cloud-group-header:hover { background: #232834; }\n.sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }\n.sls-cloud-tree-item:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-tree-item.active { background: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n/* Steam Cloud Table & Drilldown Styles */\n.navi-cloud-table-region { overflow-x: auto; max-width: 100%; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; background: #101822; }\n.navi-cloud-table-region:focus-visible { outline: 2px solid #66c0f4; outline-offset: 2px; }\n.navi-steam-cloud-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 12.5px; color: #c6d4df; }\n.navi-steam-cloud-table thead th { position: sticky; top: 0; z-index: 2; background: #1e2837; color: #8f98a0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; border-bottom: 2px solid #0e141b; white-space: nowrap; }\n.navi-steam-cloud-table tbody tr { background: #16202d; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.12s ease; }\n.navi-steam-cloud-table tbody tr:nth-child(even) { background: #192533; }\n.navi-steam-cloud-table tbody tr:hover { background: #223348 !important; }\n.navi-steam-cloud-table td { padding: 8px 12px; vertical-align: middle; color: #c6d4df; }\n.navi-steam-cloud-table td.navi-col-num { font-variant-numeric: tabular-nums; font-family: monospace; font-size: 12px; white-space: nowrap; }\ntr.sls-cfg-item { display: table-row !important; background-color: transparent !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; min-height: unset !important; }\n.navi-steam-cloud-link { display: inline-flex; align-items: center; justify-content: center; background: rgba(102, 192, 244, 0.1); border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; color: #66c0f4; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 3px 10px; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }\n.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible { background: #1a9fff; border-color: #38bdf8; color: #ffffff; text-decoration: none; }\n.sls-cfg-danger { border-left: 3px solid #ef4444; border-radius: 6px; background-color: #171a22; padding: 14px 18px; margin-top: 8px; box-sizing: border-box; }\n.sls-cfg-inline-error { color: #ef4444; font-size: 12px; line-height: 16px; margin-top: 4px; flex-basis: 100%; width: 100%; text-align: left; display: none; }\n@keyframes sls-cfg-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }\n.sls-cfg-skeleton { background: rgba(255, 255, 255, 0.07); border-radius: 6px; animation: sls-cfg-pulse 1.4s ease-in-out infinite; }\n@media (max-width: 1279px) { .sls-cfg-sidebar { width: 200px !important; min-width: 200px !important; } }\n@media (max-width: 767px) { .sls-cfg-shell { flex-direction: column !important; } .sls-cfg-sidebar { width: 100% !important; min-width: 0 !important; max-width: none !important; height: auto !important; padding: 12px 0 !important; } .sls-cfg-tablist { flex-direction: row !important; overflow-x: auto !important; overflow-y: hidden !important; } .sls-cfg-pill { width: auto !important; white-space: nowrap; padding: 8px 12px !important; } .sls-cfg-dialog-body { padding: 16px !important; } .sls-cfg-item { flex-wrap: wrap !important; } .sls-cfg-saveblock { position: sticky !important; bottom: 0 !important; background: #191c24 !important; padding: 8px 16px 12px 16px !important; } }\n";
     var MANUAL_INSTALL_HTML = "<!--\n  @file  manual-install.html\n  @brief Modal markup for manual Lua script and manifest depot cache installation\n-->\n\ncontainer.innerHTML = '<div style=\"max-width: 1000px; margin: 0 auto;\">\n<div style=\"margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 24px;\">\n<div>\n<h1 style=\"margin: 0; font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #66c0f4 0%, #1a9fff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;\">Manual Installation</h1>\n<p style=\"margin: 8px 0 0; font-size: 14px; color: #8f98a0;\">Manually install Lua plugins and Manifest depotcaches for any Steam game.</p>\n</div>\n</div>\n<div style=\"display: flex; flex-direction: column; gap: 0;\">\n<div style=\"width: 100%; box-sizing: border-box; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; overflow: hidden;\">\n<div id=\"sls-manual-dropzone\" style=\"min-height: 180px; border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s;\">\n<svg style=\"width: 48px; height: 48px; color: #66c0f4; margin-bottom: 16px;\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12\"></path>\n</svg>\n<p style=\"margin: 0; font-size: 15px; font-weight: 600; color: #fff;\">Supports .zip, .lua, .manifest, or entire folders</p>\n<div style=\"margin-top: 20px; display: flex; gap: 10px;\">\n<button id=\"sls-manual-select-files\" style=\"background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; outline: none;\">\nSelect Files\n</button>\n<button id=\"sls-manual-select-folder\" style=\"background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; outline: none;\">\nSelect Folder\n</button>\n</div>\n</div>\n<div id=\"sls-manual-file-list\" style=\"max-height: 480px; overflow-y: auto; display: none; flex-direction: column; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; margin-top: 24px;\">\n</div>\n<div style=\"margin-top: 24px;\">\n<div id=\"sls-manual-status\" role=\"status\" aria-live=\"polite\" style=\"margin-bottom: 12px; font-size: 14px; text-align: center; color: #8f98a0; font-weight: 600;\">\n</div>\n<button id=\"sls-manual-submit\" disabled style=\"width: 100%; background: rgba(255, 255, 255, 0.05); border: none; border-radius: 8px; color: rgba(255,255,255,0.3); padding: 16px; font-size: 15px; font-weight: 700; cursor: not-allowed; outline: none;\">\nImport\n</button>\n</div>\n</div>\n</div>\n</div>\n";
 
     // --- utils.js ---
@@ -301,8 +301,7 @@
 
                     var dlAllBtn = document.createElement('button');
                     dlAllBtn.type = 'button';
-                    dlAllBtn.className = 'sls-cloud-group-dl-all-btn sls-cfg-btn';
-                    dlAllBtn.style.cssText = 'padding: 3px 8px; font-size: 11px; color: #66c0f4; background: #2a475e;';
+                    dlAllBtn.className = 'sls-cloud-group-dl-all-btn navi-steam-cloud-link';
                     dlAllBtn.setAttribute('data-folder', folderName);
                     dlAllBtn.textContent = 'Download All';
                     dlAllBtn.onclick = function (e) {
@@ -331,13 +330,15 @@
 
                     var table = document.createElement('table');
                     table.className = 'navi-steam-cloud-table';
+                    table.style.tableLayout = 'fixed';
+                    table.style.width = '100%';
                     table.style.margin = '0';
                     table.innerHTML =
                         '<thead><tr>' +
-                            '<th scope="col">FILE NAME</th>' +
-                            '<th scope="col">FILE SIZE</th>' +
-                            '<th scope="col">DATE WRITTEN</th>' +
-                            '<th scope="col"></th>' +
+                            '<th scope="col" style="width: 48%; text-align: left;">FILE NAME</th>' +
+                            '<th scope="col" style="width: 16%; text-align: right;">FILE SIZE</th>' +
+                            '<th scope="col" style="width: 22%; text-align: right;">DATE WRITTEN</th>' +
+                            '<th scope="col" style="width: 14%; text-align: right;"></th>' +
                         '</tr></thead>';
 
                     var tbody = document.createElement('tbody');
@@ -348,18 +349,23 @@
 
                         var tdName = document.createElement('td');
                         tdName.setAttribute('data-label', 'FILE NAME');
-                        tdName.style.wordBreak = 'break-all';
+                        tdName.style.textAlign = 'left';
+                        tdName.style.overflow = 'hidden';
+                        tdName.style.textOverflow = 'ellipsis';
+                        tdName.style.whiteSpace = 'nowrap';
                         var typeInfo = getFileTypeInfo(f.fileName);
-                        tdName.innerHTML = '<span style="margin-right:6px;">' + typeInfo.icon + '</span><span>' + escapeHtml(f.fileName || '') + '</span>';
+                        tdName.innerHTML = '<span style="margin-right: 8px; font-size: 13px;">' + typeInfo.icon + '</span><span style="font-weight: 500; color: #e2e8f0;">' + escapeHtml(f.fileName || '') + '</span>';
 
                         var tdSize = document.createElement('td');
                         tdSize.className = 'navi-col-num';
                         tdSize.setAttribute('data-label', 'FILE SIZE');
+                        tdSize.style.textAlign = 'right';
                         tdSize.textContent = fmtBytes(f.sizeBytes);
 
                         var tdDate = document.createElement('td');
                         tdDate.className = 'navi-col-num';
                         tdDate.setAttribute('data-label', 'DATE WRITTEN');
+                        tdDate.style.textAlign = 'right';
                         tdDate.textContent = fmtDate(f.timestamp);
 
                         var tdDl = document.createElement('td');
@@ -441,17 +447,17 @@
 
                 var headerBar = document.createElement('div');
                 headerBar.id = 'sls-cloud-drilldown-header';
-                headerBar.style.cssText = 'display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 12px; margin-bottom: 12px; background: #182330; border: 1px solid #2a475e; border-radius: 4px;';
+                headerBar.style.cssText = 'display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 12px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 4px;';
 
                 var switcherWrap = document.createElement('div');
                 switcherWrap.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-                switcherWrap.innerHTML = '<span style="font-size:12px; color:#c6d4df; font-weight:600;">📂 Grouped Sections</span>';
+                switcherWrap.innerHTML = '<span style="font-size: 11px; color: #8a929e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">📁 Cloud Folders &amp; Files</span>';
 
                 var statsWrap = document.createElement('div');
                 statsWrap.style.cssText = 'font-size: 12px; color: #8f98a0;';
-                statsWrap.innerHTML = '<span id="sls-cloud-stat-count"><b style="color:#fff;">' + _state.files.length + '</b> file' + (_state.files.length !== 1 ? 's' : '') + '</span>' +
+                statsWrap.innerHTML = '<span id="sls-cloud-stat-count"><b style="color: #ffffff;">' + _state.files.length + '</b> file' + (_state.files.length !== 1 ? 's' : '') + '</span>' +
                     ' &bull; ' +
-                    '<span id="sls-cloud-stat-size" style="color:#66c0f4; font-family:monospace;">' + fmtBytes(totalBytes) + '</span>';
+                    '<span id="sls-cloud-stat-size" style="color: #66c0f4; font-family: monospace;">' + fmtBytes(totalBytes) + '</span>';
 
                 headerBar.appendChild(switcherWrap);
                 headerBar.appendChild(statsWrap);
@@ -780,18 +786,18 @@
                         '<div id="sls-cfg-cs-view-subtitle" style="font-size: 12px; color: #8a929e; margin-top: 2px;">Games and saves stored for your account.</div>' +
                     '</div>' +
                     '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
-                        '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" type="button" style="display: none; padding: 6px 12px; font-size: 12px; color: #38bdf8; background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 6px; cursor: pointer; font-weight: 500;">&larr; Back to Games</button>' +
-                        '<button id="sls-cfg-cs-scan-orphans-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Scan Orphans</button>' +
-                        '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Refresh list</button>' +
+                        '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" type="button" style="display: none; padding: 6px 14px; font-size: 12px; color: #38bdf8; background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 4px; cursor: pointer; font-weight: 500;">&larr; Back to Games</button>' +
+                        '<button id="sls-cfg-cs-scan-orphans-btn" class="sls-cfg-btn" type="button" style="padding: 6px 14px; font-size: 12px;">Scan Orphans</button>' +
+                        '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" type="button" style="padding: 6px 14px; font-size: 12px;">Refresh list</button>' +
                         '<div style="position: relative; display: inline-flex; align-items: center;">' +
                             '<span style="position: absolute; left: 10px; color: #626975; font-size: 12px; pointer-events: none;" aria-hidden="true">&#128269;</span>' +
-                            '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Game name or AppID" aria-label="Search saves" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                            '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Search games or AppID..." aria-label="Search saves" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
                             '<button id="sls-cfg-cs-search-clear" type="button" aria-label="Clear search" style="display: none; position: absolute; right: 8px; background: none; border: none; color: #9ca3af; font-size: 14px; cursor: pointer; padding: 0 2px; line-height: 1;">&times;</button>' +
                         '</div>' +
                     '</div>' +
                 '</div>' +
                 '<div id="sls-cfg-cs-orphans-panel" style="display: none; margin-bottom: 12px; padding: 12px 14px; background: #14171d; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;"></div>' +
-                '<div id="sls-cfg-cs-game-toolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 12px; margin-bottom: 10px; background: #1b2838; border: 1px solid #2a475e; border-radius: 4px;"></div>' +
+                '<div id="sls-cfg-cs-game-toolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 14px; margin-bottom: 10px; background: #1b2838; border: 1px solid #2a475e; border-radius: 4px;"></div>' +
                 '<div id="sls-cfg-managed-apps-list" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="Your Steam Cloud" style="max-height: 420px; overflow-y: auto; background: #101822; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;"></div>' +
             '</div>';
 
@@ -1921,13 +1927,15 @@
 
                         var bTable = document.createElement('table');
                         bTable.className = 'navi-steam-cloud-table';
+                        bTable.style.tableLayout = 'fixed';
+                        bTable.style.width = '100%';
                         bTable.innerHTML =
                             '<thead><tr>' +
-                                '<th scope="col">GAME</th>' +
-                                '<th scope="col">BACKUP ARCHIVE</th>' +
-                                '<th scope="col">DATE</th>' +
-                                '<th scope="col">SIZE</th>' +
-                                '<th scope="col" style="text-align: right;">ACTIONS</th>' +
+                                '<th scope="col" style="width: 26%; text-align: left;">GAME</th>' +
+                                '<th scope="col" style="width: 36%; text-align: left;">BACKUP ARCHIVE</th>' +
+                                '<th scope="col" style="width: 18%; text-align: right;">DATE</th>' +
+                                '<th scope="col" style="width: 10%; text-align: right;">SIZE</th>' +
+                                '<th scope="col" style="width: 10%; text-align: right;">ACTIONS</th>' +
                             '</tr></thead>';
 
                         var bTbody = document.createElement('tbody');
@@ -1947,23 +1955,33 @@
 
                             var tdBGame = document.createElement('td');
                             tdBGame.setAttribute('data-label', 'GAME');
+                            tdBGame.style.textAlign = 'left';
+                            tdBGame.style.overflow = 'hidden';
+                            tdBGame.style.textOverflow = 'ellipsis';
+                            tdBGame.style.whiteSpace = 'nowrap';
                             tdBGame.innerHTML = '<span style="color:#ffffff;font-weight:500;">' + escapeHtml(bTitle) + '</span>' +
                                 '<span style="font-size:11px;color:#8f98a0;margin-left:6px;">(' + escapeHtml(String(bAppId)) + ')</span>';
 
                             var tdBFile = document.createElement('td');
                             tdBFile.setAttribute('data-label', 'BACKUP ARCHIVE');
+                            tdBFile.style.textAlign = 'left';
                             tdBFile.style.fontFamily = 'monospace';
                             tdBFile.style.fontSize = '12px';
+                            tdBFile.style.overflow = 'hidden';
+                            tdBFile.style.textOverflow = 'ellipsis';
+                            tdBFile.style.whiteSpace = 'nowrap';
                             tdBFile.textContent = bFile;
 
                             var tdBDate = document.createElement('td');
                             tdBDate.className = 'navi-col-num';
                             tdBDate.setAttribute('data-label', 'DATE');
+                            tdBDate.style.textAlign = 'right';
                             tdBDate.textContent = fmtDate(b.timestamp);
 
                             var tdBSize = document.createElement('td');
                             tdBSize.className = 'navi-col-num';
                             tdBSize.setAttribute('data-label', 'SIZE');
+                            tdBSize.style.textAlign = 'right';
                             tdBSize.textContent = fmtBytes(b.sizeBytes);
 
                             var tdBActions = document.createElement('td');
@@ -2252,7 +2270,7 @@
 
                     function updateDrilldownBreadcrumb(title) {
                         if (!breadcrumbEl) return;
-                        breadcrumbEl.innerHTML = 'Home &gt; Account &gt; <a href="#" id="sls-cfg-cs-crumb-back" style="color: #38bdf8; text-decoration: none; cursor: pointer;">View Steam Cloud</a> &gt; ' + escapeHtml(title);
+                        breadcrumbEl.innerHTML = 'Home &gt; Account &gt; <a href="#" id="sls-cfg-cs-crumb-back" style="color: #38bdf8; text-decoration: none; cursor: pointer; font-weight: 500;">View Steam Cloud</a> &gt; ' + escapeHtml(title);
                         var crumbBack = document.getElementById('sls-cfg-cs-crumb-back');
                         if (crumbBack) {
                             crumbBack.onclick = function (e) {
@@ -2268,6 +2286,8 @@
                     if (headingEl) headingEl.textContent = selTitle;
                     if (subtitleEl) subtitleEl.textContent = 'This game files are saved in your Steam Cloud :';
                     if (backBtnEl) backBtnEl.style.display = 'inline-block';
+                    if (scanOrphansBtnEl) scanOrphansBtnEl.style.display = 'none';
+                    if (addAppInput) addAppInput.placeholder = 'Search files in cloud...';
 
                     if (isPlaceholderTitle(selTitle, selAppId)) {
                         (function (sId) {
@@ -2291,16 +2311,16 @@
                     if (gameToolbarEl) {
                         gameToolbarEl.style.display = 'flex';
                         gameToolbarEl.innerHTML =
-                            '<div style="display: flex; align-items: center; gap: 10px;">' +
-                                '<button id="sls-cfg-cs-toolbar-back" class="sls-cfg-btn" type="button" style="background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); color: #38bdf8; padding: 5px 11px; font-size: 12px; cursor: pointer; border-radius: 4px; font-weight: 500;">&larr; Back to Games</button>' +
-                                '<div style="font-size: 12px; color: #8a929e;">AppID <b style="color: #fff;">' + escapeHtml(String(selAppId)) + '</b> &bull; Provider: <b style="color: #66c0f4;">' + escapeHtml(provider) + '</b></div>' +
+                            '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
+                                '<span style="background: rgba(102, 192, 244, 0.12); color: #66c0f4; border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; padding: 3px 8px; font-size: 11.5px; font-weight: 600;">AppID ' + escapeHtml(String(selAppId)) + '</span>' +
+                                '<span style="background: rgba(255, 255, 255, 0.05); color: #c6d4df; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; padding: 3px 8px; font-size: 11.5px;">Provider: <b style="color: #66c0f4;">' + escapeHtml(provider) + '</b></span>' +
                             '</div>' +
-                            '<div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">' +
-                                '<button id="sls-cfg-cs-app-sync" class="sls-cfg-btn" style="background:#2a475e; border:1px solid rgba(102,192,244,0.35); color:#66c0f4; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Sync Now</button>' +
-                                '<button id="sls-cfg-cs-app-backup" class="sls-cfg-btn" style="background:#273b4b; border:1px solid rgba(255,255,255,0.14); color:#c6d4df; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Backup</button>' +
-                                '<button id="sls-cfg-cs-app-restore" class="sls-cfg-btn" style="background:#273b4b; border:1px solid rgba(255,255,255,0.14); color:#c6d4df; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Restore</button>' +
-                                '<button id="sls-cfg-cs-app-reset" class="sls-cfg-btn" style="background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Reset</button>' +
-                                '<button id="sls-cfg-cs-app-remove" class="sls-cfg-btn" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); color:#9ca3af; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Remove Redirect</button>' +
+                            '<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">' +
+                                '<button id="sls-cfg-cs-app-sync" class="sls-cfg-btn" style="background: #2a475e; border: 1px solid rgba(102, 192, 244, 0.4); color: #66c0f4; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px; font-weight: 600;">Sync Now</button>' +
+                                '<button id="sls-cfg-cs-app-backup" class="sls-cfg-btn" style="background: #273b4b; border: 1px solid rgba(255, 255, 255, 0.14); color: #c6d4df; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Backup</button>' +
+                                '<button id="sls-cfg-cs-app-restore" class="sls-cfg-btn" style="background: #273b4b; border: 1px solid rgba(255, 255, 255, 0.14); color: #c6d4df; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Restore</button>' +
+                                '<button id="sls-cfg-cs-app-reset" class="sls-cfg-btn" style="background: rgba(239, 68, 68, 0.16); border: 1px solid rgba(239, 68, 68, 0.38); color: #fca5a5; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Reset</button>' +
+                                '<button id="sls-cfg-cs-app-remove" class="sls-cfg-btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: #9ca3af; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Remove Redirect</button>' +
                             '</div>';
 
                         var btnToolbarBack = document.getElementById('sls-cfg-cs-toolbar-back');
@@ -2419,7 +2439,9 @@
                 if (headingEl) headingEl.textContent = 'View Steam Cloud';
                 if (subtitleEl) subtitleEl.textContent = 'View game files saved to your Steam Cloud';
                 if (backBtnEl) backBtnEl.style.display = 'none';
+                if (scanOrphansBtnEl) scanOrphansBtnEl.style.display = 'inline-block';
                 if (gameToolbarEl) gameToolbarEl.style.display = 'none';
+                if (addAppInput) addAppInput.placeholder = 'Search games or AppID...';
 
                 appsListContainer.innerHTML = '<div style="padding: 28px 16px; text-align: center; color: #8f98a0; font-size: 13px;">Scanning cloud storage (' + escapeHtml(provider) + ')...</div>';
 
@@ -2465,12 +2487,14 @@
 
                     var table = document.createElement('table');
                     table.className = 'navi-steam-cloud-table';
+                    table.style.tableLayout = 'fixed';
+                    table.style.width = '100%';
                     table.innerHTML =
                         '<thead><tr>' +
-                            '<th scope="col">GAME</th>' +
-                            '<th scope="col">NUMBER OF FILES</th>' +
-                            '<th scope="col">TOTAL SIZE OF FILES</th>' +
-                            '<th scope="col"></th>' +
+                            '<th scope="col" style="width: 48%; text-align: left;">GAME</th>' +
+                            '<th scope="col" style="width: 18%; text-align: right;">NUMBER OF FILES</th>' +
+                            '<th scope="col" style="width: 18%; text-align: right;">TOTAL SIZE OF FILES</th>' +
+                            '<th scope="col" style="width: 16%; text-align: right;"></th>' +
                         '</tr></thead>';
 
                     var tbody = document.createElement('tbody');
@@ -2488,14 +2512,18 @@
 
                         var tdGame = document.createElement('td');
                         tdGame.setAttribute('data-label', 'GAME');
+                        tdGame.style.textAlign = 'left';
+                        tdGame.style.overflow = 'hidden';
+                        tdGame.style.textOverflow = 'ellipsis';
+                        tdGame.style.whiteSpace = 'nowrap';
 
                         var titleSpan = document.createElement('span');
-                        titleSpan.style.cssText = 'color:#ffffff;font-weight:400;';
+                        titleSpan.style.cssText = 'color: #ffffff; font-weight: 500; font-size: 13px;';
                         titleSpan.textContent = gameTitle;
                         tdGame.appendChild(titleSpan);
 
                         var idSpan = document.createElement('span');
-                        idSpan.style.cssText = 'font-size:11px;color:#8f98a0;margin-left:6px;';
+                        idSpan.style.cssText = 'font-size: 11px; color: #8f98a0; margin-left: 6px;';
                         idSpan.textContent = '(' + escapeHtml(String(appId)) + ')';
                         tdGame.appendChild(idSpan);
 
@@ -2506,11 +2534,13 @@
                         var tdCount = document.createElement('td');
                         tdCount.className = 'navi-col-num';
                         tdCount.setAttribute('data-label', 'NUMBER OF FILES');
+                        tdCount.style.textAlign = 'right';
                         tdCount.textContent = String(Number(app.fileCount) || 0);
 
                         var tdSize = document.createElement('td');
                         tdSize.className = 'navi-col-num';
                         tdSize.setAttribute('data-label', 'TOTAL SIZE OF FILES');
+                        tdSize.style.textAlign = 'right';
                         tdSize.textContent = fmtBytes(app.totalSizeBytes);
 
                         var tdShow = document.createElement('td');
@@ -2868,6 +2898,28 @@
                         var txt = (r.getAttribute('data-search') || r.textContent || '').toLowerCase();
                         r.style.display = (!q || txt.indexOf(q) !== -1) ? '' : 'none';
                     });
+
+                    if (q) {
+                        var groupCards = container.querySelectorAll('.sls-cloud-group-card');
+                        groupCards.forEach(function (card) {
+                            var cardRows = card.querySelectorAll('.navi-cloud-file-row');
+                            var hasVisible = false;
+                            for (var i = 0; i < cardRows.length; i++) {
+                                if (cardRows[i].style.display !== 'none') {
+                                    hasVisible = true;
+                                    break;
+                                }
+                            }
+                            var body = card.querySelector('.sls-cloud-group-body');
+                            if (body && hasVisible) {
+                                body.style.display = 'block';
+                                var chevron = card.querySelector('.sls-cloud-group-chevron');
+                                if (chevron) chevron.textContent = '▼';
+                                var header = card.querySelector('.sls-cloud-group-header');
+                                if (header) header.setAttribute('aria-expanded', 'true');
+                            }
+                        });
+                    }
                 };
 
                 addAppInput.onkeydown = function (e) {

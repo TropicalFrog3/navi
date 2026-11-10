@@ -136,8 +136,7 @@
 
                 var dlAllBtn = document.createElement('button');
                 dlAllBtn.type = 'button';
-                dlAllBtn.className = 'sls-cloud-group-dl-all-btn sls-cfg-btn';
-                dlAllBtn.style.cssText = 'padding: 3px 8px; font-size: 11px; color: #66c0f4; background: #2a475e;';
+                dlAllBtn.className = 'sls-cloud-group-dl-all-btn navi-steam-cloud-link';
                 dlAllBtn.setAttribute('data-folder', folderName);
                 dlAllBtn.textContent = 'Download All';
                 dlAllBtn.onclick = function (e) {
@@ -166,13 +165,15 @@
 
                 var table = document.createElement('table');
                 table.className = 'navi-steam-cloud-table';
+                table.style.tableLayout = 'fixed';
+                table.style.width = '100%';
                 table.style.margin = '0';
                 table.innerHTML =
                     '<thead><tr>' +
-                        '<th scope="col">FILE NAME</th>' +
-                        '<th scope="col">FILE SIZE</th>' +
-                        '<th scope="col">DATE WRITTEN</th>' +
-                        '<th scope="col"></th>' +
+                        '<th scope="col" style="width: 48%; text-align: left;">FILE NAME</th>' +
+                        '<th scope="col" style="width: 16%; text-align: right;">FILE SIZE</th>' +
+                        '<th scope="col" style="width: 22%; text-align: right;">DATE WRITTEN</th>' +
+                        '<th scope="col" style="width: 14%; text-align: right;"></th>' +
                     '</tr></thead>';
 
                 var tbody = document.createElement('tbody');
@@ -183,18 +184,23 @@
 
                     var tdName = document.createElement('td');
                     tdName.setAttribute('data-label', 'FILE NAME');
-                    tdName.style.wordBreak = 'break-all';
+                    tdName.style.textAlign = 'left';
+                    tdName.style.overflow = 'hidden';
+                    tdName.style.textOverflow = 'ellipsis';
+                    tdName.style.whiteSpace = 'nowrap';
                     var typeInfo = getFileTypeInfo(f.fileName);
-                    tdName.innerHTML = '<span style="margin-right:6px;">' + typeInfo.icon + '</span><span>' + escapeHtml(f.fileName || '') + '</span>';
+                    tdName.innerHTML = '<span style="margin-right: 8px; font-size: 13px;">' + typeInfo.icon + '</span><span style="font-weight: 500; color: #e2e8f0;">' + escapeHtml(f.fileName || '') + '</span>';
 
                     var tdSize = document.createElement('td');
                     tdSize.className = 'navi-col-num';
                     tdSize.setAttribute('data-label', 'FILE SIZE');
+                    tdSize.style.textAlign = 'right';
                     tdSize.textContent = fmtBytes(f.sizeBytes);
 
                     var tdDate = document.createElement('td');
                     tdDate.className = 'navi-col-num';
                     tdDate.setAttribute('data-label', 'DATE WRITTEN');
+                    tdDate.style.textAlign = 'right';
                     tdDate.textContent = fmtDate(f.timestamp);
 
                     var tdDl = document.createElement('td');
@@ -276,17 +282,17 @@
 
             var headerBar = document.createElement('div');
             headerBar.id = 'sls-cloud-drilldown-header';
-            headerBar.style.cssText = 'display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 12px; margin-bottom: 12px; background: #182330; border: 1px solid #2a475e; border-radius: 4px;';
+            headerBar.style.cssText = 'display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 8px 12px; margin-bottom: 10px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 4px;';
 
             var switcherWrap = document.createElement('div');
             switcherWrap.style.cssText = 'display: flex; align-items: center; gap: 8px;';
-            switcherWrap.innerHTML = '<span style="font-size:12px; color:#c6d4df; font-weight:600;">📂 Grouped Sections</span>';
+            switcherWrap.innerHTML = '<span style="font-size: 11px; color: #8a929e; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">📁 Cloud Folders &amp; Files</span>';
 
             var statsWrap = document.createElement('div');
             statsWrap.style.cssText = 'font-size: 12px; color: #8f98a0;';
-            statsWrap.innerHTML = '<span id="sls-cloud-stat-count"><b style="color:#fff;">' + _state.files.length + '</b> file' + (_state.files.length !== 1 ? 's' : '') + '</span>' +
+            statsWrap.innerHTML = '<span id="sls-cloud-stat-count"><b style="color: #ffffff;">' + _state.files.length + '</b> file' + (_state.files.length !== 1 ? 's' : '') + '</span>' +
                 ' &bull; ' +
-                '<span id="sls-cloud-stat-size" style="color:#66c0f4; font-family:monospace;">' + fmtBytes(totalBytes) + '</span>';
+                '<span id="sls-cloud-stat-size" style="color: #66c0f4; font-family: monospace;">' + fmtBytes(totalBytes) + '</span>';
 
             headerBar.appendChild(switcherWrap);
             headerBar.appendChild(statsWrap);

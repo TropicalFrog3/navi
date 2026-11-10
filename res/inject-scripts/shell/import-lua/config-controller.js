@@ -634,13 +634,15 @@ function hideConfigPage() {
 
                     var bTable = document.createElement('table');
                     bTable.className = 'navi-steam-cloud-table';
+                    bTable.style.tableLayout = 'fixed';
+                    bTable.style.width = '100%';
                     bTable.innerHTML =
                         '<thead><tr>' +
-                            '<th scope="col">GAME</th>' +
-                            '<th scope="col">BACKUP ARCHIVE</th>' +
-                            '<th scope="col">DATE</th>' +
-                            '<th scope="col">SIZE</th>' +
-                            '<th scope="col" style="text-align: right;">ACTIONS</th>' +
+                            '<th scope="col" style="width: 26%; text-align: left;">GAME</th>' +
+                            '<th scope="col" style="width: 36%; text-align: left;">BACKUP ARCHIVE</th>' +
+                            '<th scope="col" style="width: 18%; text-align: right;">DATE</th>' +
+                            '<th scope="col" style="width: 10%; text-align: right;">SIZE</th>' +
+                            '<th scope="col" style="width: 10%; text-align: right;">ACTIONS</th>' +
                         '</tr></thead>';
 
                     var bTbody = document.createElement('tbody');
@@ -660,23 +662,33 @@ function hideConfigPage() {
 
                         var tdBGame = document.createElement('td');
                         tdBGame.setAttribute('data-label', 'GAME');
+                        tdBGame.style.textAlign = 'left';
+                        tdBGame.style.overflow = 'hidden';
+                        tdBGame.style.textOverflow = 'ellipsis';
+                        tdBGame.style.whiteSpace = 'nowrap';
                         tdBGame.innerHTML = '<span style="color:#ffffff;font-weight:500;">' + escapeHtml(bTitle) + '</span>' +
                             '<span style="font-size:11px;color:#8f98a0;margin-left:6px;">(' + escapeHtml(String(bAppId)) + ')</span>';
 
                         var tdBFile = document.createElement('td');
                         tdBFile.setAttribute('data-label', 'BACKUP ARCHIVE');
+                        tdBFile.style.textAlign = 'left';
                         tdBFile.style.fontFamily = 'monospace';
                         tdBFile.style.fontSize = '12px';
+                        tdBFile.style.overflow = 'hidden';
+                        tdBFile.style.textOverflow = 'ellipsis';
+                        tdBFile.style.whiteSpace = 'nowrap';
                         tdBFile.textContent = bFile;
 
                         var tdBDate = document.createElement('td');
                         tdBDate.className = 'navi-col-num';
                         tdBDate.setAttribute('data-label', 'DATE');
+                        tdBDate.style.textAlign = 'right';
                         tdBDate.textContent = fmtDate(b.timestamp);
 
                         var tdBSize = document.createElement('td');
                         tdBSize.className = 'navi-col-num';
                         tdBSize.setAttribute('data-label', 'SIZE');
+                        tdBSize.style.textAlign = 'right';
                         tdBSize.textContent = fmtBytes(b.sizeBytes);
 
                         var tdBActions = document.createElement('td');
@@ -965,7 +977,7 @@ function hideConfigPage() {
 
                 function updateDrilldownBreadcrumb(title) {
                     if (!breadcrumbEl) return;
-                    breadcrumbEl.innerHTML = 'Home &gt; Account &gt; <a href="#" id="sls-cfg-cs-crumb-back" style="color: #38bdf8; text-decoration: none; cursor: pointer;">View Steam Cloud</a> &gt; ' + escapeHtml(title);
+                    breadcrumbEl.innerHTML = 'Home &gt; Account &gt; <a href="#" id="sls-cfg-cs-crumb-back" style="color: #38bdf8; text-decoration: none; cursor: pointer; font-weight: 500;">View Steam Cloud</a> &gt; ' + escapeHtml(title);
                     var crumbBack = document.getElementById('sls-cfg-cs-crumb-back');
                     if (crumbBack) {
                         crumbBack.onclick = function (e) {
@@ -981,6 +993,8 @@ function hideConfigPage() {
                 if (headingEl) headingEl.textContent = selTitle;
                 if (subtitleEl) subtitleEl.textContent = 'This game files are saved in your Steam Cloud :';
                 if (backBtnEl) backBtnEl.style.display = 'inline-block';
+                if (scanOrphansBtnEl) scanOrphansBtnEl.style.display = 'none';
+                if (addAppInput) addAppInput.placeholder = 'Search files in cloud...';
 
                 if (isPlaceholderTitle(selTitle, selAppId)) {
                     (function (sId) {
@@ -1004,16 +1018,16 @@ function hideConfigPage() {
                 if (gameToolbarEl) {
                     gameToolbarEl.style.display = 'flex';
                     gameToolbarEl.innerHTML =
-                        '<div style="display: flex; align-items: center; gap: 10px;">' +
-                            '<button id="sls-cfg-cs-toolbar-back" class="sls-cfg-btn" type="button" style="background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); color: #38bdf8; padding: 5px 11px; font-size: 12px; cursor: pointer; border-radius: 4px; font-weight: 500;">&larr; Back to Games</button>' +
-                            '<div style="font-size: 12px; color: #8a929e;">AppID <b style="color: #fff;">' + escapeHtml(String(selAppId)) + '</b> &bull; Provider: <b style="color: #66c0f4;">' + escapeHtml(provider) + '</b></div>' +
+                        '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
+                            '<span style="background: rgba(102, 192, 244, 0.12); color: #66c0f4; border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; padding: 3px 8px; font-size: 11.5px; font-weight: 600;">AppID ' + escapeHtml(String(selAppId)) + '</span>' +
+                            '<span style="background: rgba(255, 255, 255, 0.05); color: #c6d4df; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; padding: 3px 8px; font-size: 11.5px;">Provider: <b style="color: #66c0f4;">' + escapeHtml(provider) + '</b></span>' +
                         '</div>' +
-                        '<div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">' +
-                            '<button id="sls-cfg-cs-app-sync" class="sls-cfg-btn" style="background:#2a475e; border:1px solid rgba(102,192,244,0.35); color:#66c0f4; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Sync Now</button>' +
-                            '<button id="sls-cfg-cs-app-backup" class="sls-cfg-btn" style="background:#273b4b; border:1px solid rgba(255,255,255,0.14); color:#c6d4df; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Backup</button>' +
-                            '<button id="sls-cfg-cs-app-restore" class="sls-cfg-btn" style="background:#273b4b; border:1px solid rgba(255,255,255,0.14); color:#c6d4df; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Restore</button>' +
-                            '<button id="sls-cfg-cs-app-reset" class="sls-cfg-btn" style="background:rgba(239,68,68,0.18); border:1px solid rgba(239,68,68,0.35); color:#fca5a5; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Reset</button>' +
-                            '<button id="sls-cfg-cs-app-remove" class="sls-cfg-btn" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.14); color:#9ca3af; padding:5px 11px; font-size:12px; cursor:pointer; border-radius:2px;">Remove Redirect</button>' +
+                        '<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">' +
+                            '<button id="sls-cfg-cs-app-sync" class="sls-cfg-btn" style="background: #2a475e; border: 1px solid rgba(102, 192, 244, 0.4); color: #66c0f4; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px; font-weight: 600;">Sync Now</button>' +
+                            '<button id="sls-cfg-cs-app-backup" class="sls-cfg-btn" style="background: #273b4b; border: 1px solid rgba(255, 255, 255, 0.14); color: #c6d4df; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Backup</button>' +
+                            '<button id="sls-cfg-cs-app-restore" class="sls-cfg-btn" style="background: #273b4b; border: 1px solid rgba(255, 255, 255, 0.14); color: #c6d4df; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Restore</button>' +
+                            '<button id="sls-cfg-cs-app-reset" class="sls-cfg-btn" style="background: rgba(239, 68, 68, 0.16); border: 1px solid rgba(239, 68, 68, 0.38); color: #fca5a5; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Reset</button>' +
+                            '<button id="sls-cfg-cs-app-remove" class="sls-cfg-btn" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: #9ca3af; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px;">Remove Redirect</button>' +
                         '</div>';
 
                     var btnToolbarBack = document.getElementById('sls-cfg-cs-toolbar-back');
@@ -1132,7 +1146,9 @@ function hideConfigPage() {
             if (headingEl) headingEl.textContent = 'View Steam Cloud';
             if (subtitleEl) subtitleEl.textContent = 'View game files saved to your Steam Cloud';
             if (backBtnEl) backBtnEl.style.display = 'none';
+            if (scanOrphansBtnEl) scanOrphansBtnEl.style.display = 'inline-block';
             if (gameToolbarEl) gameToolbarEl.style.display = 'none';
+            if (addAppInput) addAppInput.placeholder = 'Search games or AppID...';
 
             appsListContainer.innerHTML = '<div style="padding: 28px 16px; text-align: center; color: #8f98a0; font-size: 13px;">Scanning cloud storage (' + escapeHtml(provider) + ')...</div>';
 
@@ -1178,12 +1194,14 @@ function hideConfigPage() {
 
                 var table = document.createElement('table');
                 table.className = 'navi-steam-cloud-table';
+                table.style.tableLayout = 'fixed';
+                table.style.width = '100%';
                 table.innerHTML =
                     '<thead><tr>' +
-                        '<th scope="col">GAME</th>' +
-                        '<th scope="col">NUMBER OF FILES</th>' +
-                        '<th scope="col">TOTAL SIZE OF FILES</th>' +
-                        '<th scope="col"></th>' +
+                        '<th scope="col" style="width: 48%; text-align: left;">GAME</th>' +
+                        '<th scope="col" style="width: 18%; text-align: right;">NUMBER OF FILES</th>' +
+                        '<th scope="col" style="width: 18%; text-align: right;">TOTAL SIZE OF FILES</th>' +
+                        '<th scope="col" style="width: 16%; text-align: right;"></th>' +
                     '</tr></thead>';
 
                 var tbody = document.createElement('tbody');
@@ -1201,14 +1219,18 @@ function hideConfigPage() {
 
                     var tdGame = document.createElement('td');
                     tdGame.setAttribute('data-label', 'GAME');
+                    tdGame.style.textAlign = 'left';
+                    tdGame.style.overflow = 'hidden';
+                    tdGame.style.textOverflow = 'ellipsis';
+                    tdGame.style.whiteSpace = 'nowrap';
 
                     var titleSpan = document.createElement('span');
-                    titleSpan.style.cssText = 'color:#ffffff;font-weight:400;';
+                    titleSpan.style.cssText = 'color: #ffffff; font-weight: 500; font-size: 13px;';
                     titleSpan.textContent = gameTitle;
                     tdGame.appendChild(titleSpan);
 
                     var idSpan = document.createElement('span');
-                    idSpan.style.cssText = 'font-size:11px;color:#8f98a0;margin-left:6px;';
+                    idSpan.style.cssText = 'font-size: 11px; color: #8f98a0; margin-left: 6px;';
                     idSpan.textContent = '(' + escapeHtml(String(appId)) + ')';
                     tdGame.appendChild(idSpan);
 
@@ -1219,11 +1241,13 @@ function hideConfigPage() {
                     var tdCount = document.createElement('td');
                     tdCount.className = 'navi-col-num';
                     tdCount.setAttribute('data-label', 'NUMBER OF FILES');
+                    tdCount.style.textAlign = 'right';
                     tdCount.textContent = String(Number(app.fileCount) || 0);
 
                     var tdSize = document.createElement('td');
                     tdSize.className = 'navi-col-num';
                     tdSize.setAttribute('data-label', 'TOTAL SIZE OF FILES');
+                    tdSize.style.textAlign = 'right';
                     tdSize.textContent = fmtBytes(app.totalSizeBytes);
 
                     var tdShow = document.createElement('td');
@@ -1581,6 +1605,28 @@ function hideConfigPage() {
                     var txt = (r.getAttribute('data-search') || r.textContent || '').toLowerCase();
                     r.style.display = (!q || txt.indexOf(q) !== -1) ? '' : 'none';
                 });
+
+                if (q) {
+                    var groupCards = container.querySelectorAll('.sls-cloud-group-card');
+                    groupCards.forEach(function (card) {
+                        var cardRows = card.querySelectorAll('.navi-cloud-file-row');
+                        var hasVisible = false;
+                        for (var i = 0; i < cardRows.length; i++) {
+                            if (cardRows[i].style.display !== 'none') {
+                                hasVisible = true;
+                                break;
+                            }
+                        }
+                        var body = card.querySelector('.sls-cloud-group-body');
+                        if (body && hasVisible) {
+                            body.style.display = 'block';
+                            var chevron = card.querySelector('.sls-cloud-group-chevron');
+                            if (chevron) chevron.textContent = '▼';
+                            var header = card.querySelector('.sls-cloud-group-header');
+                            if (header) header.setAttribute('aria-expanded', 'true');
+                        }
+                    });
+                }
             };
 
             addAppInput.onkeydown = function (e) {

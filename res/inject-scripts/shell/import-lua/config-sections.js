@@ -172,18 +172,18 @@ function buildConfigSectionsHtml(cfg) {
                     '<div id="sls-cfg-cs-view-subtitle" style="font-size: 12px; color: #8a929e; margin-top: 2px;">Games and saves stored for your account.</div>' +
                 '</div>' +
                 '<div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">' +
-                    '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" type="button" style="display: none; padding: 6px 12px; font-size: 12px; color: #38bdf8; background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 6px; cursor: pointer; font-weight: 500;">&larr; Back to Games</button>' +
-                    '<button id="sls-cfg-cs-scan-orphans-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Scan Orphans</button>' +
-                    '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" type="button" style="padding: 6px 12px; font-size: 12px;">Refresh list</button>' +
+                    '<button id="sls-cfg-cs-back-btn" class="sls-cfg-btn" type="button" style="display: none; padding: 6px 14px; font-size: 12px; color: #38bdf8; background: rgba(26, 159, 255, 0.12); border: 1px solid rgba(26, 159, 255, 0.35); border-radius: 4px; cursor: pointer; font-weight: 500;">&larr; Back to Games</button>' +
+                    '<button id="sls-cfg-cs-scan-orphans-btn" class="sls-cfg-btn" type="button" style="padding: 6px 14px; font-size: 12px;">Scan Orphans</button>' +
+                    '<button id="sls-cfg-cs-refresh-btn" class="sls-cfg-btn" type="button" style="padding: 6px 14px; font-size: 12px;">Refresh list</button>' +
                     '<div style="position: relative; display: inline-flex; align-items: center;">' +
                         '<span style="position: absolute; left: 10px; color: #626975; font-size: 12px; pointer-events: none;" aria-hidden="true">&#128269;</span>' +
-                        '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Game name or AppID" aria-label="Search saves" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
+                        '<input type="text" id="sls-cfg-add-cloud-app-input" class="sls-cfg-input" style="width: 220px; height: 32px; padding-left: 28px; padding-right: 24px; font-size: 12px;" placeholder="Search games or AppID..." aria-label="Search saves" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">' +
                         '<button id="sls-cfg-cs-search-clear" type="button" aria-label="Clear search" style="display: none; position: absolute; right: 8px; background: none; border: none; color: #9ca3af; font-size: 14px; cursor: pointer; padding: 0 2px; line-height: 1;">&times;</button>' +
                     '</div>' +
                 '</div>' +
             '</div>' +
             '<div id="sls-cfg-cs-orphans-panel" style="display: none; margin-bottom: 12px; padding: 12px 14px; background: #14171d; border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 6px;"></div>' +
-            '<div id="sls-cfg-cs-game-toolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 12px; margin-bottom: 10px; background: #1b2838; border: 1px solid #2a475e; border-radius: 4px;"></div>' +
+            '<div id="sls-cfg-cs-game-toolbar" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; padding: 10px 14px; margin-bottom: 10px; background: #1b2838; border: 1px solid #2a475e; border-radius: 4px;"></div>' +
             '<div id="sls-cfg-managed-apps-list" class="navi-cloud-table-region" tabindex="0" role="region" aria-label="Your Steam Cloud" style="max-height: 420px; overflow-y: auto; background: #101822; border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 6px;"></div>' +
         '</div>';
 
