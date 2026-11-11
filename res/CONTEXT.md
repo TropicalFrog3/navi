@@ -7,15 +7,20 @@ This room owns everything the installed client loads at runtime: `res/inject-scr
 config template + declarative migration rules, `cloud_redirect.so` + `cloud_redirect_cli`,
 version file, branding (`res/SLSlogos/`). Work sequence: (1) read
 `res/inject-scripts/README.md` before touching any script — it is the category map and
-per-file spec; (2) edit inside the existing category folders; (3) confirm the loader
-search paths in `src/view/cdpinject.cpp:850-875` still cover your file; (4) run the UI
-gates (`./install.sh test-ui`, `./install.sh test-flow`); (5) release packaging copies this folder
-verbatim (`scripts/lib/release.sh`) — never rename without updating that flow.
+per-file spec; (2) edit inside the existing category folders; (3) bundle your specific
+component via `./install.sh bundle-scripts <target>` (`library`, `cloud`, `core`, `lua`, `depots`, `store`);
+(4) verify changes with path-scoped checks (`git status -s -- res/inject-scripts/<category>/`
+and `git diff -- res/inject-scripts/<category>/`) — never run bare repo-wide git status on shared trees;
+(5) run targeted bundle sync (`pytest tests/integration/test_bundle_sync.py`); (6) run UI
+gates (`./install.sh test-ui`, `./install.sh test-flow`) only for structural flow changes.
 `res/SLSlogos/` is a git submodule: never modify or commit into it.
 
 | Task / Stage | Read These Files | Skip These Files | Skills / MCPs / Commands Needed |
 |---|---|---|---|
-| CEF inject-script change | `res/inject-scripts/README.md`, target script inside its category dir (for library app details: edit modular `res/inject-scripts/library/app-details/`; for cloud manager: edit modular `res/inject-scripts/cloud/cloud-manager/`; for core runtime: edit modular `res/inject-scripts/core/navi-inject/`; for shell/import lua: edit modular `res/inject-scripts/shell/import-lua/`; for store depot selection: edit modular `res/inject-scripts/store/depot-selection/`; for store page: edit modular `res/inject-scripts/store/store-page/` and run `./install.sh bundle-scripts`), `src/view/cdpinject.cpp` (search dirs) | `src/core/`, `src/model/`, `pkg/`, `bin/` | `./install.sh bundle-scripts`; `./install.sh test-ui` / `./install.sh test-flow`; MCP `vibe-annotations` + Skill `vibe-implement-annotations` for annotation work; CDP live check via Skill `cef-cdp-injection` |
+| Library UI & Navi Menu | `res/inject-scripts/library/app-details/navi-modal.html` or target file in `library/app-details/` | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts library`; `pytest tests/integration/test_bundle_sync.py`; scoped: `git status -s -- res/inject-scripts/library/` |
+| Cloud Manager UI | `res/inject-scripts/cloud/cloud-manager/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts cloud`; `pytest tests/integration/test_bundle_sync.py`; scoped: `git status -s -- res/inject-scripts/cloud/` |
+| Core Runtime Injection | `res/inject-scripts/core/navi-inject/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts core`; `pytest tests/integration/test_bundle_sync.py`; scoped: `git status -s -- res/inject-scripts/core/` |
+| Store & Shell Injectors | `res/inject-scripts/{store,shell}/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts store` (or `lua`/`depots`); scoped: `git status -s -- res/inject-scripts/` |
 | Config template change | `res/config.yaml`, `res/config.diff.yaml`, `res/cache.diff.yaml`, `src/model/migrations/`, `tests/unit/test_config.cpp` | `res/inject-scripts/` | `./install.sh test`; follow the `$(OldKey)$(NewKey):` bridge syntax (actions: rename, rename_and_convert, remove, convert) |
 | `cloud_redirect.so` replacement | `.gitignore` exception line `!res/cloud_redirect.so`, `docs/references/cloud-redirect-architecture.md` (§1 Components), `src/core/cloud_oauth.*` | `bin/`, `pkg/` | `./install.sh check-cloudredirect` — engine version (v2.6.5) and docs must stay in lockstep |
 | Version / release bump | `res/version` (`Version: beta-v1.2.0` + Changelog — feeds Makefile `DATE`), `res/updates.yaml` (SafeModeHashes per client build) | `bin/`, `obj/` | Skill `release-workflow` owns `./install.sh release` — orchestrator-only |

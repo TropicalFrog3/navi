@@ -89,6 +89,11 @@ class NaviModal(BaseModalPage):
             close_selector="#sls-navi-close",
             cancel_selector="#sls-navi-cancel",
         )
+        self.nav_provider_btn = "#sls-navi-nav-provider"
+        self.nav_game_btn = "#sls-navi-nav-game"
+        self.nav_cloud_btn = "#sls-navi-nav-cloud"
+        self.back_btn = "#sls-navi-back"
+        self.title = "#sls-navi-title"
         self.provider_btn = "#sls-navi-btn-provider"
         self.config_btn = "#sls-navi-btn-config"
         self.cloud_toggle_btn = "#sls-navi-btn-cloud-toggle"
@@ -97,6 +102,31 @@ class NaviModal(BaseModalPage):
         self.cloud_reset_btn = "#sls-navi-btn-cloud-reset"
         self.remove_btn = "#sls-navi-btn-remove"
         self.cloud_badge = "#sls-navi-cloud-badge"
+
+    def open_section(self, name: str) -> None:
+        """Open a drill-down section: provider, game, or cloud."""
+        self.driver.click(f"#sls-navi-nav-{name}")
+
+    def click_back(self) -> None:
+        self.driver.click(self.back_btn)
+
+    def get_title(self) -> str:
+        expr = (
+            "(function() {"
+            f"    var el = document.querySelector({json.dumps(self.title)});"
+            "    return el ? el.textContent.trim() : '';"
+            "})()"
+        )
+        return str(self.driver.evaluate(expr, await_promise=False) or "")
+
+    def is_element_visible(self, selector: str) -> bool:
+        expr = (
+            "(function() {"
+            f"    var el = document.querySelector({json.dumps(selector)});"
+            "    return !!el && el.getClientRects().length > 0;"
+            "})()"
+        )
+        return bool(self.driver.evaluate(expr, await_promise=False))
 
     def click_config(self) -> None:
         self.driver.click(self.config_btn)

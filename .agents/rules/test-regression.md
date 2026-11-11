@@ -66,3 +66,12 @@ Before touching production code in `src/`, author a minimal automated test that 
 1. **No Reproduction, No Fix**: Never accept or commit a bug fix without an accompanying reproduction test.
 2. **Deterministic & Offline**: Regression tests must run offline without external network dependencies unless explicitly tagged under live flow flags (`--live`).
 3. **Continuous Protection**: Once added, regression tests become permanent regression guards in the CI and local verification pipeline.
+
+---
+
+## 4. Exemption: Pure UI Markup & Aesthetic Template Changes
+- Aesthetic UI modifications (HTML restructuring, section grouping, CSS spacing, typography) do **NOT** require authoring new C++ or pytest test cases.
+- **Verification Contract for UI Markup**:
+  1. Retain all existing DOM IDs (`id="sls-navi-btn-*"`) and class hooks so existing event listeners remain attached.
+  2. Verify bundle consistency via `pytest tests/integration/test_bundle_sync.py` or `./install.sh bundle-scripts <target>`.
+  3. Do **NOT** grep the entire `tests/` directory unless an existing test actually fails.

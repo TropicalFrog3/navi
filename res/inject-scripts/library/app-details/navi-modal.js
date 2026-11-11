@@ -27,10 +27,30 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
     overlay.innerHTML = cardHtml;
     document.body.appendChild(overlay);
 
+    var VIEW_TITLES = { main: 'Navi Menu', provider: 'Provider', game: 'Game', cloud: 'Cloud Saves' };
+    var currentView = 'main';
+    var views = overlay.querySelectorAll('.sls-navi-view');
+    var titleEl = document.getElementById('sls-navi-title');
+    var backBtn = document.getElementById('sls-navi-back');
+    var providerCard = document.getElementById('sls-navi-provider-card');
+
+    function showView(name) {
+        if (!VIEW_TITLES[name]) name = 'main';
+        currentView = name;
+        for (var i = 0; i < views.length; i++) {
+            views[i].hidden = views[i].getAttribute('data-sls-view') !== name;
+        }
+        if (titleEl) titleEl.innerText = VIEW_TITLES[name];
+        if (backBtn) backBtn.style.display = name === 'main' ? 'none' : 'flex';
+        if (providerCard) providerCard.style.display = name === 'main' ? 'flex' : 'none';
+        if (typeof overlay.__slsResetFocus === 'function') overlay.__slsResetFocus();
+    }
+
     function onKeyDown(e) {
         if (e.key === 'Escape' || e.keyCode === 27) {
             e.preventDefault();
-            closeModal();
+            if (currentView !== 'main') showView('main');
+            else closeModal();
         }
     }
     window.addEventListener('keydown', onKeyDown);
@@ -60,6 +80,9 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
 
     var closeX = document.getElementById('sls-navi-close');
     var cancelBtn = document.getElementById('sls-navi-cancel');
+    var navProviderBtn = document.getElementById('sls-navi-nav-provider');
+    var navGameBtn = document.getElementById('sls-navi-nav-game');
+    var navCloudBtn = document.getElementById('sls-navi-nav-cloud');
     var provBtn = document.getElementById('sls-navi-btn-provider');
     var confBtn = document.getElementById('sls-navi-btn-config');
     var cloudToggleBtn = document.getElementById('sls-navi-btn-cloud-toggle');
@@ -72,6 +95,26 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
 
     closeX.onclick = function() { closeModal(); };
     cancelBtn.onclick = function() { closeModal(); };
+
+    backBtn.onclick = function(e) {
+        e.preventDefault(); e.stopPropagation();
+        showView('main');
+    };
+
+    navProviderBtn.onclick = function(e) {
+        e.preventDefault(); e.stopPropagation();
+        showView('provider');
+    };
+
+    navGameBtn.onclick = function(e) {
+        e.preventDefault(); e.stopPropagation();
+        showView('game');
+    };
+
+    navCloudBtn.onclick = function(e) {
+        e.preventDefault(); e.stopPropagation();
+        showView('cloud');
+    };
 
     provBtn.onclick = function(e) {
         e.preventDefault(); e.stopPropagation();
@@ -170,5 +213,10 @@ function openNaviModal(appid, isPending, onlineFixInstalled, autoCrackInstalled,
         }
     };
 
-    trapSteamGamepadModal(overlay, [provBtn, confBtn, remBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, cancelBtn, closeX]);
+    overlay.__slsGamepadCancel = function() {
+        if (currentView !== 'main') showView('main');
+        else closeModal();
+    };
+
+    trapSteamGamepadModal(overlay, [navProviderBtn, navGameBtn, navCloudBtn, backBtn, provBtn, confBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, remBtn, cancelBtn, closeX]);
 }

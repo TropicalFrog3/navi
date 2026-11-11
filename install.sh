@@ -23,7 +23,7 @@ Subcommands:
   test-flow           Execute full end-to-end flow test (make test-flow)
   check-cloudredirect Verify CloudRedirect binaries and preload status
   docs                Regenerate workspace CONTEXT.md manifests
-  bundle-scripts      Bundle and minify CEF inject scripts (make bundle-scripts)
+  bundle-scripts [tgt] Bundle CEF inject scripts (target: all|library|cloud|core|lua|depots|store)
   coverage            Generate test coverage report (make coverage)
 
 Options:
@@ -34,13 +34,26 @@ EOF
 }
 
 SUBCOMMAND=""
+BUNDLE_TARGET=""
 ASSUME_YES=0
 DRY_RUN=0
 
 # Parse command line options and subcommand
 while [ $# -gt 0 ]; do
     case "$1" in
-        install|uninstall|update|build|release|test|test-gate07|test-ui|test-flow|check-cloudredirect|docs|bundle-scripts|coverage)
+        bundle-scripts)
+            if [ -n "$SUBCOMMAND" ]; then
+                echo "Error: Multiple subcommands specified: $SUBCOMMAND and $1" >&2
+                usage >&2
+                exit 1
+            fi
+            SUBCOMMAND="$1"
+            if [ $# -gt 1 ] && [[ "$2" =~ ^(all|library|cloud|core|lua|depots|store)$ ]]; then
+                BUNDLE_TARGET="$2"
+                shift
+            fi
+            ;;
+        install|uninstall|update|build|release|test|test-gate07|test-ui|test-flow|check-cloudredirect|docs|coverage)
             if [ -n "$SUBCOMMAND" ]; then
                 echo "Error: Multiple subcommands specified: $SUBCOMMAND and $1" >&2
                 usage >&2
@@ -149,11 +162,25 @@ case "$SUBCOMMAND" in
         fi
         ;;
     bundle-scripts)
+        MAKE_TARGET="bundle-scripts"
+        case "${BUNDLE_TARGET:-all}" in
+            library) MAKE_TARGET="bundle-library" ;;
+            cloud)   MAKE_TARGET="bundle-cloud" ;;
+            core)    MAKE_TARGET="bundle-core" ;;
+            lua)     MAKE_TARGET="bundle-lua" ;;
+            depots)  MAKE_TARGET="bundle-depots" ;;
+            store)   MAKE_TARGET="bundle-store" ;;
+            all|"")  MAKE_TARGET="bundle-scripts" ;;
+            *)
+                log_error "Unknown bundle target: $BUNDLE_TARGET"
+                exit 1
+                ;;
+        esac
         if [ "${DRY_RUN:-0}" -eq 1 ]; then
-            log_dry "make -C $REPO_ROOT bundle-scripts"
+            log_dry "make -C $REPO_ROOT $MAKE_TARGET"
         else
-            log_info "Bundling CEF inject scripts via make bundle-scripts..."
-            make -C "$REPO_ROOT" bundle-scripts
+            log_info "Bundling CEF inject scripts via make $MAKE_TARGET..."
+            make -C "$REPO_ROOT" "$MAKE_TARGET"
         fi
         ;;
     *)

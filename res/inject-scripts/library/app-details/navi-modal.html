@@ -1,63 +1,59 @@
-<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-height: calc(100vh - 32px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-navi-card">
+<div style="background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;" id="sls-navi-card">
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;">
-        <div>
-            <h2 style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Navi Menu</h2>
-            <p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: {{APPID}}</p>
+        <div style="display:flex; align-items:flex-start; gap:8px; min-width:0;">
+            <button id="sls-navi-back" class="sls-btn-back Focusable" tabindex="-1" role="button" aria-label="Back" style="display:none;">&lsaquo;</button>
+            <div>
+                <h2 id="sls-navi-title" style="margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;">Navi Menu</h2>
+                <p style="margin:4px 0 0; font-size:14px; color:#969696;">AppID: {{APPID}}</p>
+            </div>
         </div>
         <button id="sls-navi-close" class="sls-btn-close Focusable" tabindex="-1" role="button" aria-label="Close">&times;</button>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;">
+    <div id="sls-navi-provider-card" style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;">
         <span style="font-size:14px; color:rgb(139, 147, 164);">Current Provider</span>
         <span id="sls-navi-modal-provider" style="font-size:15px; font-weight:500; color:#fff;">{{PROVIDER}}</span>
     </div>
-    <div class="sls-navi-sections" style="display:flex; flex-direction:column; gap:16px; margin-bottom:20px;">
-        <div class="sls-navi-section" data-testid="sls-navi-section-provider">
-            <div class="sls-navi-section-title" style="display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#8b93a4;">
-                <span>Provider</span>
-                <span style="flex:1; height:1px; background:rgba(172,178,201,0.12);"></span>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <button id="sls-navi-btn-provider" class="sls-btn-action sls-change-provider-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
-                    <span>Change Provider</span>
-                </button>
-            </div>
+    <div id="sls-navi-list" style="margin-bottom:20px;">
+        <div class="sls-navi-view" data-sls-view="main">
+            <button id="sls-navi-nav-provider" class="sls-btn-action sls-navi-nav-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
+                <span>Provider</span><span class="sls-navi-chevron">&rsaquo;</span>
+            </button>
+            <button id="sls-navi-nav-game" class="sls-btn-action sls-navi-nav-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
+                <span>Game</span><span class="sls-navi-chevron">&rsaquo;</span>
+            </button>
+            <button id="sls-navi-nav-cloud" class="sls-btn-action sls-navi-nav-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
+                <span>Cloud Saves</span><span class="sls-navi-chevron">&rsaquo;</span>
+            </button>
         </div>
-        <div class="sls-navi-section" data-testid="sls-navi-section-game">
-            <div class="sls-navi-section-title" style="display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#8b93a4;">
-                <span>Game</span>
-                <span style="flex:1; height:1px; background:rgba(172,178,201,0.12);"></span>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <button id="sls-navi-btn-config" class="sls-btn-action sls-config-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
-                    <span>Config (Fix / Auto Crack)</span>
-                </button>
-                <button id="sls-navi-btn-remove" class="sls-btn-action sls-remove-lua-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; {{REMOVE_BTN_STYLE}}">
-                    <span>{{REMOVE_LABEL}}</span>
-                </button>
-            </div>
+        <div class="sls-navi-view" data-sls-view="provider" hidden>
+            <button id="sls-navi-btn-provider" class="sls-btn-action sls-change-provider-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
+                <span>Change Provider</span>
+            </button>
         </div>
-        <div class="sls-navi-section" data-testid="sls-navi-section-cloud">
-            <div class="sls-navi-section-title" style="display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#8b93a4;">
-                <span>Cloud Save</span>
-                <span style="flex:1; height:1px; background:rgba(172,178,201,0.12);"></span>
-            </div>
-            <div style="display:flex; flex-direction:column; gap:8px;">
-                <button id="sls-navi-btn-cloud-toggle" class="sls-btn-action sls-cloud-toggle-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
-                    <span>Cloud Save</span><span id="sls-navi-cloud-badge" style="font-size:13px; font-weight:600; color:#9ca3af;">Checking...</span>
-                </button>
-                <button id="sls-navi-btn-cloud-files" class="sls-btn-action sls-cloud-files-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
-                    <span>View Cloud Files</span><span id="sls-navi-cloud-files-badge" style="font-size:12px; color:#66c0f4;">Steam Cloud &rarr;</span>
-                </button>
-                <button id="sls-navi-btn-cloud-backup" class="sls-btn-action sls-cloud-backup-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
-                    <span>Backup Cloud Save</span>
-                </button>
-                <button id="sls-navi-btn-cloud-restore" class="sls-btn-action sls-cloud-restore-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
-                    <span>Restore Cloud Save</span>
-                </button>
-                <button id="sls-navi-btn-cloud-reset" class="sls-btn-action sls-cloud-reset-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;">
-                    <span>Reset Cloud Save</span>
-                </button>
-            </div>
+        <div class="sls-navi-view" data-sls-view="game" hidden>
+            <button id="sls-navi-btn-config" class="sls-btn-action sls-config-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
+                <span>Config (Fix / Auto Crack)</span>
+            </button>
+            <button id="sls-navi-btn-remove" class="sls-btn-action sls-remove-lua-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; {{REMOVE_BTN_STYLE}}">
+                <span>{{REMOVE_LABEL}}</span>
+            </button>
+        </div>
+        <div class="sls-navi-view" data-sls-view="cloud" hidden>
+            <button id="sls-navi-btn-cloud-toggle" class="sls-btn-action sls-cloud-toggle-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
+                <span>Cloud Save</span><span id="sls-navi-cloud-badge" style="font-size:13px; font-weight:600; color:#9ca3af;">Checking...</span>
+            </button>
+            <button id="sls-navi-btn-cloud-files" class="sls-btn-action sls-cloud-files-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:space-between; padding: 0 16px;">
+                <span>View Cloud Files</span><span id="sls-navi-cloud-files-badge" style="font-size:12px; color:#66c0f4;">Steam Cloud &rarr;</span>
+            </button>
+            <button id="sls-navi-btn-cloud-backup" class="sls-btn-action sls-cloud-backup-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
+                <span>Backup Cloud Save</span>
+            </button>
+            <button id="sls-navi-btn-cloud-restore" class="sls-btn-action sls-cloud-restore-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px;">
+                <span>Restore Cloud Save</span>
+            </button>
+            <button id="sls-navi-btn-cloud-reset" class="sls-btn-action sls-cloud-reset-btn Focusable" tabindex="-1" role="button" style="width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;">
+                <span>Reset Cloud Save</span>
+            </button>
         </div>
     </div>
     <div style="display:flex; justify-content:flex-end;">

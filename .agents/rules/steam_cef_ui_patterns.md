@@ -61,3 +61,9 @@ var buttonMargin = isDeckOrBigPicture ? 'margin-left: 10px;' : 'margin-right: 10
 - **Pending Operations Banner**:
   - Cloud Manager status polling (every 5–10 seconds) must inspect the pending operations queue (`/cloud/pending-ops`).
   - When pending operations are queued, display a persistent, non-dismissible restart warning banner indicating that Steam must be restarted for idle helper operations to take effect.
+
+## 5. Atomic Component Editing Directive
+When editing CEF modal or UI templates (such as `navi-modal.html` or modal controllers):
+- **Single-Pass Synthesis**: Plan the complete component change (HTML structure, container scrolling constraints like `max-height: 80vh; overflow-y: auto;`, and CSS spacing like `gap` and `margin`) before writing code.
+- **Avoid Micro-Edits**: Do not split template changes across multiple sequential tool calls. Apply structural markup and corresponding style adjustments in a single coherent edit.
+- **Preserve Action Hooks**: Never delete or rename existing button IDs (`id="sls-navi-btn-*"`) or event target classes without updating their associated controllers.

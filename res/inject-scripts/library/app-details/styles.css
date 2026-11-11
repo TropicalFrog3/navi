@@ -1,5 +1,43 @@
 /* SLS App Details & Modals Styles */
 
+.sls-navi-view {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sls-navi-view[hidden] {
+    display: none !important;
+}
+
+.sls-navi-chevron {
+    font-size: 20px;
+    line-height: 1;
+    color: rgb(139, 147, 164);
+}
+
+.sls-btn-back {
+    background: transparent;
+    border: none;
+    color: #969696;
+    font-size: 24px;
+    cursor: pointer;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    margin-top: -2px;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.1s ease, color 0.1s ease;
+}
+
+.sls-btn-back:hover {
+    background: rgba(172, 178, 201, 0.14);
+    color: #fff;
+}
+
 .sls-btn-action {
     display: flex;
     justify-content: center;

@@ -37,8 +37,28 @@ function registerSteamFocusNode(element, properties) {
 }
 
 function trapSteamGamepadModal(overlay, buttons) {
-    var activeIdx = 0;
+    var activeIdx = -1;
+
+    function isFocusable(el) {
+        if (!el || el.disabled) return false;
+        return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+    }
+    function firstFocusable() {
+        for (var i = 0; i < buttons.length; i++) {
+            if (isFocusable(buttons[i])) return i;
+        }
+        return -1;
+    }
+    function nextFocusable(start, step) {
+        var idx = start;
+        for (var guard = 0; guard < buttons.length; guard++) {
+            idx = (idx + step + buttons.length) % buttons.length;
+            if (isFocusable(buttons[idx])) return idx;
+        }
+        return -1;
+    }
     function updateFocus() {
+        if (activeIdx < 0 || !isFocusable(buttons[activeIdx])) activeIdx = firstFocusable();
         for (var i = 0; i < buttons.length; i++) {
             if (!buttons[i]) continue;
             if (i === activeIdx) {
@@ -51,6 +71,10 @@ function trapSteamGamepadModal(overlay, buttons) {
             }
         }
     }
+    overlay.__slsResetFocus = function() {
+        activeIdx = -1;
+        updateFocus();
+    };
     setTimeout(updateFocus, 100);
 
     function cleanup() {
@@ -66,15 +90,12 @@ function trapSteamGamepadModal(overlay, buttons) {
         e.stopPropagation();
         if (e.cancelable) e.preventDefault();
         var dir = e.detail ? e.detail.button : null;
-        var startIdx = activeIdx;
         if (dir === 9 || dir === 11) { // Up or Left
-            do {
-                activeIdx = (activeIdx > 0) ? activeIdx - 1 : buttons.length - 1;
-            } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
+            if (activeIdx < 0) activeIdx = firstFocusable();
+            else activeIdx = nextFocusable(activeIdx, -1);
         } else if (dir === 10 || dir === 12) { // Down or Right
-            do {
-                activeIdx = (activeIdx < buttons.length - 1) ? activeIdx + 1 : 0;
-            } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
+            if (activeIdx < 0) activeIdx = firstFocusable();
+            else activeIdx = nextFocusable(activeIdx, 1);
         }
         updateFocus();
     }
@@ -82,12 +103,17 @@ function trapSteamGamepadModal(overlay, buttons) {
         if (!document.body.contains(overlay)) { cleanup(); return; }
         e.stopPropagation();
         if (e.cancelable) e.preventDefault();
-        if (buttons[activeIdx] && !buttons[activeIdx].disabled) buttons[activeIdx].click();
+        if (activeIdx < 0) activeIdx = firstFocusable();
+        if (isFocusable(buttons[activeIdx])) buttons[activeIdx].click();
     }
     function cancelCatcher(e) {
         if (!document.body.contains(overlay)) { cleanup(); return; }
         e.stopPropagation();
         if (e.cancelable) e.preventDefault();
+        if (typeof overlay.__slsGamepadCancel === 'function') {
+            overlay.__slsGamepadCancel();
+            return;
+        }
         var cancelBtn = overlay.querySelector('#sls-btn-cancel, #sls-prov-cancel, #sls-close-x, #sls-prov-close, #sls-remove-cancel, #sls-navi-cancel, #sls-navi-close');
         if (cancelBtn) cancelBtn.click(); else overlay.remove();
     }

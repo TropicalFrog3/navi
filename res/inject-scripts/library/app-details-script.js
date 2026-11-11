@@ -13,13 +13,13 @@
     }
 
     // Inlined Styles & Templates
-    var SLS_STYLES = "/* SLS App Details & Modals Styles */\n\n.sls-btn-action {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    background: rgba(172, 178, 201, 0.14);\n    color: rgb(220, 222, 223);\n    border: none;\n    border-radius: 2px;\n    padding: 8px 16px;\n    font-size: 16px;\n    font-weight: 400;\n    font-family: \"Motiva Sans\", sans-serif;\n    height: 48px;\n    box-sizing: border-box;\n    cursor: pointer;\n    text-decoration: none;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-action:hover,\n.sls-btn-action:not(:disabled):hover {\n    background: rgba(172, 178, 201, 0.25);\n}\n\n.sls-btn-action:active,\n.sls-btn-action:not(:disabled):active {\n    background: rgba(172, 178, 201, 0.30);\n}\n\n.sls-btn-close {\n    background: transparent;\n    border: none;\n    color: #969696;\n    font-size: 24px;\n    cursor: pointer;\n    width: 32px;\n    height: 32px;\n    border-radius: 2px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-close:hover {\n    background: rgba(172, 178, 201, 0.14);\n    color: #fff;\n}\n\n#sls-remove-confirm:hover {\n    background: rgba(220, 38, 38, 1) !important;\n}\n\n.sls-btn-restore-item {\n    background: #2563eb;\n    color: #fff;\n    border: none;\n    border-radius: 2px;\n    padding: 6px 14px;\n    font-size: 13px;\n    cursor: pointer;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-restore-item:hover {\n    background: #1d4ed8;\n}\n\n/* Modal overlays */\n#sls-overlay-modal,\n#sls-provider-modal,\n#sls-remove-modal,\n#sls-restore-modal,\n#sls-reset-modal,\n#sls-navi-modal {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background: rgba(0, 0, 0, 0.8);\n    z-index: 999999;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    backdrop-filter: blur(8px);\n}\n\n#sls-restore-modal,\n#sls-reset-modal {\n    background: rgba(0, 0, 0, 0.82);\n}\n\n";
+    var SLS_STYLES = "/* SLS App Details & Modals Styles */\n\n.sls-navi-view {\n    display: flex;\n    flex-direction: column;\n    gap: 10px;\n}\n\n.sls-navi-view[hidden] {\n    display: none !important;\n}\n\n.sls-navi-chevron {\n    font-size: 20px;\n    line-height: 1;\n    color: rgb(139, 147, 164);\n}\n\n.sls-btn-back {\n    background: transparent;\n    border: none;\n    color: #969696;\n    font-size: 24px;\n    cursor: pointer;\n    width: 28px;\n    height: 28px;\n    padding: 0;\n    margin-top: -2px;\n    border-radius: 2px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: background 0.1s ease, color 0.1s ease;\n}\n\n.sls-btn-back:hover {\n    background: rgba(172, 178, 201, 0.14);\n    color: #fff;\n}\n\n.sls-btn-action {\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    background: rgba(172, 178, 201, 0.14);\n    color: rgb(220, 222, 223);\n    border: none;\n    border-radius: 2px;\n    padding: 8px 16px;\n    font-size: 16px;\n    font-weight: 400;\n    font-family: \"Motiva Sans\", sans-serif;\n    height: 48px;\n    box-sizing: border-box;\n    cursor: pointer;\n    text-decoration: none;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-action:hover,\n.sls-btn-action:not(:disabled):hover {\n    background: rgba(172, 178, 201, 0.25);\n}\n\n.sls-btn-action:active,\n.sls-btn-action:not(:disabled):active {\n    background: rgba(172, 178, 201, 0.30);\n}\n\n.sls-btn-close {\n    background: transparent;\n    border: none;\n    color: #969696;\n    font-size: 24px;\n    cursor: pointer;\n    width: 32px;\n    height: 32px;\n    border-radius: 2px;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-close:hover {\n    background: rgba(172, 178, 201, 0.14);\n    color: #fff;\n}\n\n#sls-remove-confirm:hover {\n    background: rgba(220, 38, 38, 1) !important;\n}\n\n.sls-btn-restore-item {\n    background: #2563eb;\n    color: #fff;\n    border: none;\n    border-radius: 2px;\n    padding: 6px 14px;\n    font-size: 13px;\n    cursor: pointer;\n    transition: background 0.1s ease;\n}\n\n.sls-btn-restore-item:hover {\n    background: #1d4ed8;\n}\n\n/* Modal overlays */\n#sls-overlay-modal,\n#sls-provider-modal,\n#sls-remove-modal,\n#sls-restore-modal,\n#sls-reset-modal,\n#sls-navi-modal {\n    position: fixed;\n    top: 0;\n    left: 0;\n    width: 100%;\n    height: 100%;\n    background: rgba(0, 0, 0, 0.8);\n    z-index: 999999;\n    display: flex;\n    justify-content: center;\n    align-items: center;\n    backdrop-filter: blur(8px);\n}\n\n#sls-restore-modal,\n#sls-reset-modal {\n    background: rgba(0, 0, 0, 0.82);\n}\n\n";
     var GAME_MANAGER_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-modal-card\">\n    <!-- Title bar -->\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">SLS Game Manager</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-close-x\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <!-- Administrative Tools Section -->\n    <div id=\"sls-content-admin\" style=\"display:block; margin-bottom:24px;\">\n        <div style=\"display:flex; flex-direction:column; gap:8px;\">\n            <!-- Online Fix -->\n            <button id=\"sls-btn-fix\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%;\">Checking Fix status...</button>\n            <!-- Auto Crack -->\n            <button id=\"sls-btn-crack\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%;\">Checking Crack status...</button>\n        </div>\n    </div>\n    <!-- Footer Actions -->\n    <div style=\"display:flex; justify-content:flex-end; gap:10px;\">\n        <button id=\"sls-btn-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n\n";
     var PROVIDER_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-provider-card\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">Change Provider</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-prov-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <div id=\"sls-provider-list\" style=\"max-height:320px;overflow-y:auto;margin-bottom:16px;\">{{ROWS}}</div>\n    <div id=\"sls-prov-status\" role=\"status\" aria-live=\"polite\" style=\"display:none;text-align:center;padding:12px;font-size:14px;color:#dcdedf;background:rgba(172,178,201,0.1);border-radius:2px;margin-bottom:16px;\"></div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-prov-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n\n";
     var REMOVE_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <h2 style=\"margin:0 0 10px;font-size:22px;font-weight:300;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Remove Lua</h2>\n    <p style=\"margin:0 0 24px;font-size:16px;color:#969696;\">Remove Lua and Game files for AppID <b>{{APPID}}</b>?</p>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-remove-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Cancel</button>\n        <button id=\"sls-remove-confirm\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px; background: rgba(220, 38, 38, 0.8); color: #fff;\">Remove</button>\n    </div>\n</div>\n\n";
     var RESTORE_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 480px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:20px;font-weight:600;color:#fff;text-transform:uppercase;letter-spacing:1px;\">Restore Cloud Save</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-restore-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <div id=\"sls-restore-body\" style=\"max-height:300px;overflow-y:auto;margin-bottom:20px;\">\n        <div style=\"text-align:center;padding:24px;color:#969696;\">Loading backups...</div>\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Close</button>\n    </div>\n</div>\n\n";
     var RESET_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #7f1d1d; border-radius: 4px; padding: 24px; width: 460px; box-shadow: 0 8px 24px rgba(0,0,0,0.7); font-family: 'Motiva Sans', sans-serif; color: #dcdedf;\">\n    <div style=\"display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;\">\n        <div>\n            <h2 style=\"margin:0;font-size:20px;font-weight:600;color:#f87171;text-transform:uppercase;letter-spacing:1px;\">Reset Cloud Save</h2>\n            <p style=\"margin:4px 0 0;font-size:13px;color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-reset-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\" style=\"background:transparent;border:none;color:#969696;font-size:24px;cursor:pointer;\">&times;</button>\n    </div>\n    <div style=\"background:rgba(185,28,28,0.15);border:1px solid rgba(185,28,28,0.3);border-radius:3px;padding:12px;margin-bottom:16px;\">\n        <p style=\"margin:0;font-size:13px;line-height:1.5;color:#fca5a5;\">\n            \u26a0\ufe0f <b>Warning:</b> This will permanently erase cloud-redirected save data for this app. This action cannot be reversed.\n        </p>\n    </div>\n    <div style=\"margin-bottom:20px;\">\n        <label style=\"display:block;font-size:13px;color:#dcdedf;margin-bottom:8px;\">\n            To confirm, type <b style=\"color:#fff;letter-spacing:1px;\">RESET</b> into the box below:\n        </label>\n        <input type=\"text\" id=\"sls-reset-input\" autocomplete=\"off\" spellcheck=\"false\" placeholder=\"Type RESET to confirm\"\n            style=\"width:100%;height:38px;padding:0 12px;background:#121417;border:1px solid #4b5563;border-radius:2px;color:#fff;font-size:14px;box-sizing:border-box;outline:none;\" />\n    </div>\n    <div style=\"display:flex;justify-content:flex-end;gap:10px;\">\n        <button id=\"sls-modal-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"height:36px;padding:0 20px;background:rgba(172,178,201,0.14);border:none;border-radius:2px;color:#dcdedf;cursor:pointer;\">Cancel</button>\n        <button id=\"sls-modal-confirm\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" disabled style=\"height:36px;padding:0 20px;background:#dc2626;color:#fff;cursor:default;opacity:0.4;font-weight:600;\">Confirm Reset</button>\n    </div>\n</div>\n\n";
-    var NAVI_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; max-height: calc(100vh - 32px); overflow-y: auto; box-sizing: border-box; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-navi-card\">\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;\">\n        <div>\n            <h2 style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">Navi Menu</h2>\n            <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n        </div>\n        <button id=\"sls-navi-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <div style=\"display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;\">\n        <span style=\"font-size:14px; color:rgb(139, 147, 164);\">Current Provider</span>\n        <span id=\"sls-navi-modal-provider\" style=\"font-size:15px; font-weight:500; color:#fff;\">{{PROVIDER}}</span>\n    </div>\n    <div class=\"sls-navi-sections\" style=\"display:flex; flex-direction:column; gap:16px; margin-bottom:20px;\">\n        <div class=\"sls-navi-section\" data-testid=\"sls-navi-section-provider\">\n            <div class=\"sls-navi-section-title\" style=\"display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#8b93a4;\">\n                <span>Provider</span>\n                <span style=\"flex:1; height:1px; background:rgba(172,178,201,0.12);\"></span>\n            </div>\n            <div style=\"display:flex; flex-direction:column; gap:8px;\">\n                <button id=\"sls-navi-btn-provider\" class=\"sls-btn-action sls-change-provider-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                    <span>Change Provider</span>\n                </button>\n            </div>\n        </div>\n        <div class=\"sls-navi-section\" data-testid=\"sls-navi-section-game\">\n            <div class=\"sls-navi-section-title\" style=\"display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#8b93a4;\">\n                <span>Game</span>\n                <span style=\"flex:1; height:1px; background:rgba(172,178,201,0.12);\"></span>\n            </div>\n            <div style=\"display:flex; flex-direction:column; gap:8px;\">\n                <button id=\"sls-navi-btn-config\" class=\"sls-btn-action sls-config-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                    <span>Config (Fix / Auto Crack)</span>\n                </button>\n                <button id=\"sls-navi-btn-remove\" class=\"sls-btn-action sls-remove-lua-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px; {{REMOVE_BTN_STYLE}}\">\n                    <span>{{REMOVE_LABEL}}</span>\n                </button>\n            </div>\n        </div>\n        <div class=\"sls-navi-section\" data-testid=\"sls-navi-section-cloud\">\n            <div class=\"sls-navi-section-title\" style=\"display:flex; align-items:center; gap:10px; margin:0 0 8px; font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:#8b93a4;\">\n                <span>Cloud Save</span>\n                <span style=\"flex:1; height:1px; background:rgba(172,178,201,0.12);\"></span>\n            </div>\n            <div style=\"display:flex; flex-direction:column; gap:8px;\">\n                <button id=\"sls-navi-btn-cloud-toggle\" class=\"sls-btn-action sls-cloud-toggle-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                    <span>Cloud Save</span><span id=\"sls-navi-cloud-badge\" style=\"font-size:13px; font-weight:600; color:#9ca3af;\">Checking...</span>\n                </button>\n                <button id=\"sls-navi-btn-cloud-files\" class=\"sls-btn-action sls-cloud-files-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                    <span>View Cloud Files</span><span id=\"sls-navi-cloud-files-badge\" style=\"font-size:12px; color:#66c0f4;\">Steam Cloud &rarr;</span>\n                </button>\n                <button id=\"sls-navi-btn-cloud-backup\" class=\"sls-btn-action sls-cloud-backup-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                    <span>Backup Cloud Save</span>\n                </button>\n                <button id=\"sls-navi-btn-cloud-restore\" class=\"sls-btn-action sls-cloud-restore-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                    <span>Restore Cloud Save</span>\n                </button>\n                <button id=\"sls-navi-btn-cloud-reset\" class=\"sls-btn-action sls-cloud-reset-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;\">\n                    <span>Reset Cloud Save</span>\n                </button>\n            </div>\n        </div>\n    </div>\n    <div style=\"display:flex; justify-content:flex-end;\">\n        <button id=\"sls-navi-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n";
+    var NAVI_MODAL_HTML = "<div style=\"background: #1e2024; border: 1px solid #3d4450; border-radius: 4px; padding: 24px; width: 440px; box-shadow: 0 4px 16px rgba(0,0,0,0.5); font-family: 'Motiva Sans', sans-serif; color: #dcdedf; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(0.95); opacity: 0;\" id=\"sls-navi-card\">\n    <div style=\"display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:18px;\">\n        <div style=\"display:flex; align-items:flex-start; gap:8px; min-width:0;\">\n            <button id=\"sls-navi-back\" class=\"sls-btn-back Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Back\" style=\"display:none;\">&lsaquo;</button>\n            <div>\n                <h2 id=\"sls-navi-title\" style=\"margin:0; font-size:22px; font-weight:300; color: #fff; text-transform: uppercase; letter-spacing: 1px;\">Navi Menu</h2>\n                <p style=\"margin:4px 0 0; font-size:14px; color:#969696;\">AppID: {{APPID}}</p>\n            </div>\n        </div>\n        <button id=\"sls-navi-close\" class=\"sls-btn-close Focusable\" tabindex=\"-1\" role=\"button\" aria-label=\"Close\">&times;</button>\n    </div>\n    <div id=\"sls-navi-provider-card\" style=\"display:flex; align-items:center; justify-content:space-between; padding:12px 14px; margin-bottom:16px; background:rgba(0,0,0,0.25); border:1px solid rgba(172,178,201,0.12); border-radius:2px;\">\n        <span style=\"font-size:14px; color:rgb(139, 147, 164);\">Current Provider</span>\n        <span id=\"sls-navi-modal-provider\" style=\"font-size:15px; font-weight:500; color:#fff;\">{{PROVIDER}}</span>\n    </div>\n    <div id=\"sls-navi-list\" style=\"margin-bottom:20px;\">\n        <div class=\"sls-navi-view\" data-sls-view=\"main\">\n            <button id=\"sls-navi-nav-provider\" class=\"sls-btn-action sls-navi-nav-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                <span>Provider</span><span class=\"sls-navi-chevron\">&rsaquo;</span>\n            </button>\n            <button id=\"sls-navi-nav-game\" class=\"sls-btn-action sls-navi-nav-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                <span>Game</span><span class=\"sls-navi-chevron\">&rsaquo;</span>\n            </button>\n            <button id=\"sls-navi-nav-cloud\" class=\"sls-btn-action sls-navi-nav-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                <span>Cloud Saves</span><span class=\"sls-navi-chevron\">&rsaquo;</span>\n            </button>\n        </div>\n        <div class=\"sls-navi-view\" data-sls-view=\"provider\" hidden>\n            <button id=\"sls-navi-btn-provider\" class=\"sls-btn-action sls-change-provider-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                <span>Change Provider</span>\n            </button>\n        </div>\n        <div class=\"sls-navi-view\" data-sls-view=\"game\" hidden>\n            <button id=\"sls-navi-btn-config\" class=\"sls-btn-action sls-config-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                <span>Config (Fix / Auto Crack)</span>\n            </button>\n            <button id=\"sls-navi-btn-remove\" class=\"sls-btn-action sls-remove-lua-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px; {{REMOVE_BTN_STYLE}}\">\n                <span>{{REMOVE_LABEL}}</span>\n            </button>\n        </div>\n        <div class=\"sls-navi-view\" data-sls-view=\"cloud\" hidden>\n            <button id=\"sls-navi-btn-cloud-toggle\" class=\"sls-btn-action sls-cloud-toggle-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                <span>Cloud Save</span><span id=\"sls-navi-cloud-badge\" style=\"font-size:13px; font-weight:600; color:#9ca3af;\">Checking...</span>\n            </button>\n            <button id=\"sls-navi-btn-cloud-files\" class=\"sls-btn-action sls-cloud-files-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:space-between; padding: 0 16px;\">\n                <span>View Cloud Files</span><span id=\"sls-navi-cloud-files-badge\" style=\"font-size:12px; color:#66c0f4;\">Steam Cloud &rarr;</span>\n            </button>\n            <button id=\"sls-navi-btn-cloud-backup\" class=\"sls-btn-action sls-cloud-backup-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                <span>Backup Cloud Save</span>\n            </button>\n            <button id=\"sls-navi-btn-cloud-restore\" class=\"sls-btn-action sls-cloud-restore-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px;\">\n                <span>Restore Cloud Save</span>\n            </button>\n            <button id=\"sls-navi-btn-cloud-reset\" class=\"sls-btn-action sls-cloud-reset-btn Focusable\" tabindex=\"-1\" role=\"button\" style=\"width:100%; justify-content:flex-start; padding: 0 16px; color:#f87171;\">\n                <span>Reset Cloud Save</span>\n            </button>\n        </div>\n    </div>\n    <div style=\"display:flex; justify-content:flex-end;\">\n        <button id=\"sls-navi-cancel\" class=\"sls-btn-action Focusable\" tabindex=\"-1\" role=\"button\" style=\"padding: 0 24px; height: 36px;\">Close</button>\n    </div>\n</div>\n";
 
     function ensureStyles() {
         if (document.getElementById('sls-app-details-styles')) return;
@@ -70,8 +70,28 @@
     }
 
     function trapSteamGamepadModal(overlay, buttons) {
-        var activeIdx = 0;
+        var activeIdx = -1;
+
+        function isFocusable(el) {
+            if (!el || el.disabled) return false;
+            return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length);
+        }
+        function firstFocusable() {
+            for (var i = 0; i < buttons.length; i++) {
+                if (isFocusable(buttons[i])) return i;
+            }
+            return -1;
+        }
+        function nextFocusable(start, step) {
+            var idx = start;
+            for (var guard = 0; guard < buttons.length; guard++) {
+                idx = (idx + step + buttons.length) % buttons.length;
+                if (isFocusable(buttons[idx])) return idx;
+            }
+            return -1;
+        }
         function updateFocus() {
+            if (activeIdx < 0 || !isFocusable(buttons[activeIdx])) activeIdx = firstFocusable();
             for (var i = 0; i < buttons.length; i++) {
                 if (!buttons[i]) continue;
                 if (i === activeIdx) {
@@ -84,6 +104,10 @@
                 }
             }
         }
+        overlay.__slsResetFocus = function() {
+            activeIdx = -1;
+            updateFocus();
+        };
         setTimeout(updateFocus, 100);
 
         function cleanup() {
@@ -99,15 +123,12 @@
             e.stopPropagation();
             if (e.cancelable) e.preventDefault();
             var dir = e.detail ? e.detail.button : null;
-            var startIdx = activeIdx;
             if (dir === 9 || dir === 11) { // Up or Left
-                do {
-                    activeIdx = (activeIdx > 0) ? activeIdx - 1 : buttons.length - 1;
-                } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
+                if (activeIdx < 0) activeIdx = firstFocusable();
+                else activeIdx = nextFocusable(activeIdx, -1);
             } else if (dir === 10 || dir === 12) { // Down or Right
-                do {
-                    activeIdx = (activeIdx < buttons.length - 1) ? activeIdx + 1 : 0;
-                } while (buttons[activeIdx] && buttons[activeIdx].disabled && activeIdx !== startIdx);
+                if (activeIdx < 0) activeIdx = firstFocusable();
+                else activeIdx = nextFocusable(activeIdx, 1);
             }
             updateFocus();
         }
@@ -115,12 +136,17 @@
             if (!document.body.contains(overlay)) { cleanup(); return; }
             e.stopPropagation();
             if (e.cancelable) e.preventDefault();
-            if (buttons[activeIdx] && !buttons[activeIdx].disabled) buttons[activeIdx].click();
+            if (activeIdx < 0) activeIdx = firstFocusable();
+            if (isFocusable(buttons[activeIdx])) buttons[activeIdx].click();
         }
         function cancelCatcher(e) {
             if (!document.body.contains(overlay)) { cleanup(); return; }
             e.stopPropagation();
             if (e.cancelable) e.preventDefault();
+            if (typeof overlay.__slsGamepadCancel === 'function') {
+                overlay.__slsGamepadCancel();
+                return;
+            }
             var cancelBtn = overlay.querySelector('#sls-btn-cancel, #sls-prov-cancel, #sls-close-x, #sls-prov-close, #sls-remove-cancel, #sls-navi-cancel, #sls-navi-close');
             if (cancelBtn) cancelBtn.click(); else overlay.remove();
         }
@@ -806,10 +832,30 @@
         overlay.innerHTML = cardHtml;
         document.body.appendChild(overlay);
 
+        var VIEW_TITLES = { main: 'Navi Menu', provider: 'Provider', game: 'Game', cloud: 'Cloud Saves' };
+        var currentView = 'main';
+        var views = overlay.querySelectorAll('.sls-navi-view');
+        var titleEl = document.getElementById('sls-navi-title');
+        var backBtn = document.getElementById('sls-navi-back');
+        var providerCard = document.getElementById('sls-navi-provider-card');
+
+        function showView(name) {
+            if (!VIEW_TITLES[name]) name = 'main';
+            currentView = name;
+            for (var i = 0; i < views.length; i++) {
+                views[i].hidden = views[i].getAttribute('data-sls-view') !== name;
+            }
+            if (titleEl) titleEl.innerText = VIEW_TITLES[name];
+            if (backBtn) backBtn.style.display = name === 'main' ? 'none' : 'flex';
+            if (providerCard) providerCard.style.display = name === 'main' ? 'flex' : 'none';
+            if (typeof overlay.__slsResetFocus === 'function') overlay.__slsResetFocus();
+        }
+
         function onKeyDown(e) {
             if (e.key === 'Escape' || e.keyCode === 27) {
                 e.preventDefault();
-                closeModal();
+                if (currentView !== 'main') showView('main');
+                else closeModal();
             }
         }
         window.addEventListener('keydown', onKeyDown);
@@ -839,6 +885,9 @@
 
         var closeX = document.getElementById('sls-navi-close');
         var cancelBtn = document.getElementById('sls-navi-cancel');
+        var navProviderBtn = document.getElementById('sls-navi-nav-provider');
+        var navGameBtn = document.getElementById('sls-navi-nav-game');
+        var navCloudBtn = document.getElementById('sls-navi-nav-cloud');
         var provBtn = document.getElementById('sls-navi-btn-provider');
         var confBtn = document.getElementById('sls-navi-btn-config');
         var cloudToggleBtn = document.getElementById('sls-navi-btn-cloud-toggle');
@@ -851,6 +900,26 @@
 
         closeX.onclick = function() { closeModal(); };
         cancelBtn.onclick = function() { closeModal(); };
+
+        backBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            showView('main');
+        };
+
+        navProviderBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            showView('provider');
+        };
+
+        navGameBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            showView('game');
+        };
+
+        navCloudBtn.onclick = function(e) {
+            e.preventDefault(); e.stopPropagation();
+            showView('cloud');
+        };
 
         provBtn.onclick = function(e) {
             e.preventDefault(); e.stopPropagation();
@@ -949,7 +1018,12 @@
             }
         };
 
-        trapSteamGamepadModal(overlay, [provBtn, confBtn, remBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, cancelBtn, closeX]);
+        overlay.__slsGamepadCancel = function() {
+            if (currentView !== 'main') showView('main');
+            else closeModal();
+        };
+
+        trapSteamGamepadModal(overlay, [navProviderBtn, navGameBtn, navCloudBtn, backBtn, provBtn, confBtn, cloudToggleBtn, cloudFilesBtn, cloudBackupBtn, cloudRestoreBtn, cloudResetBtn, remBtn, cancelBtn, closeX]);
     }
 
     // --- buttons.js ---

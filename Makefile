@@ -177,13 +177,25 @@ test-ui-a11y:
 
 test-all: test
 
-bundle-scripts:
+bundle-library:
 	python3 tools/bundle-app-details.py
+
+bundle-cloud:
 	python3 tools/bundle-cloud-manager.py
+
+bundle-core:
 	python3 tools/bundle-navi-inject.py
+
+bundle-lua:
 	python3 tools/bundle-import-lua.py
+
+bundle-depots:
 	python3 tools/bundle-depot-selection.py
+
+bundle-store:
 	python3 tools/bundle-store-page.py
+
+bundle-scripts: bundle-library bundle-cloud bundle-core bundle-lua bundle-depots bundle-store
 
 audit-libs: bundle-scripts
 	$(MAKE) -j $(JOBS) $(NAVISO) bin/library-inject.so
@@ -322,6 +334,12 @@ release: rebuild zips
 
 .PHONY: \
 	bundle-scripts \
+	bundle-library \
+	bundle-cloud \
+	bundle-core \
+	bundle-lua \
+	bundle-depots \
+	bundle-store \
 	audit-libs \
 	tools \
 	link-bins \
