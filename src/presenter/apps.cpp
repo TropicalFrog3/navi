@@ -728,11 +728,14 @@ bool Apps::gameFilesExist(uint32_t appId)
 
 bool Apps::unlockApp(const AppId_t appId, AppOwnershipInfo_t* info, const CSteamId& ownerId)
 {
-	info->subId = 0;
-	//Changing the purchased field is enough, but just for nicety in the Steamclient UI we change the owner too
-	info->owner = ownerId.accountId();
-	info->realOwner = 0;
-	info->familyShared = info->owner != g_currentSteamId.accountId();
+	if (!info->familyShared)
+	{
+		info->subId = 0;
+		//Changing the purchased field is enough, but just for nicety in the Steamclient UI we change the owner too
+		info->owner = ownerId.accountId();
+		info->realOwner = 0;
+		info->familyShared = info->owner != g_currentSteamId.accountId();
+	}
 
 	info->licensePermanent = !info->familyShared;
 	info->retailLicense = false;
@@ -749,7 +752,7 @@ bool Apps::unlockApp(const AppId_t appId, AppOwnershipInfo_t* info, const CSteam
 	info->autoGrant = false;
 	info->trialTime = 0;
 	info->fromFreeWeekend = false;
-	info->freeLicense = false;
+	info->freeLicense = info->familyShared;
 	info->siteLicense = false;
 
 	LOG_ONCE("Unlocked %u\n", appId);
@@ -997,7 +1000,6 @@ bool Apps::checkAppOwnership(AppId_t appId, AppOwnershipInfo_t* pInfo)
 	// Do not unlock games that are already family shared.
 	// If we unlock them, they lose their family share status in the UI,
 	// which can break cloud saves and proper tracking.
-	// (The family share lock is already bypassed in sendGamesPlayed)
 	if (pInfo->familyShared)
 	{
 		LOG_ONCE("checkAppOwnership(%u): Game is Family Shared, skipping unlock.\n", appId);
@@ -1408,15 +1410,79 @@ void Apps::sendAndRecvLastPlayedTimes(const char* name, CPlayer_GetLastPlayedTim
 	}
 }
 
+static bool isFamilySharedApp(CUser* usr, const AppId_t appId, const uint32_t packetOwnerId = 0)
+{
+	if (!appId)
+	{
+		return false;
+	}
+
+	const bool hasSelf = g_currentSteamId.isSet();
+	const uint32_t selfAccountId = g_currentSteamId.accountId();
+
+	if (packetOwnerId && hasSelf && packetOwnerId != selfAccountId)
+	{
+		return true;
+	}
+
+	if (!usr)
+	{
+		return false;
+	}
+
+	AppOwnershipInfo_t info{};
+	if (!usr->checkAppOwnership(appId, &info))
+	{
+		return false;
+	}
+
+	//Legacy Family Sharing: Steam directly flags the ownership info.
+	if (info.familyShared)
+	{
+		return true;
+	}
+
+	if (info.owner && hasSelf && info.owner != selfAccountId)
+	{
+		return true;
+	}
+
+	//New Steam Families (FamilyGroups): CheckAppOwnership reports these apps as
+	//self-owned with familyShared == 0 and owner == self, so neither signal above
+	//fires. The reliable marker is the license itself: CUser::OwnsAppDirectly walks
+	//every license for the app and returns false when the only ones present carry
+	//Steam's family-shared license flag (0x4000). That covers legacy and New Steam
+	//Families while still returning true for genuinely owned, F2P and free-weekend
+	//licenses, which do not carry that flag.
+	//
+	//Forwarding such a borrowed session to the CM servers makes Valve start the
+	//180s family-lock timer, which terminates the game and disconnects the client
+	//with "This account logged in on another computer" every 3-5 minutes.
+	return !usr->ownsAppDirectly(appId);
+}
+
+uint32_t Apps::resolveAppOwnerId(CUser* usr, const AppId_t appId)
+{
+	uint32_t ownerId = g_currentSteamId.accountId();
+	AppOwnershipInfo_t info{};
+	if (usr && usr->checkAppOwnership(appId, &info) && info.owner)
+	{
+		ownerId = info.owner;
+	}
+	return ownerId;
+}
+
 void Apps::sendGamesPlayed(CNetPacket* pkt)
 {
 	const auto titles = g_config.gameTitles.get();
-	const auto usr = g_pSteamEngine->getUser();
-	const auto appInfo = usr->getClientApps();
+	const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser() : nullptr;
+	const auto appInfo = usr ? usr->getClientApps() : nullptr;
+	const bool hideFamilyShared = g_config.disableFamilyLock.get();
 
 	auto msg = pkt->deserializeBody<CMsgClientGamesPlayed>();
 
-	for (int i = 0; i < msg.games_played_size(); i++)
+	// Iterate backward so removing unmasked Family-Shared entries does not skip items.
+	for (int i = msg.games_played_size() - 1; i >= 0; i--)
 	{
 		auto game = msg.mutable_games_played(i);
 		if (!game->game_id())
@@ -1434,9 +1500,16 @@ void Apps::sendGamesPlayed(CNetPacket* pkt)
 			continue;
 		}
 
-		if (g_config.disableFamilyLock.get())
+		const AppId_t fakeAppId = FakeAppIds::getFakeAppId(gameId);
+		const bool familyMatch = isFamilySharedApp(usr, static_cast<AppId_t>(gameId), game->owner_id());
+
+		// Omit unmasked Family-Shared apps so Valve's CM server never sees a shared
+		// session conflict and starts its 180s kick timer (Logged In Elsewhere).
+		if (hideFamilyShared && !fakeAppId && familyMatch)
 		{
-			game->set_owner_id(1);
+			LOG_DEBUG("Hiding unmasked Family-Shared app %llu from CMsgClientGamesPlayed (DisableFamilyShareLock)\n", gameId);
+			msg.mutable_games_played()->DeleteSubrange(i, 1);
+			continue;
 		}
 
 		if (titles.contains(gameId))
@@ -1444,7 +1517,7 @@ void Apps::sendGamesPlayed(CNetPacket* pkt)
 			game->set_game_extra_info(titles.at(gameId));
 		}
 		//This probably belongs into FakeAppIds, but the GameTitles does not so it stays here
-		else if (FakeAppIds::getFakeAppId(gameId))
+		else if (fakeAppId)
 		{
 			char name[256] {}; //No clue how long titles can get
 			int len;
@@ -1456,7 +1529,7 @@ void Apps::sendGamesPlayed(CNetPacket* pkt)
 			}
 			else
 			{
-				len = appInfo->getAppData(gameId, "common/name", name, sizeof(name));
+				len = appInfo ? appInfo->getAppData(gameId, "common/name", name, sizeof(name)) : 0;
 			}
 
 			if (len > 0)
@@ -1481,9 +1554,11 @@ void Apps::sendGamesPlayed(CNetPacket* pkt)
 			game->set_game_extra_info(statusApp.title);
 			game->set_game_flags(0);
 
-			if (g_config.disableFamilyLock.get())
+			// Use genuine license owner when available so Valve's CM backend does not
+			// treat an invalid owner_id as a spoofed/stolen session.
+			if (const uint32_t ownerId = resolveAppOwnerId(usr, statusApp.appId))
 			{
-				game->set_owner_id(1);
+				game->set_owner_id(ownerId);
 			}
 			//game->set_game_flags(EGAMEFLAG_MULTIPLAYER);
 		}
@@ -1527,6 +1602,73 @@ void Apps::sendMsg(CNetPacket *pkt)
 		default:
 			break;
 	}
+}
+
+/**
+ * Returns true if an inbound CM packet should be dropped before Steam processes it.
+ * Only drops client-side FamilyGroups lock notifications when DisableFamilyShareLock
+ * is enabled; k_EMsgClientSharedLibraryStopPlaying must pass through so Steam handles
+ * server-side notices instead of having Valve disconnect the session.
+ */
+bool Apps::shouldChokeRecvPacket(const CNetPacket* pkt)
+{
+	if (!pkt || !pkt->isValid() || !pkt->isProtoBuf())
+	{
+		return false;
+	}
+
+	if (!g_config.disableFamilyLock.get())
+	{
+		return false;
+	}
+
+	if (pkt->getProtoBufType() != k_EMsgServiceMethod)
+	{
+		return false;
+	}
+
+	const auto header = pkt->deserializeHeader();
+	//Do not modify header by blindly requesting the target_job_name
+	return header.has_target_job_name()
+		&& header.target_job_name() == "FamilyGroupsClient.NotifyRunningApps#1";
+}
+
+/**
+ * Returns true if an outbound CM packet should be dropped before Steam sends it.
+ * Suppresses Rich Presence uploads for Family-Shared apps hidden from
+ * CMsgClientGamesPlayed (DisableFamilyShareLock without a FakeAppId override).
+ */
+bool Apps::shouldChokeSendPacket(const CNetPacket* pkt)
+{
+	if (!pkt || !pkt->isValid() || !pkt->isProtoBuf())
+	{
+		return false;
+	}
+
+	if (!g_config.disableFamilyLock.get())
+	{
+		return false;
+	}
+
+	if (pkt->getProtoBufType() != k_EMsgClientRichPresenceUpload)
+	{
+		return false;
+	}
+
+	const auto header = pkt->deserializeHeader();
+	if (!header.has_routing_appid() || !header.routing_appid())
+	{
+		return false;
+	}
+
+	const AppId_t routingAppId = header.routing_appid();
+	if (FakeAppIds::getFakeAppId(routingAppId))
+	{
+		return false;
+	}
+
+	const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser() : nullptr;
+	return isFamilySharedApp(usr, routingAppId);
 }
 
 void Apps::setConfigStoreString(const char* key, const char* value)

@@ -6,6 +6,7 @@
 #include "log.hpp"
 #include "IClientApps.hpp"
 #include "IClientUser.hpp"
+#include "IClientUtils.hpp"
 #include "CSteamEngine.hpp"
 #include "CUser.hpp"
 #include "steam.hpp"
@@ -17,9 +18,12 @@
 #include <cstring>
 #include <algorithm>
 #include <sstream>
+#include <unordered_map>
 
 
 static std::vector<char> s_mockDepotsSection;
+static std::unordered_map<AppId_t, AppOwnershipInfo_t> s_mockAppOwnership;
+static std::unordered_map<AppId_t, bool> s_mockDirectOwnership;
 static int s_warnCount = 0;
 
 void setMockDepotsSection(const std::vector<char>& data)
@@ -30,6 +34,22 @@ void setMockDepotsSection(const std::vector<char>& data)
 void clearMockDepotsSection()
 {
     s_mockDepotsSection.clear();
+}
+
+void setMockAppOwnership(AppId_t appId, const AppOwnershipInfo_t& info)
+{
+    s_mockAppOwnership[appId] = info;
+}
+
+void clearMockAppOwnership()
+{
+    s_mockAppOwnership.clear();
+    s_mockDirectOwnership.clear();
+}
+
+void setMockDirectOwnership(AppId_t appId, bool ownsDirectly)
+{
+    s_mockDirectOwnership[appId] = ownsDirectly;
 }
 
 int getWarnCount()
@@ -113,13 +133,43 @@ CUser* CSteamEngine::getUser(const unsigned int)
 {
     return &s_dummyUser;
 }
+CServerPipe* CSteamEngine::getServerPipe(const HSteamPipe) { return nullptr; }
+IClientUtils* CSteamEngine::getUtils() { return g_pClientUtils; }
+void CSteamEngine::setAppIdForCurrentPipe(const AppId_t) {}
+
+IClientUtils* g_pClientUtils = nullptr;
+HSteamPipe IClientUtils::getCurrentSteamPipe() { return 0; }
+AppId_t IClientUtils::getAppId() { return 0; }
 
 // CUser stubs
 IClientAppManager* CUser::getAppManager() { return nullptr; }
 IClientApps* CUser::getClientApps() { return g_pClientApps; }
 IClientUser* CUser::getClientUser() { return nullptr; }
-bool CUser::checkAppOwnership(const AppId_t, AppOwnershipInfo_t*) { return false; }
-bool CUser::isSubscribed(const AppId_t) { return false; }
+bool CUser::checkAppOwnership(const AppId_t appId, AppOwnershipInfo_t* pInfo)
+{
+    auto it = s_mockAppOwnership.find(appId);
+    if (it != s_mockAppOwnership.end())
+    {
+        if (pInfo)
+        {
+            *pInfo = it->second;
+        }
+        return true;
+    }
+    return false;
+}
+bool CUser::isSubscribed(const AppId_t appId)
+{
+    AppOwnershipInfo_t info{};
+    return checkAppOwnership(appId, &info) && info.ownsLicense && !info.licenseExpired;
+}
+
+bool CUser::ownsAppDirectly(const AppId_t appId)
+{
+    // Mirrors the production fail-safe default: unknown -> treat as directly owned.
+    auto it = s_mockDirectOwnership.find(appId);
+    return it == s_mockDirectOwnership.end() ? true : it->second;
+}
 void CUser::postCallback(const ECallbackType, void*, const uint32_t) {}
 void CUser::updateAppOwnershipTicket(const AppId_t, void*, const uint32_t) {}
 
@@ -127,11 +177,6 @@ void CUser::updateAppOwnershipTicket(const AppId_t, void*, const uint32_t) {}
 bool IClientUser::loggedOn() { return true; }
 uint32_t IClientUser::getAppOwnershipTicketExtendeData(const AppId_t, void*, const uint32_t, uint32_t*, uint32_t*, uint32_t*, uint32_t*) { return 0; }
 bool IClientUser::setLegacyCDKey(const AppId_t, const char*) { return true; }
-
-// FakeAppIds stubs
-namespace FakeAppIds {
-    AppId_t getFakeAppId(const AppId_t appId) { return appId; }
-}
 
 // IClientApps stubs
 static IClientApps s_defaultClientApps;

@@ -246,6 +246,16 @@ namespace Patterns
 			"55 89 E5 57 56 E8 ? ? ? ? 81 C6 ? ? ? ? 53 83 C4 80 0F B6 45 14 6A 00 6A 00 88 45 8F 8D 45 D0",
 			SigFollowMode::None
 		};
+		//Returns true when the account holds a directly owned (non Family-Shared)
+		//license for the app, even if a family member also owns a copy.
+		Pattern_t OwnsAppDirectly
+		{
+			"CUser::OwnsAppDirectly",
+			"55 57 56 53 E8 ? ? ? ? 81 C3 ? ? ? ? 83 EC 28 8B 74 24 40 8D 83 ? ? ? ? 89 44 24 10 8B 00 8D A8 ? ? 00 00",
+			SigFollowMode::None,
+			nullptr,
+			true
+		};
 		Pattern_t MarkLicenseAsChanged
 		{
 			"CUser::MarkLicenseAsChanged",

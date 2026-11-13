@@ -110,6 +110,14 @@ public:
 	bool checkAppOwnership(const AppId_t appId, AppOwnershipInfo_t* pInfo);
 	bool isSubscribed(const AppId_t appId);
 
+	/**
+	 * @brief Whether this account holds a directly owned (non shared) license for the app.
+	 * Returns false when every license for the app carries Steam's family-shared flag,
+	 * which covers both legacy Family Sharing and New Steam Families (FamilyGroups).
+	 * Fails safe to true so unknown signatures never hide a self-owned game.
+	 */
+	bool ownsAppDirectly(const AppId_t appId);
+
 	void postCallback(const ECallbackType type, void* pCallback, const uint32_t callbackSize);
 	void updateAppOwnershipTicket(const AppId_t appId, void* pTicket, const uint32_t len);
 };

@@ -23,7 +23,11 @@ constexpr static const char* defaultConfig = R"(#Example AppIds Config for those
 #  AppId1: FakeAppId1
 #  AppId2: FakeAppId2
 
-#Disables Family Share license locking for self and others
+#Disables Family Share license locking and hides unmasked Family-Shared games from Steam CM
+#so another member using the license will not kick you out (you appear Online or IdleStatus).
+#Keep this on: without it Steam's FamilyGroups lock closes shared games every 3-5 minutes
+#("This account logged in on another computer").
+#Online multiplayer / Steamworks auth tickets still require FakeAppIds.
 DisableFamilyShareLock: yes
 
 #Switches to whitelist instead of the default blacklist

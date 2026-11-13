@@ -65,6 +65,9 @@ namespace Apps
 	void sendGamesPlayed(CNetPacket* pkt);
 	void sendPICSInfoRequest(CNetPacket* pkt);
 	void sendMsg(CNetPacket* pkt);
+	bool shouldChokeRecvPacket(const CNetPacket* pkt);
+	bool shouldChokeSendPacket(const CNetPacket* pkt);
+	uint32_t resolveAppOwnerId(CUser* usr, const AppId_t appId);
 
 	void setConfigStoreString(const char* key, const char* value);
 };

@@ -509,25 +509,9 @@ static void hkCMInterface_RecvPkt(CCMInterface* pCMInterface, CNetPacket* pNetPa
 			g_pCMInterface = reinterpret_cast<CCMInterface*>(pCMInterface);
 		}
 
-		const auto header = pNetPacket->deserializeHeader();
-		const bool disableFamilyShareLock = g_config.disableFamilyLock.get();
-
-		if (disableFamilyShareLock && type == k_EMsgClientSharedLibraryStopPlaying)
+		if (Apps::shouldChokeRecvPacket(pNetPacket))
 		{
-			LOG_DEBUG("Choking %s\n", pNetPacket->getProtoBufTypeName().c_str());
-			pNetPacket->free();
-			return;
-		}
-
-		if
-		(
-			disableFamilyShareLock
-			&& type == k_EMsgServiceMethod
-			&& header.has_target_job_name() //Do not modify header by blindly requesting the target_job_name
-			&& header.target_job_name() == "FamilyGroupsClient.NotifyRunningApps#1"
-		)
-		{
-			LOG_DEBUG("Choking %s\n", header.target_job_name().c_str());
+			LOG_DEBUG("Choking %s\n", pNetPacket->deserializeHeader().target_job_name().c_str());
 			pNetPacket->free();
 			return;
 		}
@@ -723,6 +707,13 @@ static bool hkWebSocketConnection_BBuildAndAsyncSendFrame(CWebSocketConnection* 
 				if (!g_pWebSocketConnection && packet.getProtoBufType() == k_EMsgClientLogon)
 				{
 					g_pWebSocketConnection = reinterpret_cast<CWebSocketConnection*>(pWebSocketConnection);
+				}
+
+				if (Apps::shouldChokeSendPacket(&packet))
+				{
+					LOG_DEBUG("Choking outbound packet %s (0x%x)\n", packet.getProtoBufTypeName().c_str(), packet.getType());
+					packet.free();
+					return true;
 				}
 
 				Apps::sendMsg(&packet);

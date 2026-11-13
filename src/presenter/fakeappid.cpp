@@ -4,6 +4,7 @@
  */
 #include "fakeappid.hpp"
 
+#include "apps.hpp"
 #include "config.hpp"
 
 #include <algorithm>
@@ -25,9 +26,13 @@ AppId_t FakeAppIds::getFakeAppId(const AppId_t appId)
 	{
 		return fakeAppIds.at(appId);
 	}
-	else if (fakeAppIds.contains(0) && (g_config.isAddedAppId(appId) || !g_pSteamEngine->getUser(0)->isSubscribed(appId)))
+	else if (fakeAppIds.contains(0))
 	{
-		return fakeAppIds.at(0);
+		const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser(0) : nullptr;
+		if (g_config.isAddedAppId(appId) || !usr || !usr->isSubscribed(appId))
+		{
+			return fakeAppIds.at(0);
+		}
 	}
 
 	return 0;
@@ -295,6 +300,7 @@ void FakeAppIds::pingResponse(gameserverdetails_t *details)
 
 void FakeAppIds::sendGamesPlayed(CNetPacket *pkt)
 {
+	const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser(0) : nullptr;
 	auto msg = pkt->deserializeBody<CMsgClientGamesPlayed>();
 
 	for (int i = 0; i < msg.games_played_size(); i++)
@@ -315,6 +321,17 @@ void FakeAppIds::sendGamesPlayed(CNetPacket *pkt)
 
 		LOG_DEBUG("Setting %llu to %u\n", gameId, fakeAppId);
 		game->set_game_id(fakeAppId);
+
+		// Align owner_id with the target FakeAppId so a borrowed lender owner_id
+		// is never attached to a masked/spoofed app session.
+		if (const uint32_t ownerId = Apps::resolveAppOwnerId(usr, fakeAppId))
+		{
+			game->set_owner_id(ownerId);
+		}
+		else
+		{
+			game->clear_owner_id();
+		}
 	}
 
 	pkt->serialize(msg);

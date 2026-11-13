@@ -851,7 +851,7 @@
                 makeCard('Library access', '',
                     makeSettingRow('Only unlock the games I list', 'On: just the games in Library. Off: every game except the ones you list.',
                         makeToggle('sls-cfg-UseWhitelist', cfg.UseWhitelist), 'UseWhitelist whitelist unlock games') +
-                    makeSettingRow('Release family sharing lock', 'Lets you and your family play at the same time.',
+                    makeSettingRow('Release family sharing lock', 'Bypasses client-side family sharing locks and hides unmasked shared games so another member won\'t kick you (shows Online or IdleStatus). Online multiplayer still needs FakeAppIds.',
                         makeToggle('sls-cfg-DisableFamilyShareLock', cfg.DisableFamilyShareLock), 'DisableFamilyShareLock family sharing') +
                     makeSettingRow('Stop updates for extra games', 'Applies to games you don\'t own. Games you own still update.',
                         makeToggle('sls-cfg-DisableUpdates', cfg.DisableUpdates), 'DisableUpdates updates')) +
@@ -3573,7 +3573,7 @@
             // ---------------------------------------------------------------------
             function buildDefaultsPayload() {
                 return {
-                    DisableFamilyShareLock: false,
+                    DisableFamilyShareLock: true,
                     UseWhitelist: false,
                     SafeMode: true,
                     WarnHashMissmatch: false,

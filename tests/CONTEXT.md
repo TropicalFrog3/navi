@@ -55,7 +55,9 @@ a RED test (`.agents/rules/test-regression.md`) before any `src/` change.
 | `integration/ui/test_uj07_live_search_debounce.py` | User journey test verifying live search input debounce timing |
 | `integration/ui/test_uj08_a11y_gamepad_responsive.py` | Accessibility and gamepad navigation responsiveness test |
 | `integration/ui/test_uj09_companion_mockup_switcher.py` | UI journey test verifying companion mockup switcher functionality |
+| `integration/ui/test_uj10_navi_menu_drilldown.py` | User journey test for the Navi Menu drill-down sections |
 | `test_project_map.py` | Verifies workspace floor plan and CONTEXT.md routing tables |
+| `unit/test_apps.cpp` | Unit tests for Apps lifecycle, Family Share lock behavior, and CM packet handling |
 | `unit/test_cloud_manager.cpp` | Unit tests for CCloudManager CLI execution and state parsing |
 | `unit/test_cloud_oauth.cpp` | Unit tests for CloudRedirect OAuth loopback server and token exchange |
 | `unit/test_cloud_pending_ops.cpp` | Unit tests for CPendingOpsQueue pending operation serialization |

@@ -48,6 +48,20 @@ bool CUser::isSubscribed(const AppId_t appId)
 	return info.ownsLicense && !info.licenseExpired;
 }
 
+bool CUser::ownsAppDirectly(const AppId_t appId)
+{
+	const lm_address_t address = Patterns::CUser::OwnsAppDirectly.address;
+	if (!address || address == LM_ADDRESS_BAD)
+	{
+		//Fail safe: never classify an app as borrowed when the check is unavailable,
+		//otherwise a self-owned game could be hidden from the CM servers.
+		return true;
+	}
+
+	const auto fn = reinterpret_cast<bool(*)(void*, uint32_t)>(address);
+	return fn(this, appId);
+}
+
 void CUser::postCallback(const ECallbackType type, void* pCallback, const uint32_t callbackSize)
 {
 	const static auto fn = reinterpret_cast<void(*)(void*, ECallbackType, void*, uint32_t, uint32_t)>(Patterns::CUser::PostCallback.address);

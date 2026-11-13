@@ -2280,7 +2280,7 @@ function hideConfigPage() {
         // ---------------------------------------------------------------------
         function buildDefaultsPayload() {
             return {
-                DisableFamilyShareLock: false,
+                DisableFamilyShareLock: true,
                 UseWhitelist: false,
                 SafeMode: true,
                 WarnHashMissmatch: false,

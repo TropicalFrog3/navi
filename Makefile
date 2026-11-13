@@ -91,6 +91,7 @@ UNIT_TEST_PROD_SRCS := \
 	src/model/sdk/protobufs/steammessages_clientserver_2.pb.cpp \
 	src/model/sdk/IClientAppManager.cpp \
 	src/presenter/apps.cpp \
+	src/presenter/fakeappid.cpp \
 	src/presenter/autoupdate.cpp \
 	src/presenter/autocrack_manager.cpp \
 	src/presenter/cloudredirect.cpp \
