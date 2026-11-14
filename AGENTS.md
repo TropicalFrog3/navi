@@ -40,9 +40,12 @@ live-hardware verification on real Steam Decks (`scripts/dev/deck-ctl.sh`).
    `test-results/` (hardcoded in `tests/integration/ui/harness/browser_driver.py`),
    submodules `res/SLSlogos` and `third_party/SteamAutoCrack`.
    Context files (`AGENTS.md`, `*/CONTEXT.md`) are the freely maintainable layer.
-5. Verification set before claiming done: `./install.sh build` → `./install.sh test`;
-   add `pytest -q tests/integration` / `./install.sh test-ui` for UI work.
-   Bug fixes follow `.agents/rules/test-regression.md` (RED test before GREEN fix).
+5. Verification set before claiming done: `./install.sh build` and `git diff` self-review.
+   Do **not** execute test suites automatically — run tests **only when the user explicitly
+   asks**, and always via `./install.sh` (`./install.sh test`, `./install.sh test-gate07`,
+   `./install.sh test-ui`, `./install.sh test-flow`, `./install.sh coverage`).
+   Bug fixes follow `.agents/rules/test-regression.md` (author regression test alongside fix;
+   execute via `./install.sh` when requested by the user).
 6. Domain invariants live in `.agents/rules/*` (`cpp_hooking_patterns.md`,
    `steam_cef_ui_patterns.md`, `steam_controller_mapping.md`, `devtools_interaction.md`,
    `test-regression.md`); deep procedures live in `.agents/skills/*`

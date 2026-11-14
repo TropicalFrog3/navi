@@ -9,7 +9,8 @@
   - Avoid reading vendored or generated directories (`include/`, `lib/`, `third_party/`, `venv/`, `obj/`, `bin/`) unless explicitly required.
   - Run path-scoped status and diff checks (`git status -s -- <dir>` and `git diff -- <dir>`) rather than repo-wide `git status` when verifying component edits on shared or dirty working trees.
 - **Verification Standards**:
-  - Verify code changes via `./install.sh build`, `./install.sh test`, and `git diff` self-review.
+  - Verify code changes via `./install.sh build` and `git diff` self-review.
+  - Execute test suites **only when the user explicitly asks**, and always use `./install.sh` subcommands (`./install.sh test`, `./install.sh test-gate07`, `./install.sh test-ui`, `./install.sh test-flow`, `./install.sh coverage`) rather than raw `pytest`, `make`, or `./bin/unit_tests`.
   - Respect all domain invariants in `.agents/rules/*` and `.agents/skills/*`.
 - **Concise Outputs**:
   - Provide concise summaries: files changed, diff overview, test results, and brief explanations.

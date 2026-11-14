@@ -2,20 +2,21 @@
 
 ## Workspace Role & Workflow
 
-This room owns the staged verification pipeline — run it ascending, do not skip stages:
+This room owns the staged verification pipeline — execute test suites **only when the user
+explicitly asks**, always via `./install.sh` subcommands in ascending order:
 (1) **unit** (Googletest, `tests/unit/*.cpp` → `./install.sh test`); (2) **integration**
 (Bubblewrap Gate 0.7 hermetic harness, `tests/integration/*` → `./install.sh test-gate07`);
 (3) **UI flows** (`tests/integration/ui/` journeys → `./install.sh test-ui` →
-`test-ui-a11y`); (4) **device live** (real Steam Deck only, `pytest --live` +
+`./install.sh test-flow`); (4) **device live** (real Steam Deck only,
 `scripts/dev/deck-ctl.sh`). Failures are documented, never silently triaged: run reports
-go to `tests/reports/YYYY-MM-DD-<gate>-<summary>.md`. Bug fixes always start here with
-a RED test (`.agents/rules/test-regression.md`) before any `src/` change.
+go to `tests/reports/YYYY-MM-DD-<gate>-<summary>.md`. Bug fixes include a regression
+test (`.agents/rules/test-regression.md`) alongside any `src/` change.
 
 | Task / Stage | Read These Files | Skip These Files | Skills / MCPs / Commands Needed |
 |---|---|---|---|
-| Run verification gate | `Makefile` targets, `pytest.ini` (testpaths = `tests/integration`; markers `live`, `ui_p0`, `ui_p1`, `a11y`, `responsive`), `tests/conftest.py` (`run_installer`) | `src/` except the code under test, `pkg/`, `include/` | `./install.sh build` first, then `./install.sh test` → `./install.sh test-gate07` → `./install.sh test-ui` |
-| Add unit test | `.agents/rules/test-regression.md`, `tests/unit/test_stubs*.cpp` (stub conventions), owning `src` file | `tests/integration/`, `tools/`, `bin/` | `./install.sh test` (Googletest; coverage variant `./install.sh coverage`) |
-| Add integration / UI journey | `tests/conftest.py`, `tests/integration/ui/harness/browser_driver.py` (writes gitignored `test-results/ui/<test_name>/`), closest existing `test_ujNN_*.py` as template | `artifacts/test-runs/` (historical), `test-results/` (generated), `test-artifacts/` (removed) | `pytest -q tests/integration -m ui_p0`; `--live` only with a device attached |
+| Run verification gate | `Makefile` targets, `pytest.ini` (testpaths = `tests/integration`; markers `live`, `ui_p0`, `ui_p1`, `a11y`, `responsive`), `tests/conftest.py` (`run_installer`) | `src/` except the code under test, `pkg/`, `include/` | Only when user asks: `./install.sh build` first, then `./install.sh test` → `./install.sh test-gate07` → `./install.sh test-ui` → `./install.sh test-flow` |
+| Add unit test | `.agents/rules/test-regression.md`, `tests/unit/test_stubs*.cpp` (stub conventions), owning `src` file | `tests/integration/`, `tools/`, `bin/` | `./install.sh build`; when user asks: `./install.sh test` (coverage variant `./install.sh coverage`) |
+| Add integration / UI journey | `tests/conftest.py`, `tests/integration/ui/harness/browser_driver.py` (writes gitignored `test-results/ui/<test_name>/`), closest existing `test_ujNN_*.py` as template | `artifacts/test-runs/` (historical), `test-results/` (generated), `test-artifacts/` (removed) | When user asks: `./install.sh test-gate07` / `./install.sh test-ui` / `./install.sh test-flow` |
 | Device / live testing | `scripts/dev/deck-ctl.sh`, `pytest.ini` `live` marker | `bin/`, `obj/`, `docs/` | Skills `steamdeck-wireless-workflow` + `cef-cdp-injection`; `deck-ctl.sh` is reserved for the main agent (never a subagent task) |
 | Record / publish run report | latest raw logs from `test-results/`, the gate's journey file | `src/**` beyond the failing area | Naming `YYYY-MM-DD-<gate>-<summary>.md` into `tests/reports/` (see its README); produce summaries only after gates pass or are fixed |
 

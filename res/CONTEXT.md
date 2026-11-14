@@ -11,17 +11,17 @@ per-file spec; (2) edit inside the existing category folders; (3) bundle your sp
 component via `./install.sh bundle-scripts <target>` (`library`, `cloud`, `core`, `lua`, `depots`, `store`);
 (4) verify changes with path-scoped checks (`git status -s -- res/inject-scripts/<category>/`
 and `git diff -- res/inject-scripts/<category>/`) — never run bare repo-wide git status on shared trees;
-(5) run targeted bundle sync (`pytest tests/integration/test_bundle_sync.py`); (6) run UI
-gates (`./install.sh test-ui`, `./install.sh test-flow`) only for structural flow changes.
+(5) run test gates (`./install.sh test`, `./install.sh test-gate07`, `./install.sh test-ui`,
+`./install.sh test-flow`) only when the user explicitly asks.
 `res/SLSlogos/` is a git submodule: never modify or commit into it.
 
 | Task / Stage | Read These Files | Skip These Files | Skills / MCPs / Commands Needed |
 |---|---|---|---|
-| Library UI & Navi Menu | `res/inject-scripts/library/app-details/navi-modal.html` or target file in `library/app-details/` | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts library`; `pytest tests/integration/test_bundle_sync.py`; scoped: `git status -s -- res/inject-scripts/library/` |
-| Cloud Manager UI | `res/inject-scripts/cloud/cloud-manager/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts cloud`; `pytest tests/integration/test_bundle_sync.py`; scoped: `git status -s -- res/inject-scripts/cloud/` |
-| Core Runtime Injection | `res/inject-scripts/core/navi-inject/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts core`; `pytest tests/integration/test_bundle_sync.py`; scoped: `git status -s -- res/inject-scripts/core/` |
+| Library UI & Navi Menu | `res/inject-scripts/library/app-details/navi-modal.html` or target file in `library/app-details/` | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts library`; scoped: `git status -s -- res/inject-scripts/library/` |
+| Cloud Manager UI | `res/inject-scripts/cloud/cloud-manager/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts cloud`; scoped: `git status -s -- res/inject-scripts/cloud/` |
+| Core Runtime Injection | `res/inject-scripts/core/navi-inject/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts core`; scoped: `git status -s -- res/inject-scripts/core/` |
 | Store & Shell Injectors | `res/inject-scripts/{store,shell}/` target files | `src/`, `tests/`, other `inject-scripts/` | `./install.sh bundle-scripts store` (or `lua`/`depots`); scoped: `git status -s -- res/inject-scripts/` |
-| Config template change | `res/config.yaml`, `res/config.diff.yaml`, `res/cache.diff.yaml`, `src/model/migrations/`, `tests/unit/test_config.cpp` | `res/inject-scripts/` | `./install.sh test`; follow the `$(OldKey)$(NewKey):` bridge syntax (actions: rename, rename_and_convert, remove, convert) |
+| Config template change | `res/config.yaml`, `res/config.diff.yaml`, `res/cache.diff.yaml`, `src/model/migrations/`, `tests/unit/test_config.cpp` | `res/inject-scripts/` | `./install.sh build` (`./install.sh test` when user asks); follow the `$(OldKey)$(NewKey):` bridge syntax (actions: rename, rename_and_convert, remove, convert) |
 | `cloud_redirect.so` replacement | `.gitignore` exception line `!res/cloud_redirect.so`, `docs/references/cloud-redirect-architecture.md` (§1 Components), `src/core/cloud_oauth.*` | `bin/`, `pkg/` | `./install.sh check-cloudredirect` — engine version (v2.6.5) and docs must stay in lockstep |
 | Version / release bump | `res/version` (`Version: beta-v1.2.0` + Changelog — feeds Makefile `DATE`), `res/updates.yaml` (SafeModeHashes per client build) | `bin/`, `obj/` | Skill `release-workflow` owns `./install.sh release` — orchestrator-only |
 | Launcher assets / updater | `pkg/navi/navi.desktop`, `pkg/navi/navi-native.desktop`, `scripts/update-all.sh` | `res/SLSlogos/` (git submodule — read-only), `res/vendor`-style blobs | — |
