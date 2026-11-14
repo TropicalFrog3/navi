@@ -128,19 +128,19 @@ def test_installer_idempotency(fake_home, run_installer):
 def test_steam_running_guard(fake_home, run_installer):
     """
     Test Steam-running guard:
-    - Fails if Steam is running and NAVI_IGNORE_RUNNING_STEAM is unset
+    - Terminates Steam and succeeds when Steam is running and NAVI_IGNORE_RUNNING_STEAM is unset
     - Succeeds under --dry-run
     - Succeeds when NAVI_IGNORE_RUNNING_STEAM=1
     """
-    # 1. Refuses when Steam is simulated as running
-    res_refusal = run_installer(
+    # 1. Terminates Steam and succeeds when Steam is simulated as running
+    res_kill = run_installer(
         "install",
         "--yes",
         env={"NAVI_FAKE_STEAM_RUNNING": "1", "NAVI_IGNORE_RUNNING_STEAM": "0"},
     )
-    assert res_refusal.returncode != 0, "Installer should refuse to run when Steam is detected running"
-    combined_out = res_refusal.stdout + res_refusal.stderr
-    assert "Steam is currently running" in combined_out
+    assert res_kill.returncode == 0, f"Installer should terminate Steam and succeed: {res_kill.stderr}"
+    combined_out = res_kill.stdout + res_kill.stderr
+    assert "Terminating Steam" in combined_out
 
     # 2. Dry-run bypasses running guard
     res_dry = run_installer(

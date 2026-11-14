@@ -89,6 +89,10 @@ public:
 
 	// Cloud Saves (CloudRedirect)
 	MTVariable<bool> cloudSavesEnabled{true};
+	MTVariable<bool> cloudSyncProviderKeys{true};
+	MTVariable<bool> cloudSyncRyuuKey{true};
+	MTVariable<bool> cloudSyncDepotBoxKey{true};
+	MTVariable<bool> cloudSyncHubcapKey{true};
 	MTVariable<std::string> cloudSavesProvider{"local-only"};
 	MTVariable<bool> cloudNotificationsEnabled{true};
 	MTVariable<std::unordered_set<AppId_t>> cloudSavesManagedApps;

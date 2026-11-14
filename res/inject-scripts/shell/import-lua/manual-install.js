@@ -4,6 +4,7 @@
  */
     function showSlsPage() {
         hideConfigPage();
+        ensureLibraryViewForOverlay(hideSlsPage);
         ensureCustomTabStyles();
 
         var container = document.getElementById('sls-page-container');
@@ -29,6 +30,7 @@ initManualInstallPage();
     }
 
 function hideSlsPage() {
+        detachSteamHistoryListener();
         var container = document.getElementById('sls-page-container');
         if (container) {
             container.style.display = 'none';

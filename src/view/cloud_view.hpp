@@ -21,12 +21,14 @@ namespace Navi::CloudRedirect
     struct OrphanAppEntry_t;
     struct GcResult_t;
     struct GlobalBackupEntry_t;
+    struct CloudProviderKeysStatus_t;
 }
 
 namespace Navi::CloudView
 {
     std::string renderStatusJson(bool enabled, const std::string& provider, size_t managedAppsCount, size_t pendingOpsCount);
     std::string renderProviderStatusJson(const CloudRedirect::ProviderAuthStatus_t& status);
+    std::string renderProviderKeysStatusJson(const CloudRedirect::CloudProviderKeysStatus_t& status);
     std::string renderProviderCredentialsJson(const CloudRedirect::ProviderCredentials_t& creds);
     CloudRedirect::ProviderCredentials_t parseProviderCredentialsJson(const std::string& json);
     std::string renderMigrationScanJson(const CloudRedirect::MigrationScanResult_t& scan);

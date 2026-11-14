@@ -63,11 +63,22 @@ find_native_steam() {
     return 0
 }
 
+_is_steam_process_running() {
+    pgrep -x steam >/dev/null 2>&1 || pgrep -f 'steam\.sh' >/dev/null 2>&1 || pgrep -x steamwebhelper >/dev/null 2>&1
+}
+
+_signal_steam_processes() {
+    local sig="$1"
+    pkill "-$sig" -x steam 2>/dev/null || true
+    pkill "-$sig" -x steamwebhelper 2>/dev/null || true
+    pkill "-$sig" -f 'steam\.sh' 2>/dev/null || true
+}
+
 check_steam_running() {
     local running=0
     if [ "${NAVI_FAKE_STEAM_RUNNING:-0}" = "1" ]; then
         running=1
-    elif pgrep -x steam >/dev/null 2>&1 || pgrep -f 'steam\.sh' >/dev/null 2>&1 || pgrep -x steamwebhelper >/dev/null 2>&1; then
+    elif _is_steam_process_running; then
         running=1
     fi
 
@@ -82,33 +93,18 @@ check_steam_running() {
             return 0
         fi
 
-        # Non-interactive mode: fail with clear error
-        if [ "${ASSUME_YES:-0}" -eq 1 ] || [ "${SLS_TEST_ENV:-0}" = "1" ] || [ ! -t 0 ]; then
-            log_error "Steam is currently running. Please close Steam before proceeding."
-            return 1
-        fi
-
-        # Interactive mode: prompt
-        if has_zenity; then
-            if ! zenity --question \
-                --title="Steam is Running" \
-                --text="Steam is currently running. Please close Steam before proceeding.\n\nContinue anyway?" \
-                --ok-label="Continue" --cancel-label="Cancel" 2>/dev/null; then
-                log_error "Operation cancelled by user because Steam is running."
-                return 1
+        log_info "Steam is currently running. Terminating Steam processes..."
+        if [ "${NAVI_FAKE_STEAM_RUNNING:-0}" != "1" ]; then
+            _signal_steam_processes TERM
+            local i=0
+            while [ "$i" -lt 10 ] && _is_steam_process_running; do
+                sleep 0.2
+                i=$((i + 1))
+            done
+            if _is_steam_process_running; then
+                _signal_steam_processes 9
+                sleep 0.2
             fi
-        else
-            echo -e "${YELLOW}[WARN] Steam is currently running.${NC}"
-            read -r -p "Steam is currently running. Close Steam before proceeding, or continue anyway? [y/N]: " response
-            case "$response" in
-                [yY][eE][sS]|[yY])
-                    return 0
-                    ;;
-                *)
-                    log_error "Operation cancelled: Steam is currently running."
-                    return 1
-                    ;;
-            esac
         fi
     else
         if [ "${DRY_RUN:-0}" -eq 1 ]; then

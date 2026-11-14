@@ -1,6 +1,8 @@
+Outcome: shipped — Scoped SuperNav active-tab override in styles.css strictly to the active native tab (:not(:hover)), preserving native inactive tab colors and hover states while hiding only the active tab underline, and added UI regression assertions — 2026-11-14
+
 # Bug Spec: Stop Darkening Other SuperNav Tabs When Clicking Navi Config
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Shell Inject (`res/inject-scripts/shell/import-lua/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- when clicking navi config tab the other tabs get darken, it is not supposed to be darken or changes`

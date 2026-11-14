@@ -5,12 +5,12 @@
 
 @keyframes sls-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 @keyframes sls-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }
-body:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__ {
-    color: rgb(150, 150, 150) !important;
-    text-shadow: none !important;
-    font-weight: normal !important;
+body:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__.__STEAM_TAB_ACTIVE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab):not(:hover) .__STEAM_TAB_TEXT_CLASS__ {
+    color: #dcdedf;
+    text-shadow: none;
+    font-weight: normal;
 }
-body:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__::after {
+body:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__.__STEAM_TAB_ACTIVE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__::after {
     display: none !important;
 }
 details summary::-webkit-details-marker { display: none !important; }

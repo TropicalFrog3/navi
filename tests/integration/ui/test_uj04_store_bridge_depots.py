@@ -97,6 +97,28 @@ def test_uj04_depot_selection_checkboxes_and_start_download(
     assert depot_modal.is_checkbox_checked(0) is True
     assert depot_modal.is_download_enabled() is True
 
+    # Desktop mode must not show the white controller focus border on initial mount
+    driver.evaluate("new Promise(function(r) { setTimeout(r, 100); })", await_promise=True)
+    assert depot_modal.get_gamepad_outlined_element() is None
+
+    # Gamepad directional input enables the focus ring, and pointer input clears it
+    depot_modal.dispatch_direction(depot_modal.GAMEPAD_DOWN)
+    driver.wait_for_condition(
+        lambda: depot_modal.get_gamepad_outlined_element() is not None,
+        timeout=5.0,
+        error_message="Gamepad direction did not activate white focus border in depot selection modal",
+    )
+    driver.evaluate(
+        "var el = document.querySelector('#sls-depot-overlay-modal');"
+        "if (el) el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));",
+        await_promise=False,
+    )
+    driver.wait_for_condition(
+        lambda: depot_modal.get_gamepad_outlined_element() is None,
+        timeout=5.0,
+        error_message="Mouse pointer input did not clear white focus border in depot selection modal",
+    )
+
     # Step 1: Uncheck depot -> button becomes disabled
     depot_modal.toggle_checkbox(0)
     assert depot_modal.is_checkbox_checked(0) is False
@@ -158,10 +180,15 @@ def test_uj04_gamepad_navigation_osk_dismissal_and_disabled_skip(
     provider_modal = store_page.provider_modal
     provider_modal.wait_until_open()
 
-    # Step 1: Focus an input element
+    # Desktop mode must not show the white controller focus border on initial mount
+    driver.evaluate("new Promise(function(r) { setTimeout(r, 150); })", await_promise=True)
+    assert provider_modal.get_gamepad_outlined_element() is None
+
+    # Step 1: Focus an input element (focusin alone in Desktop mode must not draw controller border)
     provider_modal.focus_api_key(0)
     active_el_before = driver.evaluate("document.activeElement.tagName")
     assert str(active_el_before).upper() == "INPUT"
+    assert provider_modal.get_gamepad_outlined_element() is None
 
     # Step 2: Dispatch gamepad directional movement
     provider_modal.dispatch_direction(provider_modal.GAMEPAD_DOWN)
@@ -177,6 +204,18 @@ def test_uj04_gamepad_navigation_osk_dismissal_and_disabled_skip(
     outlined = provider_modal.get_gamepad_outlined_element()
     assert outlined is not None
     assert outlined.get("disabled") is False
+
+    # Step 4b: Mouse pointer input clears the controller focus border in Desktop mode
+    driver.evaluate(
+        "var el = document.querySelector('#sls-overlay-modal');"
+        "if (el) el.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, cancelable: true }));",
+        await_promise=False,
+    )
+    driver.wait_for_condition(
+        lambda: provider_modal.get_gamepad_outlined_element() is None,
+        timeout=5.0,
+        error_message="Mouse pointer input did not clear white focus border in provider modal",
+    )
 
     # Step 5: Gamepad cancel closes modal
     provider_modal.dispatch_cancel()

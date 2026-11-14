@@ -117,7 +117,42 @@ function log(m) {
     }
 
     var historyUnlisten = null;
+    var slsNavigatingTimer = null;
     var configKeyDownHandler = null;
+
+    function detachSteamHistoryListener() {
+        if (typeof historyUnlisten === 'function') {
+            try { historyUnlisten(); } catch (e) {}
+            historyUnlisten = null;
+        }
+    }
+
+    function ensureLibraryViewForOverlay(onNavigateAway) {
+        detachSteamHistoryListener();
+        var history = getSteamHistory();
+        if (!history) return;
+
+        var curPath = (history.location && history.location.pathname) ? history.location.pathname : '';
+        if (curPath.indexOf('/library') !== 0) {
+            window.__slsNavigating = true;
+            if (slsNavigatingTimer) clearTimeout(slsNavigatingTimer);
+            try {
+                history.push('/library/home');
+            } finally {
+                slsNavigatingTimer = setTimeout(function () {
+                    window.__slsNavigating = false;
+                    slsNavigatingTimer = null;
+                }, 150);
+            }
+        }
+
+        if (typeof history.listen === 'function') {
+            historyUnlisten = history.listen(function () {
+                if (window.__slsNavigating) return;
+                onNavigateAway();
+            });
+        }
+    }
 
     var activeSlsAppId = null;
 

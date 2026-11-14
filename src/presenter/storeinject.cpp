@@ -85,6 +85,7 @@ static std::vector<int> parseProviderOrder(const std::string& value)
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <map>
 #include <set>
 #include <sys/socket.h>
 #include <sys/stat.h>
@@ -108,6 +109,51 @@ namespace StoreInject
     static std::atomic<int> g_wakeFd{-1};
     static std::atomic<bool> g_shutdownCalled{false};
     static std::string g_naviAuthToken;
+    static std::mutex s_authTransitionMutex;
+    static std::map<std::string, bool> s_lastProviderAuthState;
+
+    static void TriggerCloudCatalogPublishAsync(bool overwriteProviderKeys)
+    {
+        if (g_shouldStop.load() || !g_config.cloudSavesEnabled.get())
+        {
+            return;
+        }
+        std::thread([overwriteProviderKeys]() {
+            if (g_shouldStop.load()) return;
+            Navi::CloudRedirect::CCloudManager::Instance().PublishMetadataCatalogIfAuthenticated(
+                "", 0, overwriteProviderKeys);
+        }).detach();
+    }
+
+    static bool IsAnyProviderKeySyncEnabled()
+    {
+        return g_config.cloudSyncProviderKeys.get() &&
+               (g_config.cloudSyncRyuuKey.get() ||
+                g_config.cloudSyncDepotBoxKey.get() ||
+                g_config.cloudSyncHubcapKey.get());
+    }
+
+    static void TriggerCloudCatalogRestoreAndSyncAsync(const std::string& provider)
+    {
+        if (g_shouldStop.load() || !IsAnyProviderKeySyncEnabled() ||
+            provider.empty() || provider == "local" || provider == "local-only")
+        {
+            return;
+        }
+        std::thread([provider]() {
+            if (g_shouldStop.load() || !IsAnyProviderKeySyncEnabled()) return;
+            auto& mgr = Navi::CloudRedirect::CCloudManager::Instance();
+            mgr.RestoreMetadataFromCloudCatalog(provider, 0, /*syncRemote=*/true);
+            if (g_shouldStop.load() || !IsAnyProviderKeySyncEnabled()) return;
+            if (g_config.cloudSavesEnabled.get() &&
+                ((g_config.cloudSyncRyuuKey.get() && !g_config.ryuuKey.get().empty()) ||
+                 (g_config.cloudSyncDepotBoxKey.get() && !g_config.depotBoxKey.get().empty()) ||
+                 (g_config.cloudSyncHubcapKey.get() && !g_config.hubcapKey.get().empty())))
+            {
+                mgr.PublishMetadataCatalogIfAuthenticated(provider, 0, /*overwriteProviderKeys=*/false);
+            }
+        }).detach();
+    }
 
     const std::string& getNaviAuthToken()
     {
@@ -922,6 +968,23 @@ namespace StoreInject
                                 auto st = Navi::CloudRedirect::CCloudManager::Instance().CheckAuthStatus(provider);
                                 sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderStatusJson(st));
                                 handled = true;
+                                if (!provider.empty() && provider != "local" && provider != "local-only")
+                                {
+                                    bool becameAuthenticated = false;
+                                    {
+                                        std::lock_guard<std::mutex> lock(s_authTransitionMutex);
+                                        bool& prev = s_lastProviderAuthState[provider];
+                                        if (st.authenticated && !prev)
+                                        {
+                                            becameAuthenticated = true;
+                                        }
+                                        prev = st.authenticated;
+                                    }
+                                    if (becameAuthenticated)
+                                    {
+                                        TriggerCloudCatalogRestoreAndSyncAsync(provider);
+                                    }
+                                }
                             }
                             else if (method == "GET" && (uriPath == "/cloud/provider/credentials" || uriPath.rfind("/cloud/provider/credentials?", 0) == 0))
                             {
@@ -952,6 +1015,7 @@ namespace StoreInject
                                         Navi::CloudRedirect::CCloudRedirectBridge::Instance().SyncEngineConfigFromGlobal();
                                         auto savedCreds = Navi::CloudRedirect::CCloudManager::Instance().GetProviderCredentials(creds.provider);
                                         sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderCredentialsJson(savedCreds));
+                                        TriggerCloudCatalogRestoreAndSyncAsync(creds.provider);
                                     }
                                     handled = true;
                                 }
@@ -1058,6 +1122,21 @@ namespace StoreInject
                                     apps.end());
 
                                 sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderCloudAppsJson(provider, apps));
+                                handled = true;
+                            }
+                            else if (method == "GET" && (uriPath == "/cloud/provider-keys/status" || uriPath.rfind("/cloud/provider-keys/status?", 0) == 0))
+                            {
+                                std::string provider = extractCloudQueryParam(uriPath, "provider");
+                                if (provider.empty()) provider = g_config.cloudSavesProvider.get();
+                                if (provider.empty()) provider = "local-only";
+                                std::string syncParam = extractCloudQueryParam(uriPath, "sync");
+                                const bool syncRemote = syncParam.empty()
+                                    ? (provider != "local-only")
+                                    : (syncParam == "1" || syncParam == "true");
+                                uint32_t acctId = g_currentSteamId.isSet() ? g_currentSteamId.accountId() : 0;
+
+                                auto keyStatus = Navi::CloudRedirect::CCloudManager::Instance().GetCloudProviderKeysStatus(provider, acctId, syncRemote);
+                                sendJsonResponse(new_socket, 200, "OK", Navi::CloudView::renderProviderKeysStatusJson(keyStatus));
                                 handled = true;
                             }
                             else if (method == "GET" && uriPath.rfind("/cloud/apps/", 0) == 0 && uriPath.find("/files/download") != std::string::npos)
@@ -1587,6 +1666,10 @@ namespace StoreInject
                                 send(new_socket, response.c_str(), response.size(), 0);
                                 close(new_socket);
                                 handled = true;
+                                if (IsAnyProviderKeySyncEnabled())
+                                {
+                                    TriggerCloudCatalogPublishAsync(/*overwriteProviderKeys=*/true);
+                                }
                             } catch (...) {
                                 std::string respBody = StoreInjectView::renderErrorJson("Failed to save API keys");
                                 std::string response = "HTTP/1.1 500 Internal Server Error\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\nContent-Length: " + std::to_string(respBody.size()) + "\r\n\r\n" + respBody;
@@ -2530,14 +2613,44 @@ namespace StoreInject
                             {
                                 if (request.find("POST") == 0 || request.find("POST ") != std::string::npos)
                                 {
+                                    const std::string prevRyuu = g_config.ryuuKey.get();
+                                    const std::string prevDepotBox = g_config.depotBoxKey.get();
+                                    const std::string prevHubcap = g_config.hubcapKey.get();
+                                    const bool prevSyncMaster = g_config.cloudSyncProviderKeys.get();
+                                    const bool prevSyncRyuu = g_config.cloudSyncRyuuKey.get();
+                                    const bool prevSyncDepotBox = g_config.cloudSyncDepotBoxKey.get();
+                                    const bool prevSyncHubcap = g_config.cloudSyncHubcapKey.get();
                                     std::string body = extractHttpPostBody(new_socket, request);
                                     std::string errMsg;
                                     if (StoreInjectView::applyFullConfigJson(g_config.getPath(), body, errMsg))
                                     {
                                         g_config.loadSettings(false);
+                                        const bool apiKeysChanged =
+                                            (g_config.ryuuKey.get() != prevRyuu) ||
+                                            (g_config.depotBoxKey.get() != prevDepotBox) ||
+                                            (g_config.hubcapKey.get() != prevHubcap);
+                                        const bool curSyncMaster = g_config.cloudSyncProviderKeys.get();
+                                        const bool curSyncRyuu = g_config.cloudSyncRyuuKey.get();
+                                        const bool curSyncDepotBox = g_config.cloudSyncDepotBoxKey.get();
+                                        const bool curSyncHubcap = g_config.cloudSyncHubcapKey.get();
+                                        const bool syncPrefChanged =
+                                            (curSyncMaster != prevSyncMaster) ||
+                                            (curSyncRyuu != prevSyncRyuu) ||
+                                            (curSyncDepotBox != prevSyncDepotBox) ||
+                                            (curSyncHubcap != prevSyncHubcap);
+                                        const bool anySyncDisabled =
+                                            !curSyncMaster ||
+                                            (prevSyncRyuu && !curSyncRyuu) ||
+                                            (prevSyncDepotBox && !curSyncDepotBox) ||
+                                            (prevSyncHubcap && !curSyncHubcap);
                                         std::string respBody = StoreInjectView::renderSuccessJson("Configuration saved and reloaded");
                                         sendJsonResponse(new_socket, 200, "OK", respBody);
                                         handled = true;
+                                        if ((apiKeysChanged && IsAnyProviderKeySyncEnabled()) || syncPrefChanged)
+                                        {
+                                            const bool overwriteKeys = apiKeysChanged || anySyncDisabled;
+                                            TriggerCloudCatalogPublishAsync(/*overwriteProviderKeys=*/overwriteKeys);
+                                        }
                                     }
                                     else
                                     {

@@ -522,3 +522,149 @@ def test_uj05_library_quick_add_buttons_and_header_spacing(
     assert config_page.is_dirty() is True
 
 
+@pytest.mark.ui_p1
+def test_uj05_supernav_non_library_overlay_navigation(
+    config_page: ConfigEditorPage,
+    callback_server: CallbackServerStub,
+    driver: BrowserDriver,
+    repo_paths: dict[str, Path],
+) -> None:
+    """Opening Navi Config from a non-library SuperNav route navigates to /library/home and handles dismiss cleanly."""
+    shell_path = repo_paths["fixtures"] / "steam_library_sp.html"
+    driver.navigate_to_file(shell_path)
+    driver.inject_script(repo_paths["scripts"] / "import-lua-script.js")
+
+    # Attach mock React Fiber history on the first SuperNav tab at /store
+    attached = driver.evaluate(
+        """
+        (() => {
+            const tabEl = document.querySelector('._2D64jIEK7wpUR_NlObDW76 ._2Lu3d-5qLmW4i19ysTt2jT');
+            if (!tabEl) return false;
+            const pushedPaths = [];
+            const listeners = [];
+            const state = {
+                pushedPaths,
+                listeners,
+                unlistenCount: 0,
+            };
+            const mockHistory = {
+                location: { pathname: '/store' },
+                push(path) {
+                    pushedPaths.push(path);
+                    mockHistory.location = { pathname: path };
+                    listeners.slice().forEach((cb) => cb({ pathname: path }));
+                },
+                listen(cb) {
+                    listeners.push(cb);
+                    return function () {
+                        const idx = listeners.indexOf(cb);
+                        if (idx >= 0) {
+                            listeners.splice(idx, 1);
+                            state.unlistenCount += 1;
+                        }
+                    };
+                },
+            };
+            state.history = mockHistory;
+            state.simulateNavigate = (path) => {
+                mockHistory.location = { pathname: path };
+                listeners.slice().forEach((cb) => cb({ pathname: path }));
+            };
+            window.__testMockHistory = state;
+            tabEl.__reactFiber$test = {
+                memoizedProps: { history: mockHistory },
+                return: null,
+            };
+            return true;
+        })()
+        """,
+        await_promise=False,
+    )
+    assert attached is True
+
+    inactive_colors_before = driver.evaluate(
+        """
+        (() => {
+            const storeText = document.querySelector('#steam-supernav ._2Lu3d-5qLmW4i19ysTt2jT:nth-child(1) ._19axKcqYRuaJ8vdYKYmtTQ');
+            const commText = document.querySelector('#steam-supernav ._2Lu3d-5qLmW4i19ysTt2jT:nth-child(3) ._19axKcqYRuaJ8vdYKYmtTQ');
+            if (!storeText || !commText) return null;
+            return {
+                store: window.getComputedStyle(storeText).color,
+                community: window.getComputedStyle(commText).color,
+            };
+        })()
+        """,
+        await_promise=False,
+    )
+    assert inactive_colors_before is not None
+
+    # 1. Open Navi Config from /store -> pushes /library/home and stays open
+    config_page.open()
+    assert config_page.is_open() is True
+    assert driver.evaluate("window.__testMockHistory.pushedPaths", await_promise=False) == ["/library/home"]
+
+    tab_styles_after = driver.evaluate(
+        """
+        (() => {
+            const storeText = document.querySelector('#steam-supernav ._2Lu3d-5qLmW4i19ysTt2jT:nth-child(1) ._19axKcqYRuaJ8vdYKYmtTQ');
+            const libText = document.querySelector('#steam-supernav ._2Lu3d-5qLmW4i19ysTt2jT:nth-child(2) ._19axKcqYRuaJ8vdYKYmtTQ');
+            const commText = document.querySelector('#steam-supernav ._2Lu3d-5qLmW4i19ysTt2jT:nth-child(3) ._19axKcqYRuaJ8vdYKYmtTQ');
+            if (!storeText || !libText || !commText) return null;
+            return {
+                store: window.getComputedStyle(storeText).color,
+                community: window.getComputedStyle(commText).color,
+                libraryAfterDisplay: window.getComputedStyle(libText, '::after').display,
+            };
+        })()
+        """,
+        await_promise=False,
+    )
+    assert tab_styles_after is not None
+    assert tab_styles_after["store"] == inactive_colors_before["store"]
+    assert tab_styles_after["community"] == inactive_colors_before["community"]
+    assert tab_styles_after["store"] != "rgb(150, 150, 150)"
+    assert tab_styles_after["community"] != "rgb(150, 150, 150)"
+    assert tab_styles_after["libraryAfterDisplay"] == "none"
+
+    # Wait for navigation guard window.__slsNavigating to clear
+    driver.wait_for_condition(
+        lambda: not driver.evaluate("Boolean(window.__slsNavigating)", await_promise=False),
+        timeout=5.0,
+        error_message="window.__slsNavigating guard did not clear",
+    )
+
+    # 2. Simulate React Router navigating to /store -> hides Navi Config and detaches listener
+    driver.evaluate("window.__testMockHistory.simulateNavigate('/store')", await_promise=False)
+    driver.wait_for_condition(
+        lambda: config_page.is_open() is False,
+        timeout=5.0,
+        error_message="Navi Config did not hide when React Router navigated to /store",
+    )
+    assert driver.evaluate("window.__testMockHistory.unlistenCount", await_promise=False) >= 1
+
+    # 3. When already on /library/app/440, opening Navi Config does NOT push /library/home again
+    prev_unlisten = int(driver.evaluate("window.__testMockHistory.unlistenCount", await_promise=False) or 0)
+    driver.evaluate(
+        """
+        (() => {
+            window.__testMockHistory.pushedPaths.length = 0;
+            window.__testMockHistory.history.location = { pathname: '/library/app/440' };
+        })()
+        """,
+        await_promise=False,
+    )
+    config_page.open()
+    assert config_page.is_open() is True
+    assert driver.evaluate("window.__testMockHistory.pushedPaths", await_promise=False) == []
+
+    # 4. Clicking native LIBRARY SuperNav tab closes Navi Config (capture-phase dismissal)
+    driver.click("#steam-supernav ._2Lu3d-5qLmW4i19ysTt2jT:nth-child(2)")
+    driver.wait_for_condition(
+        lambda: config_page.is_open() is False,
+        timeout=5.0,
+        error_message="Clicking native LIBRARY SuperNav tab did not close Navi Config",
+    )
+    assert driver.evaluate("window.__testMockHistory.unlistenCount", await_promise=False) > prev_unlisten
+
+
+

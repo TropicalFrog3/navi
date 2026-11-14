@@ -102,18 +102,29 @@
      * @file  gamepad.js
      * @brief Steam Deck and controller navigation focus trapping for store page modals and buttons
      */
+    function isStoreGamepadMode() {
+        var isBpmWindow = (window.name || '').indexOf('BPM') !== -1;
+        var isBpmTitle = /Steam Big Picture Mode/i.test(document.title || '');
+        var isTenfootUa = /Valve Steam Tenfoot/i.test(navigator.userAgent || '');
+        var hasGamepadClass = !!(document.body && (document.body.classList.contains('GamepadUI') || document.body.classList.contains('gamepad_mode')));
+        var hasDesktopClass = !!((document.body && document.body.classList.contains('DesktopUI')) || document.querySelector('.DesktopUI'));
+        if (hasDesktopClass && !isBpmWindow && !isBpmTitle && !isTenfootUa) return false;
+        return isBpmWindow || isBpmTitle || isTenfootUa || hasGamepadClass;
+    }
+
     function trapSteamGamepadModal(overlay, buttons) {
         var isGrid = Array.isArray(buttons[0]);
         var grid = isGrid ? buttons : buttons.map(function(b) { return [b]; });
         var activeR = 0;
         var activeC = 0;
+        var showFocusRing = isStoreGamepadMode();
 
         function updateFocus() {
             for (var r = 0; r < grid.length; r++) {
                 for (var c = 0; c < grid[r].length; c++) {
                     var btn = grid[r][c];
                     if (!btn) continue;
-                    if (r === activeR && c === activeC) {
+                    if (r === activeR && c === activeC && showFocusRing) {
                         btn.style.outline = '3px solid #fff';
                         btn.style.outlineOffset = '2px';
 
@@ -168,11 +179,20 @@
         }
         overlay.addEventListener('focusin', onOverlayFocusIn);
 
+        function onOverlayPointerDown() {
+            showFocusRing = false;
+            updateFocus();
+        }
+        overlay.addEventListener('mousedown', onOverlayPointerDown, true);
+        overlay.addEventListener('pointerdown', onOverlayPointerDown, true);
+
         function cleanup() {
             window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
             window.removeEventListener('vgp_onok', okCatcher, true);
             window.removeEventListener('vgp_oncancel', cancelCatcher, true);
             overlay.removeEventListener('focusin', onOverlayFocusIn);
+            overlay.removeEventListener('mousedown', onOverlayPointerDown, true);
+            overlay.removeEventListener('pointerdown', onOverlayPointerDown, true);
         }
 
         overlay.__slsUpdateGamepadGrid = function(newButtons, targetElement) {
@@ -243,6 +263,7 @@
             else if (dir === 11 || dir === 16) move(0, -1); // Left
             else if (dir === 12 || dir === 17) move(0, 1); // Right
 
+            showFocusRing = true;
             updateFocus();
         }
         function okCatcher(e) {

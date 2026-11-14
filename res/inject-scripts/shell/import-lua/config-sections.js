@@ -49,6 +49,34 @@ function buildConfigSectionsHtml(cfg) {
         }).join('');
 
         var isS3OrR2 = (activeProv === 'r2' || activeProv === 's3');
+        var pks = (cs && cs.ProviderKeysSync) || {};
+        var pksEnabled = (typeof pks.Enabled === 'boolean') ? pks.Enabled : (cs.SyncProviderKeys !== false);
+        var pksKeysMeta = [
+            {
+                title: 'Ryuu key',
+                desc: 'Save and restore your Ryuu API key in CloudRedirect.',
+                toggleId: 'sls-cfg-CloudSaves-SyncRyuuKey',
+                checked: (typeof pks.SyncRyuuKey === 'boolean') ? pks.SyncRyuuKey : (cs.SyncRyuuKey !== false),
+                search: 'CloudSaves ProviderKeysSync SyncRyuuKey ryuu key cloud'
+            },
+            {
+                title: 'DepotBox key',
+                desc: 'Save and restore your DepotBox API key in CloudRedirect.',
+                toggleId: 'sls-cfg-CloudSaves-SyncDepotBoxKey',
+                checked: (typeof pks.SyncDepotBoxKey === 'boolean') ? pks.SyncDepotBoxKey : (cs.SyncDepotBoxKey !== false),
+                search: 'CloudSaves ProviderKeysSync SyncDepotBoxKey depotbox key cloud'
+            },
+            {
+                title: 'HubcapDB key',
+                desc: 'Save and restore your HubcapDB API key in CloudRedirect.',
+                toggleId: 'sls-cfg-CloudSaves-SyncHubcapKey',
+                checked: (typeof pks.SyncHubcapKey === 'boolean') ? pks.SyncHubcapKey : (cs.SyncHubcapKey !== false),
+                search: 'CloudSaves ProviderKeysSync SyncHubcapKey hubcap key cloud'
+            }
+        ];
+        var pksSubrowsHtml = pksKeysMeta.map(function (k) {
+            return makeSettingRow(k.title, k.desc, makeToggle(k.toggleId, k.checked), k.search);
+        }).join('');
         var card2Content = makeSettingRow('Where saves are stored', 'Pick this computer for offline play, or connect a cloud account to sync between devices.',
                 '<select id="sls-cfg-cs-provider" class="sls-cfg-input" style="width: 240px;">' + providerOptions + '</select>', 'provider cloud storage where saves are stored') +
             '<div id="sls-cfg-cs-auth-block" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 12px 16px; margin-top: 8px; border-radius: 6px;">' +
@@ -101,6 +129,12 @@ function buildConfigSectionsHtml(cfg) {
                         '<button type="button" id="sls-cfg-cs-cred-save-btn" class="sls-cfg-btn sls-cfg-btn-primary" style="padding: 7px 14px; font-size: 12.5px;">Save &amp; Test Connection</button>' +
                     '</div>' +
                 '</div>' +
+            '</div>' +
+            makeSettingRow('Save provider keys in cloud', 'Back up and restore selected provider API keys in CloudRedirect metadata.',
+                makeToggle('sls-cfg-CloudSaves-SyncProviderKeys', pksEnabled),
+                'CloudSaves ProviderKeysSync SyncProviderKeys save provider keys in cloud metadata ryuu depotbox hubcap') +
+            '<div id="sls-cfg-ProviderKeysSync-subrows" style="display: ' + (pksEnabled ? 'block' : 'none') + ';">' +
+                pksSubrowsHtml +
             '</div>';
 
         var ps = (cs && cs.PrefixSync) || {};

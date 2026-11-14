@@ -3,6 +3,7 @@
  * @brief Navi configuration page controller, settings editor, saves table, and save pipeline
  */
 function hideConfigPage() {
+        detachSteamHistoryListener();
         if (configKeyDownHandler) {
             window.removeEventListener('keydown', configKeyDownHandler);
             configKeyDownHandler = null;
@@ -19,6 +20,7 @@ function hideConfigPage() {
 
     function showConfigPage() {
         hideSlsPage();
+        ensureLibraryViewForOverlay(hideConfigPage);
         ensureCustomTabStyles();
 
         var container = document.getElementById('sls-config-page-container');
@@ -231,6 +233,119 @@ function hideConfigPage() {
         }
         // 3. Cloud Saves (CloudRedirect) event handlers and UI logic
         var csState = { enabled: (cfg.CloudSaves && typeof cfg.CloudSaves.Enabled === 'boolean') ? cfg.CloudSaves.Enabled : true, managedAppsCount: 0, pendingOpsCount: 0 };
+
+        function refreshProviderKeyInputsIfClean() {
+            if (isDirty) return;
+            fetch('http://127.0.0.1:9001/api-keys', { headers: { 'Connection': 'close' } })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    if (!data || data.success !== true || isDirty) return;
+                    var keyMap = [
+                        { prop: 'ryuu', cfgKey: 'RyuuKey', id: 'sls-cfg-RyuuKey' },
+                        { prop: 'dpbx', cfgKey: 'DepotBoxKey', id: 'sls-cfg-DepotBoxKey' },
+                        { prop: 'hubcap', cfgKey: 'HubcapKey', id: 'sls-cfg-HubcapKey' }
+                    ];
+                    var updatedAny = false;
+                    for (var i = 0; i < keyMap.length; i++) {
+                        var item = keyMap[i];
+                        var val = data[item.prop] || '';
+                        var el = document.getElementById(item.id);
+                        if (el && !el.value && val) {
+                            el.value = val;
+                            cfg[item.cfgKey] = val;
+                            updatedAny = true;
+                        }
+                    }
+                    if (updatedAny) {
+                        initialFormState = serializeCurrentForm();
+                        checkDirty();
+                    }
+                })
+                .catch(function () {});
+        }
+
+        var CLOUD_PROVIDER_KEYS_META = [
+            { key: 'ryuu', label: 'Ryuu API Key' },
+            { key: 'depotbox', label: 'DepotBox API Key' },
+            { key: 'hubcap', label: 'HubcapDB API Key' }
+        ];
+
+        function formatCloudDate(ts) {
+            if (window.NaviCloudManager && window.NaviCloudManager.formatSteamCloudDate) {
+                return window.NaviCloudManager.formatSteamCloudDate(ts);
+            }
+            if (!ts) return '\u2014';
+            return new Date(Number(ts) * 1000).toLocaleString();
+        }
+
+        function applyCloudKeyBadgeStyle(badgeEl, saved) {
+            if (!badgeEl) return;
+            badgeEl.textContent = saved ? 'Saved \u2713' : 'Not saved';
+            badgeEl.style.padding = '3px 8px';
+            badgeEl.style.borderRadius = '3px';
+            badgeEl.style.fontSize = '11px';
+            badgeEl.style.fontWeight = '600';
+            if (saved) {
+                badgeEl.style.background = 'rgba(164, 208, 7, 0.15)';
+                badgeEl.style.color = '#a4d007';
+                badgeEl.style.border = '1px solid rgba(164, 208, 7, 0.35)';
+            } else {
+                badgeEl.style.background = 'rgba(255, 255, 255, 0.06)';
+                badgeEl.style.color = '#8f98a0';
+                badgeEl.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+            }
+        }
+
+        function updateProviderKeysSummaryElements(provEl, countEl, sizeEl, keys, effectiveProv) {
+            var provText = providerLabel(effectiveProv);
+            var savedCount = 0;
+            for (var i = 0; i < CLOUD_PROVIDER_KEYS_META.length; i++) {
+                if (keys && keys[CLOUD_PROVIDER_KEYS_META[i].key]) savedCount++;
+            }
+            if (provEl) provEl.textContent = '(' + provText + ')';
+            if (countEl) countEl.textContent = String(savedCount);
+            if (sizeEl) sizeEl.textContent = savedCount + ' / ' + CLOUD_PROVIDER_KEYS_META.length + ' saved';
+        }
+
+        function refreshCloudProviderKeysBadges(provider, syncRemote) {
+            var prov = provider || ((cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only');
+            var shouldSync = (typeof syncRemote === 'boolean') ? syncRemote : (prov !== 'local-only');
+            var url = 'http://127.0.0.1:9001/cloud/provider-keys/status?provider=' + encodeURIComponent(prov) +
+                (shouldSync ? '&sync=1' : '');
+
+            fetch(url, { headers: { 'Connection': 'close' } })
+                .then(function (r) { return r.json(); })
+                .then(function (data) {
+                    var keys = (data && data.keys) ? data.keys : {};
+                    var syncKeys = (data && data.syncKeys) ? data.syncKeys : {};
+                    var syncEnabled = !(data && data.syncEnabled === false);
+                    var effectiveProv = (data && data.provider) ? data.provider : prov;
+                    var provText = providerLabel(effectiveProv);
+                    var updatedText = (data && data.updatedAt) ? formatCloudDate(data.updatedAt) : '\u2014';
+
+                    updateProviderKeysSummaryElements(
+                        document.getElementById('sls-cfg-cs-keys-summary-prov'),
+                        document.getElementById('sls-cfg-cs-keys-summary-count'),
+                        document.getElementById('sls-cfg-cs-keys-summary-size'),
+                        keys,
+                        effectiveProv
+                    );
+
+                    for (var i = 0; i < CLOUD_PROVIDER_KEYS_META.length; i++) {
+                        var item = CLOUD_PROVIDER_KEYS_META[i];
+                        var saved = !!keys[item.key];
+                        var itemProvEl = document.getElementById('sls-cfg-cs-key-prov-' + item.key);
+                        var itemSyncEl = document.getElementById('sls-cfg-cs-key-sync-' + item.key);
+                        var itemDateEl = document.getElementById('sls-cfg-cs-key-date-' + item.key);
+                        var itemBadgeEl = document.getElementById('sls-cfg-cs-key-badge-' + item.key);
+                        if (itemProvEl) itemProvEl.textContent = '(' + provText + ')';
+                        if (itemSyncEl) itemSyncEl.textContent = (syncEnabled && !!syncKeys[item.key]) ? 'Enabled' : 'Disabled';
+                        if (itemDateEl) itemDateEl.textContent = saved ? updatedText : '\u2014';
+                        applyCloudKeyBadgeStyle(itemBadgeEl, saved);
+                    }
+                })
+                .catch(function () {});
+        }
 
         function refreshCloudSavesUI() {
             var masterBtn = document.getElementById('sls-cfg-cs-master-btn');
@@ -477,6 +592,7 @@ function hideConfigPage() {
                 if (authActions) authActions.innerHTML = '';
                 renderProviderAuthButtons(provider, false);
                 if (localInfo) localInfo.style.display = 'block';
+                refreshCloudProviderKeysBadges(provider, false);
             } else {
                 if (localInfo) localInfo.style.display = 'none';
                                 // Unified provider status handling
@@ -506,6 +622,12 @@ function hideConfigPage() {
                         }
                     }
                     renderProviderAuthButtons(provider, isAuthed);
+                    if (isAuthed) {
+                        setTimeout(refreshProviderKeyInputsIfClean, 800);
+                    }
+                    if (csState.selectedAppId && csState.selectedAppId !== '__provider_keys__') {
+                        refreshCloudProviderKeysBadges(provider, false);
+                    }
                 }).catch(function (err) {
                     console.warn('[CloudSaves] Provider status error:', err);
                     if (authBadge) {
@@ -515,6 +637,9 @@ function hideConfigPage() {
                         authBadge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
                     }
                     renderProviderAuthButtons(provider, false);
+                    if (csState.selectedAppId && csState.selectedAppId !== '__provider_keys__') {
+                        refreshCloudProviderKeysBadges(provider, false);
+                    }
                 });
             }
 
@@ -997,7 +1122,6 @@ function hideConfigPage() {
             // Drill-down Per-Game Files View (Steam Screenshot 2)
             if (csState.selectedAppId) {
                 var selAppId = csState.selectedAppId;
-                var selTitle = resolveTitle(selAppId, csState.selectedGameTitle);
 
                 function updateDrilldownBreadcrumb(title) {
                     if (!breadcrumbEl) return;
@@ -1012,6 +1136,141 @@ function hideConfigPage() {
                         };
                     }
                 }
+
+                if (selAppId === '__provider_keys__') {
+                    updateDrilldownBreadcrumb('Provider Keys');
+                    if (headingEl) headingEl.textContent = 'Provider Keys';
+                    if (subtitleEl) subtitleEl.textContent = 'Provider API keys stored in ' + providerLabel(provider) + ' :';
+                    if (backBtnEl) backBtnEl.style.display = 'inline-block';
+                    if (scanOrphansBtnEl) scanOrphansBtnEl.style.display = 'none';
+                    if (addAppInput) addAppInput.placeholder = 'Search provider keys...';
+
+                    if (gameToolbarEl) {
+                        gameToolbarEl.style.display = 'flex';
+                        gameToolbarEl.innerHTML =
+                            '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
+                                '<span style="background: rgba(255, 255, 255, 0.05); color: #c6d4df; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; padding: 3px 8px; font-size: 11.5px;">Provider: <b style="color: #66c0f4;">' + escapeHtml(providerLabel(provider)) + '</b></span>' +
+                            '</div>' +
+                            '<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">' +
+                                '<button id="sls-cfg-cs-keys-refresh-btn" class="sls-cfg-btn" style="background: #2a475e; border: 1px solid rgba(102, 192, 244, 0.4); color: #66c0f4; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px; font-weight: 600;">Refresh</button>' +
+                            '</div>';
+
+                        var btnKeysRefresh = document.getElementById('sls-cfg-cs-keys-refresh-btn');
+                        if (btnKeysRefresh) {
+                            btnKeysRefresh.onclick = function (e) {
+                                e.preventDefault();
+                                refreshCloudSavesUI();
+                            };
+                        }
+                    }
+
+                    appsListContainer.innerHTML = '<div style="padding: 28px 16px; text-align: center; color: #8f98a0; font-size: 13px;">Fetching provider keys from ' + escapeHtml(providerLabel(provider)) + '...</div>';
+
+                    var drillKeysUrl = 'http://127.0.0.1:9001/cloud/provider-keys/status?provider=' + encodeURIComponent(provider) +
+                        (provider !== 'local-only' ? '&sync=1' : '');
+                    fetch(drillKeysUrl, { headers: { 'Connection': 'close' } })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (csState.selectedAppId !== '__provider_keys__') return;
+                            if (provider && provider !== 'local-only') {
+                                refreshProviderKeyInputsIfClean();
+                            }
+
+                            var keys = (data && data.keys) ? data.keys : {};
+                            var syncKeys = (data && data.syncKeys) ? data.syncKeys : {};
+                            var syncEnabled = !(data && data.syncEnabled === false);
+                            var effectiveProv = (data && data.provider) ? data.provider : provider;
+                            var provText = providerLabel(effectiveProv);
+                            var updatedText = (data && data.updatedAt) ? formatCloudDate(data.updatedAt) : '\u2014';
+
+                            var sortedMeta = CLOUD_PROVIDER_KEYS_META.slice().sort(function (a, b) {
+                                return (keys[b.key] ? 1 : 0) - (keys[a.key] ? 1 : 0);
+                            });
+
+                            var table = document.createElement('table');
+                            table.className = 'navi-steam-cloud-table';
+                            table.style.tableLayout = 'fixed';
+                            table.style.width = '100%';
+                            table.innerHTML =
+                                '<thead><tr>' +
+                                    '<th scope="col" style="width: 44%; text-align: left;">PROVIDER KEY</th>' +
+                                    '<th scope="col" style="width: 18%; text-align: right;">SYNC</th>' +
+                                    '<th scope="col" style="width: 22%; text-align: right;">DATE WRITTEN</th>' +
+                                    '<th scope="col" style="width: 16%; text-align: right;"></th>' +
+                                '</tr></thead>';
+
+                            var tbody = document.createElement('tbody');
+                            sortedMeta.forEach(function (pk) {
+                                var saved = !!keys[pk.key];
+                                var syncOn = syncEnabled && !!syncKeys[pk.key];
+                                var tr = document.createElement('tr');
+                                tr.className = 'sls-cfg-item navi-cloud-file-row';
+                                tr.setAttribute('data-search', ('provider key api ' + pk.label + ' ' + pk.key + ' ' + effectiveProv + ' ' + provText + (saved ? ' saved' : ' not saved')).toLowerCase());
+
+                                var tdName = document.createElement('td');
+                                tdName.setAttribute('data-label', 'PROVIDER KEY');
+                                tdName.style.textAlign = 'left';
+                                tdName.style.overflow = 'hidden';
+                                tdName.style.textOverflow = 'ellipsis';
+                                tdName.style.whiteSpace = 'nowrap';
+
+                                var iconSpan = document.createElement('span');
+                                iconSpan.style.cssText = 'margin-right: 8px; font-size: 13px;';
+                                iconSpan.textContent = '\ud83d\udd11';
+                                tdName.appendChild(iconSpan);
+
+                                var nameSpan = document.createElement('span');
+                                nameSpan.style.cssText = 'color: #e2e8f0; font-weight: 500;';
+                                nameSpan.textContent = pk.label;
+                                tdName.appendChild(nameSpan);
+
+                                var provSpan = document.createElement('span');
+                                provSpan.id = 'sls-cfg-cs-key-prov-' + pk.key;
+                                provSpan.style.cssText = 'font-size: 11px; color: #8f98a0; margin-left: 6px;';
+                                provSpan.textContent = '(' + provText + ')';
+                                tdName.appendChild(provSpan);
+
+                                var tdSync = document.createElement('td');
+                                tdSync.id = 'sls-cfg-cs-key-sync-' + pk.key;
+                                tdSync.className = 'navi-col-num';
+                                tdSync.setAttribute('data-label', 'SYNC');
+                                tdSync.style.textAlign = 'right';
+                                tdSync.textContent = syncOn ? 'Enabled' : 'Disabled';
+
+                                var tdDate = document.createElement('td');
+                                tdDate.id = 'sls-cfg-cs-key-date-' + pk.key;
+                                tdDate.className = 'navi-col-num';
+                                tdDate.setAttribute('data-label', 'DATE WRITTEN');
+                                tdDate.style.textAlign = 'right';
+                                tdDate.textContent = saved ? updatedText : '\u2014';
+
+                                var tdBadge = document.createElement('td');
+                                tdBadge.setAttribute('data-label', 'ACTION');
+                                tdBadge.style.textAlign = 'right';
+
+                                var badgeSpan = document.createElement('span');
+                                badgeSpan.id = 'sls-cfg-cs-key-badge-' + pk.key;
+                                applyCloudKeyBadgeStyle(badgeSpan, saved);
+                                tdBadge.appendChild(badgeSpan);
+
+                                tr.appendChild(tdName);
+                                tr.appendChild(tdSync);
+                                tr.appendChild(tdDate);
+                                tr.appendChild(tdBadge);
+                                tbody.appendChild(tr);
+                            });
+
+                            table.appendChild(tbody);
+                            appsListContainer.innerHTML = '';
+                            appsListContainer.appendChild(table);
+                        })
+                        .catch(function (err) {
+                            appsListContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: #f87171; font-size: 13px;">Failed to load provider keys: ' + escapeHtml(err.message || 'Unknown error') + '</div>';
+                        });
+                    return;
+                }
+
+                var selTitle = resolveTitle(selAppId, csState.selectedGameTitle);
 
                 updateDrilldownBreadcrumb(selTitle);
                 if (headingEl) headingEl.textContent = selTitle;
@@ -1181,6 +1440,17 @@ function hideConfigPage() {
                 : fetch('http://127.0.0.1:9001/cloud/apps?provider=' + encodeURIComponent(provider)).then(function (r) { return r.json(); });
 
             appsPromise.then(function (data) {
+                var keysUrl = 'http://127.0.0.1:9001/cloud/provider-keys/status?provider=' + encodeURIComponent(provider) + '&sync=0';
+                return fetch(keysUrl, { headers: { 'Connection': 'close' } })
+                    .then(function (r) { return r.json(); })
+                    .catch(function () { return null; })
+                    .then(function (keysData) { return [data, keysData]; });
+            }).then(function (results) {
+                var data = results[0];
+                var keysData = results[1];
+                if (provider && provider !== 'local-only') {
+                    refreshProviderKeyInputsIfClean();
+                }
                 if (csState.selectedAppId) return;
                 var apps = (data && Array.isArray(data.apps)) ? data.apps.slice() : [];
                 var seen = {};
@@ -1211,11 +1481,6 @@ function hideConfigPage() {
                     managedBadge.textContent = apps.length + (apps.length === 1 ? ' Game in Cloud' : ' Games in Cloud');
                 }
 
-                if (apps.length === 0) {
-                    appsListContainer.innerHTML = '<div style="color: #8f98a0; font-size: 13px; padding: 28px 16px; text-align: center;">No games found in your Steam Cloud yet. Play a game with Cloud Saves enabled.</div>';
-                    return;
-                }
-
                 var table = document.createElement('table');
                 table.className = 'navi-steam-cloud-table';
                 table.style.tableLayout = 'fixed';
@@ -1229,6 +1494,65 @@ function hideConfigPage() {
                     '</tr></thead>';
 
                 var tbody = document.createElement('tbody');
+                var keysStatusMap = (keysData && keysData.keys) ? keysData.keys : {};
+                var activeKeyProv = (keysData && keysData.provider) ? keysData.provider : provider;
+                var pkTr = document.createElement('tr');
+                pkTr.className = 'sls-cfg-item navi-cloud-game-row navi-cloud-provider-key-row';
+                pkTr.setAttribute('data-search', ('provider keys api ryuu depotbox hubcap ' + activeKeyProv + ' ' + providerLabel(activeKeyProv)).toLowerCase());
+
+                var tdPkGame = document.createElement('td');
+                tdPkGame.setAttribute('data-label', 'GAME');
+                tdPkGame.style.textAlign = 'left';
+                tdPkGame.style.overflow = 'hidden';
+                tdPkGame.style.textOverflow = 'ellipsis';
+                tdPkGame.style.whiteSpace = 'nowrap';
+
+                var pkTitleSpan = document.createElement('span');
+                pkTitleSpan.style.cssText = 'color: #ffffff; font-weight: 500; font-size: 13px;';
+                pkTitleSpan.textContent = 'Provider Keys';
+                tdPkGame.appendChild(pkTitleSpan);
+
+                var pkProvSpan = document.createElement('span');
+                pkProvSpan.id = 'sls-cfg-cs-keys-summary-prov';
+                pkProvSpan.style.cssText = 'font-size: 11px; color: #8f98a0; margin-left: 6px;';
+                tdPkGame.appendChild(pkProvSpan);
+
+                var tdPkCount = document.createElement('td');
+                tdPkCount.id = 'sls-cfg-cs-keys-summary-count';
+                tdPkCount.className = 'navi-col-num';
+                tdPkCount.setAttribute('data-label', 'NUMBER OF FILES');
+                tdPkCount.style.textAlign = 'right';
+
+                var tdPkSize = document.createElement('td');
+                tdPkSize.id = 'sls-cfg-cs-keys-summary-size';
+                tdPkSize.className = 'navi-col-num';
+                tdPkSize.setAttribute('data-label', 'TOTAL SIZE OF FILES');
+                tdPkSize.style.textAlign = 'right';
+
+                updateProviderKeysSummaryElements(pkProvSpan, tdPkCount, tdPkSize, keysStatusMap, activeKeyProv);
+
+                var tdPkShow = document.createElement('td');
+                tdPkShow.setAttribute('data-label', 'ACTION');
+                tdPkShow.style.textAlign = 'right';
+
+                var pkShowBtn = document.createElement('button');
+                pkShowBtn.id = 'sls-cfg-cs-keys-show-btn';
+                pkShowBtn.className = 'navi-steam-cloud-link';
+                pkShowBtn.textContent = 'Show Files';
+                pkShowBtn.onclick = function (e) {
+                    e.preventDefault();
+                    csState.selectedAppId = '__provider_keys__';
+                    csState.selectedGameTitle = 'Provider Keys';
+                    refreshCloudSavesUI();
+                };
+                tdPkShow.appendChild(pkShowBtn);
+
+                pkTr.appendChild(tdPkGame);
+                pkTr.appendChild(tdPkCount);
+                pkTr.appendChild(tdPkSize);
+                pkTr.appendChild(tdPkShow);
+                tbody.appendChild(pkTr);
+
                 apps.forEach(function (app) {
                     var appId = app.appId;
                     var gameTitle = resolveTitle(appId, app.gameTitle);
@@ -1299,6 +1623,12 @@ function hideConfigPage() {
                 table.appendChild(tbody);
                 appsListContainer.innerHTML = '';
                 appsListContainer.appendChild(table);
+                if (apps.length === 0) {
+                    var emptyGamesNote = document.createElement('div');
+                    emptyGamesNote.style.cssText = 'color: #8f98a0; font-size: 13px; padding: 20px 16px; text-align: center;';
+                    emptyGamesNote.textContent = 'No games found in your Steam Cloud yet. Play a game with Cloud Saves enabled.';
+                    appsListContainer.appendChild(emptyGamesNote);
+                }
             }).catch(function (err) {
                 appsListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #f87171; font-size: 13px;">Failed to scan cloud games: ' + escapeHtml(err.message || 'Unknown error') + '</div>';
             });
@@ -1349,6 +1679,26 @@ function hideConfigPage() {
                 checkDirty();
             };
         }
+
+        var syncKeysToggle = document.getElementById('sls-cfg-CloudSaves-SyncProviderKeys');
+        var syncKeysRyuuToggle = document.getElementById('sls-cfg-CloudSaves-SyncRyuuKey');
+        var syncKeysDepotBoxToggle = document.getElementById('sls-cfg-CloudSaves-SyncDepotBoxKey');
+        var syncKeysHubcapToggle = document.getElementById('sls-cfg-CloudSaves-SyncHubcapKey');
+        var syncKeysSubrowsEl = document.getElementById('sls-cfg-ProviderKeysSync-subrows');
+
+        function syncProviderKeysSubrowsUI() {
+            var isSyncOn = !!(syncKeysToggle && syncKeysToggle.checked);
+            if (syncKeysSubrowsEl) {
+                syncKeysSubrowsEl.style.display = isSyncOn ? 'block' : 'none';
+            }
+            if (syncKeysRyuuToggle) syncKeysRyuuToggle.disabled = !isSyncOn;
+            if (syncKeysDepotBoxToggle) syncKeysDepotBoxToggle.disabled = !isSyncOn;
+            if (syncKeysHubcapToggle) syncKeysHubcapToggle.disabled = !isSyncOn;
+        }
+        if (syncKeysToggle) {
+            syncKeysToggle.addEventListener('change', syncProviderKeysSubrowsUI);
+        }
+        syncProviderKeysSubrowsUI();
 
         // R2 & S3 Credentials form handlers
         var credSecretToggleBtn = document.getElementById('sls-cfg-cs-cred-secret-toggle');
@@ -2093,6 +2443,10 @@ function hideConfigPage() {
                 cloudAutoBackup: getCheckbox('sls-cfg-CloudAutoBackup'),
                 cloudRetention: getVal('sls-cfg-CloudRetention'),
                 cloudProvider: getVal('sls-cfg-cs-provider'),
+                cloudSyncProviderKeys: getCheckbox('sls-cfg-CloudSaves-SyncProviderKeys'),
+                cloudSyncRyuuKey: getCheckbox('sls-cfg-CloudSaves-SyncRyuuKey'),
+                cloudSyncDepotBoxKey: getCheckbox('sls-cfg-CloudSaves-SyncDepotBoxKey'),
+                cloudSyncHubcapKey: getCheckbox('sls-cfg-CloudSaves-SyncHubcapKey'),
                 cloudNotificationsEnabled: getCheckbox('sls-cfg-CloudSaves-NotificationsEnabled'),
                 prefixSyncEnabled: getCheckbox('sls-cfg-PrefixSync-Enabled'),
                 prefixSyncStartup: getCheckbox('sls-cfg-PrefixSync-Startup'),
@@ -2300,6 +2654,13 @@ function hideConfigPage() {
                 DenuvoGamesYaml: getVal('sls-cfg-DenuvoGamesYaml'),
                 CloudSaves: {
                     Enabled: (cfg.CloudSaves && typeof cfg.CloudSaves.Enabled === 'boolean') ? cfg.CloudSaves.Enabled : true,
+                    SyncProviderKeys: getCheckbox('sls-cfg-CloudSaves-SyncProviderKeys'),
+                    ProviderKeysSync: {
+                        Enabled: getCheckbox('sls-cfg-CloudSaves-SyncProviderKeys'),
+                        SyncRyuuKey: getCheckbox('sls-cfg-CloudSaves-SyncRyuuKey'),
+                        SyncDepotBoxKey: getCheckbox('sls-cfg-CloudSaves-SyncDepotBoxKey'),
+                        SyncHubcapKey: getCheckbox('sls-cfg-CloudSaves-SyncHubcapKey')
+                    },
                     Provider: getVal('sls-cfg-cs-provider') || (cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only',
                     NotificationsEnabled: getCheckbox('sls-cfg-CloudSaves-NotificationsEnabled'),
                     AutoBackupBeforeReset: getCheckbox('sls-cfg-CloudAutoBackup'),
@@ -2333,6 +2694,11 @@ function hideConfigPage() {
                     initialFormState = serializeCurrentForm();
                     markClean(true);
                     refreshCloudSavesUI();
+                    setTimeout(function () {
+                        var pSel = document.getElementById('sls-cfg-cs-provider');
+                        var curProv = pSel ? pSel.value : ((cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only');
+                        refreshCloudProviderKeysBadges(curProv, curProv !== 'local-only');
+                    }, 1500);
                     if (!silent) {
                         showStatusBanner('Saved. Your new settings are active.', '#2ecc71');
                     }
@@ -2441,6 +2807,13 @@ function hideConfigPage() {
                 DenuvoGamesYaml: '',
                 CloudSaves: {
                     Enabled: true,
+                    SyncProviderKeys: true,
+                    ProviderKeysSync: {
+                        Enabled: true,
+                        SyncRyuuKey: true,
+                        SyncDepotBoxKey: true,
+                        SyncHubcapKey: true
+                    },
                     Provider: 'local-only',
                     NotificationsEnabled: true,
                     AutoBackupBeforeReset: true,

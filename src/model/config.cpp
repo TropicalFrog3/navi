@@ -487,10 +487,52 @@ bool CConfig::loadSettings(bool firstLoad)
 			cloudSyncAchievements.set(true);
 			cloudSyncPlaytime.set(true);
 		}
+
+		bool syncKeysMaster = cloudSavesNode["SyncProviderKeys"]
+			? getSetting<bool>(cloudSavesNode, "SyncProviderKeys", true)
+			: true;
+		bool syncRyuu = cloudSavesNode["SyncRyuuKey"]
+			? getSetting<bool>(cloudSavesNode, "SyncRyuuKey", true)
+			: true;
+		bool syncDepotBox = cloudSavesNode["SyncDepotBoxKey"]
+			? getSetting<bool>(cloudSavesNode, "SyncDepotBoxKey", true)
+			: true;
+		bool syncHubcap = cloudSavesNode["SyncHubcapKey"]
+			? getSetting<bool>(cloudSavesNode, "SyncHubcapKey", true)
+			: true;
+
+		const auto providerKeysSyncNode = cloudSavesNode["ProviderKeysSync"];
+		if (providerKeysSyncNode && providerKeysSyncNode.IsMap())
+		{
+			if (providerKeysSyncNode["Enabled"])
+			{
+				syncKeysMaster = getSetting<bool>(providerKeysSyncNode, "Enabled", syncKeysMaster);
+			}
+			if (providerKeysSyncNode["SyncRyuuKey"])
+			{
+				syncRyuu = getSetting<bool>(providerKeysSyncNode, "SyncRyuuKey", syncRyuu);
+			}
+			if (providerKeysSyncNode["SyncDepotBoxKey"])
+			{
+				syncDepotBox = getSetting<bool>(providerKeysSyncNode, "SyncDepotBoxKey", syncDepotBox);
+			}
+			if (providerKeysSyncNode["SyncHubcapKey"])
+			{
+				syncHubcap = getSetting<bool>(providerKeysSyncNode, "SyncHubcapKey", syncHubcap);
+			}
+		}
+		cloudSyncProviderKeys.set(syncKeysMaster);
+		cloudSyncRyuuKey.set(syncRyuu);
+		cloudSyncDepotBoxKey.set(syncDepotBox);
+		cloudSyncHubcapKey.set(syncHubcap);
 	}
 	else
 	{
 		cloudSavesEnabled.set(true);
+		cloudSyncProviderKeys.set(true);
+		cloudSyncRyuuKey.set(true);
+		cloudSyncDepotBoxKey.set(true);
+		cloudSyncHubcapKey.set(true);
 		cloudSavesProvider.set("local-only");
 		cloudNotificationsEnabled.set(true);
 		cloudAutoBackupBeforeReset.set(true);

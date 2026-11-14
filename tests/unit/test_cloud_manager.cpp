@@ -7,10 +7,12 @@
 #include "cloud_view.hpp"
 #include "config.hpp"
 
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -20,17 +22,86 @@ using namespace Navi::CloudRedirect;
 struct ScopedCloudManagerTestEnv
 {
     fs::path tempDir;
+    bool hadHome{false};
+    std::string origHome;
+    bool hadXdgConfigHome{false};
+    std::string origXdgConfigHome;
+    std::string origRyuuKey;
+    std::string origDepotBoxKey;
+    std::string origHubcapKey;
+    bool origCloudSavesEnabled{false};
+    bool origCloudSyncProviderKeys{true};
+    bool origCloudSyncRyuuKey{true};
+    bool origCloudSyncDepotBoxKey{true};
+    bool origCloudSyncHubcapKey{true};
+    std::string origCloudSavesProvider;
 
     ScopedCloudManagerTestEnv()
     {
+        if (const char* h = std::getenv("HOME"))
+        {
+            hadHome = true;
+            origHome = h;
+        }
+        if (const char* xdg = std::getenv("XDG_CONFIG_HOME"))
+        {
+            hadXdgConfigHome = true;
+            origXdgConfigHome = xdg;
+        }
+        origRyuuKey = g_config.ryuuKey.get();
+        origDepotBoxKey = g_config.depotBoxKey.get();
+        origHubcapKey = g_config.hubcapKey.get();
+        origCloudSavesEnabled = g_config.cloudSavesEnabled.get();
+        origCloudSyncProviderKeys = g_config.cloudSyncProviderKeys.get();
+        origCloudSyncRyuuKey = g_config.cloudSyncRyuuKey.get();
+        origCloudSyncDepotBoxKey = g_config.cloudSyncDepotBoxKey.get();
+        origCloudSyncHubcapKey = g_config.cloudSyncHubcapKey.get();
+        origCloudSavesProvider = g_config.cloudSavesProvider.get();
+
         tempDir = fs::path(std::string("/tmp/test_cloud_manager_") + std::to_string(getpid()) + "_" +
                   std::to_string(std::chrono::steady_clock::now().time_since_epoch().count()));
         std::error_code ec;
-        fs::create_directories(tempDir, ec);
+        fs::create_directories(tempDir / "home", ec);
+        fs::create_directories(tempDir / "xdg_config", ec);
+
+        setenv("HOME", (tempDir / "home").c_str(), 1);
+        setenv("XDG_CONFIG_HOME", (tempDir / "xdg_config").c_str(), 1);
+
+        g_config.ryuuKey.set("");
+        g_config.depotBoxKey.set("");
+        g_config.hubcapKey.set("");
+        g_config.cloudSyncProviderKeys.set(true);
+        g_config.cloudSyncRyuuKey.set(true);
+        g_config.cloudSyncDepotBoxKey.set(true);
+        g_config.cloudSyncHubcapKey.set(true);
+        g_config.createFile();
     }
 
     ~ScopedCloudManagerTestEnv()
     {
+        auto& manager = CCloudManager::Instance();
+        manager.SetCliPathForTest({});
+        manager.SetStorageDirForTest({});
+        manager.SetBackupDirForTest({});
+        manager.SetSteamRootForTest({});
+        manager.SetSteamAppsRootForTest({});
+
+        g_config.ryuuKey.set(origRyuuKey);
+        g_config.depotBoxKey.set(origDepotBoxKey);
+        g_config.hubcapKey.set(origHubcapKey);
+        g_config.cloudSavesEnabled.set(origCloudSavesEnabled);
+        g_config.cloudSyncProviderKeys.set(origCloudSyncProviderKeys);
+        g_config.cloudSyncRyuuKey.set(origCloudSyncRyuuKey);
+        g_config.cloudSyncDepotBoxKey.set(origCloudSyncDepotBoxKey);
+        g_config.cloudSyncHubcapKey.set(origCloudSyncHubcapKey);
+        g_config.cloudSavesProvider.set(origCloudSavesProvider);
+
+        if (hadHome) setenv("HOME", origHome.c_str(), 1);
+        else unsetenv("HOME");
+
+        if (hadXdgConfigHome) setenv("XDG_CONFIG_HOME", origXdgConfigHome.c_str(), 1);
+        else unsetenv("XDG_CONFIG_HOME");
+
         std::error_code ec;
         fs::remove_all(tempDir, ec);
     }
@@ -1259,6 +1330,317 @@ TEST(CloudManagerTest, ListCloudAppsFallbackOnlyOnUnknownCommand)
 
     manager.SetCliPathForTest({});
 }
+
+TEST(CloudManagerTest, CloudCatalogSerializesAndRestoresProviderKeys)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path mockStorageDir = env.tempDir / "storage";
+    fs::path remoteCatalogFile = env.tempDir / "remote_catalog.json";
+    std::error_code ec;
+    fs::create_directories(steamRoot, ec);
+    fs::create_directories(mockStorageDir, ec);
+
+    fs::path mockCli = env.tempDir / "mock_provider_keys_cli.sh";
+    {
+        std::ofstream ofs(mockCli);
+        ofs << "#!/bin/sh\n"
+            << "if [ \"$1\" = \"auth-status\" ]; then\n"
+            << "  echo '{\"authenticated\":true,\"account_email\":\"user@example.com\"}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"list-remote-app-ids\" ]; then\n"
+            << "  echo '{\"success\":true,\"app_ids\":[\"999999999\"]}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"publish-full-manifest\" ]; then\n"
+            << "  cp \"$5/storage/$3/999999999/navi_cloud_catalog.json\" \"" << remoteCatalogFile.string() << "\"\n"
+            << "  echo '{\"success\":true}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"sync-remote-app\" ]; then\n"
+            << "  if [ -f \"" << remoteCatalogFile.string() << "\" ]; then\n"
+            << "    mkdir -p \"$5/storage/$3/999999999\"\n"
+            << "    cp \"" << remoteCatalogFile.string() << "\" \"$5/storage/$3/999999999/navi_cloud_catalog.json\"\n"
+            << "    echo '{\"success\":true,\"synced\":true}'\n"
+            << "    exit 0\n"
+            << "  fi\n"
+            << "  exit 1\n"
+            << "fi\n"
+            << "exit 0\n";
+    }
+    chmod(mockCli.c_str(), 0755);
+
+    manager.SetSteamRootForTest(steamRoot);
+    manager.SetStorageDirForTest(mockStorageDir);
+    manager.SetCliPathForTest(mockCli);
+
+    const std::string kRyuu = "ryuu-secret-123";
+    const std::string kDepotBox = "dpbx-\"quote\"\\slash";
+    const std::string kHubcap = "hubcap-token-xyz";
+
+    // 1. UpdateAndPublishCloudCatalog serializes escaped providerKeys even when there are 0 game apps
+    g_config.ryuuKey.set(kRyuu);
+    g_config.depotBoxKey.set(kDepotBox);
+    g_config.hubcapKey.set(kHubcap);
+    g_config.updateApiAuth(kRyuu, kDepotBox, kHubcap);
+
+    EXPECT_TRUE(manager.UpdateAndPublishCloudCatalog("gdrive", 55443322, /*overwriteProviderKeys=*/false));
+    ASSERT_TRUE(fs::is_regular_file(remoteCatalogFile, ec));
+
+    // Inspect status from local & remote catalog without exposing raw key values
+    auto statusAfterPublish = manager.GetCloudProviderKeysStatus("gdrive", 55443322, /*syncRemote=*/false);
+    EXPECT_EQ(statusAfterPublish.provider, "gdrive");
+    EXPECT_TRUE(statusAfterPublish.syncEnabled);
+    EXPECT_TRUE(statusAfterPublish.catalogFound);
+    EXPECT_TRUE(statusAfterPublish.hasRyuuKey);
+    EXPECT_TRUE(statusAfterPublish.hasDepotBoxKey);
+    EXPECT_TRUE(statusAfterPublish.hasHubcapKey);
+    EXPECT_GT(statusAfterPublish.updatedAt, 0u);
+
+    const std::string statusJson = Navi::CloudView::renderProviderKeysStatusJson(statusAfterPublish);
+    EXPECT_NE(statusJson.find("\"syncEnabled\": true"), std::string::npos);
+    EXPECT_NE(statusJson.find("\"catalogFound\": true"), std::string::npos);
+    EXPECT_NE(statusJson.find("\"ryuu\": true"), std::string::npos);
+    EXPECT_NE(statusJson.find("\"depotbox\": true"), std::string::npos);
+    EXPECT_NE(statusJson.find("\"hubcap\": true"), std::string::npos);
+    EXPECT_EQ(statusJson.find(kRyuu), std::string::npos);
+    EXPECT_EQ(statusJson.find(kHubcap), std::string::npos);
+
+    {
+        std::ifstream ifs(remoteCatalogFile);
+        std::string content((std::istreambuf_iterator<char>(ifs)), std::istreambuf_iterator<char>());
+        EXPECT_NE(content.find("\"providerKeys\""), std::string::npos);
+        EXPECT_NE(content.find("\"ryuuKey\""), std::string::npos);
+        EXPECT_NE(content.find("\"depotBoxKey\""), std::string::npos);
+        EXPECT_NE(content.find("\"hubcapKey\""), std::string::npos);
+    }
+
+    // 2. RestoreMetadataFromCloudCatalog restores keys into empty g_config slots and config.yaml (0-app catalog)
+    fs::path localCatalogFile = mockStorageDir / "55443322" / "999999999" / "navi_cloud_catalog.json";
+    fs::remove(localCatalogFile, ec);
+    g_config.ryuuKey.set("");
+    g_config.depotBoxKey.set("");
+    g_config.hubcapKey.set("");
+    g_config.updateApiAuth("", "", "");
+
+    EXPECT_TRUE(manager.RestoreMetadataFromCloudCatalog("gdrive", 55443322, /*syncRemote=*/true));
+    EXPECT_EQ(g_config.ryuuKey.get(), kRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), kDepotBox);
+    EXPECT_EQ(g_config.hubcapKey.get(), kHubcap);
+
+    // Confirm values persisted cleanly to isolated config.yaml on disk
+    g_config.ryuuKey.set("");
+    g_config.depotBoxKey.set("");
+    g_config.hubcapKey.set("");
+    EXPECT_TRUE(g_config.loadSettings(false));
+    EXPECT_EQ(g_config.ryuuKey.get(), kRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), kDepotBox);
+    EXPECT_EQ(g_config.hubcapKey.get(), kHubcap);
+
+    // Also verify ListCloudApps restores keys when remote has 0 games and only 999999999 catalog
+    fs::remove(localCatalogFile, ec);
+    g_config.ryuuKey.set("");
+    g_config.depotBoxKey.set("");
+    g_config.hubcapKey.set("");
+    g_config.updateApiAuth("", "", "");
+    auto zeroApps = manager.ListCloudApps("gdrive", 55443322);
+    EXPECT_TRUE(zeroApps.empty());
+    EXPECT_EQ(g_config.ryuuKey.get(), kRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), kDepotBox);
+    EXPECT_EQ(g_config.hubcapKey.get(), kHubcap);
+
+    // 3. Existing non-empty local keys are NOT overwritten during passive sync
+    fs::remove(localCatalogFile, ec);
+    const std::string kLocalRyuu = "local-override-ryuu";
+    g_config.ryuuKey.set(kLocalRyuu);
+    g_config.depotBoxKey.set("");
+    g_config.hubcapKey.set(kHubcap);
+
+    EXPECT_TRUE(manager.RestoreMetadataFromCloudCatalog("gdrive", 55443322, /*syncRemote=*/true));
+    EXPECT_EQ(g_config.ryuuKey.get(), kLocalRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), kDepotBox);
+    EXPECT_EQ(g_config.hubcapKey.get(), kHubcap);
+
+    // Passive UpdateAndPublishCloudCatalog (overwriteProviderKeys=false) preserves missing local keys from remote
+    fs::remove(localCatalogFile, ec);
+    g_config.depotBoxKey.set("");
+    EXPECT_TRUE(manager.UpdateAndPublishCloudCatalog("gdrive", 55443322, /*overwriteProviderKeys=*/false));
+    EXPECT_EQ(g_config.ryuuKey.get(), kLocalRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), kDepotBox);
+
+    // 4. Authoritative publish (overwriteProviderKeys=true) propagates intentional key clears/edits
+    g_config.hubcapKey.set("");
+    EXPECT_TRUE(manager.UpdateAndPublishCloudCatalog("gdrive", 55443322, /*overwriteProviderKeys=*/true));
+
+    fs::remove(localCatalogFile, ec);
+    g_config.ryuuKey.set("");
+    g_config.depotBoxKey.set("");
+    g_config.hubcapKey.set("");
+    EXPECT_TRUE(manager.RestoreMetadataFromCloudCatalog("gdrive", 55443322, /*syncRemote=*/true));
+    EXPECT_EQ(g_config.ryuuKey.get(), kLocalRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), kDepotBox);
+    EXPECT_EQ(g_config.hubcapKey.get(), "");
+
+    // 5. Disabling cloudSyncProviderKeys (CloudSaves.SyncProviderKeys: no) blocks restore and clears remote keys
+    g_config.cloudSyncProviderKeys.set(false);
+    fs::remove(localCatalogFile, ec);
+    g_config.ryuuKey.set("");
+    g_config.depotBoxKey.set("");
+    g_config.hubcapKey.set("");
+    EXPECT_TRUE(manager.RestoreMetadataFromCloudCatalog("gdrive", 55443322, /*syncRemote=*/true));
+    EXPECT_EQ(g_config.ryuuKey.get(), "");
+    EXPECT_EQ(g_config.depotBoxKey.get(), "");
+    EXPECT_EQ(g_config.hubcapKey.get(), "");
+
+    g_config.ryuuKey.set(kRyuu);
+    g_config.depotBoxKey.set(kDepotBox);
+    g_config.hubcapKey.set(kHubcap);
+    EXPECT_TRUE(manager.UpdateAndPublishCloudCatalog("gdrive", 55443322, /*overwriteProviderKeys=*/true));
+
+    auto statusDisabled = manager.GetCloudProviderKeysStatus("gdrive", 55443322, /*syncRemote=*/true);
+    EXPECT_FALSE(statusDisabled.syncEnabled);
+    EXPECT_TRUE(statusDisabled.catalogFound);
+    EXPECT_FALSE(statusDisabled.hasRyuuKey);
+    EXPECT_FALSE(statusDisabled.hasDepotBoxKey);
+    EXPECT_FALSE(statusDisabled.hasHubcapKey);
+
+    // 6. Per-key selection: publish only Ryuu and Hubcap, excluding DepotBox
+    g_config.cloudSyncProviderKeys.set(true);
+    g_config.cloudSyncRyuuKey.set(true);
+    g_config.cloudSyncDepotBoxKey.set(false);
+    g_config.cloudSyncHubcapKey.set(true);
+    g_config.ryuuKey.set(kRyuu);
+    g_config.depotBoxKey.set(kDepotBox);
+    g_config.hubcapKey.set(kHubcap);
+    EXPECT_TRUE(manager.UpdateAndPublishCloudCatalog("gdrive", 55443322, /*overwriteProviderKeys=*/true));
+
+    auto statusSelective = manager.GetCloudProviderKeysStatus("gdrive", 55443322, /*syncRemote=*/true);
+    EXPECT_TRUE(statusSelective.syncEnabled);
+    EXPECT_TRUE(statusSelective.syncRyuu);
+    EXPECT_FALSE(statusSelective.syncDepotBox);
+    EXPECT_TRUE(statusSelective.syncHubcap);
+    EXPECT_TRUE(statusSelective.catalogFound);
+    EXPECT_TRUE(statusSelective.hasRyuuKey);
+    EXPECT_FALSE(statusSelective.hasDepotBoxKey);
+    EXPECT_TRUE(statusSelective.hasHubcapKey);
+
+    // Restoring while DepotBox sync is disabled fills empty enabled keys without touching disabled ones
+    fs::remove(localCatalogFile, ec);
+    g_config.ryuuKey.set("");
+    g_config.depotBoxKey.set("local-depotbox-untouched");
+    g_config.hubcapKey.set("");
+    EXPECT_TRUE(manager.RestoreMetadataFromCloudCatalog("gdrive", 55443322, /*syncRemote=*/true));
+    EXPECT_EQ(g_config.ryuuKey.get(), kRyuu);
+    EXPECT_EQ(g_config.depotBoxKey.get(), "local-depotbox-untouched");
+    EXPECT_EQ(g_config.hubcapKey.get(), kHubcap);
+}
+
+TEST(CloudManagerTest, RemoteListCloudAppsSkipsUnconfirmedChildDepotsAndRedundantCatalogSyncs)
+{
+    ScopedCloudManagerTestEnv env;
+    auto& manager = CCloudManager::Instance();
+
+    fs::path steamRoot = env.tempDir / "steam";
+    fs::path stplugDir = steamRoot / "config" / "stplug-in";
+    fs::path depotcacheDir = steamRoot / "depotcache";
+    fs::path mockStorageDir = env.tempDir / "storage";
+    std::error_code ec;
+    fs::create_directories(stplugDir, ec);
+    fs::create_directories(depotcacheDir, ec);
+    fs::create_directories(mockStorageDir, ec);
+
+    {
+        std::ofstream lf(stplugDir / "480.lua");
+        lf << "addappid(480, 1, 0) -- Spacewar\n";
+        for (AppId_t child = 481; child <= 490; ++child)
+        {
+            lf << "addappid(" << child << ", 1, \"dk" << child << "\")\n";
+        }
+    }
+
+    fs::path logFile = env.tempDir / "cli_calls.log";
+    fs::path mockCli = env.tempDir / "mock_perf_cli.sh";
+    {
+        std::ofstream ofs(mockCli);
+        ofs << "#!/bin/sh\n"
+            << "echo \"$1 $2 $3 $4\" >> \"" << logFile.string() << "\"\n"
+            << "if [ \"$1\" = \"auth-status\" ]; then\n"
+            << "  echo '{\"authenticated\":true,\"account_email\":\"test@example.com\"}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"list-remote-app-ids\" ]; then\n"
+            << "  echo '{\"success\":true,\"app_ids\":[\"480\",\"481\"]}'\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "if [ \"$1\" = \"list-remote-app-files\" ]; then\n"
+            << "  if [ \"$4\" = \"480\" ]; then\n"
+            << "    echo '{\"success\":true,\"complete\":true,\"files\":[{\"path\":\"999001/480/blobs/save_main.dat/1111111111111111111111111111111111111111\",\"size\":123,\"modified_time\":1700000001}]}'\n"
+            << "  elif [ \"$4\" = \"481\" ]; then\n"
+            << "    echo '{\"success\":true,\"complete\":true,\"files\":[{\"path\":\"999001/481/blobs/save_dlc.dat/2222222222222222222222222222222222222222\",\"size\":456,\"modified_time\":1700000002}]}'\n"
+            << "  else\n"
+            << "    echo '{\"success\":true,\"complete\":true,\"files\":[]}'\n"
+            << "  fi\n"
+            << "  exit 0\n"
+            << "fi\n"
+            << "exit 0\n";
+    }
+    chmod(mockCli.c_str(), 0755);
+
+    manager.SetSteamRootForTest(steamRoot);
+    manager.SetStorageDirForTest(mockStorageDir);
+    manager.SetCliPathForTest(mockCli);
+
+    auto apps = manager.ListCloudApps("gdrive", 999001);
+    auto keyStatus = manager.GetCloudProviderKeysStatus("gdrive", 999001, /*syncRemote=*/true);
+    auto files = manager.ListAppCloudFiles(480, "gdrive", 999001);
+
+    EXPECT_FALSE(keyStatus.catalogFound);
+    ASSERT_EQ(apps.size(), 1u);
+    EXPECT_EQ(apps[0].appId, 480u);
+    EXPECT_EQ(apps[0].fileCount, 2u);
+    EXPECT_TRUE(apps[0].inRemoteCloud);
+    ASSERT_EQ(files.size(), 2u);
+
+    int syncRemoteAppCalls = 0;
+    std::vector<std::string> listFilesAppIds;
+    {
+        std::ifstream ifs(logFile);
+        std::string line;
+        while (std::getline(ifs, line))
+        {
+            if (line.rfind("sync-remote-app ", 0) == 0)
+            {
+                ++syncRemoteAppCalls;
+            }
+            else if (line.rfind("list-remote-app-files ", 0) == 0)
+            {
+                std::istringstream iss(line);
+                std::string cmd, prov, acct, appIdToken;
+                iss >> cmd >> prov >> acct >> appIdToken;
+                listFilesAppIds.push_back(appIdToken);
+            }
+        }
+    }
+
+    EXPECT_EQ(syncRemoteAppCalls, 0);
+    ASSERT_EQ(listFilesAppIds.size(), 2u);
+    EXPECT_NE(std::find(listFilesAppIds.begin(), listFilesAppIds.end(), "480"), listFilesAppIds.end());
+    EXPECT_NE(std::find(listFilesAppIds.begin(), listFilesAppIds.end(), "481"), listFilesAppIds.end());
+    for (AppId_t child = 482; child <= 490; ++child)
+    {
+        EXPECT_EQ(std::find(listFilesAppIds.begin(), listFilesAppIds.end(), std::to_string(child)),
+                  listFilesAppIds.end())
+            << "Unexpected remote file listing for unconfirmed child depot " << child;
+    }
+
+    manager.SetSteamRootForTest({});
+    manager.SetStorageDirForTest({});
+    manager.SetCliPathForTest({});
+}
+
 
 
 

@@ -8,6 +8,7 @@
 #include "lua_parser.hpp"
 #include "config.hpp"
 #include "atomic_file.hpp"
+#include "log.hpp"
 
 #include <algorithm>
 #include <cctype>
@@ -214,7 +215,9 @@ uint64_t CCloudManager::ComputeScanIndexStamp() const
     std::error_code ec;
     for (const auto& saDir : GetSteamAppsDirs(steamRoot)) stampDir(saDir);
     stampDir(steamRoot / "config" / "stplug-in");
+    stampDir(steamRoot / "config" / "stplug-in" / "manifests");
     stampDir(steamRoot / "depotcache");
+    stampDir(steamRoot / "config" / "depotcache");
 
     // appinfo.vdf feeds the uninstalled-title fallback: tolerate a refresh.
     const fs::path appInfoPath = steamRoot / "appcache" / "appinfo.vdf";
@@ -362,6 +365,26 @@ ProviderAuthStatus_t CCloudManager::CheckAuthStatus(const std::string& provider)
         return status;
     }
 
+    std::error_code mtimeEc;
+    const uint64_t cliMtime = static_cast<uint64_t>(
+        fs::last_write_time(cli, mtimeEc).time_since_epoch().count());
+    const uint64_t cliMtimeVal = mtimeEc ? 0 : cliMtime;
+    const uint64_t nowMs = static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count());
+    {
+        std::lock_guard<std::mutex> lock(m_authCacheMutex);
+        auto it = m_authStatusCache.find(provider);
+        if (it != m_authStatusCache.end() &&
+            it->second.checkedAtMs != 0 &&
+            (nowMs - it->second.checkedAtMs) < 3000 &&
+            it->second.cliPath == cli &&
+            it->second.cliMtime == cliMtimeVal)
+        {
+            return it->second.status;
+        }
+    }
+
     int pipefd[2];
     if (pipe(pipefd) != 0)
     {
@@ -441,6 +464,14 @@ ProviderAuthStatus_t CCloudManager::CheckAuthStatus(const std::string& provider)
         else
         {
             status.rawJson = "{\"authenticated\":false,\"raw_output\":\"" + output + "\"}";
+        }
+
+        const uint64_t finishMs = static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        {
+            std::lock_guard<std::mutex> lock(m_authCacheMutex);
+            m_authStatusCache[provider] = AuthStatusCacheEntry{status, cli, cliMtimeVal, finishMs};
         }
 
         return status;
@@ -736,6 +767,9 @@ std::vector<fs::path> CCloudManager::ResolveGoldbergSavePaths(AppId_t appId) con
             {
                 if (!gameEntry.is_directory(ec)) continue;
 
+                fs::path savePathFile = gameEntry.path() / "steam_settings" / "save_path.txt";
+                if (!fs::exists(savePathFile, ec)) continue;
+
                 // Verify appId via steam_appid.txt (optional; if absent we still check)
                 fs::path appIdFile = gameEntry.path() / "steam_appid.txt";
                 if (fs::exists(appIdFile, ec))
@@ -751,9 +785,6 @@ std::vector<fs::path> CCloudManager::ResolveGoldbergSavePaths(AppId_t appId) con
                         if (!line.empty() && line != appIdStr) continue;
                     }
                 }
-
-                fs::path savePathFile = gameEntry.path() / "steam_settings" / "save_path.txt";
-                if (!fs::exists(savePathFile, ec)) continue;
 
                 std::ifstream spf(savePathFile);
                 if (!spf.is_open()) continue;
@@ -982,7 +1013,39 @@ namespace
             }
         }
 
-        // ---- Pass 2: every .lua plugin in stplug-in, one read+parse each ----
+        // ---- Pass 2: pre-index .manifest files across depotcache and stplug-in dirs ----
+        {
+            const fs::path manifestDirs[] = {
+                steamRoot / "depotcache",
+                steamRoot / "config" / "depotcache",
+                stplugDir,
+                stplugDir / "manifests",
+            };
+            for (const fs::path& mDir : manifestDirs)
+            {
+                std::error_code mEc;
+                if (!fs::is_directory(mDir, mEc)) continue;
+                for (const auto& entry : fs::directory_iterator(mDir, fs::directory_options::skip_permission_denied, mEc))
+                {
+                    if (mEc) break;
+                    if (!entry.is_regular_file(mEc)) continue;
+                    const fs::path& p = entry.path();
+                    const std::string fn = p.filename().string();
+                    if (!fn.ends_with(".manifest")) continue;
+                    const std::string stem = p.stem().string();
+                    const size_t underscore = stem.find('_');
+                    const std::string idStr = (underscore != std::string::npos) ? stem.substr(0, underscore) : stem;
+                    if (!IsDigitsOnly(idStr)) continue;
+                    const AppId_t id = static_cast<AppId_t>(std::strtoul(idStr.c_str(), nullptr, 10));
+                    if (id != 0 && std::to_string(id) == idStr)
+                    {
+                        out.manifestsByPrefixAppId[id].push_back(p);
+                    }
+                }
+            }
+        }
+
+        // ---- Pass 3: every .lua plugin in stplug-in, one read+parse each ----
         if (!fs::is_directory(stplugDir, ec)) return;
 
         struct LuaOwnerProbe
@@ -1016,6 +1079,10 @@ namespace
                 {
                     // Unreadable numeric-stem files still surface as discovery
                     // candidates (legacy addCandidate used the stem alone).
+                    if (rec.stemAppId != 0 && !out.luaRecordIndexByStem.contains(rec.stemAppId))
+                    {
+                        out.luaRecordIndexByStem.emplace(rec.stemAppId, out.luaFiles.size());
+                    }
                     out.luaFiles.push_back(std::move(rec));
                     continue;
                 }
@@ -1037,9 +1104,13 @@ namespace
                 {
                     if (IsDigitsOnly(dlcIdStr)) rec.dlcs.push_back(toAppId(dlcIdStr));
                 }
-                for (const auto& [manifestIdStr, _] : parsed.manifests)
+                for (const auto& [manifestIdStr, manifestGid] : parsed.manifests)
                 {
                     if (IsDigitsOnly(manifestIdStr)) rec.manifests.push_back(toAppId(manifestIdStr));
+                    if (!manifestIdStr.empty() && !manifestGid.empty() && manifestGid != "0")
+                    {
+                        rec.manifestPairs.emplace_back(manifestIdStr, manifestGid);
+                    }
                 }
 
                 // Fallback-3 title: first addappid line carrying a trailing -- comment.
@@ -1160,6 +1231,10 @@ namespace
                 for (AppId_t id : rec.dlcs) trackOwner(id);
             }
 
+            if (rec.stemAppId != 0 && !out.luaRecordIndexByStem.contains(rec.stemAppId))
+            {
+                out.luaRecordIndexByStem.emplace(rec.stemAppId, out.luaFiles.size());
+            }
             out.luaFiles.push_back(std::move(rec));
         }
 
@@ -1589,6 +1664,18 @@ std::string CCloudManager::ResolveAppTitleFromManifestsInternal(AppId_t appId, i
                     if (it->is_directory(fEc)) it.disable_recursion_pending();
                     continue;
                 }
+                if (it->is_directory(fEc))
+                {
+                    std::string dname = it->path().filename().string();
+                    if (it.depth() >= 3 || dname == "Temp" || dname == "Microsoft" || dname == "Wine" ||
+                        dname == "BACKUP" || dname == "Steam" || dname == "Unity" ||
+                        dname == "UnrealEngine" || dname == "CrashReportClient" ||
+                        dname == "D3DSCache" || dname == "fontconfig")
+                    {
+                        it.disable_recursion_pending();
+                    }
+                    continue;
+                }
                 if (it->is_regular_file(fEc) && it->path().filename() == "steam_autocloud.vdf")
                 {
                     // Only derive a title from shallow save layouts; deeply nested paths
@@ -1813,7 +1900,10 @@ std::vector<AppId_t> CCloudManager::GetChildDepotIdsForApp(AppId_t parentAppId, 
     return children;
 }
 
-std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t appId, const std::string& provider, uint32_t accountId) const
+std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t appId,
+                                                                     const std::string& provider,
+                                                                     uint32_t accountId,
+                                                                     const ScanIndex* index) const
 {
     std::vector<CloudFileEntry_t> results;
     if (appId == 0 || appId == kCloudCatalogAppId) return results;
@@ -2247,9 +2337,30 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
                 upsertFile(provFn, std::move(pEntry));
             }
 
-            // Parse Lua file to discover depot manifest files
-            auto luaData = LuaParser::parseFile(luaFile.string());
-            for (const auto& [depotId, manifestGid] : luaData.manifests)
+            // Parse Lua file to discover depot manifest files (using ScanIndex when available)
+            const std::vector<std::pair<std::string, std::string>>* manifestPairsPtr = nullptr;
+            std::vector<std::pair<std::string, std::string>> fallbackManifestPairs;
+            if (index != nullptr)
+            {
+                auto recIt = index->luaRecordIndexByStem.find(appId);
+                if (recIt != index->luaRecordIndexByStem.end() && recIt->second < index->luaFiles.size())
+                {
+                    manifestPairsPtr = &index->luaFiles[recIt->second].manifestPairs;
+                }
+            }
+            if (manifestPairsPtr == nullptr)
+            {
+                auto luaData = LuaParser::parseFile(luaFile.string());
+                for (const auto& [depotId, manifestGid] : luaData.manifests)
+                {
+                    if (!depotId.empty() && !manifestGid.empty() && manifestGid != "0")
+                    {
+                        fallbackManifestPairs.emplace_back(depotId, manifestGid);
+                    }
+                }
+                manifestPairsPtr = &fallbackManifestPairs;
+            }
+            for (const auto& [depotId, manifestGid] : *manifestPairsPtr)
             {
                 if (manifestGid.empty() || manifestGid == "0") continue;
                 std::string mfName = depotId + "_" + manifestGid + ".manifest";
@@ -2294,18 +2405,19 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
         }
 
         // Also check for any <appId>_*.manifest or <appId>.manifest directly
-        auto scanDirForAppManifests = [&](const fs::path& dir) {
-            if (!fs::is_directory(dir, ec)) return;
-            for (const auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied, ec))
+        if (index != nullptr && !index->steamRootMissing)
+        {
+            auto mIt = index->manifestsByPrefixAppId.find(appId);
+            if (mIt != index->manifestsByPrefixAppId.end())
             {
-                if (ec) break;
-                if (!entry.is_regular_file(ec)) continue;
-                std::string fn = entry.path().filename().string();
-                if (fn.ends_with(".manifest") && (fn.rfind(appIdStr + "_", 0) == 0 || fn == appIdStr + ".manifest"))
+                for (const fs::path& mfPath : mIt->second)
                 {
+                    std::error_code mfEc;
+                    if (!fs::is_regular_file(mfPath, mfEc) || mfEc) continue;
+                    std::string fn = mfPath.filename().string();
                     uint64_t mmtime = 0;
-                    auto mftime = fs::last_write_time(entry.path(), ec);
-                    if (!ec)
+                    auto mftime = fs::last_write_time(mfPath, mfEc);
+                    if (!mfEc)
                     {
                         auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(mftime);
                         mmtime = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::seconds>(sctp.time_since_epoch()).count());
@@ -2315,18 +2427,49 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFilesDirect(AppId_t app
                     CloudFileEntry_t mfEntry;
                     mfEntry.fileName = fullAppMfName;
                     mfEntry.folder = "depotcache";
-                    mfEntry.sizeBytes = static_cast<uint64_t>(fs::file_size(entry.path(), ec));
+                    mfEntry.sizeBytes = static_cast<uint64_t>(fs::file_size(mfPath, mfEc));
                     mfEntry.modifiedTime = mmtime;
                     mfEntry.inLocalMirror = true;
                     upsertFile(fullAppMfName, std::move(mfEntry));
                 }
             }
-        };
+        }
+        else
+        {
+            auto scanDirForAppManifests = [&](const fs::path& dir) {
+                if (!fs::is_directory(dir, ec)) return;
+                for (const auto& entry : fs::directory_iterator(dir, fs::directory_options::skip_permission_denied, ec))
+                {
+                    if (ec) break;
+                    if (!entry.is_regular_file(ec)) continue;
+                    std::string fn = entry.path().filename().string();
+                    if (fn.ends_with(".manifest") && (fn.rfind(appIdStr + "_", 0) == 0 || fn == appIdStr + ".manifest"))
+                    {
+                        uint64_t mmtime = 0;
+                        auto mftime = fs::last_write_time(entry.path(), ec);
+                        if (!ec)
+                        {
+                            auto sctp = std::chrono::clock_cast<std::chrono::system_clock>(mftime);
+                            mmtime = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::seconds>(sctp.time_since_epoch()).count());
+                        }
 
-        scanDirForAppManifests(depotcacheDir);
-        scanDirForAppManifests(legacyDepotcacheDir);
-        scanDirForAppManifests(stplugDir);
-        scanDirForAppManifests(stplugDir / "manifests");
+                        std::string fullAppMfName = "depotcache/" + fn;
+                        CloudFileEntry_t mfEntry;
+                        mfEntry.fileName = fullAppMfName;
+                        mfEntry.folder = "depotcache";
+                        mfEntry.sizeBytes = static_cast<uint64_t>(fs::file_size(entry.path(), ec));
+                        mfEntry.modifiedTime = mmtime;
+                        mfEntry.inLocalMirror = true;
+                        upsertFile(fullAppMfName, std::move(mfEntry));
+                    }
+                }
+            };
+
+            scanDirForAppManifests(depotcacheDir);
+            scanDirForAppManifests(legacyDepotcacheDir);
+            scanDirForAppManifests(stplugDir);
+            scanDirForAppManifests(stplugDir / "manifests");
+        }
     }
 
     results.reserve(fileMap.size());
@@ -2350,12 +2493,18 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(AppId_t appId, co
     return ListAppCloudFiles(appId, provider, accountId, *index);
 }
 
-std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(AppId_t appId, const std::string& provider, uint32_t accountId, const ScanIndex& index) const
+std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(
+    AppId_t appId,
+    const std::string& provider,
+    uint32_t accountId,
+    const ScanIndex& index,
+    const std::unordered_set<AppId_t>* remoteConfirmedApps,
+    bool skipCatalogLookup) const
 {
     if (appId == 0 || appId == kCloudCatalogAppId) return {};
 
     const bool isRemoteProvider = (!provider.empty() && provider != "local-only");
-    if (isRemoteProvider)
+    if (isRemoteProvider && !skipCatalogLookup)
     {
         const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
         for (uint32_t acct : accounts)
@@ -2374,7 +2523,11 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(AppId_t appId, co
     }
 
     // 1. Files belonging directly to base game
-    std::vector<CloudFileEntry_t> results = ListAppCloudFilesDirect(appId, provider, accountId);
+    std::vector<CloudFileEntry_t> results;
+    if (!isRemoteProvider || !remoteConfirmedApps || remoteConfirmedApps->contains(appId))
+    {
+        results = ListAppCloudFilesDirect(appId, provider, accountId, &index);
+    }
 
     // 2. Discover and merge files for all child depots / addons
     const std::vector<AppId_t> childDepots = GetChildDepotIdsForApp(appId, index);
@@ -2383,7 +2536,11 @@ std::vector<CloudFileEntry_t> CCloudManager::ListAppCloudFiles(AppId_t appId, co
     for (const auto& existing : results) resultNames.insert(existing.fileName);
     for (AppId_t childId : childDepots)
     {
-        std::vector<CloudFileEntry_t> childFiles = ListAppCloudFilesDirect(childId, provider, accountId);
+        if (isRemoteProvider && remoteConfirmedApps && !remoteConfirmedApps->contains(childId))
+        {
+            continue;
+        }
+        std::vector<CloudFileEntry_t> childFiles = ListAppCloudFilesDirect(childId, provider, accountId, &index);
         for (auto& cf : childFiles)
         {
             // Do not duplicate files already added by the base game (e.g. depot manifests referenced in Lua)
@@ -2421,6 +2578,7 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
 
     std::vector<AppId_t> candidateApps;
     std::vector<AppId_t> remoteConfirmedApps;
+    std::unordered_set<AppId_t> remoteConfirmedSet;
     std::vector<AppId_t> localConfirmedApps;
     bool remoteHasCatalog = false;
     uint32_t activeRemoteAcct = 0;
@@ -2535,10 +2693,43 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
         }
         }
 
+        remoteConfirmedSet.insert(remoteConfirmedApps.begin(), remoteConfirmedApps.end());
+        if (activeRemoteAcct != 0 && !remoteHasCatalog)
+        {
+            const uint64_t nowMs = static_cast<uint64_t>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count());
+            std::lock_guard<std::mutex> lock(m_catalogMutex);
+            if (m_catalogCache.provider != provider ||
+                m_catalogCache.accountId != activeRemoteAcct ||
+                m_catalogCache.storageRoot != storageRoot)
+            {
+                m_catalogCache.summaries.clear();
+                m_catalogCache.filesByApp.clear();
+                m_catalogCache.loadedAtMs = 0;
+            }
+            m_catalogCache.provider = provider;
+            m_catalogCache.accountId = activeRemoteAcct;
+            m_catalogCache.storageRoot = storageRoot;
+            m_catalogCache.remoteSyncedAtMs = nowMs;
+            m_catalogCache.remoteCatalogAbsent = true;
+        }
+
         // Strict remote filtering: when a remote provider is selected, ONLY return apps
-        // that exist in the remote cloud provider. If none exist remotely, return empty immediately.
+        // that exist in the remote cloud provider. If none exist remotely, return empty immediately,
+        // after first pulling catalog metadata (if 999999999 exists remotely) so providerKeys restore.
         if (remoteConfirmedApps.empty())
         {
+            if (remoteHasCatalog)
+            {
+                const uint32_t targetAcct = activeRemoteAcct != 0 ? activeRemoteAcct : (accounts.empty() ? 0 : accounts.front());
+                if (targetAcct != 0)
+                {
+                    std::unordered_map<AppId_t, CloudAppSummary_t> catalogSummaries;
+                    std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> catalogFilesByApp;
+                    LoadCloudCatalog(provider, targetAcct, /*syncRemote=*/true, catalogSummaries, catalogFilesByApp);
+                }
+            }
             return summaries;
         }
     }
@@ -2806,7 +2997,14 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
         }
 
         const std::string effectiveProvider = (isRemoteProvider && isRemoteApp) ? provider : "local-only";
-        std::vector<CloudFileEntry_t> files = ListAppCloudFiles(appId, effectiveProvider, accountId, *index);
+        const uint32_t effectiveAcct = (isRemoteProvider && activeRemoteAcct != 0) ? activeRemoteAcct : accountId;
+        std::vector<CloudFileEntry_t> files = ListAppCloudFiles(
+            appId,
+            effectiveProvider,
+            effectiveAcct,
+            *index,
+            (isRemoteProvider && isRemoteApp) ? &remoteConfirmedSet : nullptr,
+            /*skipCatalogLookup=*/isRemoteProvider);
         if (files.empty())
         {
             continue;
@@ -2836,6 +3034,28 @@ std::vector<CloudAppSummary_t> CCloudManager::ListCloudApps(const std::string& p
             if (f.inLocalMirror) summary.inLocalMirror = true;
         }
         summary.totalSizeBytes = totalBytes;
+
+        if (isRemoteProvider && isRemoteApp && effectiveAcct != 0)
+        {
+            const uint64_t nowMs = static_cast<uint64_t>(
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::steady_clock::now().time_since_epoch()).count());
+            std::lock_guard<std::mutex> lock(m_catalogMutex);
+            if (m_catalogCache.provider != provider ||
+                m_catalogCache.accountId != effectiveAcct ||
+                m_catalogCache.storageRoot != storageRoot)
+            {
+                m_catalogCache.summaries.clear();
+                m_catalogCache.filesByApp.clear();
+            }
+            m_catalogCache.provider = provider;
+            m_catalogCache.accountId = effectiveAcct;
+            m_catalogCache.storageRoot = storageRoot;
+            m_catalogCache.loadedAtMs = nowMs;
+            m_catalogCache.summaries[appId] = summary;
+            m_catalogCache.filesByApp[appId] = files;
+        }
+
         summaries.push_back(std::move(summary));
     }
 
@@ -3113,6 +3333,8 @@ namespace
                 {
                     case '"':  out += '"';  break;
                     case '\\': out += '\\'; break;
+                    case 'b':  out += '\b'; break;
+                    case 'f':  out += '\f'; break;
                     case 'n':  out += '\n'; break;
                     case 'r':  out += '\r'; break;
                     case 't':  out += '\t'; break;
@@ -3230,6 +3452,132 @@ namespace
         return result;
     }
 
+    std::string ExtractCatalogJsonObject(const std::string& json, const std::string& objectKey)
+    {
+        const std::string needle = "\"" + objectKey + "\"";
+        bool inStr = false;
+        bool esc = false;
+        int braceDepth = 0;
+
+        for (size_t i = 0; i < json.size(); ++i)
+        {
+            const char c = json[i];
+            if (esc)
+            {
+                esc = false;
+                continue;
+            }
+            if (c == '\\' && inStr)
+            {
+                esc = true;
+                continue;
+            }
+            if (c == '"')
+            {
+                if (!inStr && braceDepth == 1 && json.compare(i, needle.size(), needle) == 0)
+                {
+                    size_t afterKey = json.find_first_not_of(" \t\r\n", i + needle.size());
+                    if (afterKey != std::string::npos && json[afterKey] == ':')
+                    {
+                        size_t valStart = json.find_first_not_of(" \t\r\n", afterKey + 1);
+                        if (valStart != std::string::npos && json[valStart] == '{')
+                        {
+                            int objDepth = 0;
+                            bool objInStr = false;
+                            bool objEsc = false;
+                            for (size_t j = valStart; j < json.size(); ++j)
+                            {
+                                const char oc = json[j];
+                                if (objEsc)
+                                {
+                                    objEsc = false;
+                                    continue;
+                                }
+                                if (oc == '\\' && objInStr)
+                                {
+                                    objEsc = true;
+                                    continue;
+                                }
+                                if (oc == '"')
+                                {
+                                    objInStr = !objInStr;
+                                    continue;
+                                }
+                                if (objInStr) continue;
+                                if (oc == '{') ++objDepth;
+                                else if (oc == '}')
+                                {
+                                    --objDepth;
+                                    if (objDepth == 0)
+                                    {
+                                        return json.substr(valStart, j - valStart + 1);
+                                    }
+                                }
+                            }
+                            return "";
+                        }
+                    }
+                }
+                inStr = !inStr;
+                continue;
+            }
+            if (inStr) continue;
+            if (c == '{') ++braceDepth;
+            else if (c == '}') --braceDepth;
+        }
+        return "";
+    }
+
+    bool RestoreMetadataFromCatalogJson(const std::string& catalogJson)
+    {
+        const std::string pkObj = ExtractCatalogJsonObject(catalogJson, "providerKeys");
+        if (pkObj.empty())
+        {
+            return false;
+        }
+        if (!g_config.cloudSyncProviderKeys.get())
+        {
+            return true;
+        }
+
+        const std::string remoteRyuu = ExtractCatalogJsonString(pkObj, "ryuuKey");
+        const std::string remoteDepotBox = ExtractCatalogJsonString(pkObj, "depotBoxKey");
+        const std::string remoteHubcap = ExtractCatalogJsonString(pkObj, "hubcapKey");
+
+        std::string mergedRyuu = g_config.ryuuKey.get();
+        std::string mergedDepotBox = g_config.depotBoxKey.get();
+        std::string mergedHubcap = g_config.hubcapKey.get();
+        size_t restoredCount = 0;
+
+        if (g_config.cloudSyncRyuuKey.get() && mergedRyuu.empty() && !remoteRyuu.empty())
+        {
+            mergedRyuu = remoteRyuu;
+            g_config.ryuuKey.set(mergedRyuu);
+            ++restoredCount;
+        }
+        if (g_config.cloudSyncDepotBoxKey.get() && mergedDepotBox.empty() && !remoteDepotBox.empty())
+        {
+            mergedDepotBox = remoteDepotBox;
+            g_config.depotBoxKey.set(mergedDepotBox);
+            ++restoredCount;
+        }
+        if (g_config.cloudSyncHubcapKey.get() && mergedHubcap.empty() && !remoteHubcap.empty())
+        {
+            mergedHubcap = remoteHubcap;
+            g_config.hubcapKey.set(mergedHubcap);
+            ++restoredCount;
+        }
+
+        if (restoredCount > 0)
+        {
+            g_config.createFile();
+            g_config.updateApiAuth(mergedRyuu, mergedDepotBox, mergedHubcap);
+            LOG_INFO("Restored %zu provider key(s) from CloudRedirect catalog\n", restoredCount);
+        }
+
+        return true;
+    }
+
     void BumpCnFile(const fs::path& appDir)
     {
         const fs::path cnPath = appDir / "cn.cloudredirect";
@@ -3259,38 +3607,24 @@ namespace
 
 void CCloudManager::InvalidateCloudCatalogCache() const
 {
-    std::lock_guard<std::mutex> lock(m_catalogMutex);
-    m_catalogCache = CatalogCache{};
-}
-
-bool CCloudManager::LoadCloudCatalog(const std::string& provider,
-                                     uint32_t accountId,
-                                     bool syncRemote,
-                                     std::unordered_map<AppId_t, CloudAppSummary_t>& outSummaries,
-                                     std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>>& outFilesByApp) const
-{
-    outSummaries.clear();
-    outFilesByApp.clear();
-    if (accountId == 0) return false;
-
-    const fs::path storageRoot = GetStorageDir();
-    const uint64_t nowMs = static_cast<uint64_t>(
-        std::chrono::duration_cast<std::chrono::milliseconds>(
-            std::chrono::steady_clock::now().time_since_epoch()).count());
-
     {
         std::lock_guard<std::mutex> lock(m_catalogMutex);
-        if (m_catalogCache.provider == provider &&
-            m_catalogCache.accountId == accountId &&
-            m_catalogCache.storageRoot == storageRoot &&
-            !m_catalogCache.summaries.empty() &&
-            (nowMs - m_catalogCache.loadedAtMs) < 30000)
-        {
-            outSummaries = m_catalogCache.summaries;
-            outFilesByApp = m_catalogCache.filesByApp;
-            return true;
-        }
+        m_catalogCache = CatalogCache{};
     }
+    {
+        std::lock_guard<std::mutex> authLock(m_authCacheMutex);
+        m_authStatusCache.clear();
+    }
+}
+
+std::string CCloudManager::ReadOrSyncCatalogJson(const fs::path& storageRoot,
+                                                 const std::string& provider,
+                                                 uint32_t accountId,
+                                                 bool syncRemote,
+                                                 bool pullWhenLocalMissing,
+                                                 bool allowLocalFallbackWhenSyncedEmpty) const
+{
+    if (accountId == 0 || storageRoot.empty()) return "";
 
     std::error_code ec;
     const fs::path catalogDir = storageRoot / std::to_string(accountId) / std::to_string(kCloudCatalogAppId);
@@ -3327,9 +3661,33 @@ bool CCloudManager::LoadCloudCatalog(const std::string& provider,
     };
 
     std::string existingContent = readCatalogOnDisk();
+    const bool shouldSync = (syncRemote || (pullWhenLocalMissing && existingContent.empty())) &&
+                            !provider.empty() && provider != "local" && provider != "local-only";
 
-    if ((syncRemote || existingContent.empty()) && !provider.empty() && provider != "local-only")
+    if (shouldSync)
     {
+        const uint64_t nowMs = static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        {
+            std::lock_guard<std::mutex> lock(m_catalogMutex);
+            if (m_catalogCache.provider == provider &&
+                m_catalogCache.accountId == accountId &&
+                m_catalogCache.storageRoot == storageRoot &&
+                m_catalogCache.remoteSyncedAtMs != 0 &&
+                (nowMs - m_catalogCache.remoteSyncedAtMs) < 3000)
+            {
+                if (m_catalogCache.remoteCatalogAbsent)
+                {
+                    return allowLocalFallbackWhenSyncedEmpty ? existingContent : "";
+                }
+                if (!existingContent.empty())
+                {
+                    return existingContent;
+                }
+            }
+        }
+
         fs::create_directories(catalogDir, ec);
         // Remove plain file before sync-remote-app so WriteFileNoIncrement("<cleanPath>/<sha1>") never hits ENOTDIR,
         // and remove local CN/state markers so sync-remote-app always pulls the newest remote catalog.
@@ -3346,6 +3704,26 @@ bool CCloudManager::LoadCloudCatalog(const std::string& provider,
                        std::to_string(kCloudCatalogAppId), storageRoot.parent_path().string()}, 20000);
 
         std::string syncedContent = readCatalogOnDisk();
+        const uint64_t finishMs = static_cast<uint64_t>(
+            std::chrono::duration_cast<std::chrono::milliseconds>(
+                std::chrono::steady_clock::now().time_since_epoch()).count());
+        {
+            std::lock_guard<std::mutex> lock(m_catalogMutex);
+            if (m_catalogCache.provider != provider ||
+                m_catalogCache.accountId != accountId ||
+                m_catalogCache.storageRoot != storageRoot)
+            {
+                m_catalogCache.summaries.clear();
+                m_catalogCache.filesByApp.clear();
+                m_catalogCache.loadedAtMs = 0;
+            }
+            m_catalogCache.provider = provider;
+            m_catalogCache.accountId = accountId;
+            m_catalogCache.storageRoot = storageRoot;
+            m_catalogCache.remoteSyncedAtMs = finishMs;
+            m_catalogCache.remoteCatalogAbsent = syncedContent.empty();
+        }
+
         if (!syncedContent.empty())
         {
             if (fs::is_directory(catalogFile, ec))
@@ -3354,21 +3732,68 @@ bool CCloudManager::LoadCloudCatalog(const std::string& provider,
                 std::ofstream out(catalogFile, std::ios::binary | std::ios::trunc);
                 out << syncedContent;
             }
-            existingContent = std::move(syncedContent);
+            return syncedContent;
         }
-        else if (!existingContent.empty())
+        if (!existingContent.empty())
         {
-            // Restore pre-existing local catalog if sync-remote-app was a unit-test mock or offline
+            // Restore pre-existing local catalog if sync-remote-app was offline or remote did not host 999999999.
             if (fs::is_directory(catalogFile, ec)) fs::remove_all(catalogFile, ec);
             std::ofstream out(catalogFile, std::ios::binary | std::ios::trunc);
             out << existingContent;
+            return allowLocalFallbackWhenSyncedEmpty ? existingContent : "";
+        }
+        return "";
+    }
+
+    return existingContent;
+}
+
+bool CCloudManager::LoadCloudCatalog(const std::string& provider,
+                                     uint32_t accountId,
+                                     bool syncRemote,
+                                     std::unordered_map<AppId_t, CloudAppSummary_t>& outSummaries,
+                                     std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>>& outFilesByApp) const
+{
+    outSummaries.clear();
+    outFilesByApp.clear();
+    if (accountId == 0) return false;
+
+    std::lock_guard<std::recursive_mutex> catalogSyncLock(m_catalogSyncMutex);
+
+    const fs::path storageRoot = GetStorageDir();
+    const uint64_t nowMs = static_cast<uint64_t>(
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+            std::chrono::steady_clock::now().time_since_epoch()).count());
+
+    if (!syncRemote)
+    {
+        std::lock_guard<std::mutex> lock(m_catalogMutex);
+        if (m_catalogCache.provider == provider &&
+            m_catalogCache.accountId == accountId &&
+            m_catalogCache.storageRoot == storageRoot &&
+            !m_catalogCache.summaries.empty() &&
+            (nowMs - m_catalogCache.loadedAtMs) < 30000)
+        {
+            outSummaries = m_catalogCache.summaries;
+            outFilesByApp = m_catalogCache.filesByApp;
+            return true;
         }
     }
+
+    const std::string existingContent = ReadOrSyncCatalogJson(
+        storageRoot,
+        provider,
+        accountId,
+        syncRemote,
+        /*pullWhenLocalMissing=*/syncRemote,
+        /*allowLocalFallbackWhenSyncedEmpty=*/true);
 
     if (existingContent.empty())
     {
         return false;
     }
+
+    const bool hasProviderKeysSection = RestoreMetadataFromCatalogJson(existingContent);
 
     const auto appObjs = SplitCatalogJsonObjectArray(existingContent, "apps");
     for (const auto& appObj : appObjs)
@@ -3418,11 +3843,12 @@ bool CCloudManager::LoadCloudCatalog(const std::string& provider,
         outFilesByApp[appId] = std::move(files);
     }
 
-    if (outSummaries.empty())
+    if (outSummaries.empty() && !hasProviderKeysSection)
     {
         return false;
     }
 
+    if (!outSummaries.empty())
     {
         std::lock_guard<std::mutex> lock(m_catalogMutex);
         m_catalogCache.provider = provider;
@@ -3799,7 +4225,7 @@ bool CCloudManager::StageAppFilesForCloudSync(AppId_t appId, uint32_t accountId)
     return !stagedFiles.empty();
 }
 
-bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, uint32_t accountId)
+bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, uint32_t accountId, bool overwriteProviderKeys)
 {
     const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
     if (accounts.empty()) return false;
@@ -3811,7 +4237,10 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
     std::shared_ptr<const ScanIndex> index = ObtainScanIndex();
     if (!index) return false;
 
+    std::lock_guard<std::recursive_mutex> catalogSyncLock(m_catalogSyncMutex);
+
     const bool isRemoteProvider = (!provider.empty() && provider != "local-only");
+    bool remoteHasCatalog = false;
     std::vector<AppId_t> remoteConfirmedApps;
 
     if (isRemoteProvider)
@@ -3842,8 +4271,12 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
                     if (IsDigitsOnly(appIdStr))
                     {
                         AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
-                        if (id != 0 && id != kCloudCatalogAppId &&
-                            std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                        if (id == kCloudCatalogAppId)
+                        {
+                            remoteHasCatalog = true;
+                        }
+                        else if (id != 0 &&
+                                 std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
                         {
                             remoteConfirmedApps.push_back(id);
                         }
@@ -3867,8 +4300,12 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
             if (IsDigitsOnly(appIdStr))
             {
                 AppId_t id = static_cast<AppId_t>(std::strtoul(appIdStr.c_str(), nullptr, 10));
-                if (id != 0 && id != kCloudCatalogAppId &&
-                    std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
+                if (id == kCloudCatalogAppId)
+                {
+                    remoteHasCatalog = true;
+                }
+                else if (id != 0 &&
+                         std::find(remoteConfirmedApps.begin(), remoteConfirmedApps.end(), id) == remoteConfirmedApps.end())
                 {
                     remoteConfirmedApps.push_back(id);
                 }
@@ -3916,6 +4353,8 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
         }
     }
 
+    const std::unordered_set<AppId_t> remoteConfirmedSet(remoteConfirmedApps.begin(), remoteConfirmedApps.end());
+
     auto knownTitles = g_config.gameTitles.get();
     struct CatalogAppItem
     {
@@ -3930,13 +4369,23 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
         if (!g_config.IsAppCloudRedirected(appId)) continue;
 
         // Collect files directly from the cloud storage mirror / remote (without scanning un-staged local dirs)
-        std::vector<CloudFileEntry_t> files = ListAppCloudFilesDirect(appId, isRemoteProvider ? provider : "local-only", acct);
+        const std::string baseProv = (isRemoteProvider && remoteConfirmedSet.contains(appId)) ? provider : "local-only";
+        std::vector<CloudFileEntry_t> files = ListAppCloudFilesDirect(appId, baseProv, acct, index.get());
         const auto& children = parentToChildren[appId];
         std::unordered_set<std::string> seenNames;
         for (const auto& f : files) seenNames.insert(f.fileName);
         for (AppId_t cid : children)
         {
-            for (auto& cf : ListAppCloudFilesDirect(cid, isRemoteProvider ? provider : "local-only", acct))
+            if (isRemoteProvider && !remoteConfirmedSet.contains(cid))
+            {
+                std::error_code cEc;
+                if (!fs::is_directory(storageRoot / std::to_string(acct) / std::to_string(cid), cEc))
+                {
+                    continue;
+                }
+            }
+            const std::string childProv = (isRemoteProvider && remoteConfirmedSet.contains(cid)) ? provider : "local-only";
+            for (auto& cf : ListAppCloudFilesDirect(cid, childProv, acct, index.get()))
             {
                 if (seenNames.insert(cf.fileName).second)
                 {
@@ -3995,6 +4444,30 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
         return a.summary.appId < b.summary.appId;
     });
 
+    const bool syncKeysEnabled = g_config.cloudSyncProviderKeys.get();
+    const bool syncRyuu = syncKeysEnabled && g_config.cloudSyncRyuuKey.get();
+    const bool syncDepotBox = syncKeysEnabled && g_config.cloudSyncDepotBoxKey.get();
+    const bool syncHubcap = syncKeysEnabled && g_config.cloudSyncHubcapKey.get();
+
+    if (!overwriteProviderKeys &&
+        ((syncRyuu && g_config.ryuuKey.get().empty()) ||
+         (syncDepotBox && g_config.depotBoxKey.get().empty()) ||
+         (syncHubcap && g_config.hubcapKey.get().empty())))
+    {
+        std::unordered_map<AppId_t, CloudAppSummary_t> preSummaries;
+        std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> preFiles;
+        const bool shouldPullRemoteCatalog = (isRemoteProvider && remoteHasCatalog);
+        LoadCloudCatalog(shouldPullRemoteCatalog ? provider : "local-only",
+                         acct,
+                         shouldPullRemoteCatalog,
+                         preSummaries,
+                         preFiles);
+    }
+
+    const std::string ryuuKeyVal = syncRyuu ? g_config.ryuuKey.get() : std::string{};
+    const std::string depotBoxKeyVal = syncDepotBox ? g_config.depotBoxKey.get() : std::string{};
+    const std::string hubcapKeyVal = syncHubcap ? g_config.hubcapKey.get() : std::string{};
+
     const uint64_t updatedAt = static_cast<uint64_t>(
         std::chrono::duration_cast<std::chrono::seconds>(
             std::chrono::system_clock::now().time_since_epoch()).count());
@@ -4004,6 +4477,11 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
        << "  \"version\": 1,\n"
        << "  \"accountId\": " << acct << ",\n"
        << "  \"updatedAt\": " << updatedAt << ",\n"
+       << "  \"providerKeys\": {\n"
+       << "    \"ryuuKey\": \"" << EscapeCatalogJsonString(ryuuKeyVal) << "\",\n"
+       << "    \"depotBoxKey\": \"" << EscapeCatalogJsonString(depotBoxKeyVal) << "\",\n"
+       << "    \"hubcapKey\": \"" << EscapeCatalogJsonString(hubcapKeyVal) << "\"\n"
+       << "  },\n"
        << "  \"apps\": [\n";
     for (size_t i = 0; i < items.size(); ++i)
     {
@@ -4083,6 +4561,8 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
         m_catalogCache.loadedAtMs = static_cast<uint64_t>(
             std::chrono::duration_cast<std::chrono::milliseconds>(
                 std::chrono::steady_clock::now().time_since_epoch()).count());
+        m_catalogCache.remoteSyncedAtMs = 0;
+        m_catalogCache.remoteCatalogAbsent = false;
         m_catalogCache.summaries.clear();
         m_catalogCache.filesByApp.clear();
         for (auto& item : items)
@@ -4094,6 +4574,132 @@ bool CCloudManager::UpdateAndPublishCloudCatalog(const std::string& provider, ui
     }
 
     return true;
+}
+
+bool CCloudManager::RestoreMetadataFromCloudCatalog(const std::string& provider, uint32_t accountId, bool syncRemote)
+{
+    const std::string prov = provider.empty() ? g_config.cloudSavesProvider.get() : provider;
+    if (prov.empty())
+    {
+        return false;
+    }
+
+    const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accounts.empty())
+    {
+        return false;
+    }
+
+    std::unordered_map<AppId_t, CloudAppSummary_t> summaries;
+    std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> filesByApp;
+    return LoadCloudCatalog(prov, accounts.front(), syncRemote, summaries, filesByApp);
+}
+
+bool CCloudManager::PublishMetadataCatalogIfAuthenticated(const std::string& provider, uint32_t accountId, bool overwriteProviderKeys)
+{
+    if (!g_config.cloudSavesEnabled.get())
+    {
+        return false;
+    }
+
+    std::string prov = provider.empty() ? g_config.cloudSavesProvider.get() : provider;
+    if (prov.empty())
+    {
+        prov = "local-only";
+    }
+
+    const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accounts.empty())
+    {
+        LOG_DEBUG("Skipping metadata catalog publish: no Steam account ID resolved yet\n");
+        return false;
+    }
+
+    const uint32_t targetAcct = accounts.front();
+    if (prov != "local" && prov != "local-only")
+    {
+        const ProviderAuthStatus_t status = CheckAuthStatus(prov);
+        if (!status.authenticated)
+        {
+            return UpdateAndPublishCloudCatalog("local-only", targetAcct, overwriteProviderKeys);
+        }
+    }
+
+    return UpdateAndPublishCloudCatalog(prov, targetAcct, overwriteProviderKeys);
+}
+
+CloudProviderKeysStatus_t CCloudManager::GetCloudProviderKeysStatus(const std::string& provider, uint32_t accountId, bool syncRemote)
+{
+    CloudProviderKeysStatus_t status;
+    std::string prov = provider.empty() ? g_config.cloudSavesProvider.get() : provider;
+    if (prov.empty() || prov == "local")
+    {
+        prov = "local-only";
+    }
+    status.provider = prov;
+    status.syncEnabled = g_config.cloudSyncProviderKeys.get();
+    status.syncRyuu = g_config.cloudSyncRyuuKey.get();
+    status.syncDepotBox = g_config.cloudSyncDepotBoxKey.get();
+    status.syncHubcap = g_config.cloudSyncHubcapKey.get();
+
+    const std::vector<uint32_t> accounts = ResolveCandidateAccountIds(accountId);
+    if (accounts.empty())
+    {
+        return status;
+    }
+
+    const fs::path storageRoot = GetStorageDir();
+    if (storageRoot.empty())
+    {
+        return status;
+    }
+
+    const bool isRemoteProvider = (prov != "local-only");
+    if (syncRemote && isRemoteProvider)
+    {
+        bool hasCustomCli = false;
+        {
+            std::lock_guard<std::mutex> lock(m_mutex);
+            hasCustomCli = !m_cliPath.empty();
+        }
+        if (!hasCustomCli && !CheckAuthStatus(prov).authenticated)
+        {
+            return status;
+        }
+    }
+
+    std::lock_guard<std::recursive_mutex> catalogSyncLock(m_catalogSyncMutex);
+
+    const std::string content = ReadOrSyncCatalogJson(
+        storageRoot,
+        prov,
+        accounts.front(),
+        syncRemote,
+        /*pullWhenLocalMissing=*/false,
+        /*allowLocalFallbackWhenSyncedEmpty=*/!isRemoteProvider || !syncRemote);
+    if (content.empty())
+    {
+        return status;
+    }
+
+    const std::string pkObj = ExtractCatalogJsonObject(content, "providerKeys");
+    const bool looksLikeCatalog = !pkObj.empty() ||
+        content.find("\"version\"") != std::string::npos ||
+        content.find("\"apps\"") != std::string::npos;
+    if (!looksLikeCatalog)
+    {
+        return status;
+    }
+
+    status.catalogFound = true;
+    status.updatedAt = ExtractJsonUint64(content, "updatedAt", 0);
+    if (!pkObj.empty())
+    {
+        status.hasRyuuKey = !ExtractCatalogJsonString(pkObj, "ryuuKey").empty();
+        status.hasDepotBoxKey = !ExtractCatalogJsonString(pkObj, "depotBoxKey").empty();
+        status.hasHubcapKey = !ExtractCatalogJsonString(pkObj, "hubcapKey").empty();
+    }
+    return status;
 }
 
 bool CCloudManager::SyncAppToCloudAndUpdateCatalog(AppId_t appId, const std::string& provider, uint32_t accountId)
@@ -4126,8 +4732,11 @@ bool CCloudManager::SyncAppToCloudAndUpdateCatalog(AppId_t appId, const std::str
 
 void CCloudManager::SetCredentialsDirForTest(const fs::path& path)
 {
-    std::lock_guard<std::mutex> lock(m_mutex);
-    m_credentialsDir = path;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_credentialsDir = path;
+    }
+    InvalidateCloudCatalogCache();
 }
 
 fs::path CCloudManager::GetCredentialsDir() const
@@ -4310,6 +4919,7 @@ bool CCloudManager::SaveProviderCredentials(const ProviderCredentials_t& creds, 
     }
 
     ::chmod(credFile.c_str(), 0600);
+    InvalidateCloudCatalogCache();
     return true;
 }
 
@@ -4324,9 +4934,14 @@ bool CCloudManager::DeleteProviderCredentials(const std::string& provider)
     std::error_code ec;
     if (!fs::exists(credFile, ec))
     {
+        InvalidateCloudCatalogCache();
         return true;
     }
     fs::remove(credFile, ec);
+    if (!ec)
+    {
+        InvalidateCloudCatalogCache();
+    }
     return !ec;
 }
 

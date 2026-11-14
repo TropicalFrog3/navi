@@ -84,7 +84,7 @@ function createSuperNavTab(id, text, clickHandler) {
                         }
                         target = target.parentNode;
                     }
-                });
+                }, true);
             }
         }
     }

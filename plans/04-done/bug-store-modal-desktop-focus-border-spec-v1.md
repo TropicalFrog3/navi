@@ -1,6 +1,8 @@
+Outcome: shipped — Gated store-page and depot-selection modal 3px white controller focus outline on Big Picture/Deck or controller input modality and added Desktop vs gamepad regression assertions — 2026-11-14
+
 # Bug Spec: Hide White Controller Focus Border in Store Details Modals on Desktop Mode
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Store Page & Depot Selection Inject (`res/inject-scripts/store/store-page/`, `res/inject-scripts/store/depot-selection/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- (in store details download lua modal) when not in steam big picture or steam deck mode the white border appear, it is not supposed to show the white border when the user isn't using the controller to navigate`

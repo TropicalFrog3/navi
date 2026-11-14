@@ -506,6 +506,10 @@ std::string renderCheckJson(const CheckViewModel& info) {
 
         // CloudSaves
         bool csEnabled = g_config.cloudSavesEnabled.get();
+        bool pksEnabled = g_config.cloudSyncProviderKeys.get();
+        bool pksRyuu = g_config.cloudSyncRyuuKey.get();
+        bool pksDepotBox = g_config.cloudSyncDepotBoxKey.get();
+        bool pksHubcap = g_config.cloudSyncHubcapKey.get();
         std::string csProvider = g_config.cloudSavesProvider.get();
         bool csNotifications = g_config.cloudNotificationsEnabled.get();
         bool csAutoBackup = g_config.cloudAutoBackupBeforeReset.get();
@@ -551,6 +555,10 @@ std::string renderCheckJson(const CheckViewModel& info) {
             };
 
             csEnabled = getNodeBool(csNode, "Enabled", csEnabled);
+            pksEnabled = getNodeBool(csNode, "SyncProviderKeys", pksEnabled);
+            pksRyuu = getNodeBool(csNode, "SyncRyuuKey", pksRyuu);
+            pksDepotBox = getNodeBool(csNode, "SyncDepotBoxKey", pksDepotBox);
+            pksHubcap = getNodeBool(csNode, "SyncHubcapKey", pksHubcap);
             if (csNode["Provider"]) { try { csProvider = csNode["Provider"].as<std::string>(); } catch (...) {} }
             csNotifications = getNodeBool(csNode, "NotificationsEnabled", csNotifications);
             csAutoBackup = getNodeBool(csNode, "AutoBackupBeforeReset", csAutoBackup);
@@ -579,6 +587,15 @@ std::string renderCheckJson(const CheckViewModel& info) {
                 ssEnabled = getNodeBool(ssNode, "Enabled", ssEnabled);
                 ssAchievements = getNodeBool(ssNode, "SyncAchievements", ssAchievements);
                 ssPlaytime = getNodeBool(ssNode, "SyncPlaytime", ssPlaytime);
+            }
+
+            if (csNode["ProviderKeysSync"] && csNode["ProviderKeysSync"].IsMap())
+            {
+                const auto pksNode = csNode["ProviderKeysSync"];
+                pksEnabled = getNodeBool(pksNode, "Enabled", pksEnabled);
+                pksRyuu = getNodeBool(pksNode, "SyncRyuuKey", pksRyuu);
+                pksDepotBox = getNodeBool(pksNode, "SyncDepotBoxKey", pksDepotBox);
+                pksHubcap = getNodeBool(pksNode, "SyncHubcapKey", pksHubcap);
             }
         }
 
@@ -643,6 +660,7 @@ std::string renderCheckJson(const CheckViewModel& info) {
         ss << "  \"DenuvoGamesYaml\": \"" << escapeJson(denuvoGamesYaml) << "\",\n";
         ss << "  \"CloudSaves\": {\n";
         ss << "    \"Enabled\": " << (csEnabled ? "true" : "false") << ",\n";
+        ss << "    \"SyncProviderKeys\": " << (pksEnabled ? "true" : "false") << ",\n";
         ss << "    \"Provider\": \"" << escapeJson(csProvider) << "\",\n";
         ss << "    \"NotificationsEnabled\": " << (csNotifications ? "true" : "false") << ",\n";
         ss << "    \"AutoBackupBeforeReset\": " << (csAutoBackup ? "true" : "false") << ",\n";
@@ -659,6 +677,12 @@ std::string renderCheckJson(const CheckViewModel& info) {
         ss << "      \"Enabled\": " << (ssEnabled ? "true" : "false") << ",\n";
         ss << "      \"SyncAchievements\": " << (ssAchievements ? "true" : "false") << ",\n";
         ss << "      \"SyncPlaytime\": " << (ssPlaytime ? "true" : "false") << "\n";
+        ss << "    },\n";
+        ss << "    \"ProviderKeysSync\": {\n";
+        ss << "      \"Enabled\": " << (pksEnabled ? "true" : "false") << ",\n";
+        ss << "      \"SyncRyuuKey\": " << (pksRyuu ? "true" : "false") << ",\n";
+        ss << "      \"SyncDepotBoxKey\": " << (pksDepotBox ? "true" : "false") << ",\n";
+        ss << "      \"SyncHubcapKey\": " << (pksHubcap ? "true" : "false") << "\n";
         ss << "    }\n";
         ss << "  }\n";
         ss << "}";
@@ -1015,6 +1039,58 @@ std::string renderCheckJson(const CheckViewModel& info) {
                     ssNode["SyncPlaytime"] = parseBoolVal(ss["SyncPlaytime"], true);
                 }
                 csNode["StatsSync"] = ssNode;
+            }
+            if ((cs["ProviderKeysSync"] && cs["ProviderKeysSync"].IsMap()) ||
+                cs["SyncProviderKeys"] || cs["SyncRyuuKey"] || cs["SyncDepotBoxKey"] || cs["SyncHubcapKey"])
+            {
+                YAML::Node pksNode;
+                if (csNode["ProviderKeysSync"] && csNode["ProviderKeysSync"].IsMap())
+                {
+                    pksNode = csNode["ProviderKeysSync"];
+                }
+                else
+                {
+                    pksNode = YAML::Node(YAML::NodeType::Map);
+                }
+
+                if (cs["SyncProviderKeys"])
+                {
+                    pksNode["Enabled"] = parseBoolVal(cs["SyncProviderKeys"], true);
+                }
+                if (cs["SyncRyuuKey"])
+                {
+                    pksNode["SyncRyuuKey"] = parseBoolVal(cs["SyncRyuuKey"], true);
+                }
+                if (cs["SyncDepotBoxKey"])
+                {
+                    pksNode["SyncDepotBoxKey"] = parseBoolVal(cs["SyncDepotBoxKey"], true);
+                }
+                if (cs["SyncHubcapKey"])
+                {
+                    pksNode["SyncHubcapKey"] = parseBoolVal(cs["SyncHubcapKey"], true);
+                }
+                if (cs["ProviderKeysSync"] && cs["ProviderKeysSync"].IsMap())
+                {
+                    const auto& pks = cs["ProviderKeysSync"];
+                    if (pks["Enabled"])
+                    {
+                        pksNode["Enabled"] = parseBoolVal(pks["Enabled"], true);
+                    }
+                    if (pks["SyncRyuuKey"])
+                    {
+                        pksNode["SyncRyuuKey"] = parseBoolVal(pks["SyncRyuuKey"], true);
+                    }
+                    if (pks["SyncDepotBoxKey"])
+                    {
+                        pksNode["SyncDepotBoxKey"] = parseBoolVal(pks["SyncDepotBoxKey"], true);
+                    }
+                    if (pks["SyncHubcapKey"])
+                    {
+                        pksNode["SyncHubcapKey"] = parseBoolVal(pks["SyncHubcapKey"], true);
+                    }
+                }
+                csNode.remove("SyncProviderKeys");
+                csNode["ProviderKeysSync"] = pksNode;
             }
             rootNode["CloudSaves"] = csNode;
         }

@@ -104,3 +104,6 @@ tools/cef-annotator/*.png
 
 # Archify
 .archify/*
+
+# live debugging
+.live/* 

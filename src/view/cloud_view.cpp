@@ -493,5 +493,28 @@ namespace Navi::CloudView
     {
         return parseStringField(json, "confirm") == "RESET";
     }
+
+    std::string renderProviderKeysStatusJson(const CloudRedirect::CloudProviderKeysStatus_t& status)
+    {
+        std::ostringstream ss;
+        ss << "{\n"
+           << "  \"status\": \"ok\",\n"
+           << "  \"provider\": \"" << escapeJsonString(status.provider) << "\",\n"
+           << "  \"syncEnabled\": " << (status.syncEnabled ? "true" : "false") << ",\n"
+           << "  \"catalogFound\": " << (status.catalogFound ? "true" : "false") << ",\n"
+           << "  \"updatedAt\": " << status.updatedAt << ",\n"
+           << "  \"syncKeys\": {\n"
+           << "    \"ryuu\": " << (status.syncRyuu ? "true" : "false") << ",\n"
+           << "    \"depotbox\": " << (status.syncDepotBox ? "true" : "false") << ",\n"
+           << "    \"hubcap\": " << (status.syncHubcap ? "true" : "false") << "\n"
+           << "  },\n"
+           << "  \"keys\": {\n"
+           << "    \"ryuu\": " << (status.hasRyuuKey ? "true" : "false") << ",\n"
+           << "    \"depotbox\": " << (status.hasDepotBoxKey ? "true" : "false") << ",\n"
+           << "    \"hubcap\": " << (status.hasHubcapKey ? "true" : "false") << "\n"
+           << "  }\n"
+           << "}";
+        return ss.str();
+    }
 }
 

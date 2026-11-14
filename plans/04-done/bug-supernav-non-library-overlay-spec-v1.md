@@ -1,6 +1,8 @@
+Outcome: shipped — Added ensureLibraryViewForOverlay/detachSteamHistoryListener in utils.js, wired showConfigPage/hideConfigPage and showSlsPage/hideSlsPage to navigate to /library/home when opened from non-library tabs, enabled capture-phase SuperNav tab click dismissal, and added UI regression test — 2026-11-14
+
 # Bug Spec: Fix Navi Config Rendering Underneath Non-Library SuperNav Tabs
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Shell Inject (`res/inject-scripts/shell/import-lua/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- when clicking navi config tab when currently in any other tabs except library it show the navi config tabs under the tab we click from.`

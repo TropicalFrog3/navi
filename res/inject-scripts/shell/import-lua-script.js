@@ -8,7 +8,7 @@
     window.__slsImportLuaInjected = true;
 
     // Inlined Styles & Templates
-    var SLS_SHELL_STYLES = "/*\n * @file  styles.css\n * @brief Stylesheet for custom Steam top-bar tabs, Navi config shell, and manual install modal\n */\n\n@keyframes sls-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n@keyframes sls-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__ {\n    color: rgb(150, 150, 150) !important;\n    text-shadow: none !important;\n    font-weight: normal !important;\n}\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__::after {\n    display: none !important;\n}\ndetails summary::-webkit-details-marker { display: none !important; }\ndetails summary { list-style: none !important; }\ndetails .sls-lua-chevron { transition: transform 0.2s ease; color: rgb(139, 146, 154); }\ndetails[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 255); }\n.sls-cfg-shell { background-color: #14171d !important; color: #ffffff !important; }\n.sls-cfg-sidebar { background-color: #191c24 !important; border-right: 1px solid rgba(255, 255, 255, 0.06) !important; width: 230px !important; }\n.sls-cfg-pill { background: transparent; border: none; border-left: 3px solid transparent; border-radius: 0; color: #8a929e; padding: 10px 16px 10px 20px; height: 40px; box-sizing: border-box; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: all 0.15s ease; user-select: none; outline: none; }\n.sls-cfg-pill:hover { background-color: rgba(255, 255, 255, 0.04); color: #ffffff; }\n.sls-cfg-pill.active { background-color: rgba(26, 159, 255, 0.08) !important; color: #ffffff !important; font-weight: 500 !important; border-left: 3px solid #1a9fff !important; }\n.sls-cfg-pill.active svg { color: #1a9fff !important; stroke: #1a9fff !important; }\n.sls-cfg-card, .DialogControlsSection { background-color: #1c202a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 8px !important; padding: 18px 20px !important; margin-top: 18px !important; box-sizing: border-box !important; }\n.sls-cfg-item { background-color: #171a22 !important; border: 1px solid rgba(255, 255, 255, 0.04) !important; border-radius: 6px !important; padding: 14px 18px !important; margin-top: 8px !important; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; box-sizing: border-box; flex-wrap: wrap; }\n.sls-cfg-card > .sls-cfg-migrate-item { margin-top: 0 !important; padding: 12px 16px !important; }\n.sls-cfg-card label { margin-top: 0; margin-bottom: 0; padding-top: 0; }\n.sls-toggle-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }\n.sls-toggle-switch input { opacity: 0; width: 0; height: 0; }\n.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2f3a; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 9999px; }\n.sls-toggle-slider:before { position: absolute; content: \"\"; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #ffffff; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }\n.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: #1a9fff; }\n.sls-toggle-switch input:checked + .sls-toggle-slider:before { transform: translateX(16px); }\n:focus-visible { outline: 2px solid #1a9fff !important; outline-offset: 2px !important; }\n.sls-card-selectable { border: 1px solid rgba(255,255,255,0.08); background: #171a22; border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }\n.sls-card-selectable:hover { border-color: rgba(26, 159, 255, 0.4); background: rgba(26, 159, 255, 0.06); }\n.sls-card-selectable.active { border-color: #1a9fff !important; background: rgba(26, 159, 255, 0.12) !important; }\n.sls-preset-chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: #8a929e; padding: 6px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }\n.sls-preset-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }\n.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: #1a9fff; color: #1a9fff; font-weight: 600; }\n.sls-step-node { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 120px; }\n.sls-step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: rgb(150, 150, 150); flex-shrink: 0; }\n.sls-step-node.active .sls-step-circle { background: #1a9fff; color: #fff; }\n.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #22c55e; color: #fff; }\n.sls-cfg-input { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 7px 12px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; }\n.sls-cfg-input:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-textarea { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box; width: 100%; }\n.sls-cfg-textarea:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-btn { background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #e2e8f0; padding: 8px 14px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; cursor: pointer; transition: all 0.15s ease; outline: none; }\n.sls-cfg-btn:hover { background-color: rgba(255, 255, 255, 0.14); color: #fff; }\n.sls-cfg-btn:active { background-color: rgba(255, 255, 255, 0.2); }\n.sls-cfg-btn:disabled, .sls-cfg-btn[disabled] { opacity: 0.45 !important; cursor: not-allowed !important; box-shadow: none !important; }\n.sls-cfg-btn:disabled:hover, .sls-cfg-btn[disabled]:hover { background-color: rgba(255, 255, 255, 0.08); }\n.sls-cfg-btn-primary { background: #1a9fff !important; border-color: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n.sls-cfg-btn-primary:hover { background: #38bdf8 !important; border-color: #38bdf8 !important; }\n.sls-cfg-btn-danger { background: rgba(239, 68, 68, 0.12) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: #f87171 !important; border-radius: 6px !important; }\n.sls-cfg-btn-danger:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }\n#sls-cfg-discard-btn:hover { background-color: rgba(255, 255, 255, 0.12) !important; border-color: rgba(255, 255, 255, 0.24) !important; color: #ffffff !important; }\n.sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }\n.sls-cfg-dialog-body::-webkit-scrollbar { width: 10px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 5px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }\n.sls-cloud-view-pill { padding: 5px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #8f98a0; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-view-pill:hover { background: rgba(255,255,255,0.08); color: #fff; }\n.sls-cloud-view-pill.active { background: #1a9fff !important; border-color: #38bdf8 !important; color: #fff !important; font-weight: 600 !important; }\n.sls-cloud-filter-tab { padding: 7px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-bottom: none; border-radius: 4px 4px 0 0; color: #8f98a0; font-size: 12px; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-filter-tab:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-filter-tab.active { background: #172433 !important; color: #66c0f4 !important; border-color: #2a475e !important; border-bottom: 2px solid #1a9fff !important; font-weight: 600 !important; }\n.sls-cloud-group-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: #171a22; overflow: hidden; margin-bottom: 8px; }\n.sls-cloud-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #1c202a; cursor: pointer; user-select: none; transition: background 0.15s ease; }\n.sls-cloud-group-header:hover { background: #232834; }\n.sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }\n.sls-cloud-tree-item:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-tree-item.active { background: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n/* Steam Cloud Table & Drilldown Styles */\n.navi-cloud-table-region { overflow-x: auto; max-width: 100%; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; background: #101822; }\n.navi-cloud-table-region:focus-visible { outline: 2px solid #66c0f4; outline-offset: 2px; }\n.navi-steam-cloud-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 12.5px; color: #c6d4df; }\n.navi-steam-cloud-table thead th { position: sticky; top: 0; z-index: 2; background: #1e2837; color: #8f98a0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; border-bottom: 2px solid #0e141b; white-space: nowrap; }\n.navi-steam-cloud-table tbody tr { background: #16202d; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.12s ease; }\n.navi-steam-cloud-table tbody tr:nth-child(even) { background: #192533; }\n.navi-steam-cloud-table tbody tr:hover { background: #223348 !important; }\n.navi-steam-cloud-table td { padding: 8px 12px; vertical-align: middle; color: #c6d4df; box-sizing: border-box; }\n.navi-steam-cloud-table td.navi-col-num { font-variant-numeric: tabular-nums; font-family: monospace; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }\ntr.sls-cfg-item { display: table-row !important; background-color: transparent !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; min-height: unset !important; }\n.navi-steam-cloud-link { display: inline-flex; align-items: center; justify-content: center; background: rgba(102, 192, 244, 0.1); border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; color: #66c0f4; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 3px 10px; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }\n.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible { background: #1a9fff; border-color: #38bdf8; color: #ffffff; text-decoration: none; }\n.sls-cfg-danger { border-left: 3px solid #ef4444; border-radius: 6px; background-color: #171a22; padding: 14px 18px; margin-top: 8px; box-sizing: border-box; }\n.sls-cfg-inline-error { color: #ef4444; font-size: 12px; line-height: 16px; margin-top: 4px; flex-basis: 100%; width: 100%; text-align: left; display: none; }\n@keyframes sls-cfg-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }\n.sls-cfg-skeleton { background: rgba(255, 255, 255, 0.07); border-radius: 6px; animation: sls-cfg-pulse 1.4s ease-in-out infinite; }\n@media (max-width: 1279px) { .sls-cfg-sidebar { width: 200px !important; min-width: 200px !important; } }\n@media (max-width: 767px) { .sls-cfg-shell { flex-direction: column !important; } .sls-cfg-sidebar { width: 100% !important; min-width: 0 !important; max-width: none !important; height: auto !important; padding: 12px 0 !important; } .sls-cfg-tablist { flex-direction: row !important; overflow-x: auto !important; overflow-y: hidden !important; } .sls-cfg-pill { width: auto !important; white-space: nowrap; padding: 8px 12px !important; } .sls-cfg-dialog-body { padding: 16px !important; } .sls-cfg-item { flex-wrap: wrap !important; } .sls-cfg-saveblock { position: sticky !important; bottom: 0 !important; background: #191c24 !important; padding: 8px 16px 12px 16px !important; } }\n";
+    var SLS_SHELL_STYLES = "/*\n * @file  styles.css\n * @brief Stylesheet for custom Steam top-bar tabs, Navi config shell, and manual install modal\n */\n\n@keyframes sls-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }\n@keyframes sls-pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.15); } }\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__.__STEAM_TAB_ACTIVE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab):not(:hover) .__STEAM_TAB_TEXT_CLASS__ {\n    color: #dcdedf;\n    text-shadow: none;\n    font-weight: normal;\n}\nbody:has(#sls-top-tab.__STEAM_TAB_ACTIVE_CLASS__, #sls-config-top-tab.__STEAM_TAB_ACTIVE_CLASS__) .__STEAM_TAB_BASE_CLASS__.__STEAM_TAB_ACTIVE_CLASS__:not(#sls-top-tab):not(#sls-config-top-tab) .__STEAM_TAB_TEXT_CLASS__::after {\n    display: none !important;\n}\ndetails summary::-webkit-details-marker { display: none !important; }\ndetails summary { list-style: none !important; }\ndetails .sls-lua-chevron { transition: transform 0.2s ease; color: rgb(139, 146, 154); }\ndetails[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 255); }\n.sls-cfg-shell { background-color: #14171d !important; color: #ffffff !important; }\n.sls-cfg-sidebar { background-color: #191c24 !important; border-right: 1px solid rgba(255, 255, 255, 0.06) !important; width: 230px !important; }\n.sls-cfg-pill { background: transparent; border: none; border-left: 3px solid transparent; border-radius: 0; color: #8a929e; padding: 10px 16px 10px 20px; height: 40px; box-sizing: border-box; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13.5px; font-weight: 400; line-height: 16px; cursor: pointer; display: flex; flex-direction: row; align-items: center; width: 100%; text-align: left; transition: all 0.15s ease; user-select: none; outline: none; }\n.sls-cfg-pill:hover { background-color: rgba(255, 255, 255, 0.04); color: #ffffff; }\n.sls-cfg-pill.active { background-color: rgba(26, 159, 255, 0.08) !important; color: #ffffff !important; font-weight: 500 !important; border-left: 3px solid #1a9fff !important; }\n.sls-cfg-pill.active svg { color: #1a9fff !important; stroke: #1a9fff !important; }\n.sls-cfg-card, .DialogControlsSection { background-color: #1c202a !important; border: 1px solid rgba(255, 255, 255, 0.08) !important; border-radius: 8px !important; padding: 18px 20px !important; margin-top: 18px !important; box-sizing: border-box !important; }\n.sls-cfg-item { background-color: #171a22 !important; border: 1px solid rgba(255, 255, 255, 0.04) !important; border-radius: 6px !important; padding: 14px 18px !important; margin-top: 8px !important; display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 14px; min-height: 44px; box-sizing: border-box; flex-wrap: wrap; }\n.sls-cfg-card > .sls-cfg-migrate-item { margin-top: 0 !important; padding: 12px 16px !important; }\n.sls-cfg-card label { margin-top: 0; margin-bottom: 0; padding-top: 0; }\n.sls-toggle-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }\n.sls-toggle-switch input { opacity: 0; width: 0; height: 0; }\n.sls-toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #2a2f3a; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 9999px; }\n.sls-toggle-slider:before { position: absolute; content: \"\"; height: 18px; width: 18px; left: 2px; bottom: 2px; background-color: #ffffff; transition: .2s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 50%; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4); }\n.sls-toggle-switch input:checked + .sls-toggle-slider { background-color: #1a9fff; }\n.sls-toggle-switch input:checked + .sls-toggle-slider:before { transform: translateX(16px); }\n:focus-visible { outline: 2px solid #1a9fff !important; outline-offset: 2px !important; }\n.sls-card-selectable { border: 1px solid rgba(255,255,255,0.08); background: #171a22; border-radius: 6px; padding: 14px 16px; cursor: pointer; transition: all 0.2s ease; user-select: none; min-height: 48px; display: flex; flex-direction: column; justify-content: center; }\n.sls-card-selectable:hover { border-color: rgba(26, 159, 255, 0.4); background: rgba(26, 159, 255, 0.06); }\n.sls-card-selectable.active { border-color: #1a9fff !important; background: rgba(26, 159, 255, 0.12) !important; }\n.sls-preset-chip { background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 6px; color: #8a929e; padding: 6px 14px; font-size: 12.5px; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 32px; display: inline-flex; align-items: center; }\n.sls-preset-chip:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }\n.sls-preset-chip.active { background: rgba(26, 159, 255, 0.2); border-color: #1a9fff; color: #1a9fff; font-weight: 600; }\n.sls-step-node { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 120px; }\n.sls-step-circle { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; background: rgba(255, 255, 255, 0.08); color: rgb(150, 150, 150); flex-shrink: 0; }\n.sls-step-node.active .sls-step-circle { background: #1a9fff; color: #fff; }\n.sls-step-node.completed .sls-step-circle, .sls-step-node.done .sls-step-circle { background: #22c55e; color: #fff; }\n.sls-cfg-input { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 7px 12px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 400; line-height: 18px; height: 34px; min-height: 34px; outline: none; box-sizing: border-box; transition: border-color 0.15s, box-shadow 0.15s; }\n.sls-cfg-input:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-textarea { background-color: #11141a; border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; border-radius: 6px; padding: 8px 12px; font-family: monospace; font-size: 12px; line-height: 1.5; resize: vertical; outline: none; transition: border-color 0.15s, box-shadow 0.15s; box-sizing: border-box; width: 100%; }\n.sls-cfg-textarea:focus { border-color: #1a9fff; box-shadow: 0 0 0 2px rgba(26, 159, 255, 0.2); }\n.sls-cfg-btn { background-color: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 6px; color: #e2e8f0; padding: 8px 14px; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 13px; font-weight: 500; line-height: 18px; cursor: pointer; transition: all 0.15s ease; outline: none; }\n.sls-cfg-btn:hover { background-color: rgba(255, 255, 255, 0.14); color: #fff; }\n.sls-cfg-btn:active { background-color: rgba(255, 255, 255, 0.2); }\n.sls-cfg-btn:disabled, .sls-cfg-btn[disabled] { opacity: 0.45 !important; cursor: not-allowed !important; box-shadow: none !important; }\n.sls-cfg-btn:disabled:hover, .sls-cfg-btn[disabled]:hover { background-color: rgba(255, 255, 255, 0.08); }\n.sls-cfg-btn-primary { background: #1a9fff !important; border-color: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n.sls-cfg-btn-primary:hover { background: #38bdf8 !important; border-color: #38bdf8 !important; }\n.sls-cfg-btn-danger { background: rgba(239, 68, 68, 0.12) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: #f87171 !important; border-radius: 6px !important; }\n.sls-cfg-btn-danger:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }\n#sls-cfg-discard-btn:hover { background-color: rgba(255, 255, 255, 0.12) !important; border-color: rgba(255, 255, 255, 0.24) !important; color: #ffffff !important; }\n.sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }\n.sls-cfg-dialog-body::-webkit-scrollbar { width: 10px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 5px; }\n.sls-cfg-dialog-body::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }\n.sls-cloud-view-pill { padding: 5px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: #8f98a0; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-view-pill:hover { background: rgba(255,255,255,0.08); color: #fff; }\n.sls-cloud-view-pill.active { background: #1a9fff !important; border-color: #38bdf8 !important; color: #fff !important; font-weight: 600 !important; }\n.sls-cloud-filter-tab { padding: 7px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-bottom: none; border-radius: 4px 4px 0 0; color: #8f98a0; font-size: 12px; cursor: pointer; transition: all 0.15s ease; outline: none; display: inline-flex; align-items: center; gap: 6px; }\n.sls-cloud-filter-tab:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-filter-tab.active { background: #172433 !important; color: #66c0f4 !important; border-color: #2a475e !important; border-bottom: 2px solid #1a9fff !important; font-weight: 600 !important; }\n.sls-cloud-group-card { border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; background: #171a22; overflow: hidden; margin-bottom: 8px; }\n.sls-cloud-group-header { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #1c202a; cursor: pointer; user-select: none; transition: background 0.15s ease; }\n.sls-cloud-group-header:hover { background: #232834; }\n.sls-cloud-tree-item { display: flex; align-items: center; justify-content: space-between; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; color: #c6d4df; transition: background 0.15s ease; user-select: none; }\n.sls-cloud-tree-item:hover { background: rgba(255,255,255,0.06); color: #fff; }\n.sls-cloud-tree-item.active { background: #1a9fff !important; color: #ffffff !important; font-weight: 600 !important; }\n/* Steam Cloud Table & Drilldown Styles */\n.navi-cloud-table-region { overflow-x: auto; max-width: 100%; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 4px; background: #101822; }\n.navi-cloud-table-region:focus-visible { outline: 2px solid #66c0f4; outline-offset: 2px; }\n.navi-steam-cloud-table { width: 100%; table-layout: fixed; border-collapse: collapse; font-family: \"Motiva Sans\", Arial, Helvetica, sans-serif; font-size: 12.5px; color: #c6d4df; }\n.navi-steam-cloud-table thead th { position: sticky; top: 0; z-index: 2; background: #1e2837; color: #8f98a0; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 8px 12px; border-bottom: 2px solid #0e141b; white-space: nowrap; }\n.navi-steam-cloud-table tbody tr { background: #16202d; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.12s ease; }\n.navi-steam-cloud-table tbody tr:nth-child(even) { background: #192533; }\n.navi-steam-cloud-table tbody tr:hover { background: #223348 !important; }\n.navi-steam-cloud-table td { padding: 8px 12px; vertical-align: middle; color: #c6d4df; box-sizing: border-box; }\n.navi-steam-cloud-table td.navi-col-num { font-variant-numeric: tabular-nums; font-family: monospace; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }\ntr.sls-cfg-item { display: table-row !important; background-color: transparent !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; min-height: unset !important; }\n.navi-steam-cloud-link { display: inline-flex; align-items: center; justify-content: center; background: rgba(102, 192, 244, 0.1); border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; color: #66c0f4; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 3px 10px; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }\n.navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible { background: #1a9fff; border-color: #38bdf8; color: #ffffff; text-decoration: none; }\n.sls-cfg-danger { border-left: 3px solid #ef4444; border-radius: 6px; background-color: #171a22; padding: 14px 18px; margin-top: 8px; box-sizing: border-box; }\n.sls-cfg-inline-error { color: #ef4444; font-size: 12px; line-height: 16px; margin-top: 4px; flex-basis: 100%; width: 100%; text-align: left; display: none; }\n@keyframes sls-cfg-pulse { 0%, 100% { opacity: 0.45; } 50% { opacity: 0.9; } }\n.sls-cfg-skeleton { background: rgba(255, 255, 255, 0.07); border-radius: 6px; animation: sls-cfg-pulse 1.4s ease-in-out infinite; }\n@media (max-width: 1279px) { .sls-cfg-sidebar { width: 200px !important; min-width: 200px !important; } }\n@media (max-width: 767px) { .sls-cfg-shell { flex-direction: column !important; } .sls-cfg-sidebar { width: 100% !important; min-width: 0 !important; max-width: none !important; height: auto !important; padding: 12px 0 !important; } .sls-cfg-tablist { flex-direction: row !important; overflow-x: auto !important; overflow-y: hidden !important; } .sls-cfg-pill { width: auto !important; white-space: nowrap; padding: 8px 12px !important; } .sls-cfg-dialog-body { padding: 16px !important; } .sls-cfg-item { flex-wrap: wrap !important; } .sls-cfg-saveblock { position: sticky !important; bottom: 0 !important; background: #191c24 !important; padding: 8px 16px 12px 16px !important; } }\n";
     var MANUAL_INSTALL_HTML = "<!--\n  @file  manual-install.html\n  @brief Modal markup for manual Lua script and manifest depot cache installation\n-->\n\ncontainer.innerHTML = '<div style=\"max-width: 1000px; margin: 0 auto;\">\n<div style=\"margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 24px;\">\n<div>\n<h1 style=\"margin: 0; font-size: 32px; font-weight: 800; background: linear-gradient(90deg, #66c0f4 0%, #1a9fff 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px;\">Manual Installation</h1>\n<p style=\"margin: 8px 0 0; font-size: 14px; color: #8f98a0;\">Manually install Lua plugins and Manifest depotcaches for any Steam game.</p>\n</div>\n</div>\n<div style=\"display: flex; flex-direction: column; gap: 0;\">\n<div style=\"width: 100%; box-sizing: border-box; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 32px; display: flex; flex-direction: column; overflow: hidden;\">\n<div id=\"sls-manual-dropzone\" style=\"min-height: 180px; border: 2px dashed rgba(255, 255, 255, 0.15); border-radius: 12px; background: rgba(0,0,0,0.15); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; text-align: center; cursor: pointer; transition: all 0.2s;\">\n<svg style=\"width: 48px; height: 48px; color: #66c0f4; margin-bottom: 16px;\" fill=\"none\" stroke=\"currentColor\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\">\n<path stroke-linecap=\"round\" stroke-linejoin=\"round\" stroke-width=\"2\" d=\"M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12\"></path>\n</svg>\n<p style=\"margin: 0; font-size: 15px; font-weight: 600; color: #fff;\">Supports .zip, .lua, .manifest, or entire folders</p>\n<div style=\"margin-top: 20px; display: flex; gap: 10px;\">\n<button id=\"sls-manual-select-files\" style=\"background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; outline: none;\">\nSelect Files\n</button>\n<button id=\"sls-manual-select-folder\" style=\"background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: #fff; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s; outline: none;\">\nSelect Folder\n</button>\n</div>\n</div>\n<div id=\"sls-manual-file-list\" style=\"max-height: 480px; overflow-y: auto; display: none; flex-direction: column; gap: 8px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; margin-top: 24px;\">\n</div>\n<div style=\"margin-top: 24px;\">\n<div id=\"sls-manual-status\" role=\"status\" aria-live=\"polite\" style=\"margin-bottom: 12px; font-size: 14px; text-align: center; color: #8f98a0; font-weight: 600;\">\n</div>\n<button id=\"sls-manual-submit\" disabled style=\"width: 100%; background: rgba(255, 255, 255, 0.05); border: none; border-radius: 8px; color: rgba(255,255,255,0.3); padding: 16px; font-size: 15px; font-weight: 700; cursor: not-allowed; outline: none;\">\nImport\n</button>\n</div>\n</div>\n</div>\n</div>\n";
 
     // --- utils.js ---
@@ -131,7 +131,42 @@
         }
 
         var historyUnlisten = null;
+        var slsNavigatingTimer = null;
         var configKeyDownHandler = null;
+
+        function detachSteamHistoryListener() {
+            if (typeof historyUnlisten === 'function') {
+                try { historyUnlisten(); } catch (e) {}
+                historyUnlisten = null;
+            }
+        }
+
+        function ensureLibraryViewForOverlay(onNavigateAway) {
+            detachSteamHistoryListener();
+            var history = getSteamHistory();
+            if (!history) return;
+
+            var curPath = (history.location && history.location.pathname) ? history.location.pathname : '';
+            if (curPath.indexOf('/library') !== 0) {
+                window.__slsNavigating = true;
+                if (slsNavigatingTimer) clearTimeout(slsNavigatingTimer);
+                try {
+                    history.push('/library/home');
+                } finally {
+                    slsNavigatingTimer = setTimeout(function () {
+                        window.__slsNavigating = false;
+                        slsNavigatingTimer = null;
+                    }, 150);
+                }
+            }
+
+            if (typeof history.listen === 'function') {
+                historyUnlisten = history.listen(function () {
+                    if (window.__slsNavigating) return;
+                    onNavigateAway();
+                });
+            }
+        }
 
         var activeSlsAppId = null;
 
@@ -673,6 +708,34 @@
             }).join('');
 
             var isS3OrR2 = (activeProv === 'r2' || activeProv === 's3');
+            var pks = (cs && cs.ProviderKeysSync) || {};
+            var pksEnabled = (typeof pks.Enabled === 'boolean') ? pks.Enabled : (cs.SyncProviderKeys !== false);
+            var pksKeysMeta = [
+                {
+                    title: 'Ryuu key',
+                    desc: 'Save and restore your Ryuu API key in CloudRedirect.',
+                    toggleId: 'sls-cfg-CloudSaves-SyncRyuuKey',
+                    checked: (typeof pks.SyncRyuuKey === 'boolean') ? pks.SyncRyuuKey : (cs.SyncRyuuKey !== false),
+                    search: 'CloudSaves ProviderKeysSync SyncRyuuKey ryuu key cloud'
+                },
+                {
+                    title: 'DepotBox key',
+                    desc: 'Save and restore your DepotBox API key in CloudRedirect.',
+                    toggleId: 'sls-cfg-CloudSaves-SyncDepotBoxKey',
+                    checked: (typeof pks.SyncDepotBoxKey === 'boolean') ? pks.SyncDepotBoxKey : (cs.SyncDepotBoxKey !== false),
+                    search: 'CloudSaves ProviderKeysSync SyncDepotBoxKey depotbox key cloud'
+                },
+                {
+                    title: 'HubcapDB key',
+                    desc: 'Save and restore your HubcapDB API key in CloudRedirect.',
+                    toggleId: 'sls-cfg-CloudSaves-SyncHubcapKey',
+                    checked: (typeof pks.SyncHubcapKey === 'boolean') ? pks.SyncHubcapKey : (cs.SyncHubcapKey !== false),
+                    search: 'CloudSaves ProviderKeysSync SyncHubcapKey hubcap key cloud'
+                }
+            ];
+            var pksSubrowsHtml = pksKeysMeta.map(function (k) {
+                return makeSettingRow(k.title, k.desc, makeToggle(k.toggleId, k.checked), k.search);
+            }).join('');
             var card2Content = makeSettingRow('Where saves are stored', 'Pick this computer for offline play, or connect a cloud account to sync between devices.',
                     '<select id="sls-cfg-cs-provider" class="sls-cfg-input" style="width: 240px;">' + providerOptions + '</select>', 'provider cloud storage where saves are stored') +
                 '<div id="sls-cfg-cs-auth-block" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 12px 16px; margin-top: 8px; border-radius: 6px;">' +
@@ -725,6 +788,12 @@
                             '<button type="button" id="sls-cfg-cs-cred-save-btn" class="sls-cfg-btn sls-cfg-btn-primary" style="padding: 7px 14px; font-size: 12.5px;">Save &amp; Test Connection</button>' +
                         '</div>' +
                     '</div>' +
+                '</div>' +
+                makeSettingRow('Save provider keys in cloud', 'Back up and restore selected provider API keys in CloudRedirect metadata.',
+                    makeToggle('sls-cfg-CloudSaves-SyncProviderKeys', pksEnabled),
+                    'CloudSaves ProviderKeysSync SyncProviderKeys save provider keys in cloud metadata ryuu depotbox hubcap') +
+                '<div id="sls-cfg-ProviderKeysSync-subrows" style="display: ' + (pksEnabled ? 'block' : 'none') + ';">' +
+                    pksSubrowsHtml +
                 '</div>';
 
             var ps = (cs && cs.PrefixSync) || {};
@@ -1336,6 +1405,7 @@
      * @brief Navi configuration page controller, settings editor, saves table, and save pipeline
      */
     function hideConfigPage() {
+            detachSteamHistoryListener();
             if (configKeyDownHandler) {
                 window.removeEventListener('keydown', configKeyDownHandler);
                 configKeyDownHandler = null;
@@ -1352,6 +1422,7 @@
 
         function showConfigPage() {
             hideSlsPage();
+            ensureLibraryViewForOverlay(hideConfigPage);
             ensureCustomTabStyles();
 
             var container = document.getElementById('sls-config-page-container');
@@ -1564,6 +1635,119 @@
             }
             // 3. Cloud Saves (CloudRedirect) event handlers and UI logic
             var csState = { enabled: (cfg.CloudSaves && typeof cfg.CloudSaves.Enabled === 'boolean') ? cfg.CloudSaves.Enabled : true, managedAppsCount: 0, pendingOpsCount: 0 };
+
+            function refreshProviderKeyInputsIfClean() {
+                if (isDirty) return;
+                fetch('http://127.0.0.1:9001/api-keys', { headers: { 'Connection': 'close' } })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        if (!data || data.success !== true || isDirty) return;
+                        var keyMap = [
+                            { prop: 'ryuu', cfgKey: 'RyuuKey', id: 'sls-cfg-RyuuKey' },
+                            { prop: 'dpbx', cfgKey: 'DepotBoxKey', id: 'sls-cfg-DepotBoxKey' },
+                            { prop: 'hubcap', cfgKey: 'HubcapKey', id: 'sls-cfg-HubcapKey' }
+                        ];
+                        var updatedAny = false;
+                        for (var i = 0; i < keyMap.length; i++) {
+                            var item = keyMap[i];
+                            var val = data[item.prop] || '';
+                            var el = document.getElementById(item.id);
+                            if (el && !el.value && val) {
+                                el.value = val;
+                                cfg[item.cfgKey] = val;
+                                updatedAny = true;
+                            }
+                        }
+                        if (updatedAny) {
+                            initialFormState = serializeCurrentForm();
+                            checkDirty();
+                        }
+                    })
+                    .catch(function () {});
+            }
+
+            var CLOUD_PROVIDER_KEYS_META = [
+                { key: 'ryuu', label: 'Ryuu API Key' },
+                { key: 'depotbox', label: 'DepotBox API Key' },
+                { key: 'hubcap', label: 'HubcapDB API Key' }
+            ];
+
+            function formatCloudDate(ts) {
+                if (window.NaviCloudManager && window.NaviCloudManager.formatSteamCloudDate) {
+                    return window.NaviCloudManager.formatSteamCloudDate(ts);
+                }
+                if (!ts) return '\u2014';
+                return new Date(Number(ts) * 1000).toLocaleString();
+            }
+
+            function applyCloudKeyBadgeStyle(badgeEl, saved) {
+                if (!badgeEl) return;
+                badgeEl.textContent = saved ? 'Saved \u2713' : 'Not saved';
+                badgeEl.style.padding = '3px 8px';
+                badgeEl.style.borderRadius = '3px';
+                badgeEl.style.fontSize = '11px';
+                badgeEl.style.fontWeight = '600';
+                if (saved) {
+                    badgeEl.style.background = 'rgba(164, 208, 7, 0.15)';
+                    badgeEl.style.color = '#a4d007';
+                    badgeEl.style.border = '1px solid rgba(164, 208, 7, 0.35)';
+                } else {
+                    badgeEl.style.background = 'rgba(255, 255, 255, 0.06)';
+                    badgeEl.style.color = '#8f98a0';
+                    badgeEl.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                }
+            }
+
+            function updateProviderKeysSummaryElements(provEl, countEl, sizeEl, keys, effectiveProv) {
+                var provText = providerLabel(effectiveProv);
+                var savedCount = 0;
+                for (var i = 0; i < CLOUD_PROVIDER_KEYS_META.length; i++) {
+                    if (keys && keys[CLOUD_PROVIDER_KEYS_META[i].key]) savedCount++;
+                }
+                if (provEl) provEl.textContent = '(' + provText + ')';
+                if (countEl) countEl.textContent = String(savedCount);
+                if (sizeEl) sizeEl.textContent = savedCount + ' / ' + CLOUD_PROVIDER_KEYS_META.length + ' saved';
+            }
+
+            function refreshCloudProviderKeysBadges(provider, syncRemote) {
+                var prov = provider || ((cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only');
+                var shouldSync = (typeof syncRemote === 'boolean') ? syncRemote : (prov !== 'local-only');
+                var url = 'http://127.0.0.1:9001/cloud/provider-keys/status?provider=' + encodeURIComponent(prov) +
+                    (shouldSync ? '&sync=1' : '');
+
+                fetch(url, { headers: { 'Connection': 'close' } })
+                    .then(function (r) { return r.json(); })
+                    .then(function (data) {
+                        var keys = (data && data.keys) ? data.keys : {};
+                        var syncKeys = (data && data.syncKeys) ? data.syncKeys : {};
+                        var syncEnabled = !(data && data.syncEnabled === false);
+                        var effectiveProv = (data && data.provider) ? data.provider : prov;
+                        var provText = providerLabel(effectiveProv);
+                        var updatedText = (data && data.updatedAt) ? formatCloudDate(data.updatedAt) : '\u2014';
+
+                        updateProviderKeysSummaryElements(
+                            document.getElementById('sls-cfg-cs-keys-summary-prov'),
+                            document.getElementById('sls-cfg-cs-keys-summary-count'),
+                            document.getElementById('sls-cfg-cs-keys-summary-size'),
+                            keys,
+                            effectiveProv
+                        );
+
+                        for (var i = 0; i < CLOUD_PROVIDER_KEYS_META.length; i++) {
+                            var item = CLOUD_PROVIDER_KEYS_META[i];
+                            var saved = !!keys[item.key];
+                            var itemProvEl = document.getElementById('sls-cfg-cs-key-prov-' + item.key);
+                            var itemSyncEl = document.getElementById('sls-cfg-cs-key-sync-' + item.key);
+                            var itemDateEl = document.getElementById('sls-cfg-cs-key-date-' + item.key);
+                            var itemBadgeEl = document.getElementById('sls-cfg-cs-key-badge-' + item.key);
+                            if (itemProvEl) itemProvEl.textContent = '(' + provText + ')';
+                            if (itemSyncEl) itemSyncEl.textContent = (syncEnabled && !!syncKeys[item.key]) ? 'Enabled' : 'Disabled';
+                            if (itemDateEl) itemDateEl.textContent = saved ? updatedText : '\u2014';
+                            applyCloudKeyBadgeStyle(itemBadgeEl, saved);
+                        }
+                    })
+                    .catch(function () {});
+            }
 
             function refreshCloudSavesUI() {
                 var masterBtn = document.getElementById('sls-cfg-cs-master-btn');
@@ -1810,6 +1994,7 @@
                     if (authActions) authActions.innerHTML = '';
                     renderProviderAuthButtons(provider, false);
                     if (localInfo) localInfo.style.display = 'block';
+                    refreshCloudProviderKeysBadges(provider, false);
                 } else {
                     if (localInfo) localInfo.style.display = 'none';
                                     // Unified provider status handling
@@ -1839,6 +2024,12 @@
                             }
                         }
                         renderProviderAuthButtons(provider, isAuthed);
+                        if (isAuthed) {
+                            setTimeout(refreshProviderKeyInputsIfClean, 800);
+                        }
+                        if (csState.selectedAppId && csState.selectedAppId !== '__provider_keys__') {
+                            refreshCloudProviderKeysBadges(provider, false);
+                        }
                     }).catch(function (err) {
                         console.warn('[CloudSaves] Provider status error:', err);
                         if (authBadge) {
@@ -1848,6 +2039,9 @@
                             authBadge.style.border = '1px solid rgba(245, 158, 11, 0.3)';
                         }
                         renderProviderAuthButtons(provider, false);
+                        if (csState.selectedAppId && csState.selectedAppId !== '__provider_keys__') {
+                            refreshCloudProviderKeysBadges(provider, false);
+                        }
                     });
                 }
 
@@ -2330,7 +2524,6 @@
                 // Drill-down Per-Game Files View (Steam Screenshot 2)
                 if (csState.selectedAppId) {
                     var selAppId = csState.selectedAppId;
-                    var selTitle = resolveTitle(selAppId, csState.selectedGameTitle);
 
                     function updateDrilldownBreadcrumb(title) {
                         if (!breadcrumbEl) return;
@@ -2345,6 +2538,141 @@
                             };
                         }
                     }
+
+                    if (selAppId === '__provider_keys__') {
+                        updateDrilldownBreadcrumb('Provider Keys');
+                        if (headingEl) headingEl.textContent = 'Provider Keys';
+                        if (subtitleEl) subtitleEl.textContent = 'Provider API keys stored in ' + providerLabel(provider) + ' :';
+                        if (backBtnEl) backBtnEl.style.display = 'inline-block';
+                        if (scanOrphansBtnEl) scanOrphansBtnEl.style.display = 'none';
+                        if (addAppInput) addAppInput.placeholder = 'Search provider keys...';
+
+                        if (gameToolbarEl) {
+                            gameToolbarEl.style.display = 'flex';
+                            gameToolbarEl.innerHTML =
+                                '<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">' +
+                                    '<span style="background: rgba(255, 255, 255, 0.05); color: #c6d4df; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 3px; padding: 3px 8px; font-size: 11.5px;">Provider: <b style="color: #66c0f4;">' + escapeHtml(providerLabel(provider)) + '</b></span>' +
+                                '</div>' +
+                                '<div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">' +
+                                    '<button id="sls-cfg-cs-keys-refresh-btn" class="sls-cfg-btn" style="background: #2a475e; border: 1px solid rgba(102, 192, 244, 0.4); color: #66c0f4; padding: 5px 12px; font-size: 12px; cursor: pointer; border-radius: 3px; font-weight: 600;">Refresh</button>' +
+                                '</div>';
+
+                            var btnKeysRefresh = document.getElementById('sls-cfg-cs-keys-refresh-btn');
+                            if (btnKeysRefresh) {
+                                btnKeysRefresh.onclick = function (e) {
+                                    e.preventDefault();
+                                    refreshCloudSavesUI();
+                                };
+                            }
+                        }
+
+                        appsListContainer.innerHTML = '<div style="padding: 28px 16px; text-align: center; color: #8f98a0; font-size: 13px;">Fetching provider keys from ' + escapeHtml(providerLabel(provider)) + '...</div>';
+
+                        var drillKeysUrl = 'http://127.0.0.1:9001/cloud/provider-keys/status?provider=' + encodeURIComponent(provider) +
+                            (provider !== 'local-only' ? '&sync=1' : '');
+                        fetch(drillKeysUrl, { headers: { 'Connection': 'close' } })
+                            .then(function (r) { return r.json(); })
+                            .then(function (data) {
+                                if (csState.selectedAppId !== '__provider_keys__') return;
+                                if (provider && provider !== 'local-only') {
+                                    refreshProviderKeyInputsIfClean();
+                                }
+
+                                var keys = (data && data.keys) ? data.keys : {};
+                                var syncKeys = (data && data.syncKeys) ? data.syncKeys : {};
+                                var syncEnabled = !(data && data.syncEnabled === false);
+                                var effectiveProv = (data && data.provider) ? data.provider : provider;
+                                var provText = providerLabel(effectiveProv);
+                                var updatedText = (data && data.updatedAt) ? formatCloudDate(data.updatedAt) : '\u2014';
+
+                                var sortedMeta = CLOUD_PROVIDER_KEYS_META.slice().sort(function (a, b) {
+                                    return (keys[b.key] ? 1 : 0) - (keys[a.key] ? 1 : 0);
+                                });
+
+                                var table = document.createElement('table');
+                                table.className = 'navi-steam-cloud-table';
+                                table.style.tableLayout = 'fixed';
+                                table.style.width = '100%';
+                                table.innerHTML =
+                                    '<thead><tr>' +
+                                        '<th scope="col" style="width: 44%; text-align: left;">PROVIDER KEY</th>' +
+                                        '<th scope="col" style="width: 18%; text-align: right;">SYNC</th>' +
+                                        '<th scope="col" style="width: 22%; text-align: right;">DATE WRITTEN</th>' +
+                                        '<th scope="col" style="width: 16%; text-align: right;"></th>' +
+                                    '</tr></thead>';
+
+                                var tbody = document.createElement('tbody');
+                                sortedMeta.forEach(function (pk) {
+                                    var saved = !!keys[pk.key];
+                                    var syncOn = syncEnabled && !!syncKeys[pk.key];
+                                    var tr = document.createElement('tr');
+                                    tr.className = 'sls-cfg-item navi-cloud-file-row';
+                                    tr.setAttribute('data-search', ('provider key api ' + pk.label + ' ' + pk.key + ' ' + effectiveProv + ' ' + provText + (saved ? ' saved' : ' not saved')).toLowerCase());
+
+                                    var tdName = document.createElement('td');
+                                    tdName.setAttribute('data-label', 'PROVIDER KEY');
+                                    tdName.style.textAlign = 'left';
+                                    tdName.style.overflow = 'hidden';
+                                    tdName.style.textOverflow = 'ellipsis';
+                                    tdName.style.whiteSpace = 'nowrap';
+
+                                    var iconSpan = document.createElement('span');
+                                    iconSpan.style.cssText = 'margin-right: 8px; font-size: 13px;';
+                                    iconSpan.textContent = '\ud83d\udd11';
+                                    tdName.appendChild(iconSpan);
+
+                                    var nameSpan = document.createElement('span');
+                                    nameSpan.style.cssText = 'color: #e2e8f0; font-weight: 500;';
+                                    nameSpan.textContent = pk.label;
+                                    tdName.appendChild(nameSpan);
+
+                                    var provSpan = document.createElement('span');
+                                    provSpan.id = 'sls-cfg-cs-key-prov-' + pk.key;
+                                    provSpan.style.cssText = 'font-size: 11px; color: #8f98a0; margin-left: 6px;';
+                                    provSpan.textContent = '(' + provText + ')';
+                                    tdName.appendChild(provSpan);
+
+                                    var tdSync = document.createElement('td');
+                                    tdSync.id = 'sls-cfg-cs-key-sync-' + pk.key;
+                                    tdSync.className = 'navi-col-num';
+                                    tdSync.setAttribute('data-label', 'SYNC');
+                                    tdSync.style.textAlign = 'right';
+                                    tdSync.textContent = syncOn ? 'Enabled' : 'Disabled';
+
+                                    var tdDate = document.createElement('td');
+                                    tdDate.id = 'sls-cfg-cs-key-date-' + pk.key;
+                                    tdDate.className = 'navi-col-num';
+                                    tdDate.setAttribute('data-label', 'DATE WRITTEN');
+                                    tdDate.style.textAlign = 'right';
+                                    tdDate.textContent = saved ? updatedText : '\u2014';
+
+                                    var tdBadge = document.createElement('td');
+                                    tdBadge.setAttribute('data-label', 'ACTION');
+                                    tdBadge.style.textAlign = 'right';
+
+                                    var badgeSpan = document.createElement('span');
+                                    badgeSpan.id = 'sls-cfg-cs-key-badge-' + pk.key;
+                                    applyCloudKeyBadgeStyle(badgeSpan, saved);
+                                    tdBadge.appendChild(badgeSpan);
+
+                                    tr.appendChild(tdName);
+                                    tr.appendChild(tdSync);
+                                    tr.appendChild(tdDate);
+                                    tr.appendChild(tdBadge);
+                                    tbody.appendChild(tr);
+                                });
+
+                                table.appendChild(tbody);
+                                appsListContainer.innerHTML = '';
+                                appsListContainer.appendChild(table);
+                            })
+                            .catch(function (err) {
+                                appsListContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: #f87171; font-size: 13px;">Failed to load provider keys: ' + escapeHtml(err.message || 'Unknown error') + '</div>';
+                            });
+                        return;
+                    }
+
+                    var selTitle = resolveTitle(selAppId, csState.selectedGameTitle);
 
                     updateDrilldownBreadcrumb(selTitle);
                     if (headingEl) headingEl.textContent = selTitle;
@@ -2514,6 +2842,17 @@
                     : fetch('http://127.0.0.1:9001/cloud/apps?provider=' + encodeURIComponent(provider)).then(function (r) { return r.json(); });
 
                 appsPromise.then(function (data) {
+                    var keysUrl = 'http://127.0.0.1:9001/cloud/provider-keys/status?provider=' + encodeURIComponent(provider) + '&sync=0';
+                    return fetch(keysUrl, { headers: { 'Connection': 'close' } })
+                        .then(function (r) { return r.json(); })
+                        .catch(function () { return null; })
+                        .then(function (keysData) { return [data, keysData]; });
+                }).then(function (results) {
+                    var data = results[0];
+                    var keysData = results[1];
+                    if (provider && provider !== 'local-only') {
+                        refreshProviderKeyInputsIfClean();
+                    }
                     if (csState.selectedAppId) return;
                     var apps = (data && Array.isArray(data.apps)) ? data.apps.slice() : [];
                     var seen = {};
@@ -2544,11 +2883,6 @@
                         managedBadge.textContent = apps.length + (apps.length === 1 ? ' Game in Cloud' : ' Games in Cloud');
                     }
 
-                    if (apps.length === 0) {
-                        appsListContainer.innerHTML = '<div style="color: #8f98a0; font-size: 13px; padding: 28px 16px; text-align: center;">No games found in your Steam Cloud yet. Play a game with Cloud Saves enabled.</div>';
-                        return;
-                    }
-
                     var table = document.createElement('table');
                     table.className = 'navi-steam-cloud-table';
                     table.style.tableLayout = 'fixed';
@@ -2562,6 +2896,65 @@
                         '</tr></thead>';
 
                     var tbody = document.createElement('tbody');
+                    var keysStatusMap = (keysData && keysData.keys) ? keysData.keys : {};
+                    var activeKeyProv = (keysData && keysData.provider) ? keysData.provider : provider;
+                    var pkTr = document.createElement('tr');
+                    pkTr.className = 'sls-cfg-item navi-cloud-game-row navi-cloud-provider-key-row';
+                    pkTr.setAttribute('data-search', ('provider keys api ryuu depotbox hubcap ' + activeKeyProv + ' ' + providerLabel(activeKeyProv)).toLowerCase());
+
+                    var tdPkGame = document.createElement('td');
+                    tdPkGame.setAttribute('data-label', 'GAME');
+                    tdPkGame.style.textAlign = 'left';
+                    tdPkGame.style.overflow = 'hidden';
+                    tdPkGame.style.textOverflow = 'ellipsis';
+                    tdPkGame.style.whiteSpace = 'nowrap';
+
+                    var pkTitleSpan = document.createElement('span');
+                    pkTitleSpan.style.cssText = 'color: #ffffff; font-weight: 500; font-size: 13px;';
+                    pkTitleSpan.textContent = 'Provider Keys';
+                    tdPkGame.appendChild(pkTitleSpan);
+
+                    var pkProvSpan = document.createElement('span');
+                    pkProvSpan.id = 'sls-cfg-cs-keys-summary-prov';
+                    pkProvSpan.style.cssText = 'font-size: 11px; color: #8f98a0; margin-left: 6px;';
+                    tdPkGame.appendChild(pkProvSpan);
+
+                    var tdPkCount = document.createElement('td');
+                    tdPkCount.id = 'sls-cfg-cs-keys-summary-count';
+                    tdPkCount.className = 'navi-col-num';
+                    tdPkCount.setAttribute('data-label', 'NUMBER OF FILES');
+                    tdPkCount.style.textAlign = 'right';
+
+                    var tdPkSize = document.createElement('td');
+                    tdPkSize.id = 'sls-cfg-cs-keys-summary-size';
+                    tdPkSize.className = 'navi-col-num';
+                    tdPkSize.setAttribute('data-label', 'TOTAL SIZE OF FILES');
+                    tdPkSize.style.textAlign = 'right';
+
+                    updateProviderKeysSummaryElements(pkProvSpan, tdPkCount, tdPkSize, keysStatusMap, activeKeyProv);
+
+                    var tdPkShow = document.createElement('td');
+                    tdPkShow.setAttribute('data-label', 'ACTION');
+                    tdPkShow.style.textAlign = 'right';
+
+                    var pkShowBtn = document.createElement('button');
+                    pkShowBtn.id = 'sls-cfg-cs-keys-show-btn';
+                    pkShowBtn.className = 'navi-steam-cloud-link';
+                    pkShowBtn.textContent = 'Show Files';
+                    pkShowBtn.onclick = function (e) {
+                        e.preventDefault();
+                        csState.selectedAppId = '__provider_keys__';
+                        csState.selectedGameTitle = 'Provider Keys';
+                        refreshCloudSavesUI();
+                    };
+                    tdPkShow.appendChild(pkShowBtn);
+
+                    pkTr.appendChild(tdPkGame);
+                    pkTr.appendChild(tdPkCount);
+                    pkTr.appendChild(tdPkSize);
+                    pkTr.appendChild(tdPkShow);
+                    tbody.appendChild(pkTr);
+
                     apps.forEach(function (app) {
                         var appId = app.appId;
                         var gameTitle = resolveTitle(appId, app.gameTitle);
@@ -2632,6 +3025,12 @@
                     table.appendChild(tbody);
                     appsListContainer.innerHTML = '';
                     appsListContainer.appendChild(table);
+                    if (apps.length === 0) {
+                        var emptyGamesNote = document.createElement('div');
+                        emptyGamesNote.style.cssText = 'color: #8f98a0; font-size: 13px; padding: 20px 16px; text-align: center;';
+                        emptyGamesNote.textContent = 'No games found in your Steam Cloud yet. Play a game with Cloud Saves enabled.';
+                        appsListContainer.appendChild(emptyGamesNote);
+                    }
                 }).catch(function (err) {
                     appsListContainer.innerHTML = '<div style="padding: 20px; text-align: center; color: #f87171; font-size: 13px;">Failed to scan cloud games: ' + escapeHtml(err.message || 'Unknown error') + '</div>';
                 });
@@ -2682,6 +3081,26 @@
                     checkDirty();
                 };
             }
+
+            var syncKeysToggle = document.getElementById('sls-cfg-CloudSaves-SyncProviderKeys');
+            var syncKeysRyuuToggle = document.getElementById('sls-cfg-CloudSaves-SyncRyuuKey');
+            var syncKeysDepotBoxToggle = document.getElementById('sls-cfg-CloudSaves-SyncDepotBoxKey');
+            var syncKeysHubcapToggle = document.getElementById('sls-cfg-CloudSaves-SyncHubcapKey');
+            var syncKeysSubrowsEl = document.getElementById('sls-cfg-ProviderKeysSync-subrows');
+
+            function syncProviderKeysSubrowsUI() {
+                var isSyncOn = !!(syncKeysToggle && syncKeysToggle.checked);
+                if (syncKeysSubrowsEl) {
+                    syncKeysSubrowsEl.style.display = isSyncOn ? 'block' : 'none';
+                }
+                if (syncKeysRyuuToggle) syncKeysRyuuToggle.disabled = !isSyncOn;
+                if (syncKeysDepotBoxToggle) syncKeysDepotBoxToggle.disabled = !isSyncOn;
+                if (syncKeysHubcapToggle) syncKeysHubcapToggle.disabled = !isSyncOn;
+            }
+            if (syncKeysToggle) {
+                syncKeysToggle.addEventListener('change', syncProviderKeysSubrowsUI);
+            }
+            syncProviderKeysSubrowsUI();
 
             // R2 & S3 Credentials form handlers
             var credSecretToggleBtn = document.getElementById('sls-cfg-cs-cred-secret-toggle');
@@ -3426,6 +3845,10 @@
                     cloudAutoBackup: getCheckbox('sls-cfg-CloudAutoBackup'),
                     cloudRetention: getVal('sls-cfg-CloudRetention'),
                     cloudProvider: getVal('sls-cfg-cs-provider'),
+                    cloudSyncProviderKeys: getCheckbox('sls-cfg-CloudSaves-SyncProviderKeys'),
+                    cloudSyncRyuuKey: getCheckbox('sls-cfg-CloudSaves-SyncRyuuKey'),
+                    cloudSyncDepotBoxKey: getCheckbox('sls-cfg-CloudSaves-SyncDepotBoxKey'),
+                    cloudSyncHubcapKey: getCheckbox('sls-cfg-CloudSaves-SyncHubcapKey'),
                     cloudNotificationsEnabled: getCheckbox('sls-cfg-CloudSaves-NotificationsEnabled'),
                     prefixSyncEnabled: getCheckbox('sls-cfg-PrefixSync-Enabled'),
                     prefixSyncStartup: getCheckbox('sls-cfg-PrefixSync-Startup'),
@@ -3633,6 +4056,13 @@
                     DenuvoGamesYaml: getVal('sls-cfg-DenuvoGamesYaml'),
                     CloudSaves: {
                         Enabled: (cfg.CloudSaves && typeof cfg.CloudSaves.Enabled === 'boolean') ? cfg.CloudSaves.Enabled : true,
+                        SyncProviderKeys: getCheckbox('sls-cfg-CloudSaves-SyncProviderKeys'),
+                        ProviderKeysSync: {
+                            Enabled: getCheckbox('sls-cfg-CloudSaves-SyncProviderKeys'),
+                            SyncRyuuKey: getCheckbox('sls-cfg-CloudSaves-SyncRyuuKey'),
+                            SyncDepotBoxKey: getCheckbox('sls-cfg-CloudSaves-SyncDepotBoxKey'),
+                            SyncHubcapKey: getCheckbox('sls-cfg-CloudSaves-SyncHubcapKey')
+                        },
                         Provider: getVal('sls-cfg-cs-provider') || (cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only',
                         NotificationsEnabled: getCheckbox('sls-cfg-CloudSaves-NotificationsEnabled'),
                         AutoBackupBeforeReset: getCheckbox('sls-cfg-CloudAutoBackup'),
@@ -3666,6 +4096,11 @@
                         initialFormState = serializeCurrentForm();
                         markClean(true);
                         refreshCloudSavesUI();
+                        setTimeout(function () {
+                            var pSel = document.getElementById('sls-cfg-cs-provider');
+                            var curProv = pSel ? pSel.value : ((cfg.CloudSaves && cfg.CloudSaves.Provider) || 'local-only');
+                            refreshCloudProviderKeysBadges(curProv, curProv !== 'local-only');
+                        }, 1500);
                         if (!silent) {
                             showStatusBanner('Saved. Your new settings are active.', '#2ecc71');
                         }
@@ -3774,6 +4209,13 @@
                     DenuvoGamesYaml: '',
                     CloudSaves: {
                         Enabled: true,
+                        SyncProviderKeys: true,
+                        ProviderKeysSync: {
+                            Enabled: true,
+                            SyncRyuuKey: true,
+                            SyncDepotBoxKey: true,
+                            SyncHubcapKey: true
+                        },
                         Provider: 'local-only',
                         NotificationsEnabled: true,
                         AutoBackupBeforeReset: true,
@@ -4007,6 +4449,7 @@
      */
         function showSlsPage() {
             hideConfigPage();
+            ensureLibraryViewForOverlay(hideSlsPage);
             ensureCustomTabStyles();
 
             var container = document.getElementById('sls-page-container');
@@ -4032,6 +4475,7 @@
         }
 
     function hideSlsPage() {
+            detachSteamHistoryListener();
             var container = document.getElementById('sls-page-container');
             if (container) {
                 container.style.display = 'none';
@@ -5005,7 +5449,7 @@
                             }
                             target = target.parentNode;
                         }
-                    });
+                    }, true);
                 }
             }
         }

@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 #include <filesystem>
 #include <mutex>
@@ -139,6 +141,20 @@ struct GlobalBackupEntry_t
     uint64_t timestamp{0};
 };
 
+struct CloudProviderKeysStatus_t
+{
+    std::string provider;
+    bool syncEnabled{true};
+    bool syncRyuu{true};
+    bool syncDepotBox{true};
+    bool syncHubcap{true};
+    bool catalogFound{false};
+    bool hasRyuuKey{false};
+    bool hasDepotBoxKey{false};
+    bool hasHubcapKey{false};
+    uint64_t updatedAt{0};
+};
+
 /// Parsed summary of one stplug-in lua plugin collected during the single
 /// library pass. Mirrors exactly what the legacy per-candidate scans needed:
 /// ownership facts (depots/dlcs/manifests), child ids, the fallback-3 title
@@ -157,6 +173,7 @@ struct ScanLuaFileRecord
     std::vector<AppId_t> depots;    ///< digits-only keys of parsed.depots
     std::vector<AppId_t> dlcs;      ///< digits-only keys of parsed.dlcs
     std::vector<AppId_t> manifests; ///< digits-only keys of parsed.manifests (setManifestid)
+    std::vector<std::pair<std::string, std::string>> manifestPairs; ///< (depotId, manifestGid) pairs from parsed.manifests
     std::vector<AppId_t> allAddAppIds; ///< every "addappid(<digits>" in raw content
 };
 
@@ -203,6 +220,8 @@ struct ScanIndex
 
     /// Per-file lua records in scan order (ListCloudApps discovery + title lookups).
     std::vector<ScanLuaFileRecord> luaFiles;
+    std::unordered_map<AppId_t, size_t> luaRecordIndexByStem; ///< stemAppId -> index in luaFiles
+    std::unordered_map<AppId_t, std::vector<fs::path>> manifestsByPrefixAppId; ///< appId -> .manifest paths across depotcache/stplug-in
 };
 
 /// Test-only scan instrumentation: how many library files one inventory
@@ -257,8 +276,23 @@ public:
     bool StageAppFilesForCloudSync(AppId_t appId, uint32_t accountId = 0);
 
     /// Rebuilds <storageDir>/<accountId>/999999999/navi_cloud_catalog.json from all
-    /// remote-confirmed redirected apps and publishes it to the remote cloud provider.
-    bool UpdateAndPublishCloudCatalog(const std::string& provider, uint32_t accountId = 0);
+    /// remote-confirmed redirected apps (plus provider API keys) and publishes it to the
+    /// remote cloud provider. When overwriteProviderKeys is false, any existing remote/local
+    /// catalog provider keys fill empty local g_config entries before publishing.
+    bool UpdateAndPublishCloudCatalog(const std::string& provider, uint32_t accountId = 0, bool overwriteProviderKeys = false);
+
+    /// Pulls the remote/local synthetic catalog (AppId 999999999) and restores any
+    /// non-empty remote provider API keys into empty local g_config entries.
+    bool RestoreMetadataFromCloudCatalog(const std::string& provider, uint32_t accountId = 0, bool syncRemote = true);
+
+    /// Publishes the synthetic metadata catalog (AppId 999999999) when CloudSaves are enabled.
+    /// If a remote provider is unauthenticated, updates the local on-disk catalog so keys
+    /// stay staged for the next remote publish.
+    bool PublishMetadataCatalogIfAuthenticated(const std::string& provider = "", uint32_t accountId = 0, bool overwriteProviderKeys = false);
+
+    /// Inspects whether Ryuu, DepotBox, and Hubcap provider API keys are saved in the
+    /// active cloud provider's metadata catalog (AppId 999999999) without exposing raw key values.
+    CloudProviderKeysStatus_t GetCloudProviderKeysStatus(const std::string& provider = "", uint32_t accountId = 0, bool syncRemote = false);
 
     /// Stages all local files for appId, publishes <appId> to the remote cloud provider,
     /// and updates + publishes the account's navi_cloud_catalog.json (999999999).
@@ -328,8 +362,18 @@ private:
     std::vector<AppId_t> GetChildDepotIdsForApp(AppId_t parentAppId, const ScanIndex& index) const;
     std::string ResolveAppTitleFromManifestsInternal(AppId_t appId, int depth, const ScanIndex& index) const;
 
-    std::vector<CloudFileEntry_t> ListAppCloudFiles(AppId_t appId, const std::string& provider, uint32_t accountId, const ScanIndex& index) const;
-    std::vector<CloudFileEntry_t> ListAppCloudFilesDirect(AppId_t appId, const std::string& provider, uint32_t accountId) const;
+    std::vector<CloudFileEntry_t> ListAppCloudFiles(
+        AppId_t appId,
+        const std::string& provider,
+        uint32_t accountId,
+        const ScanIndex& index,
+        const std::unordered_set<AppId_t>* remoteConfirmedApps = nullptr,
+        bool skipCatalogLookup = false) const;
+    std::vector<CloudFileEntry_t> ListAppCloudFilesDirect(
+        AppId_t appId,
+        const std::string& provider,
+        uint32_t accountId,
+        const ScanIndex* index = nullptr) const;
     bool ReadAppCloudFileDirect(AppId_t appId,
                                 const std::string& relativeFileName,
                                 const std::string& provider,
@@ -344,10 +388,18 @@ private:
         uint32_t accountId{0};
         fs::path storageRoot;
         uint64_t loadedAtMs{0};
+        uint64_t remoteSyncedAtMs{0};
+        bool remoteCatalogAbsent{false};
         std::unordered_map<AppId_t, CloudAppSummary_t> summaries;
         std::unordered_map<AppId_t, std::vector<CloudFileEntry_t>> filesByApp;
     };
 
+    std::string ReadOrSyncCatalogJson(const fs::path& storageRoot,
+                                      const std::string& provider,
+                                      uint32_t accountId,
+                                      bool syncRemote,
+                                      bool pullWhenLocalMissing,
+                                      bool allowLocalFallbackWhenSyncedEmpty) const;
     bool LoadCloudCatalog(const std::string& provider,
                           uint32_t accountId,
                           bool syncRemote,
@@ -368,7 +420,18 @@ private:
     mutable uint64_t m_scanIndexStamp{0};
 
     mutable std::mutex m_catalogMutex;
+    mutable std::recursive_mutex m_catalogSyncMutex;
     mutable CatalogCache m_catalogCache;
+
+    struct AuthStatusCacheEntry
+    {
+        ProviderAuthStatus_t status;
+        fs::path cliPath;
+        uint64_t cliMtime{0};
+        uint64_t checkedAtMs{0};
+    };
+    mutable std::mutex m_authCacheMutex;
+    mutable std::unordered_map<std::string, AuthStatusCacheEntry> m_authStatusCache;
 };
 
 } // namespace Navi::CloudRedirect
