@@ -43,6 +43,10 @@ def test_uj10_navi_menu_drilldown_sections(
     navi = library_page.click_navi_button()
     navi.wait_until_open()
 
+    # Desktop mode must not show the white controller focus border on initial mount.
+    driver.evaluate("new Promise(function(r) { setTimeout(r, 150); })", await_promise=True)
+    assert navi.get_gamepad_outlined_element() is None
+
     # 1. Main view: categories only, no section items.
     assert navi.get_title() == "Navi Menu"
     assert navi.is_element_visible(navi.nav_provider_btn)
@@ -59,6 +63,7 @@ def test_uj10_navi_menu_drilldown_sections(
         timeout=5.0,
         error_message="Game section title did not appear",
     )
+    assert navi.get_gamepad_outlined_element() is None
     assert navi.is_element_visible(navi.config_btn)
     assert navi.is_element_visible(navi.remove_btn)
     assert navi.is_element_visible(navi.back_btn)
@@ -74,6 +79,23 @@ def test_uj10_navi_menu_drilldown_sections(
     )
     assert navi.is_element_visible(navi.nav_game_btn)
     assert not navi.is_element_visible(navi.config_btn)
+
+    # Gamepad input turns the focus ring on; pointer input clears it in Desktop mode.
+    navi.dispatch_direction(navi.GAMEPAD_DOWN)
+    driver.wait_for_condition(
+        lambda: (navi.get_gamepad_outlined_element() or {}).get("id") == "sls-navi-nav-provider",
+        timeout=5.0,
+        error_message="Gamepad direction did not outline first Navi Menu item",
+    )
+    driver.evaluate(
+        "document.getElementById('sls-navi-modal').dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));",
+        await_promise=False,
+    )
+    driver.wait_for_condition(
+        lambda: navi.get_gamepad_outlined_element() is None,
+        timeout=5.0,
+        error_message="Mouse input did not clear controller focus outline in Desktop mode",
+    )
 
     # 4. Cloud section shows cloud items only.
     navi.open_section("cloud")

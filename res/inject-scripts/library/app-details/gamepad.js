@@ -36,8 +36,16 @@ function registerSteamFocusNode(element, properties) {
     }
 }
 
+function isGamepadUiActive() {
+    var hasDesktopUi = !!((document.body && document.body.classList.contains('DesktopUI')) || document.querySelector('.DesktopUI'));
+    var isBpmTitle = /Steam Big Picture Mode/i.test(document.title || '');
+    var isBpmWindow = (window.name || '').indexOf('BPM') !== -1;
+    return !hasDesktopUi || isBpmTitle || isBpmWindow;
+}
+
 function trapSteamGamepadModal(overlay, buttons) {
     var activeIdx = -1;
+    var showFocusRing = isGamepadUiActive();
 
     function isFocusable(el) {
         if (!el || el.disabled) return false;
@@ -58,6 +66,12 @@ function trapSteamGamepadModal(overlay, buttons) {
         return -1;
     }
     function updateFocus() {
+        if (!showFocusRing) {
+            for (var j = 0; j < buttons.length; j++) {
+                if (buttons[j]) buttons[j].style.outline = 'none';
+            }
+            return;
+        }
         if (activeIdx < 0 || !isFocusable(buttons[activeIdx])) activeIdx = firstFocusable();
         for (var i = 0; i < buttons.length; i++) {
             if (!buttons[i]) continue;
@@ -77,10 +91,17 @@ function trapSteamGamepadModal(overlay, buttons) {
     };
     setTimeout(updateFocus, 100);
 
+    function onPointerInput() {
+        showFocusRing = false;
+        activeIdx = -1;
+        updateFocus();
+    }
     function cleanup() {
         window.removeEventListener('vgp_ondirection', gamepadCatcher, true);
         window.removeEventListener('vgp_onok', okCatcher, true);
         window.removeEventListener('vgp_oncancel', cancelCatcher, true);
+        overlay.removeEventListener('mousedown', onPointerInput, true);
+        overlay.removeEventListener('pointerdown', onPointerInput, true);
     }
     function gamepadCatcher(e) {
         if (!document.body.contains(overlay)) {
@@ -89,6 +110,7 @@ function trapSteamGamepadModal(overlay, buttons) {
         }
         e.stopPropagation();
         if (e.cancelable) e.preventDefault();
+        showFocusRing = true;
         var dir = e.detail ? e.detail.button : null;
         if (dir === 9 || dir === 11) { // Up or Left
             if (activeIdx < 0) activeIdx = firstFocusable();
@@ -103,7 +125,9 @@ function trapSteamGamepadModal(overlay, buttons) {
         if (!document.body.contains(overlay)) { cleanup(); return; }
         e.stopPropagation();
         if (e.cancelable) e.preventDefault();
+        showFocusRing = true;
         if (activeIdx < 0) activeIdx = firstFocusable();
+        updateFocus();
         if (isFocusable(buttons[activeIdx])) buttons[activeIdx].click();
     }
     function cancelCatcher(e) {
@@ -120,5 +144,7 @@ function trapSteamGamepadModal(overlay, buttons) {
     window.addEventListener('vgp_ondirection', gamepadCatcher, true);
     window.addEventListener('vgp_onok', okCatcher, true);
     window.addEventListener('vgp_oncancel', cancelCatcher, true);
+    overlay.addEventListener('mousedown', onPointerInput, true);
+    overlay.addEventListener('pointerdown', onPointerInput, true);
 }
 

@@ -298,6 +298,46 @@ def test_uj05_cloudredirect_ux_parity_controls(
         timeout=5.0,
     )
 
+    migrate_spacing = driver.evaluate(
+        """
+        (() => {
+            const srcLabel = document.querySelector('label[for="sls-cfg-cs-migrate-src"]');
+            const dstLabel = document.querySelector('label[for="sls-cfg-cs-migrate-dst"]');
+            const srcSelect = document.getElementById('sls-cfg-cs-migrate-src');
+            const dstSelect = document.getElementById('sls-cfg-cs-migrate-dst');
+            const scanBtn = document.getElementById('sls-cfg-cs-migrate-scan-btn');
+            const startBtn = document.getElementById('sls-cfg-cs-migrate-start-btn');
+            const item = srcSelect ? srcSelect.closest('.sls-cfg-item') : null;
+            const card = item ? item.closest('.sls-cfg-card') : null;
+            const subtitle = card ? card.children[1] : null;
+            if (!srcLabel || !dstLabel || !srcSelect || !dstSelect || !scanBtn || !startBtn || !item || !subtitle) return null;
+            const subRect = subtitle.getBoundingClientRect();
+            const srcLabelRect = srcLabel.getBoundingClientRect();
+            const dstLabelRect = dstLabel.getBoundingClientRect();
+            const srcSelRect = srcSelect.getBoundingClientRect();
+            const dstSelRect = dstSelect.getBoundingClientRect();
+            const scanRect = scanBtn.getBoundingClientRect();
+            const startRect = startBtn.getBoundingClientRect();
+            return {
+                hasMigrateClass: item.classList.contains('sls-cfg-migrate-item'),
+                itemMarginTop: parseFloat(window.getComputedStyle(item).marginTop || '0'),
+                gapFromSubtitleToLabel: srcLabelRect.top - subRect.bottom,
+                labelsTopDiff: Math.abs(srcLabelRect.top - dstLabelRect.top),
+                selectsBottomDiff: Math.abs(srcSelRect.bottom - dstSelRect.bottom),
+                buttonsAlignedWithSelects: Math.abs(scanRect.bottom - srcSelRect.bottom) <= 4 && Math.abs(startRect.bottom - srcSelRect.bottom) <= 4,
+            };
+        })()
+        """,
+        await_promise=False,
+    )
+    assert migrate_spacing is not None
+    assert migrate_spacing["hasMigrateClass"] is True
+    assert migrate_spacing["itemMarginTop"] == 0
+    assert migrate_spacing["gapFromSubtitleToLabel"] < 26
+    assert migrate_spacing["labelsTopDiff"] <= 1
+    assert migrate_spacing["selectsBottomDiff"] <= 1
+    assert migrate_spacing["buttonsAlignedWithSelects"] is True
+
     # 4. Verify Scan Orphans button renders orphan panel
     driver.click("#sls-cfg-cs-scan-orphans-btn")
     driver.wait_for_condition(

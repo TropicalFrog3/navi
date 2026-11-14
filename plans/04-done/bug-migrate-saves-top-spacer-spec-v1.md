@@ -1,6 +1,8 @@
+Outcome: shipped — Reset top margin/padding on Migrate cloud saves card item and source/destination labels, and added UI regression assertion — 2026-11-13
+
 # Bug Spec: Remove Top Spacer in "Migrate Cloud Saves" Source/Destination Section
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Shell Inject (`res/inject-scripts/shell/import-lua/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- (in navi config tab) migrate cloud saves: remove the spacer on top of the from source & to destination section`

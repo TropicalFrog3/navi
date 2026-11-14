@@ -144,15 +144,15 @@ function buildConfigSectionsHtml(cfg) {
         }).join('');
 
         var migrateCard = makeCard('Migrate cloud saves', 'Copy all redirected cloud save blobs and metadata from one storage provider to another.',
-            '<div class="sls-cfg-item" data-search="migrate cloud saves copy provider source destination" style="flex-direction: column; align-items: stretch; gap: 12px;">' +
+            '<div class="sls-cfg-item sls-cfg-migrate-item" data-search="migrate cloud saves copy provider source destination" style="flex-direction: column; align-items: stretch; gap: 12px; margin-top: 0 !important; padding: 12px 16px !important;">' +
                 '<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap;">' +
                     '<div style="display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; flex: 1 1 420px;">' +
                         '<div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 180px;">' +
-                            '<label for="sls-cfg-cs-migrate-src" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">From (source)</label>' +
+                            '<label for="sls-cfg-cs-migrate-src" style="font-size: 12px; font-weight: 500; color: #cbd5e1; margin: 0 !important; padding: 0 !important; line-height: 16px;">From (source)</label>' +
                             '<select id="sls-cfg-cs-migrate-src" class="sls-cfg-input" style="width: 100%;">' + migrateSrcOptions + '</select>' +
                         '</div>' +
                         '<div style="display: flex; flex-direction: column; gap: 4px; flex: 1 1 180px;">' +
-                            '<label for="sls-cfg-cs-migrate-dst" style="font-size: 12px; font-weight: 500; color: #cbd5e1;">To (destination)</label>' +
+                            '<label for="sls-cfg-cs-migrate-dst" style="font-size: 12px; font-weight: 500; color: #cbd5e1; margin: 0 !important; padding: 0 !important; line-height: 16px;">To (destination)</label>' +
                             '<select id="sls-cfg-cs-migrate-dst" class="sls-cfg-input" style="width: 100%;">' + migrateDstOptions + '</select>' +
                         '</div>' +
                     '</div>' +

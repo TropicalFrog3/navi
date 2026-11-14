@@ -1,6 +1,8 @@
+Outcome: shipped — Gated library modal 3px white controller focus outline on GamepadUI / controller input modality and added Desktop vs Deck UI regression assertions — 2026-11-13
+
 # Bug Spec: Hide White Controller Focus Border in Game Details Navi Menu on Desktop Mode
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Library App-Details Inject (`res/inject-scripts/library/app-details/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- (in navi menu from game detail) when not in steam big picture or steam deck mode the white border appear, it is not supposed to show the white border when the user isn't using the controller to navigate`

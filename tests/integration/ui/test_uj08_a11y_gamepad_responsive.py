@@ -125,61 +125,76 @@ def test_uj08_gamepad_navigation_wrap_around_and_actions(
     modal = library_page.click_config_button()
     modal.wait_until_open()
 
-    # Wait for trapSteamGamepadModal initial focus (outline on button 0: sls-close-x)
-    driver.wait_for_condition(
-        lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-close-x",
-        timeout=5.0,
-        error_message="Gamepad focus did not outline close-x button initially",
-    )
+    # Desktop mode must not show the white controller focus border on initial mount.
+    driver.evaluate("new Promise(function(r) { setTimeout(r, 150); })", await_promise=True)
+    assert modal.get_gamepad_outlined_element() is None
+    modal.click_close()
+    modal.wait_until_closed()
 
-    # 1. Wrap-around upwards (Up from index 0 -> wraps to last button: sls-btn-cancel)
-    modal.dispatch_direction(modal.GAMEPAD_UP)
-    driver.wait_for_condition(
-        lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-cancel",
-        timeout=5.0,
-        error_message="Gamepad wrap-around Up from index 0 did not wrap to last button",
-    )
+    # Switch to Deck / GamepadUI mode where initial focus outline is expected on mount.
+    library_page.enable_deck_ui(appid=1443430)
+    try:
+        library_page.wait_for_injected_buttons()
+        modal = library_page.click_config_button()
+        modal.wait_until_open()
 
-    # Move Up again -> goes to sls-btn-crack (index 2)
-    modal.dispatch_direction(modal.GAMEPAD_UP)
-    driver.wait_for_condition(
-        lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-crack",
-        timeout=5.0,
-        error_message="Gamepad Up did not move to crack button",
-    )
+        # Wait for trapSteamGamepadModal initial focus (outline on button 0: sls-close-x)
+        driver.wait_for_condition(
+            lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-close-x",
+            timeout=5.0,
+            error_message="Gamepad focus did not outline close-x button initially",
+        )
 
-    # 2. Wrap-around downwards (Down from last button -> wraps to index 0: sls-close-x)
-    modal.dispatch_direction(modal.GAMEPAD_DOWN)  # to sls-btn-cancel
-    modal.dispatch_direction(modal.GAMEPAD_DOWN)  # wrap to sls-close-x
-    driver.wait_for_condition(
-        lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-close-x",
-        timeout=5.0,
-        error_message="Gamepad wrap-around Down did not wrap back to index 0",
-    )
+        # 1. Wrap-around upwards (Up from index 0 -> wraps to last button: sls-btn-cancel)
+        modal.dispatch_direction(modal.GAMEPAD_UP)
+        driver.wait_for_condition(
+            lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-cancel",
+            timeout=5.0,
+            error_message="Gamepad wrap-around Up from index 0 did not wrap to last button",
+        )
 
-    # 3. Skipping disabled controls
-    # Move Down to sls-btn-fix (index 1)
-    modal.dispatch_direction(modal.GAMEPAD_DOWN)
-    driver.wait_for_condition(
-        lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-fix",
-        timeout=5.0,
-        error_message="Gamepad Down did not move to fix button",
-    )
+        # Move Up again -> goes to sls-btn-crack (index 2)
+        modal.dispatch_direction(modal.GAMEPAD_UP)
+        driver.wait_for_condition(
+            lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-crack",
+            timeout=5.0,
+            error_message="Gamepad Up did not move to crack button",
+        )
 
-    # Disable sls-btn-crack (index 2)
-    driver.evaluate("document.getElementById('sls-btn-crack').disabled = true;", await_promise=False)
+        # 2. Wrap-around downwards (Down from last button -> wraps to index 0: sls-close-x)
+        modal.dispatch_direction(modal.GAMEPAD_DOWN)  # to sls-btn-cancel
+        modal.dispatch_direction(modal.GAMEPAD_DOWN)  # wrap to sls-close-x
+        driver.wait_for_condition(
+            lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-close-x",
+            timeout=5.0,
+            error_message="Gamepad wrap-around Down did not wrap back to index 0",
+        )
 
-    # Move Down: should skip index 2 (disabled) and jump directly to index 3 (sls-btn-cancel)
-    modal.dispatch_direction(modal.GAMEPAD_DOWN)
-    driver.wait_for_condition(
-        lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-cancel",
-        timeout=5.0,
-        error_message="Gamepad navigation did not skip disabled crack button",
-    )
+        # 3. Skipping disabled controls
+        # Move Down to sls-btn-fix (index 1)
+        modal.dispatch_direction(modal.GAMEPAD_DOWN)
+        driver.wait_for_condition(
+            lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-fix",
+            timeout=5.0,
+            error_message="Gamepad Down did not move to fix button",
+        )
 
-    # 4. vgp_oncancel dismisses modal
-    modal.dispatch_cancel()
-    modal.wait_until_closed(timeout=5.0)
+        # Disable sls-btn-crack (index 2)
+        driver.evaluate("document.getElementById('sls-btn-crack').disabled = true;", await_promise=False)
+
+        # Move Down: should skip index 2 (disabled) and jump directly to index 3 (sls-btn-cancel)
+        modal.dispatch_direction(modal.GAMEPAD_DOWN)
+        driver.wait_for_condition(
+            lambda: (modal.get_gamepad_outlined_element() or {}).get("id") == "sls-btn-cancel",
+            timeout=5.0,
+            error_message="Gamepad navigation did not skip disabled crack button",
+        )
+
+        # 4. vgp_oncancel dismisses modal
+        modal.dispatch_cancel()
+        modal.wait_until_closed(timeout=5.0)
+    finally:
+        library_page.enable_desktop_ui(appid=1443430)
 
 
 @pytest.mark.ui_p1

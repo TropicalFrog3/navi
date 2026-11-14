@@ -288,6 +288,10 @@ class LibraryDetailsPage:
         self.driver.evaluate(
             "(function() {"
             "    document.body.classList.add('DesktopUI');"
+            "    document.querySelectorAll('[data-sls-saved-desktop-ui]').forEach(function(el) {"
+            "        el.classList.add('DesktopUI');"
+            "        delete el.dataset.slsSavedDesktopUi;"
+            "    });"
             f"    if (window.__slsRefreshButtons) window.__slsRefreshButtons({appid});"
             "})()",
             await_promise=False,
@@ -298,7 +302,14 @@ class LibraryDetailsPage:
         self.driver.evaluate(
             "(function() {"
             "    document.body.classList.remove('DesktopUI');"
-            f"    if (window.__slsRefreshButtons) window.__slsRefreshButtons({appid});"
+            "    document.querySelectorAll('.DesktopUI').forEach(function(el) {"
+            "        el.dataset.slsSavedDesktopUi = '1';"
+            "        el.classList.remove('DesktopUI');"
+            "    });"
+            "    if (window.__slsRefreshButtons) {"
+            "        document.querySelectorAll('.sls-navi-btn, .sls-config-btn').forEach(function(el) { el.remove(); });"
+            f"        window.__slsRefreshButtons({appid});"
+            "    }"
             "})()",
             await_promise=False,
         )
