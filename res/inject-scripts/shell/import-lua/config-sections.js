@@ -301,25 +301,17 @@ function buildConfigSectionsHtml(cfg) {
         // ---------------------------------------------------------------------
         // S6 — Library
         // ---------------------------------------------------------------------
-        var appListsContent = '<div class="sls-cfg-item" data-search="unlocked games appids" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px;">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">' +
-                    '<div style="font-size: 14px; font-weight: 500; color: #ffffff;">Unlocked games</div>' +
-                    '<button id="sls-cfg-add-app-btn" type="button" class="sls-cfg-btn" style="padding: 4px 10px; font-size: 12px;">+ Add game</button>' +
-                '</div>' +
-                '<div style="font-size: 12.5px; color: #8a929e; margin-bottom: 8px;">One AppID per line. Adding a game also includes its DLC.</div>' +
-                '<textarea id="sls-cfg-AppIds" class="sls-cfg-textarea" rows="4" placeholder="440\n730\n480...">' + escapeHtml(formatArrayForEditor(cfg.AppIds)) + '</textarea>' +
-                '<div class="sls-cfg-inline-error" id="sls-cfg-err-sls-cfg-AppIds" role="alert"></div>' +
-            '</div>' +
-            makeTextareaItem('sls-cfg-AdditionalApps', 'Extra games', 'Games that aren\'t in your library. Use this only for games you don\'t own — downloads of shared games can break.', formatArrayForEditor(cfg.AdditionalApps), '480, 730...', 3) +
-            makeTextareaItem('sls-cfg-FakeOffline', 'Show as offline', 'These games think Steam is offline.', formatArrayForEditor(cfg.FakeOffline), '480, 730...', 3) +
-            makeTextareaItem('sls-cfg-FakeAppIds', 'Play as another game', 'Makes a game report a different AppID so multiplayer works. Never run two games as the same AppID at once.', formatKvForEditor(cfg.FakeAppIds), '480: 440', 3) +
-            makeTextareaItem('sls-cfg-GameTitles', 'Game names', 'Changes the title shown in your library. Games you own only.', formatKvForEditor(cfg.GameTitles), '440: Team Fortress 2 Custom', 3);
+        var appListsContent = makeTextareaItem('sls-cfg-AppIds', 'Unlocked games', 'One AppID per line. Adding a game also includes its DLC.', formatArrayForEditor(cfg.AppIds), '440\n730\n480...', 4, { addBtnId: 'sls-cfg-add-app-btn', addBtnLabel: '+ Add game', searchTerms: 'unlocked games appids' }) +
+            makeTextareaItem('sls-cfg-AdditionalApps', 'Extra games', 'Games that aren\'t in your library. Use this only for games you don\'t own — downloads of shared games can break.', formatArrayForEditor(cfg.AdditionalApps), '480, 730...', 3, { addBtnId: 'sls-cfg-add-extra-app-btn', addBtnLabel: '+ Add game' }) +
+            makeTextareaItem('sls-cfg-FakeOffline', 'Show as offline', 'These games think Steam is offline.', formatArrayForEditor(cfg.FakeOffline), '480, 730...', 3, { addBtnId: 'sls-cfg-add-offline-btn', addBtnLabel: '+ Add game' }) +
+            makeTextareaItem('sls-cfg-FakeAppIds', 'Play as another game', 'Makes a game report a different AppID so multiplayer works. Never run two games as the same AppID at once.', formatKvForEditor(cfg.FakeAppIds), '480: 440', 3, { addBtnId: 'sls-cfg-add-fakeappid-btn', addBtnLabel: '+ Add mapping' }) +
+            makeTextareaItem('sls-cfg-GameTitles', 'Game names', 'Changes the title shown in your library. Games you own only.', formatKvForEditor(cfg.GameTitles), '440: Team Fortress 2 Custom', 3, { addBtnId: 'sls-cfg-add-gametitle-btn', addBtnLabel: '+ Add title' });
 
-        var downloadContent = makeTextareaItem('sls-cfg-ManifestIds', 'Lock to a version', 'Keeps a game on one file version. Format: AppID: ManifestID.', formatKvForEditor(cfg.ManifestIds), '441: 123456789012345678', 3) +
-            makeTextareaItem('sls-cfg-DepotBlacklist', 'Skip these depots', 'Navi won\'t download these depots.', formatArrayForEditor(cfg.DepotBlacklist), '228980, 228985...', 3);
+        var downloadContent = makeTextareaItem('sls-cfg-ManifestIds', 'Lock to a version', 'Keeps a game on one file version. Format: AppID: ManifestID.', formatKvForEditor(cfg.ManifestIds), '441: 123456789012345678', 3, { addBtnId: 'sls-cfg-add-manifest-btn', addBtnLabel: '+ Add version' }) +
+            makeTextareaItem('sls-cfg-DepotBlacklist', 'Skip these depots', 'Navi won\'t download these depots.', formatArrayForEditor(cfg.DepotBlacklist), '228980, 228985...', 3, { addBtnId: 'sls-cfg-add-depot-blacklist-btn', addBtnLabel: '+ Add depot' });
 
-        var advancedContent = makeTextareaItem('sls-cfg-AppTokens', 'App tokens', 'Product info tokens from Steam. Rarely needed.', formatKvForEditor(cfg.AppTokens), '730: 987654321098765432', 3) +
-            makeTextareaItem('sls-cfg-CDKeys', 'Legacy CD keys', 'Required by some older games.', formatKvForEditor(cfg.CDKeys), '440: ABCD-1234-EFGH-5678', 3);
+        var advancedContent = makeTextareaItem('sls-cfg-AppTokens', 'App tokens', 'Product info tokens from Steam. Rarely needed.', formatKvForEditor(cfg.AppTokens), '730: 987654321098765432', 3, { addBtnId: 'sls-cfg-add-apptoken-btn', addBtnLabel: '+ Add token' }) +
+            makeTextareaItem('sls-cfg-CDKeys', 'Legacy CD keys', 'Required by some older games.', formatKvForEditor(cfg.CDKeys), '440: ABCD-1234-EFGH-5678', 3, { addBtnId: 'sls-cfg-add-cdkey-btn', addBtnLabel: '+ Add key' });
 
         var yamlContent = makeTextareaItem('sls-cfg-DlcDataYaml', 'DLC details', 'Extra DLC mapping, only needed when a game reaches Steam\'s 64-DLC limit.', cfg.DlcDataYaml || '', '440:\n  441: "DLC 1 Name"', 4) +
             makeTextareaItem('sls-cfg-DenuvoGamesYaml', 'Denuvo account locks', 'Blocks these games from unlocking on other accounts.', cfg.DenuvoGamesYaml || '', '76561198000000001:\n  - 440\n  - 730', 4);
@@ -479,9 +471,9 @@ function buildConfigSectionsHtml(cfg) {
             '<div class="sls-cfg-saveblock" style="padding: 0 16px; display: flex; flex-direction: column; gap: 8px;">' +
                 '<div id="sls-cfg-dirty-pill" role="status" aria-live="polite" style="font-size: 11px; font-weight: 500; color: #2ecc71; text-align: center; padding: 2px 0;">All changes saved</div>' +
                 '<button id="sls-cfg-save-btn" class="sls-cfg-btn" type="button" disabled style="background: rgba(255, 255, 255, 0.08); color: #64748b; border: none; border-radius: 6px; padding: 10px 14px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; text-align: center;">Save changes</button>' +
-                '<div style="display: flex; justify-content: space-between; align-items: center; padding: 0 2px;">' +
-                    '<button id="sls-cfg-discard-btn" type="button" style="display: none; background: none; border: none; color: #8a929e; font-size: 12px; cursor: pointer; padding: 0;">Discard changes</button>' +
-                    '<span style="color: #64748b; font-size: 11px; margin-left: auto;">Ctrl+S</span>' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">' +
+                    '<button id="sls-cfg-discard-btn" class="sls-cfg-btn" type="button" style="display: none; background-color: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 6px; color: #e2e8f0; font-size: 12px; font-weight: 500; padding: 6px 12px; line-height: 16px; cursor: pointer; flex: 1 1 auto; text-align: center;">Discard changes</button>' +
+                    '<span style="color: #64748b; font-size: 11px; margin-left: auto; white-space: nowrap; flex-shrink: 0;">Ctrl+S</span>' +
                 '</div>' +
                 '<button id="sls-cfg-restart-btn" class="sls-cfg-btn" type="button" style="background: rgba(255, 77, 77, 0.12); border: 1px solid rgba(255, 77, 77, 0.3); color: #ff6b6b; width: 100%; text-align: center; border-radius: 6px; padding: 8px 12px; font-size: 12px; margin-top: 4px;">Restart Steam</button>' +
             '</div>' +

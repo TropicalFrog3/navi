@@ -1,6 +1,8 @@
+Outcome: shipped — Fixed Library textarea item column flex layout and header spacing, and added quick-add dialog buttons across all 9 Library cards with UI regression assertions — 2026-11-13
+
 # Bug Spec: Fix Library "+ Add Game" Button Spacing & Add Quick-Add Buttons to All Library Cards
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Shell Inject (`res/inject-scripts/shell/import-lua/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- (in navi config tab) Library section: fix the add game button (there's no margin with the sub title (not appealing for the eyes))` & `- fix no other card section have add game why??`

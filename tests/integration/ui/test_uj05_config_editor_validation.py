@@ -98,6 +98,30 @@ def test_uj05_config_editing_barrier_saving_state_and_lock(
     assert config_page.is_dirty() is True
     assert config_page.is_discard_visible() is True
 
+    discard_styles = driver.evaluate(
+        """
+        (() => {
+            const el = document.getElementById('sls-cfg-discard-btn');
+            if (!el) return null;
+            const cs = window.getComputedStyle(el);
+            return {
+                hasClass: el.classList.contains('sls-cfg-btn'),
+                borderTopWidth: parseFloat(cs.borderTopWidth) || 0,
+                paddingTop: parseFloat(cs.paddingTop) || 0,
+                paddingLeft: parseFloat(cs.paddingLeft) || 0,
+                backgroundColor: cs.backgroundColor || ''
+            };
+        })()
+        """,
+        await_promise=False,
+    )
+    assert discard_styles is not None
+    assert discard_styles["hasClass"] is True
+    assert discard_styles["borderTopWidth"] >= 1
+    assert discard_styles["paddingTop"] >= 4
+    assert discard_styles["paddingLeft"] >= 8
+    assert discard_styles["backgroundColor"] not in ("", "transparent", "rgba(0, 0, 0, 0)")
+
     # 2. Hold in-flight save request using RequestBarrier
     barrier = callback_server.hold_endpoint("/config/full")
 
@@ -160,6 +184,14 @@ def test_uj05_invalid_input_dlc_yaml_error_without_wiping_form(
     config_page.switch_tab("sls-cfg-sec-profile")
     assert config_page.get_field_value("FakeName") == "Custom Name Preserved"
     assert config_page.is_dirty() is True
+
+    # Confirm discarding changes resets dirty state and restores saved field values
+    config_page.click_discard()
+    driver.click("#sls-cfg-dialog-backdrop button:last-child")
+    config_page.wait_for_status_banner("discarded", timeout=5.0)
+    assert config_page.is_dirty() is False
+    assert config_page.is_discard_visible() is False
+    assert config_page.get_field_value("FakeName") == "Gordon Freeman"
 
 
 @pytest.mark.ui_p1
@@ -278,4 +310,175 @@ def test_uj05_cloudredirect_ux_parity_controls(
         lambda: "backup_107410_auto_1.tar.gz" in (driver.evaluate("document.getElementById('sls-cfg-cs-backups-list').textContent") or ""),
         timeout=5.0,
     )
+
+    # 6. Regression: long backup row titles/filenames stay within table and cell bounds
+    long_title = "Very Long Game Title Regression Overflow Check Edition 2026 With Extra Words"
+    long_file = "backup_107410_very_long_archive_filename_overflow_regression_check_0123456789.tar.gz"
+    callback_server.set_response(
+        "/cloud/backups",
+        {
+            "success": True,
+            "backups": [
+                {
+                    "appId": 107410,
+                    "gameTitle": long_title,
+                    "fileName": long_file,
+                    "fullPath": f"/storage/107410/backups/{long_file}",
+                    "sizeBytes": 524288,
+                    "timestamp": 1730582400,
+                }
+            ],
+        },
+    )
+    driver.click("#sls-cfg-cs-backups-refresh")
+    driver.wait_for_condition(
+        lambda: long_file in (driver.evaluate("document.getElementById('sls-cfg-cs-backups-list').textContent") or ""),
+        timeout=5.0,
+    )
+    geometry = driver.evaluate(
+        """
+        (() => {
+            const list = document.getElementById('sls-cfg-cs-backups-list');
+            const table = list ? list.querySelector('table.navi-steam-cloud-table') : null;
+            const row = table ? table.querySelector('tr.navi-cloud-backup-row') : null;
+            if (!table || !row) return null;
+            const tableRect = table.getBoundingClientRect();
+            const cells = Array.from(row.querySelectorAll('td')).map(td => {
+                const r = td.getBoundingClientRect();
+                return {
+                    label: td.getAttribute('data-label') || '',
+                    left: r.left,
+                    right: r.right,
+                    title: td.getAttribute('title') || ''
+                };
+            });
+            const actionsTd = row.querySelector('td[data-label="ACTIONS"]');
+            const actionsRect = actionsTd ? actionsTd.getBoundingClientRect() : null;
+            const buttons = actionsTd
+                ? Array.from(actionsTd.querySelectorAll('button')).map(btn => {
+                    const r = btn.getBoundingClientRect();
+                    return { text: btn.textContent || '', left: r.left, right: r.right };
+                })
+                : [];
+            return {
+                tableRect: { left: tableRect.left, right: tableRect.right },
+                cells,
+                actionsRect: actionsRect ? { left: actionsRect.left, right: actionsRect.right } : null,
+                buttons
+            };
+        })()
+        """,
+        await_promise=False,
+    )
+    assert geometry is not None
+    table_rect = geometry["tableRect"]
+    for cell in geometry["cells"]:
+        assert cell["right"] <= table_rect["right"] + 1, f"Cell {cell['label']} overflowed table right edge"
+    titles_by_label = {c["label"]: c["title"] for c in geometry["cells"]}
+    assert titles_by_label.get("GAME"), "GAME cell missing hover title tooltip"
+    assert titles_by_label.get("BACKUP ARCHIVE") == long_file
+    assert titles_by_label.get("DATE"), "DATE cell missing hover title tooltip"
+
+    actions_rect = geometry["actionsRect"]
+    assert actions_rect is not None
+    assert len(geometry["buttons"]) == 2
+    for btn in geometry["buttons"]:
+        assert btn["left"] >= actions_rect["left"] - 1, f"Button {btn['text']} overflowed ACTIONS left edge"
+        assert btn["right"] <= actions_rect["right"] + 1, f"Button {btn['text']} overflowed ACTIONS right edge"
+
+
+@pytest.mark.ui_p1
+def test_uj05_library_quick_add_buttons_and_header_spacing(
+    config_page: ConfigEditorPage,
+    callback_server: CallbackServerStub,
+    driver: BrowserDriver,
+    repo_paths: dict[str, Path],
+) -> None:
+    """Verify Library quick-add button spacing, column layout, and dialog insertion across all Library cards."""
+    shell_path = repo_paths["fixtures"] / "steam_library_sp.html"
+    driver.navigate_to_file(shell_path)
+    driver.inject_script(repo_paths["scripts"] / "import-lua-script.js")
+    config_page.open()
+
+    driver.wait_for_condition(lambda: bool(config_page.get_field_value("FakeName")))
+    config_page.switch_tab("sls-cfg-sec-overrides")
+
+    geometry = driver.evaluate(
+        """
+        (() => {
+            const textarea = document.getElementById('sls-cfg-AppIds');
+            const btn = document.getElementById('sls-cfg-add-app-btn');
+            const item = textarea ? textarea.closest('.sls-cfg-item') : null;
+            if (!textarea || !btn || !item) return null;
+            const headerRow = item.firstElementChild;
+            const textCol = headerRow ? headerRow.firstElementChild : null;
+            const titleEl = textCol ? textCol.children[0] : null;
+            const subtitleEl = textCol ? textCol.children[1] : null;
+            if (!titleEl || !subtitleEl) return null;
+            const btnRect = btn.getBoundingClientRect();
+            const titleRect = titleEl.getBoundingClientRect();
+            const subtitleRect = subtitleEl.getBoundingClientRect();
+            const textareaRect = textarea.getBoundingClientRect();
+            return {
+                flexDirection: window.getComputedStyle(item).flexDirection,
+                btnLeft: btnRect.left,
+                btnBottom: btnRect.bottom,
+                titleRight: titleRect.right,
+                subtitleRight: subtitleRect.right,
+                textareaTop: textareaRect.top,
+            };
+        })()
+        """,
+        await_promise=False,
+    )
+    assert geometry is not None
+    assert geometry["flexDirection"] == "column"
+    assert geometry["btnLeft"] - geometry["titleRight"] >= 16
+    assert geometry["btnLeft"] - geometry["subtitleRight"] >= 16
+    assert geometry["btnBottom"] <= geometry["textareaTop"]
+
+    expected_btn_ids = [
+        "sls-cfg-add-app-btn",
+        "sls-cfg-add-extra-app-btn",
+        "sls-cfg-add-offline-btn",
+        "sls-cfg-add-fakeappid-btn",
+        "sls-cfg-add-gametitle-btn",
+        "sls-cfg-add-manifest-btn",
+        "sls-cfg-add-depot-blacklist-btn",
+        "sls-cfg-add-apptoken-btn",
+        "sls-cfg-add-cdkey-btn",
+    ]
+    missing_btns = driver.evaluate(
+        f"""
+        (() => {json.dumps(expected_btn_ids)}.filter(id => !document.getElementById(id)))()
+        """,
+        await_promise=False,
+    )
+    assert missing_btns == [], f"Missing Library quick-add buttons: {missing_btns}"
+
+    driver.click("#sls-cfg-add-fakeappid-btn")
+    driver.wait_for_condition(
+        lambda: bool(driver.evaluate("document.getElementById('sls-cfg-dialog-backdrop')", await_promise=False)),
+        timeout=5.0,
+    )
+    driver.evaluate(
+        """
+        (() => {
+            const k = document.querySelector('#sls-cfg-dialog-backdrop input[data-input-key="k"]');
+            const v = document.querySelector('#sls-cfg-dialog-backdrop input[data-input-key="v"]');
+            if (k) { k.value = '480'; k.dispatchEvent(new Event('input', { bubbles: true })); }
+            if (v) { v.value = '440'; v.dispatchEvent(new Event('input', { bubbles: true })); }
+        })()
+        """,
+        await_promise=False,
+    )
+    driver.click("#sls-cfg-dialog-backdrop button:last-child")
+
+    driver.wait_for_condition(
+        lambda: "480: 440" in config_page.get_field_value("FakeAppIds"),
+        timeout=5.0,
+        error_message="Expected '480: 440' to be appended to FakeAppIds",
+    )
+    assert config_page.is_dirty() is True
+
 

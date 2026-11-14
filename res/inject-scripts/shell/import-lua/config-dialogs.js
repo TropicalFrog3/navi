@@ -50,24 +50,37 @@ function showStatusBanner(msg, color) {
                 dialog.appendChild(bodyEl);
             }
 
-            var inputEl = null;
-            var errorEl = null;
-            if (opts.input) {
+            function createDialogField(spec) {
                 var fieldLabel = document.createElement('label');
                 fieldLabel.style.cssText = 'display: flex; flex-direction: column; gap: 4px; color: #8a929e; font-size: 12px;';
                 var labelText = document.createElement('span');
-                labelText.textContent = opts.input.label || '';
+                labelText.textContent = spec.label || '';
                 fieldLabel.appendChild(labelText);
-                inputEl = document.createElement('input');
-                inputEl.type = 'text';
-                inputEl.className = 'sls-cfg-input';
-                inputEl.style.width = '100%';
-                inputEl.autocomplete = 'off';
-                inputEl.placeholder = opts.input.placeholder || '';
-                inputEl.setAttribute('aria-label', opts.input.label || '');
-                fieldLabel.appendChild(inputEl);
+                var el = document.createElement('input');
+                el.type = 'text';
+                el.className = 'sls-cfg-input';
+                el.style.width = '100%';
+                el.autocomplete = 'off';
+                el.placeholder = spec.placeholder || '';
+                el.setAttribute('aria-label', spec.label || '');
+                if (spec.key) el.setAttribute('data-input-key', spec.key);
+                fieldLabel.appendChild(el);
                 dialog.appendChild(fieldLabel);
+                return el;
+            }
 
+            var inputEl = null;
+            var inputEls = [];
+            var errorEl = null;
+            if (Array.isArray(opts.inputs) && opts.inputs.length > 0) {
+                opts.inputs.forEach(function (spec, idx) {
+                    var el = createDialogField(spec);
+                    inputEls.push({ key: spec.key || ('field' + idx), el: el });
+                });
+            } else if (opts.input) {
+                inputEl = createDialogField(opts.input);
+            }
+            if (inputEls.length > 0 || inputEl) {
                 errorEl = document.createElement('div');
                 errorEl.className = 'sls-cfg-inline-error';
                 errorEl.setAttribute('role', 'alert');
@@ -112,8 +125,17 @@ function showStatusBanner(msg, color) {
                         return;
                     }
                 }
+                var payload;
+                if (inputEls.length > 0) {
+                    payload = {};
+                    inputEls.forEach(function (item) {
+                        payload[item.key] = item.el.value;
+                    });
+                } else {
+                    payload = inputEl ? inputEl.value : undefined;
+                }
                 closeDialog();
-                if (typeof opts.onConfirm === 'function') opts.onConfirm(inputEl ? inputEl.value : undefined);
+                if (typeof opts.onConfirm === 'function') opts.onConfirm(payload);
             }
 
             function onKeyDown(e) {
@@ -142,7 +164,22 @@ function showStatusBanner(msg, color) {
             dialog.vgp_oncancel = closeDialog;
             backdrop.vgp_oncancel = closeDialog;
 
-            if (inputEl) {
+            if (inputEls.length > 0) {
+                inputEls.forEach(function (item) {
+                    item.el.oninput = function () {
+                        if (errorEl) {
+                            errorEl.textContent = '';
+                            errorEl.style.display = 'none';
+                        }
+                    };
+                    item.el.onkeydown = function (e) {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            tryConfirm();
+                        }
+                    };
+                });
+            } else if (inputEl) {
                 inputEl.oninput = function () {
                     confirmBtn.disabled = opts.input.expected ? (inputEl.value !== opts.input.expected) : false;
                     if (errorEl) {
@@ -160,7 +197,8 @@ function showStatusBanner(msg, color) {
 
             document.body.appendChild(backdrop);
             document.addEventListener('keydown', onKeyDown, true);
-            if (inputEl) inputEl.focus();
+            if (inputEls.length > 0) inputEls[0].el.focus();
+            else if (inputEl) inputEl.focus();
             else confirmBtn.focus();
 
             return backdrop;

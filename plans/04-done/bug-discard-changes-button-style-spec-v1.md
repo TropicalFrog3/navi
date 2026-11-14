@@ -1,6 +1,8 @@
+Outcome: shipped — Styled #sls-cfg-discard-btn as a secondary .sls-cfg-btn button with border, background fill, padding, hover state, and UI regression assertions — 2026-11-13
+
 # Bug Spec: Style "Discard Changes" as a Button Instead of Plain Text
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Shell Inject (`res/inject-scripts/shell/import-lua/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- (in navi config tab) make the discard changes a button instead of a text that you can click, it confuse the user.`

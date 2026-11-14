@@ -46,10 +46,20 @@ function makeCard(title, subtitle, contentHtml, opts) {
             return lines.join('\n');
         }
 
-        function makeTextareaItem(id, label, desc, content, placeholder, rows) {
-            return '<div class="sls-cfg-item" data-search="' + escapeHtml(label.toLowerCase() + ' ' + (desc || '').toLowerCase() + ' ' + id.toLowerCase()) + '" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px;">' +
-                '<div style="font-size: 14px; font-weight: 500; color: #ffffff;">' + label + '</div>' +
-                (desc ? '<div style="font-size: 12.5px; color: #8a929e; margin: 3px 0 10px;">' + desc + '</div>' : '<div style="margin-bottom: 8px;"></div>') +
+        function makeTextareaItem(id, label, desc, content, placeholder, rows, opts) {
+            opts = opts || {};
+            var searchRaw = label + ' ' + (desc || '') + ' ' + id + (opts.searchTerms ? ' ' + opts.searchTerms : '');
+            var btnHtml = (opts.addBtnId && opts.addBtnLabel)
+                ? '<button id="' + opts.addBtnId + '" type="button" class="sls-cfg-btn" style="padding: 5px 12px; font-size: 12px; flex-shrink: 0; margin-left: 8px; white-space: nowrap;">' + escapeHtml(opts.addBtnLabel) + '</button>'
+                : '';
+            return '<div class="sls-cfg-item" data-search="' + escapeHtml(searchRaw.toLowerCase()) + '" style="background-color: #171a22; border: 1px solid rgba(255, 255, 255, 0.04); padding: 14px 18px; margin-top: 8px; border-radius: 6px; display: flex; flex-direction: column; align-items: stretch; gap: 6px;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; width: 100%; margin-bottom: 6px;">' +
+                    '<div style="flex: 1 1 auto; min-width: 0;">' +
+                        '<div style="font-size: 14px; font-weight: 500; color: #ffffff; line-height: 19px;">' + label + '</div>' +
+                        (desc ? '<div style="font-size: 12.5px; color: #8a929e; line-height: 17px; margin-top: 3px;">' + desc + '</div>' : '') +
+                    '</div>' +
+                    btnHtml +
+                '</div>' +
                 '<textarea id="' + id + '" class="sls-cfg-textarea" rows="' + (rows || 3) + '" placeholder="' + escapeHtml(placeholder || '') + '">' + escapeHtml(content) + '</textarea>' +
                 (id === 'sls-cfg-AppIds' || id === 'sls-cfg-AdditionalApps' || id === 'sls-cfg-FakeOffline' || id === 'sls-cfg-DepotBlacklist'
                     ? '<div class="sls-cfg-inline-error" id="sls-cfg-err-' + id + '" role="alert"></div>'

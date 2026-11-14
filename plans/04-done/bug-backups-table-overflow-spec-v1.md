@@ -1,6 +1,8 @@
+Outcome: shipped — Rebalanced Saved backup archives table columns (24%/28%/18%/10%/20%), added cell overflow/ellipsis containment and hover titles, wrapped row action buttons in an inline-flex container, and added UI geometry bounds regression assertions — 2026-11-13
+
 # Bug Spec: Saved Backup Archives Table Overflowing List Items Content
 
-- **Status:** Spec v1
+- **Status:** Shipped (v1)
 - **Category:** UI & UX Bug
 - **Owning Layer:** CEF Shell Inject (`res/inject-scripts/shell/import-lua/`)
 - **Source Wishlist Item:** `plans/01-backlog/dev-plan.md` — `- (in navi config tab) Saved backup archives: fix the overflowing list items content`

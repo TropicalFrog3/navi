@@ -638,11 +638,11 @@ function hideConfigPage() {
                     bTable.style.width = '100%';
                     bTable.innerHTML =
                         '<thead><tr>' +
-                            '<th scope="col" style="width: 26%; text-align: left;">GAME</th>' +
-                            '<th scope="col" style="width: 36%; text-align: left;">BACKUP ARCHIVE</th>' +
+                            '<th scope="col" style="width: 24%; text-align: left;">GAME</th>' +
+                            '<th scope="col" style="width: 28%; text-align: left;">BACKUP ARCHIVE</th>' +
                             '<th scope="col" style="width: 18%; text-align: right;">DATE</th>' +
                             '<th scope="col" style="width: 10%; text-align: right;">SIZE</th>' +
-                            '<th scope="col" style="width: 10%; text-align: right;">ACTIONS</th>' +
+                            '<th scope="col" style="width: 20%; min-width: 148px; text-align: right;">ACTIONS</th>' +
                         '</tr></thead>';
 
                     var bTbody = document.createElement('tbody');
@@ -666,8 +666,16 @@ function hideConfigPage() {
                         tdBGame.style.overflow = 'hidden';
                         tdBGame.style.textOverflow = 'ellipsis';
                         tdBGame.style.whiteSpace = 'nowrap';
-                        tdBGame.innerHTML = '<span style="color:#ffffff;font-weight:500;">' + escapeHtml(bTitle) + '</span>' +
-                            '<span style="font-size:11px;color:#8f98a0;margin-left:6px;">(' + escapeHtml(String(bAppId)) + ')</span>';
+                        tdBGame.style.maxWidth = '0';
+                        tdBGame.title = bTitle + ' (' + bAppId + ')';
+                        var bTitleSpan = document.createElement('span');
+                        bTitleSpan.style.cssText = 'color:#ffffff;font-weight:500;';
+                        bTitleSpan.textContent = bTitle;
+                        var bAppIdSpan = document.createElement('span');
+                        bAppIdSpan.style.cssText = 'font-size:11px;color:#8f98a0;margin-left:6px;';
+                        bAppIdSpan.textContent = '(' + String(bAppId) + ')';
+                        tdBGame.appendChild(bTitleSpan);
+                        tdBGame.appendChild(bAppIdSpan);
 
                         var tdBFile = document.createElement('td');
                         tdBFile.setAttribute('data-label', 'BACKUP ARCHIVE');
@@ -677,29 +685,42 @@ function hideConfigPage() {
                         tdBFile.style.overflow = 'hidden';
                         tdBFile.style.textOverflow = 'ellipsis';
                         tdBFile.style.whiteSpace = 'nowrap';
+                        tdBFile.style.maxWidth = '0';
+                        tdBFile.title = bFile;
                         tdBFile.textContent = bFile;
 
+                        var bDateStr = fmtDate(b.timestamp);
                         var tdBDate = document.createElement('td');
                         tdBDate.className = 'navi-col-num';
                         tdBDate.setAttribute('data-label', 'DATE');
                         tdBDate.style.textAlign = 'right';
-                        tdBDate.textContent = fmtDate(b.timestamp);
+                        tdBDate.style.overflow = 'hidden';
+                        tdBDate.style.textOverflow = 'ellipsis';
+                        tdBDate.style.maxWidth = '0';
+                        tdBDate.title = bDateStr;
+                        tdBDate.textContent = bDateStr;
 
+                        var bSizeStr = fmtBytes(b.sizeBytes);
                         var tdBSize = document.createElement('td');
                         tdBSize.className = 'navi-col-num';
                         tdBSize.setAttribute('data-label', 'SIZE');
                         tdBSize.style.textAlign = 'right';
-                        tdBSize.textContent = fmtBytes(b.sizeBytes);
+                        tdBSize.style.overflow = 'hidden';
+                        tdBSize.style.textOverflow = 'ellipsis';
+                        tdBSize.style.maxWidth = '0';
+                        tdBSize.title = bSizeStr;
+                        tdBSize.textContent = bSizeStr;
 
                         var tdBActions = document.createElement('td');
                         tdBActions.setAttribute('data-label', 'ACTIONS');
                         tdBActions.style.textAlign = 'right';
                         tdBActions.style.whiteSpace = 'nowrap';
+                        tdBActions.style.overflow = 'hidden';
 
                         var restoreBtn = document.createElement('button');
                         restoreBtn.type = 'button';
                         restoreBtn.className = 'sls-cfg-btn';
-                        restoreBtn.style.cssText = 'padding: 4px 10px; font-size: 11.5px; margin-right: 6px; color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); background: rgba(26, 159, 255, 0.12);';
+                        restoreBtn.style.cssText = 'padding: 4px 10px; font-size: 11.5px; color: #38bdf8; border-color: rgba(56, 189, 248, 0.35); background: rgba(26, 159, 255, 0.12);';
                         restoreBtn.textContent = 'Restore';
                         restoreBtn.onclick = function (e) {
                             e.preventDefault();
@@ -760,8 +781,11 @@ function hideConfigPage() {
                             });
                         };
 
-                        tdBActions.appendChild(restoreBtn);
-                        tdBActions.appendChild(deleteBtn);
+                        var bActionsWrap = document.createElement('div');
+                        bActionsWrap.style.cssText = 'display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; max-width: 100%;';
+                        bActionsWrap.appendChild(restoreBtn);
+                        bActionsWrap.appendChild(deleteBtn);
+                        tdBActions.appendChild(bActionsWrap);
                         bTr.appendChild(tdBGame);
                         bTr.appendChild(tdBFile);
                         bTr.appendChild(tdBDate);
@@ -1932,27 +1956,129 @@ function hideConfigPage() {
             };
         }
 
-        var addAppBtn = document.getElementById('sls-cfg-add-app-btn');
-        if (addAppBtn) {
-            addAppBtn.onclick = function (e) {
+        var LIBRARY_QUICK_ADD_SPECS = [
+            {
+                btnId: 'sls-cfg-add-app-btn',
+                targetId: 'sls-cfg-AppIds',
+                title: 'Add unlocked game',
+                body: 'Enter the AppID of the game to unlock (adding a game also includes its DLC):',
+                confirmLabel: 'Add game',
+                input: { label: 'AppID', placeholder: '440' }
+            },
+            {
+                btnId: 'sls-cfg-add-extra-app-btn',
+                targetId: 'sls-cfg-AdditionalApps',
+                title: 'Add extra game',
+                body: 'Enter the AppID of a game that is not in your library:',
+                confirmLabel: 'Add game',
+                input: { label: 'AppID', placeholder: '480' }
+            },
+            {
+                btnId: 'sls-cfg-add-offline-btn',
+                targetId: 'sls-cfg-FakeOffline',
+                title: 'Add game to show as offline',
+                body: 'Enter the AppID of the game that should think Steam is offline:',
+                confirmLabel: 'Add game',
+                input: { label: 'AppID', placeholder: '480' }
+            },
+            {
+                btnId: 'sls-cfg-add-depot-blacklist-btn',
+                targetId: 'sls-cfg-DepotBlacklist',
+                title: 'Skip a depot',
+                body: 'Enter the DepotID that Navi should skip downloading:',
+                confirmLabel: 'Add depot',
+                input: { label: 'DepotID', placeholder: '228980' }
+            },
+            {
+                btnId: 'sls-cfg-add-fakeappid-btn',
+                targetId: 'sls-cfg-FakeAppIds',
+                title: 'Add fake AppID mapping',
+                body: 'Map a game AppID to the AppID it should report for multiplayer:',
+                confirmLabel: 'Add mapping',
+                inputs: [
+                    { key: 'k', label: 'Game AppID', placeholder: '480' },
+                    { key: 'v', label: 'Fake AppID', placeholder: '440' }
+                ]
+            },
+            {
+                btnId: 'sls-cfg-add-gametitle-btn',
+                targetId: 'sls-cfg-GameTitles',
+                title: 'Add custom game title',
+                body: 'Override the library display name for an owned game:',
+                confirmLabel: 'Add title',
+                inputs: [
+                    { key: 'k', label: 'AppID', placeholder: '440' },
+                    { key: 'v', label: 'Custom title', placeholder: 'Team Fortress 2 Custom' }
+                ]
+            },
+            {
+                btnId: 'sls-cfg-add-manifest-btn',
+                targetId: 'sls-cfg-ManifestIds',
+                title: 'Lock depot / game to version',
+                body: 'Specify an AppID/DepotID and ManifestID to pin:',
+                confirmLabel: 'Add version',
+                inputs: [
+                    { key: 'k', label: 'DepotID / AppID', placeholder: '441' },
+                    { key: 'v', label: 'ManifestID', placeholder: '123456789012345678' }
+                ]
+            },
+            {
+                btnId: 'sls-cfg-add-apptoken-btn',
+                targetId: 'sls-cfg-AppTokens',
+                title: 'Add app token',
+                body: 'Add a product info token for a game:',
+                confirmLabel: 'Add token',
+                inputs: [
+                    { key: 'k', label: 'AppID', placeholder: '730' },
+                    { key: 'v', label: 'Token', placeholder: '987654321098765432' }
+                ]
+            },
+            {
+                btnId: 'sls-cfg-add-cdkey-btn',
+                targetId: 'sls-cfg-CDKeys',
+                title: 'Add legacy CD key',
+                body: 'Add a legacy CD key required by an older game:',
+                confirmLabel: 'Add key',
+                inputs: [
+                    { key: 'k', label: 'AppID', placeholder: '440' },
+                    { key: 'v', label: 'CD key', placeholder: 'ABCD-1234-EFGH-5678' }
+                ]
+            }
+        ];
+
+        LIBRARY_QUICK_ADD_SPECS.forEach(function (spec) {
+            var btn = document.getElementById(spec.btnId);
+            if (!btn) return;
+            btn.onclick = function (e) {
                 e.preventDefault();
                 slsConfirmDialog({
-                    title: 'Add unlocked game',
-                    body: 'Enter the AppID of the game to unlock (adding a game also includes its DLC):',
-                    confirmLabel: 'Add game',
+                    title: spec.title,
+                    body: spec.body,
+                    confirmLabel: spec.confirmLabel,
                     cancelLabel: 'Cancel',
-                    input: { label: 'AppID', placeholder: '440' },
-                    onConfirm: function (val) {
-                        var appIdsEl = document.getElementById('sls-cfg-AppIds');
-                        if (appIdsEl && val && val.trim()) {
-                            var cur = appIdsEl.value.trim();
-                            appIdsEl.value = cur ? (cur + '\n' + val.trim()) : val.trim();
+                    input: spec.input,
+                    inputs: spec.inputs,
+                    onConfirm: function (res) {
+                        var entry = '';
+                        if (spec.inputs) {
+                            var k = res && typeof res.k === 'string' ? res.k.trim() : '';
+                            var v = res && typeof res.v === 'string' ? res.v.trim() : '';
+                            if (k && v) entry = k + ': ' + v;
+                        } else if (typeof res === 'string') {
+                            entry = res.trim();
+                        }
+                        if (!entry) return;
+                        var targetEl = document.getElementById(spec.targetId);
+                        if (targetEl) {
+                            var cur = targetEl.value.trim();
+                            targetEl.value = cur ? (cur + '\n' + entry) : entry;
+                            targetEl.dispatchEvent(new Event('input', { bubbles: true }));
                             checkDirty();
                         }
                     }
                 });
             };
-        }
+        });
 
         // ---------------------------------------------------------------------
         // Form serialization + dirty tracking

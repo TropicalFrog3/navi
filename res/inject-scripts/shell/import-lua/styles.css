@@ -55,6 +55,7 @@ details[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 
 .sls-cfg-btn-primary:hover { background: #38bdf8 !important; border-color: #38bdf8 !important; }
 .sls-cfg-btn-danger { background: rgba(239, 68, 68, 0.12) !important; border: 1px solid rgba(239, 68, 68, 0.4) !important; color: #f87171 !important; border-radius: 6px !important; }
 .sls-cfg-btn-danger:hover { background: rgba(239, 68, 68, 0.22) !important; border-color: #ef4444 !important; }
+#sls-cfg-discard-btn:hover { background-color: rgba(255, 255, 255, 0.12) !important; border-color: rgba(255, 255, 255, 0.24) !important; color: #ffffff !important; }
 .sls-cfg-section { max-width: 980px; width: 100%; box-sizing: border-box; }
 .sls-cfg-dialog-body::-webkit-scrollbar { width: 10px; }
 .sls-cfg-dialog-body::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.1); }
@@ -80,8 +81,8 @@ details[open] .sls-lua-chevron { transform: rotate(180deg); color: rgb(26, 159, 
 .navi-steam-cloud-table tbody tr { background: #16202d; border-bottom: 1px solid rgba(255, 255, 255, 0.04); transition: background 0.12s ease; }
 .navi-steam-cloud-table tbody tr:nth-child(even) { background: #192533; }
 .navi-steam-cloud-table tbody tr:hover { background: #223348 !important; }
-.navi-steam-cloud-table td { padding: 8px 12px; vertical-align: middle; color: #c6d4df; }
-.navi-steam-cloud-table td.navi-col-num { font-variant-numeric: tabular-nums; font-family: monospace; font-size: 12px; white-space: nowrap; }
+.navi-steam-cloud-table td { padding: 8px 12px; vertical-align: middle; color: #c6d4df; box-sizing: border-box; }
+.navi-steam-cloud-table td.navi-col-num { font-variant-numeric: tabular-nums; font-family: monospace; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 0; }
 tr.sls-cfg-item { display: table-row !important; background-color: transparent !important; border: none !important; border-radius: 0 !important; padding: 0 !important; margin: 0 !important; min-height: unset !important; }
 .navi-steam-cloud-link { display: inline-flex; align-items: center; justify-content: center; background: rgba(102, 192, 244, 0.1); border: 1px solid rgba(102, 192, 244, 0.28); border-radius: 3px; color: #66c0f4; font-family: inherit; font-size: 11.5px; font-weight: 500; padding: 3px 10px; cursor: pointer; text-decoration: none; transition: all 0.15s ease; }
 .navi-steam-cloud-link:hover, .navi-steam-cloud-link:focus-visible { background: #1a9fff; border-color: #38bdf8; color: #ffffff; text-decoration: none; }
