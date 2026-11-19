@@ -38,6 +38,24 @@ AppId_t FakeAppIds::getFakeAppId(const AppId_t appId)
 	return 0;
 }
 
+AppId_t FakeAppIds::getPresenceFakeAppId(const AppId_t appId)
+{
+	const AppId_t explicitFake = getFakeAppId(appId);
+	if (explicitFake)
+	{
+		return explicitFake;
+	}
+
+	const AppId_t familyFake = g_config.familyShareFakeAppId.get();
+	if (!familyFake || !g_config.disableFamilyLock.get())
+	{
+		return 0;
+	}
+
+	const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser(0) : nullptr;
+	return Apps::isFamilySharedApp(usr, appId) ? familyFake : 0;
+}
+
 AppId_t FakeAppIds::getRealAppIdFromEnv(const HSteamPipe pipe)
 {
 	if (fakeAppIdMap.contains(pipe))
@@ -313,7 +331,7 @@ void FakeAppIds::sendGamesPlayed(CNetPacket *pkt)
 			continue;
 		}
 
-		const AppId_t fakeAppId = FakeAppIds::getFakeAppId(gameId);
+		const AppId_t fakeAppId = FakeAppIds::getPresenceFakeAppId(gameId);
 		if (!fakeAppId)
 		{
 			continue;
@@ -342,7 +360,7 @@ void FakeAppIds::sendRichPresenceUpload(CNetPacket* pkt)
 	auto header = pkt->deserializeHeader();
 	LOG_DEBUG("Routing appId %u\n", header.routing_appid());
 
-	const auto appId = getFakeAppId(header.routing_appid());
+	const auto appId = getPresenceFakeAppId(header.routing_appid());
 
 	if (!appId)
 	{

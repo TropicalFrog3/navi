@@ -709,13 +709,6 @@ static bool hkWebSocketConnection_BBuildAndAsyncSendFrame(CWebSocketConnection* 
 					g_pWebSocketConnection = reinterpret_cast<CWebSocketConnection*>(pWebSocketConnection);
 				}
 
-				if (Apps::shouldChokeSendPacket(&packet))
-				{
-					LOG_DEBUG("Choking outbound packet %s (0x%x)\n", packet.getProtoBufTypeName().c_str(), packet.getType());
-					packet.free();
-					return true;
-				}
-
 				Apps::sendMsg(&packet);
 				FakeAppIds::sendMsg(&packet);
 				ManifestCode::sendMsg(&packet);

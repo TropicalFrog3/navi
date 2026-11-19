@@ -17,6 +17,13 @@ namespace FakeAppIds
 	extern std::unordered_map<uint64_t, AppId_t> fakeAppIdMapPings;
 
 	AppId_t getFakeAppId(const AppId_t appId);
+
+	//FakeAppId used for presence packets (CMsgClientGamesPlayed / Rich Presence).
+	//Falls back to FamilyShareFakeAppId for borrowed Family-Shared apps so the CM
+	//never sees the shared session and starts its lock timer. Server-browser and
+	//ping lookups keep using the real appid.
+	AppId_t getPresenceFakeAppId(const AppId_t appId);
+
 	AppId_t getRealAppIdFromEnv(const HSteamPipe pipe);
 	AppId_t getRealAppIdForCurrentPipe(const bool fallback = true);
 	bool shouldUseRealAppIdForInterface(const EIPCInterface type);

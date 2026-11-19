@@ -1,11 +1,18 @@
 {
-  "version": 1,
+  "version": 2,
   "skills": {
+    "swarm": {
+      "source": "backnotprop/pstack",
+      "commit": "74bcc61bd216687b1d6d480c28f109adfc9824ec",
+      "sourceType": "github",
+      "skillPath": "skills/swarm/SKILL.md",
+      "computedHash": "0934ebf2798f499b0368d43c5ac6b80ce163361c9d847349d07164f9ce133ff1"
+    },
     "typesafe-ai": {
       "source": "typesafe-ai/skills",
       "sourceType": "github",
       "skillPath": "skills/typesafe-ai/SKILL.md",
-      "computedHash": "15e077333436b1e63e526c7c7559202816f4848dabefd3aa3d4c91988fd181b5"
+      "computedHash": "a6d55f954bdee91ffcb208c42fe31cfba71594bc4d6bf63c0fed22bdb81df3d9"
     }
   }
 }

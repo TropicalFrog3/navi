@@ -21,12 +21,21 @@
 #  AppId1: FakeAppId1
 #  AppId2: FakeAppId2
 
-#Disables Family Share license locking and hides unmasked Family-Shared games from Steam CM
-#so another member using the license will not kick you out (you appear Online or IdleStatus).
-#Keep this on: without it Steam's FamilyGroups lock closes shared games every 3-5 minutes
-#("This account logged in on another computer").
-#Online multiplayer / Steamworks auth tickets still require FakeAppIds.
+#Disables the client-side Family Share lock notice for self.
+#Valve's family-lock timer is enforced server-side, so a borrowed game that is
+#reported under its real AppId still gets closed when another member plays it.
+#FamilyShareFakeAppId below is what actually keeps the session alive: borrowed
+#apps are reported to Steam under that owned AppId instead, so the CM never sees
+#the shared session. This keeps you "in game" (online matchmaking, friend joins)
+#instead of appearing idle. Steam will show the fake AppId's title, and games
+#using Steam P2P need both players mapped to the same AppId.
 DisableFamilyShareLock: yes
+
+#AppId reported to Steam for Family-Shared games while DisableFamilyShareLock is on.
+#0 disables the remap (borrowed games are reported under their real AppId and can
+#still be closed by the server-side family lock). Defaults to 480 (Spacewar),
+#which every account owns.
+FamilyShareFakeAppId: 480
 
 #Switches to whitelist instead of the default blacklist
 UseWhitelist: no

@@ -250,6 +250,7 @@ bool CConfig::loadSettings(bool firstLoad)
 	);
 
 	disableFamilyLock = getSetting<bool>(node, "DisableFamilyShareLock", true);
+	familyShareFakeAppId = getSetting<AppId_t>(node, "FamilyShareFakeAppId", 0);
 	useWhiteList = getSetting<bool>(node, "UseWhitelist", false);
 	maxSchemaTries = getSetting<uint32_t>(node, "MaxSchemaTries", 10);
 	safeMode = getSetting<bool>(node, "SafeMode", false);

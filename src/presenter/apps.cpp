@@ -1410,7 +1410,7 @@ void Apps::sendAndRecvLastPlayedTimes(const char* name, CPlayer_GetLastPlayedTim
 	}
 }
 
-static bool isFamilySharedApp(CUser* usr, const AppId_t appId, const uint32_t packetOwnerId = 0)
+bool Apps::isFamilySharedApp(CUser* usr, const AppId_t appId, const uint32_t packetOwnerId)
 {
 	if (!appId)
 	{
@@ -1455,9 +1455,12 @@ static bool isFamilySharedApp(CUser* usr, const AppId_t appId, const uint32_t pa
 	//Families while still returning true for genuinely owned, F2P and free-weekend
 	//licenses, which do not carry that flag.
 	//
-	//Forwarding such a borrowed session to the CM servers makes Valve start the
-	//180s family-lock timer, which terminates the game and disconnects the client
-	//with "This account logged in on another computer" every 3-5 minutes.
+	//The CM family-lock timer is enforced server-side, so rewriting this packet
+	//cannot disarm it. The only reliable way to keep a borrowed session alive while
+	//the lender plays is to report the app as an owned title through FakeAppIds
+	//(see FakeAppIds::getPresenceFakeAppId). Hiding the entry from
+	//CMsgClientGamesPlayed instead makes Steam report "playing nothing", which
+	//breaks online matchmaking and is explicitly rejected upstream.
 	return !usr->ownsAppDirectly(appId);
 }
 
@@ -1477,12 +1480,9 @@ void Apps::sendGamesPlayed(CNetPacket* pkt)
 	const auto titles = g_config.gameTitles.get();
 	const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser() : nullptr;
 	const auto appInfo = usr ? usr->getClientApps() : nullptr;
-	const bool hideFamilyShared = g_config.disableFamilyLock.get();
-
 	auto msg = pkt->deserializeBody<CMsgClientGamesPlayed>();
 
-	// Iterate backward so removing unmasked Family-Shared entries does not skip items.
-	for (int i = msg.games_played_size() - 1; i >= 0; i--)
+	for (int i = 0; i < msg.games_played_size(); i++)
 	{
 		auto game = msg.mutable_games_played(i);
 		if (!game->game_id())
@@ -1501,16 +1501,6 @@ void Apps::sendGamesPlayed(CNetPacket* pkt)
 		}
 
 		const AppId_t fakeAppId = FakeAppIds::getFakeAppId(gameId);
-		const bool familyMatch = isFamilySharedApp(usr, static_cast<AppId_t>(gameId), game->owner_id());
-
-		// Omit unmasked Family-Shared apps so Valve's CM server never sees a shared
-		// session conflict and starts its 180s kick timer (Logged In Elsewhere).
-		if (hideFamilyShared && !fakeAppId && familyMatch)
-		{
-			LOG_DEBUG("Hiding unmasked Family-Shared app %llu from CMsgClientGamesPlayed (DisableFamilyShareLock)\n", gameId);
-			msg.mutable_games_played()->DeleteSubrange(i, 1);
-			continue;
-		}
 
 		if (titles.contains(gameId))
 		{
@@ -1631,44 +1621,6 @@ bool Apps::shouldChokeRecvPacket(const CNetPacket* pkt)
 	//Do not modify header by blindly requesting the target_job_name
 	return header.has_target_job_name()
 		&& header.target_job_name() == "FamilyGroupsClient.NotifyRunningApps#1";
-}
-
-/**
- * Returns true if an outbound CM packet should be dropped before Steam sends it.
- * Suppresses Rich Presence uploads for Family-Shared apps hidden from
- * CMsgClientGamesPlayed (DisableFamilyShareLock without a FakeAppId override).
- */
-bool Apps::shouldChokeSendPacket(const CNetPacket* pkt)
-{
-	if (!pkt || !pkt->isValid() || !pkt->isProtoBuf())
-	{
-		return false;
-	}
-
-	if (!g_config.disableFamilyLock.get())
-	{
-		return false;
-	}
-
-	if (pkt->getProtoBufType() != k_EMsgClientRichPresenceUpload)
-	{
-		return false;
-	}
-
-	const auto header = pkt->deserializeHeader();
-	if (!header.has_routing_appid() || !header.routing_appid())
-	{
-		return false;
-	}
-
-	const AppId_t routingAppId = header.routing_appid();
-	if (FakeAppIds::getFakeAppId(routingAppId))
-	{
-		return false;
-	}
-
-	const auto usr = g_pSteamEngine ? g_pSteamEngine->getUser() : nullptr;
-	return isFamilySharedApp(usr, routingAppId);
 }
 
 void Apps::setConfigStoreString(const char* key, const char* value)

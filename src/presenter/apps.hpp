@@ -66,8 +66,11 @@ namespace Apps
 	void sendPICSInfoRequest(CNetPacket* pkt);
 	void sendMsg(CNetPacket* pkt);
 	bool shouldChokeRecvPacket(const CNetPacket* pkt);
-	bool shouldChokeSendPacket(const CNetPacket* pkt);
 	uint32_t resolveAppOwnerId(CUser* usr, const AppId_t appId);
+
+	//True when the app is only usable through Family Sharing (legacy or New Steam
+	//Families) without a directly owned license. Used to remap presence packets.
+	bool isFamilySharedApp(CUser* usr, const AppId_t appId, const uint32_t packetOwnerId = 0);
 
 	void setConfigStoreString(const char* key, const char* value);
 };

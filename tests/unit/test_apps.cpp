@@ -60,6 +60,7 @@ protected:
     CSteamId m_origSteamId{};
     CSteamEngine* m_origSteamEngine = nullptr;
     bool m_origDisableFamilyLock = false;
+    AppId_t m_origFamilyShareFakeAppId = 0;
     CConfig::FakeGame_t m_origIdleStatus{};
     std::unordered_map<AppId_t, AppId_t> m_origFakeAppIds;
 
@@ -90,6 +91,7 @@ protected:
         m_origSteamId = g_currentSteamId;
         m_origSteamEngine = g_pSteamEngine;
         m_origDisableFamilyLock = g_config.disableFamilyLock.get();
+        m_origFamilyShareFakeAppId = g_config.familyShareFakeAppId.get();
         m_origIdleStatus = g_config.idleStatus.get();
         m_origFakeAppIds = g_config.fakeAppIds.get();
 
@@ -97,6 +99,7 @@ protected:
         g_pSteamEngine = &s_engine;
         g_currentSteamId = CSteamId(999888);
         g_config.fakeAppIds = std::unordered_map<AppId_t, AppId_t>{};
+        g_config.familyShareFakeAppId = 0;
         clearMockAppOwnership();
     }
 
@@ -104,6 +107,7 @@ protected:
     {
         clearMockAppOwnership();
         g_config.fakeAppIds = m_origFakeAppIds;
+        g_config.familyShareFakeAppId = m_origFamilyShareFakeAppId;
         g_config.disableFamilyLock = m_origDisableFamilyLock;
         g_config.idleStatus = m_origIdleStatus;
         g_currentSteamId = m_origSteamId;
@@ -157,8 +161,10 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedPreservesOwnerIdWhenDisableFamilyLock
     EXPECT_NE(out.games_played(1).owner_id(), 1u);
 }
 
-TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesUnmaskedFamilySharedGamesWhenDisableFamilyLockEnabled)
+TEST_F(AppsFamilyShareTest, SendGamesPlayedKeepsUnmaskedFamilySharedGames)
 {
+    // The CM family-lock timer is server-side. Removing the entry made Steam
+    // report "playing nothing", which breaks online matchmaking; presence must stay.
     g_config.disableFamilyLock = true;
     g_config.idleStatus = CConfig::FakeGame_t{};
 
@@ -199,12 +205,14 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesUnmaskedFamilySharedGamesWhenDis
         Apps::sendGamesPlayed(&holder.pkt);
 
         const auto out = holder.pkt.deserializeBody<CMsgClientGamesPlayed>();
-        ASSERT_EQ(out.games_played_size(), 2);
+        ASSERT_EQ(out.games_played_size(), 4);
         EXPECT_EQ(out.games_played(0).game_id(), 730u);
-        EXPECT_EQ(out.games_played(1).game_id(), GAME_TYPE_SHORTCUT | 99ULL);
+        EXPECT_EQ(out.games_played(1).game_id(), 1566200u);
+        EXPECT_EQ(out.games_played(2).game_id(), 570u);
+        EXPECT_EQ(out.games_played(3).game_id(), GAME_TYPE_SHORTCUT | 99ULL);
     }
 
-    // Case 2: Only unmasked family-shared game + IdleStatus configured -> IdleStatus takes over
+    // Case 2: Only unmasked family-shared game + IdleStatus configured -> the real game stays
     {
         g_config.idleStatus = CConfig::FakeGame_t{ 480, "Idle" };
         CMsgClientGamesPlayed req;
@@ -219,11 +227,10 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesUnmaskedFamilySharedGamesWhenDis
 
         const auto out = holder.pkt.deserializeBody<CMsgClientGamesPlayed>();
         ASSERT_EQ(out.games_played_size(), 1);
-        EXPECT_EQ(out.games_played(0).game_id(), 480u);
-        EXPECT_EQ(out.games_played(0).owner_id(), 999888u);
+        EXPECT_EQ(out.games_played(0).game_id(), 1566200u);
     }
 
-    // Case 3: Unset g_currentSteamId must not falsely treat unflagged entries as different-owner
+    // Case 3: Unset g_currentSteamId must not drop entries
     {
         g_config.idleStatus = CConfig::FakeGame_t{};
         g_currentSteamId = CSteamId{};
@@ -299,7 +306,29 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedPreservesAndRemapsFamilySharedWithFak
         EXPECT_EQ(out.games_played(0).owner_id(), 555666u);
     }
 
-    // Case 3: Wildcard FakeAppIds with null g_pSteamEngine does not dereference null
+    // Case 3: FamilyShareFakeAppId fallback remaps a borrowed app with no explicit entry
+    {
+        g_config.fakeAppIds = std::unordered_map<AppId_t, AppId_t>{};
+        g_config.familyShareFakeAppId = 480;
+
+        CMsgClientGamesPlayed req;
+        auto* game = req.add_games_played();
+        game->set_game_id(1566200);
+        game->set_owner_id(1555636215);
+
+        PacketRAII holder;
+        buildProtoPacket(holder, k_EMsgClientGamesPlayed, req);
+
+        Apps::sendGamesPlayed(&holder.pkt);
+        FakeAppIds::sendGamesPlayed(&holder.pkt);
+
+        const auto out = holder.pkt.deserializeBody<CMsgClientGamesPlayed>();
+        ASSERT_EQ(out.games_played_size(), 1);
+        EXPECT_EQ(out.games_played(0).game_id(), 480u);
+        EXPECT_NE(out.games_played(0).owner_id(), 1555636215u);
+    }
+
+    // Case 4: Wildcard FakeAppIds with null g_pSteamEngine does not dereference null
     {
         g_pSteamEngine = nullptr;
         g_config.fakeAppIds = std::unordered_map<AppId_t, AppId_t>{ { 0, 480 } };
@@ -307,12 +336,13 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedPreservesAndRemapsFamilySharedWithFak
     }
 }
 
-TEST_F(AppsFamilyShareTest, SendPacketChokesRichPresenceOnlyForHiddenFamilySharedApps)
+TEST_F(AppsFamilyShareTest, RichPresenceRemappedForFamilySharedApp)
 {
+    // Rich Presence must keep flowing: choking it is what made the client look idle.
     std::ifstream hooksFile("src/presenter/hooks.cpp");
     ASSERT_TRUE(hooksFile.is_open());
     std::string hooksSrc((std::istreambuf_iterator<char>(hooksFile)), std::istreambuf_iterator<char>());
-    EXPECT_NE(hooksSrc.find("Apps::shouldChokeSendPacket"), std::string::npos);
+    EXPECT_EQ(hooksSrc.find("shouldChokeSendPacket"), std::string::npos);
 
     AppOwnershipInfo_t ownedInfo{};
     ownedInfo.owner = 999888;
@@ -328,35 +358,38 @@ TEST_F(AppsFamilyShareTest, SendPacketChokesRichPresenceOnlyForHiddenFamilyShare
     CMsgClientRichPresenceUpload rpBody;
     CMsgProtoBufHeader familyHeader;
     familyHeader.set_routing_appid(1566200);
+
+    // FamilyShareFakeAppId fallback remaps the routing appid
+    g_config.disableFamilyLock = true;
+    g_config.familyShareFakeAppId = 480;
     PacketRAII rpFamilyPkt;
     buildProtoPacket(rpFamilyPkt, k_EMsgClientRichPresenceUpload, rpBody, &familyHeader);
+    FakeAppIds::sendRichPresenceUpload(&rpFamilyPkt.pkt);
+    EXPECT_EQ(rpFamilyPkt.pkt.deserializeHeader().routing_appid(), 480u);
 
-    // Choked when DisableFamilyShareLock=true and no FakeAppId overrides it
-    g_config.disableFamilyLock = true;
-    EXPECT_TRUE(Apps::shouldChokeSendPacket(&rpFamilyPkt.pkt));
-
-    // Not choked when DisableFamilyShareLock=false
-    g_config.disableFamilyLock = false;
-    EXPECT_FALSE(Apps::shouldChokeSendPacket(&rpFamilyPkt.pkt));
-
-    // Not choked when explicit FakeAppId remaps the Family-Shared app
-    g_config.disableFamilyLock = true;
-    g_config.fakeAppIds = std::unordered_map<AppId_t, AppId_t>{ { 1566200, 480 } };
-    EXPECT_FALSE(Apps::shouldChokeSendPacket(&rpFamilyPkt.pkt));
+    // Explicit FakeAppIds entry wins over the fallback
+    g_config.fakeAppIds = std::unordered_map<AppId_t, AppId_t>{ { 1566200, 730 } };
+    PacketRAII rpExplicitPkt;
+    buildProtoPacket(rpExplicitPkt, k_EMsgClientRichPresenceUpload, rpBody, &familyHeader);
+    FakeAppIds::sendRichPresenceUpload(&rpExplicitPkt.pkt);
+    EXPECT_EQ(rpExplicitPkt.pkt.deserializeHeader().routing_appid(), 730u);
     g_config.fakeAppIds = std::unordered_map<AppId_t, AppId_t>{};
 
-    // Owned app rich presence is never choked
+    // No fallback configured -> untouched
+    g_config.familyShareFakeAppId = 0;
+    PacketRAII rpNoFallbackPkt;
+    buildProtoPacket(rpNoFallbackPkt, k_EMsgClientRichPresenceUpload, rpBody, &familyHeader);
+    FakeAppIds::sendRichPresenceUpload(&rpNoFallbackPkt.pkt);
+    EXPECT_EQ(rpNoFallbackPkt.pkt.deserializeHeader().routing_appid(), 1566200u);
+
+    // Owned app rich presence is never remapped by the family fallback
+    g_config.familyShareFakeAppId = 480;
     CMsgProtoBufHeader ownedHeader;
     ownedHeader.set_routing_appid(730);
     PacketRAII rpOwnedPkt;
     buildProtoPacket(rpOwnedPkt, k_EMsgClientRichPresenceUpload, rpBody, &ownedHeader);
-    EXPECT_FALSE(Apps::shouldChokeSendPacket(&rpOwnedPkt.pkt));
-
-    // CMsgClientGamesPlayed is filtered per-entry, not choked wholesale
-    CMsgClientGamesPlayed gpBody;
-    PacketRAII gpPkt;
-    buildProtoPacket(gpPkt, k_EMsgClientGamesPlayed, gpBody, &familyHeader);
-    EXPECT_FALSE(Apps::shouldChokeSendPacket(&gpPkt.pkt));
+    FakeAppIds::sendRichPresenceUpload(&rpOwnedPkt.pkt);
+    EXPECT_EQ(rpOwnedPkt.pkt.deserializeHeader().routing_appid(), 730u);
 }
 
 TEST_F(AppsFamilyShareTest, SendGamesPlayedIdleStatusUsesRealOwnershipOrCurrentSteamId)
@@ -418,13 +451,10 @@ TEST_F(AppsFamilyShareTest, UnlockAppPreservesExistingFamilySharedOwnership)
     EXPECT_TRUE(info.ownsLicense);
 }
 
-TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesNewSteamFamiliesBorrowedApp)
+TEST_F(AppsFamilyShareTest, SendGamesPlayedKeepsNewSteamFamiliesBorrowedApp)
 {
-    // Regression: after the 2026-11-03 maintenance, New Steam Families (FamilyGroups)
-    // apps report familyShared == 0 and owner == self through CheckAppOwnership while
-    // another member is using the license. Leaving them in CMsgClientGamesPlayed made
-    // Valve's CM start the 180s family lock timer and disconnect the client with
-    // "This account logged in on another computer" every 3-5 minutes.
+    // Regression: the CM family-lock timer is server-side. Dropping the entry made
+    // Steam report "playing nothing" and broke online matchmaking; presence must stay.
     g_config.disableFamilyLock = true;
     g_config.idleStatus = CConfig::FakeGame_t{};
 
@@ -435,9 +465,6 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesNewSteamFamiliesBorrowedApp)
     borrowedInfo.familyShared = false;
     setMockAppOwnership(1566200, borrowedInfo);
     setMockDirectOwnership(1566200, false);
-
-    // Live capture on 2026-11-13 proved CUser::GetPreferredFamilyLender returns 0 for
-    // these apps even while the lender is playing, so detection must not depend on it.
 
     CMsgClientGamesPlayed req;
     auto* borrowed = req.add_games_played();
@@ -450,15 +477,8 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesNewSteamFamiliesBorrowedApp)
     Apps::sendGamesPlayed(&holder.pkt);
 
     const auto out = holder.pkt.deserializeBody<CMsgClientGamesPlayed>();
-    EXPECT_EQ(out.games_played_size(), 0);
-
-    // Rich Presence for the same borrowed app must not leak the shared session either.
-    CMsgClientRichPresenceUpload rpBody;
-    CMsgProtoBufHeader rpHeader;
-    rpHeader.set_routing_appid(1566200);
-    PacketRAII rpPkt;
-    buildProtoPacket(rpPkt, k_EMsgClientRichPresenceUpload, rpBody, &rpHeader);
-    EXPECT_TRUE(Apps::shouldChokeSendPacket(&rpPkt.pkt));
+    ASSERT_EQ(out.games_played_size(), 1);
+    EXPECT_EQ(out.games_played(0).game_id(), 1566200u);
 }
 
 TEST_F(AppsFamilyShareTest, SendGamesPlayedKeepsDirectlyOwnedAppInsideFamilyGroup)
@@ -503,11 +523,11 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedKeepsDirectlyOwnedAppInsideFamilyGrou
     EXPECT_EQ(holder2.pkt.deserializeBody<CMsgClientGamesPlayed>().games_played_size(), 1);
 }
 
-TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesLegacyFamilySharedByOwnerMismatch)
+TEST_F(AppsFamilyShareTest, SendGamesPlayedKeepsLegacyFamilySharedByOwnerMismatch)
 {
     // Legacy Family Sharing (pre-FamilyGroups) reports familyShared == 0 but sets the
     // ownership owner to the lender. The owner-mismatch branch must still classify the
-    // app as borrowed even when the license check says the account owns a copy.
+    // app as borrowed (so presence can be remapped) while keeping the entry itself.
     g_config.disableFamilyLock = true;
     g_config.idleStatus = CConfig::FakeGame_t{};
 
@@ -531,7 +551,9 @@ TEST_F(AppsFamilyShareTest, SendGamesPlayedHidesLegacyFamilySharedByOwnerMismatc
     Apps::sendGamesPlayed(&holder.pkt);
 
     const auto out = holder.pkt.deserializeBody<CMsgClientGamesPlayed>();
-    EXPECT_EQ(out.games_played_size(), 0);
+    ASSERT_EQ(out.games_played_size(), 1);
+    EXPECT_EQ(out.games_played(0).game_id(), 570u);
+    EXPECT_TRUE(Apps::isFamilySharedApp(g_pSteamEngine->getUser(0), 570));
 }
 
 TEST_F(AppsFamilyShareTest, DefaultConfigEnablesFamilyShareLock)
@@ -540,6 +562,7 @@ TEST_F(AppsFamilyShareTest, DefaultConfigEnablesFamilyShareLock)
     ASSERT_TRUE(g_config.createFile());
     ASSERT_TRUE(g_config.loadSettings(true));
     EXPECT_TRUE(g_config.disableFamilyLock.get());
+    EXPECT_EQ(g_config.familyShareFakeAppId.get(), 480u);
 
     // 2. Fallback when DisableFamilyShareLock key is omitted from config.yaml
     {
@@ -555,6 +578,7 @@ TEST_F(AppsFamilyShareTest, DefaultConfigEnablesFamilyShareLock)
     std::string yaml((std::istreambuf_iterator<char>(templateFile)), std::istreambuf_iterator<char>());
     EXPECT_NE(yaml.find("DisableFamilyShareLock: yes"), std::string::npos);
     EXPECT_EQ(yaml.find("DisableFamilyShareLock: no"), std::string::npos);
+    EXPECT_NE(yaml.find("FamilyShareFakeAppId: 480"), std::string::npos);
 }
 
 TEST_F(AppsFamilyShareTest, RecvPktDoesNotChokeSharedLibraryStopPlaying)

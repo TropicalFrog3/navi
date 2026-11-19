@@ -67,6 +67,7 @@ public:
 	MTVariable<std::unordered_map<AppId_t, uint64_t>> steamIdOverride;
 
 	MTVariable<bool> disableFamilyLock;
+	MTVariable<AppId_t> familyShareFakeAppId;
 	MTVariable<bool> useWhiteList;
 	MTVariable<uint32_t> maxSchemaTries;
 	MTVariable<bool> safeMode;
