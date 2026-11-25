@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <cstdlib>
 #include <iomanip>
 #include <sstream>
 
@@ -351,11 +352,19 @@ std::string COAuthEngine::GetProviderClientId(OAuthProvider provider)
     switch (provider)
     {
         case OAuthProvider::GoogleDrive:
-            return "1072944905499-vm2v2i5dvn0a0d2o4ca36i1vge8cvbn0.apps.googleusercontent.com";
+            // The client ID is a public identifier (it appears in the auth URL).
+            // NAVI_GDRIVE_CLIENT_ID overrides the default so a user can point
+            // Navi at their own Google Cloud OAuth client without rebuilding.
+            if (const char* envId = std::getenv("NAVI_GDRIVE_CLIENT_ID");
+                envId != nullptr && envId[0] != '\0')
+            {
+                return envId;
+            }
+            return "850090375719-94dc73t67m8fti52at746r65rask4j4n.apps.googleusercontent.com";
         case OAuthProvider::OneDrive:
             return "d3590ed6-52b3-4102-aeff-aad2292ab01c";
         default:
-            return "1072944905499-vm2v2i5dvn0a0d2o4ca36i1vge8cvbn0.apps.googleusercontent.com";
+            return "850090375719-94dc73t67m8fti52at746r65rask4j4n.apps.googleusercontent.com";
     }
 }
 
@@ -364,10 +373,17 @@ std::string COAuthEngine::GetProviderClientSecret(OAuthProvider provider)
     switch (provider)
     {
         case OAuthProvider::GoogleDrive:
-            // Google "installed app" clients still require their client_secret at
-            // the token endpoint. It is not treated as confidential by Google and
-            // is already shipped inside CloudRedirect's 32-bit engine.
-            return "v6V3fKV_zWU7iw1DrpO1rknX";
+            // No hardcoded secret: a client secret must never be committed.
+            // The previously hardcoded secret was exposed in git history and
+            // revoked. Supply the current secret for this client at runtime
+            // via NAVI_GDRIVE_CLIENT_SECRET. When it is unset, the token
+            // exchange omits client_secret (see ExchangeCodeForToken).
+            if (const char* envSecret = std::getenv("NAVI_GDRIVE_CLIENT_SECRET");
+                envSecret != nullptr && envSecret[0] != '\0')
+            {
+                return envSecret;
+            }
+            return {};
         case OAuthProvider::OneDrive:
         default:
             // Microsoft public clients use PKCE without a client secret.

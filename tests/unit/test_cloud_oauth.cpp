@@ -9,6 +9,7 @@
 #include "libmem/libmem.h"
 #include <arpa/inet.h>
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <netinet/in.h>
@@ -191,6 +192,11 @@ TEST(CloudOAuthTest, PortConflictCheckAndAuthFlow)
 
 TEST(CloudOAuthTest, ExchangeCodeForTokenMocked)
 {
+    // Default path: no env override, so the user's own client ID is used and
+    // no client secret is sent (none is hardcoded anymore).
+    unsetenv("NAVI_GDRIVE_CLIENT_ID");
+    unsetenv("NAVI_GDRIVE_CLIENT_SECRET");
+
     // 1. Google Drive token exchange mock
     Curl::HttpRequest_t capturedReq;
     Curl::setHttpTransportOverride([&capturedReq](const Curl::HttpRequest_t& req, Curl::HttpResponse_t& resp) {
@@ -214,8 +220,8 @@ TEST(CloudOAuthTest, ExchangeCodeForTokenMocked)
     EXPECT_EQ(capturedReq.method, "POST");
     EXPECT_EQ(capturedReq.url, "https://oauth2.googleapis.com/token");
     std::string bodyStr(capturedReq.body.begin(), capturedReq.body.end());
-    EXPECT_NE(bodyStr.find("client_id=1072944905499-vm2v2i5dvn0a0d2o4ca36i1vge8cvbn0.apps.googleusercontent.com"), std::string::npos);
-    EXPECT_NE(bodyStr.find("client_secret=v6V3fKV_zWU7iw1DrpO1rknX"), std::string::npos);
+    EXPECT_NE(bodyStr.find("client_id=850090375719-94dc73t67m8fti52at746r65rask4j4n.apps.googleusercontent.com"), std::string::npos);
+    EXPECT_EQ(bodyStr.find("client_secret="), std::string::npos);
     EXPECT_NE(bodyStr.find("grant_type=authorization_code"), std::string::npos);
     EXPECT_NE(bodyStr.find("code=mock_code_123"), std::string::npos);
     EXPECT_NE(bodyStr.find("code_verifier=mock_verifier_abc"), std::string::npos);
@@ -265,6 +271,34 @@ TEST(CloudOAuthTest, ExchangeCodeForTokenMocked)
     EXPECT_FALSE(ok);
 
     Curl::setHttpTransportOverride(nullptr);
+}
+
+TEST(CloudOAuthTest, GoogleDriveClientCredentialsFromEnv)
+{
+    // Regression: the Google client ID/secret must come from the environment
+    // when set, and no secret may be hardcoded when they are not.
+    unsetenv("NAVI_GDRIVE_CLIENT_ID");
+    unsetenv("NAVI_GDRIVE_CLIENT_SECRET");
+
+    // Defaults: the user's own client ID, no hardcoded secret.
+    EXPECT_EQ(COAuthEngine::GetProviderClientId(OAuthProvider::GoogleDrive),
+              "850090375719-94dc73t67m8fti52at746r65rask4j4n.apps.googleusercontent.com");
+    EXPECT_TRUE(COAuthEngine::GetProviderClientSecret(OAuthProvider::GoogleDrive).empty());
+
+    // Env override wins over the defaults.
+    setenv("NAVI_GDRIVE_CLIENT_ID", "env-test-client.apps.googleusercontent.com", 1);
+    setenv("NAVI_GDRIVE_CLIENT_SECRET", "env-test-secret", 1);
+    EXPECT_EQ(COAuthEngine::GetProviderClientId(OAuthProvider::GoogleDrive),
+              "env-test-client.apps.googleusercontent.com");
+    EXPECT_EQ(COAuthEngine::GetProviderClientSecret(OAuthProvider::GoogleDrive),
+              "env-test-secret");
+
+    // Restore the defaults so later tests are not affected.
+    unsetenv("NAVI_GDRIVE_CLIENT_ID");
+    unsetenv("NAVI_GDRIVE_CLIENT_SECRET");
+    EXPECT_EQ(COAuthEngine::GetProviderClientId(OAuthProvider::GoogleDrive),
+              "850090375719-94dc73t67m8fti52at746r65rask4j4n.apps.googleusercontent.com");
+    EXPECT_TRUE(COAuthEngine::GetProviderClientSecret(OAuthProvider::GoogleDrive).empty());
 }
 
 TEST(CloudOAuthTest, LoopbackCallbackListenerSuccessAndTokenStorage)
